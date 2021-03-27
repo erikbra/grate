@@ -2,6 +2,8 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using moo.Configuration;
 using moo.Migration;
 using static moo.Configuration.DefaultConfiguration;
@@ -27,7 +29,14 @@ namespace moo.Commands
             Handler = CommandHandler.Create(
                 async (MooConfiguration config) =>
                 {
-                    var migrator = new Migrator(config);
+                    config.KnownFolders = KnownFolders.In(config.SqlFilesDirectory);
+
+                    var dbMigrator = services.GetRequiredService<IDbMigrator>();
+                    dbMigrator.ApplyConfig(config);
+                    
+                    var migrator = new MooMigrator(services.GetRequiredService<ILogger<MooMigrator>>(),
+                        dbMigrator
+                        );
                     await migrator.Migrate();
                 });
         }

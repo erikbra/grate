@@ -1,7 +1,7 @@
 ﻿// ReSharper disable InconsistentNaming
 namespace moo.Configuration
 {
-    internal enum DatabaseType
+    public enum DatabaseType
     {
         sqlserver,
         oracle
