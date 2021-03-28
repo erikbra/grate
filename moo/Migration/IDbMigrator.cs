@@ -9,5 +9,7 @@ namespace moo.Migration
         IDatabase Database { get; }
         MooConfiguration Configuration { get; set; }
         void ApplyConfig(MooConfiguration config);
+        bool CreateDatabase();
+        void OpenConnection();
     }
 }

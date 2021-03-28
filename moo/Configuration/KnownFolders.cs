@@ -21,7 +21,7 @@ namespace moo.Configuration
         public MigrationsFolder? Permissions { get; init; }
         public MigrationsFolder? BeforeMigration { get; init; }
         public MigrationsFolder? AfterMigration { get; init; }
-
+        
         public static KnownFolders In(DirectoryInfo? parent)
         {
             DirectoryInfo? Wrap(string folderName) => parent?.GetDirectories(folderName).FirstOrDefault();

@@ -18,6 +18,7 @@ namespace moo.Commands
             Add(Database());
             Add(ConnectionString());
             Add(SqlFilesDirectory());
+            Add(OutputPath());
             Add(ServerName());
             Add(ConnectionStringAdmin());
             Add(AccessToken());
@@ -68,6 +69,13 @@ namespace moo.Commands
                 new[] {"--sqlfilesdirectory", "-f", "--files"},
                 () => new DirectoryInfo(DefaultFilesDirectory),
                 "The directory where your SQL scripts are"
+            ).ExistingOnly();
+        
+        private static Option OutputPath() =>
+            new Option<DirectoryInfo>(
+                new[] {"--output", "-o", "--outputPath"},
+                () => new DirectoryInfo(DefaultOutputPath),
+                "This is where everything related to the migration is stored. This includes any backups, all items that ran, permission dumps, logs, etc."
             ).ExistingOnly();
 
         private static Option ServerName() =>

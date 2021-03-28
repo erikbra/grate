@@ -28,6 +28,21 @@ namespace moo.Migration
             Database = _factory.GetService<DatabaseType, IDatabase>(config.DatabaseType);
         }
 
+        public bool CreateDatabase()
+        {
+            if (Configuration.CreateDatabase)
+            {
+                Database.CreateDatabase();
+                return true;
+            }
+            return false;
+        }
+
+        public void OpenConnection()
+        {
+            Database.OpenConnection();
+        }
+
         public MooConfiguration Configuration { get; set; }
     }
 }

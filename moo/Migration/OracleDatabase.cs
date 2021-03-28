@@ -13,5 +13,15 @@ namespace moo.Migration
         {
             throw new System.NotImplementedException();
         }
+
+        public void OpenConnection()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void CreateDatabase()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

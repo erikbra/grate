@@ -29,6 +29,16 @@ namespace moo.Migration
             return Task.CompletedTask;
         }
 
+        public void OpenConnection()
+        {
+            _logger.LogInformation("TODO: OpenConnection");
+        }
+
+        public void CreateDatabase()
+        {
+            _logger.LogInformation("TODO: CreateDatabase");
+        }
+
         private static string? BuildConnectionString(MooConfiguration configuration)
         {
             return $"Initial Catalog={configuration.Database}";

@@ -9,5 +9,7 @@ namespace moo.Migration
         string? DatabaseName { get; set; }
         bool SupportsDdlTransactions { get; }
         Task InitializeConnections(MooConfiguration configuration);
+        void OpenConnection();
+        void CreateDatabase();
     }
 }
