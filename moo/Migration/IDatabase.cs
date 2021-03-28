@@ -7,6 +7,7 @@ namespace moo.Migration
     {
         string? ServerName { get; }
         string? DatabaseName { get; set; }
+        bool SupportsDdlTransactions { get; }
         Task InitializeConnections(MooConfiguration configuration);
     }
 }

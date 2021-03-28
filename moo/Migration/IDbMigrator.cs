@@ -6,7 +6,7 @@ namespace moo.Migration
     public interface IDbMigrator
     {
         Task InitializeConnections();
-        IDatabase? Database { get; }
+        IDatabase Database { get; }
         MooConfiguration Configuration { get; set; }
         void ApplyConfig(MooConfiguration config);
     }

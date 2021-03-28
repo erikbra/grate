@@ -20,8 +20,8 @@ namespace moo.Migration
             await Database?.InitializeConnections(Configuration)!;
         }
 
-        public IDatabase? Database { get; set; }
-        
+        public IDatabase Database { get; set; } = null!;
+
         public void ApplyConfig(MooConfiguration config)
         {
             this.Configuration = config;

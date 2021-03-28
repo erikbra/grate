@@ -15,6 +15,7 @@ namespace moo.Migration
         
         public string? ServerName { get; set; }
         public string? DatabaseName { get; set; }
+        public bool SupportsDdlTransactions => true;
         
         public Task InitializeConnections(MooConfiguration configuration)
         {

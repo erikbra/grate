@@ -34,7 +34,8 @@ namespace moo.Commands
                     var dbMigrator = services.GetRequiredService<IDbMigrator>();
                     dbMigrator.ApplyConfig(config);
                     
-                    var migrator = new MooMigrator(services.GetRequiredService<ILogger<MooMigrator>>(),
+                    var migrator = new MooMigrator(
+                        services.GetRequiredService<ILogger<MooMigrator>>(),
                         dbMigrator
                         );
                     await migrator.Migrate();
