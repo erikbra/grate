@@ -28,7 +28,6 @@ namespace moo.Migration
 
             //TODO: Read from/put in config
             var silent = true;
-            var runInTransaction = true;
             
             _logger.LogInformation("Running {0} v{1} against {2} - {3}.",
                 ApplicationInfo.Name,
@@ -43,7 +42,7 @@ namespace moo.Migration
             Info("Looking in {0} for scripts to run.", knownFolders?.Up?.Path);
             
             PressEnterWhenReady(silent);
-            runInTransaction = MakeSureWeCanRunInTransaction(runInTransaction, silent, dbMigrator);
+            var runInTransaction = MakeSureWeCanRunInTransaction(config.RunInTransaction, silent, dbMigrator);
 
             var changeDropFolder = ChangeDropFolder(config);
             CreateChangeDropFolder(config, changeDropFolder);
@@ -62,7 +61,7 @@ namespace moo.Migration
             }
 
             TransactionScope? scope = null; 
-            if (config.RunInTransaction)
+            if (runInTransaction)
             {
                 scope = new TransactionScope();
             }
