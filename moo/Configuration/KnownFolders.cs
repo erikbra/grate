@@ -22,9 +22,16 @@ namespace moo.Configuration
         public MigrationsFolder? BeforeMigration { get; init; }
         public MigrationsFolder? AfterMigration { get; init; }
         
-        public static KnownFolders In(DirectoryInfo? parent)
+        public static KnownFolders In(DirectoryInfo parent)
         {
-            DirectoryInfo? Wrap(string folderName) => parent?.GetDirectories(folderName).FirstOrDefault();
+            DirectoryInfo Wrap(string folderName)
+            {
+                //var info = parent.GetDirectories(folderName).FirstOrDefault();
+
+                var folder = Path.Combine(parent.FullName, folderName);
+                var info = new DirectoryInfo(folder);
+                return info;
+            }
 
             return new KnownFolders()
             {

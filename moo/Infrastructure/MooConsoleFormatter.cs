@@ -57,6 +57,7 @@ namespace moo.Infrastructure
             {
                 textWriter.WriteColoredMessageLine(exception.ToString(), logLevelColors.Background, logLevelColors.Foreground);
             }
+            textWriter.Flush();
         }
 
         private ConsoleColors GetLogLevelConsoleColors(LogLevel logLevel)

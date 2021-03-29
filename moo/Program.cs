@@ -1,5 +1,7 @@
 ﻿using System;
 using System.CommandLine;
+using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -22,9 +24,32 @@ namespace moo
             rootCommand.Add(Verbose());
             
             rootCommand.Description = "The new moo - sql for the 20s";
-            return await rootCommand.InvokeAsync(args);
+
+            var result = await rootCommand.InvokeAsync(args);
+            
+            await WaitForLoggerToFinish();
+
+            return result;
         }
-        
+
+        /// <summary>
+        /// Wait for logger to be finished - it logs on a different thread, and we
+        /// don't want to exit before everything is written to console.
+        /// </summary>
+        private static async Task WaitForLoggerToFinish()
+        {
+            var maxWaitTime = 2000;
+            var waitedTime = 0;
+            var delay = 100;
+
+            await Task.Delay(1);
+            while (ThreadPool.PendingWorkItemCount > 0 && waitedTime < maxWaitTime)
+            {
+                await Task.Delay(delay);
+                waitedTime += delay;
+            }
+        }
+
         private static void SetVerbose(bool verbose) => _verbose = verbose;
         
         private static ServiceProvider BuildServiceProvider()
@@ -46,6 +71,7 @@ namespace moo
             //         .SetMinimumLevel(_verbose ? LogLevel.Trace : LogLevel.Information));
             
             services.AddTransient<IDbMigrator, DbMigrator>();
+            services.AddTransient<IHashGenerator, HashGenerator>();
 
             services.AddTransient<SqlServerDatabase>();
             services.AddTransient<OracleDatabase>();
