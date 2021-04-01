@@ -4,9 +4,6 @@ namespace moo.Configuration
 {
     public class MooConfiguration
     {
-        //public string? Database { get; init; } = null;
-        //public string? Server { get; init; } = null;
-        
         //public KnownFolders KnownFolders { get; set; } = InCurrentDirectory();
         public KnownFolders? KnownFolders { get; set; }
         
@@ -19,14 +16,17 @@ namespace moo.Configuration
         public DirectoryInfo OutputPath { get; init; } = new(Path.Combine(CurrentDirectory.FullName, "output"));
         //public DirectoryInfo? OutputPath { get; set; }
         
-        public string? ConnectionString { get; set; } = null;
-        public string? AdminConnectionString { get; set; } = null;
+        public string? ConnectionString { get; init; } = null;
+        public string? AdminConnectionString { get; init; } = null;
 
         public static MooConfiguration Default => new();
         public bool CreateDatabase { get; init; } = true;
         public bool AlterDatabase { get; init; } = false;
         public bool RunInTransaction { get; init; } = true;
         public string Version { get; init; } = "0.0.0.1";
+        
+        public int CommandTimeout { get; set; }
+        public int AdminCommandTimeout { get; set; }
         
         //private static KnownFolders InCurrentDirectory() => KnownFolders.In(CurrentDirectory);
         private static DirectoryInfo CurrentDirectory => new(Directory.GetCurrentDirectory());

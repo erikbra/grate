@@ -20,7 +20,7 @@ namespace moo.Commands
             Add(SqlFilesDirectory());
             Add(OutputPath());
             Add(ServerName());
-            Add(ConnectionStringAdmin());
+            Add(AdminConnectionString());
             Add(AccessToken());
             Add(CommandTimeout());
             Add(CommandTimeoutAdmin());
@@ -46,21 +46,21 @@ namespace moo.Commands
         
         private static Option Database() =>
             new Option<string>(
-                new[] {"--database", "-d", "-db", "--databasename"},
-                "REQUIRED: The database you want to create/migrate") 
+                new[] {"--database"},
+                "OBSOLETE: Please specify the connection string instead") 
                 {IsRequired = false};
            
         private static Option ConnectionString() =>
             new Option<string>(
                 new[] {"--connectionstring", "-c", "-cs", "--connstring"},
-                "REQUIRED: As an alternative to ServerName and Database - You can provide an entire connection string instead."
+                "You now provide an entire connection string. ServerName and Database are obsolete."
                 )
-                {IsRequired = false};
+                {IsRequired = true};
         
-        private static Option ConnectionStringAdmin() =>
+        private static Option AdminConnectionString() =>
             new Option<string>(
-                    new[] {"--connectionstringadministration", "-csa", "--connstringadmin"},
-                    "This is used for connecting to master when you may have a different uid and password than normal."
+                new[] {"-csa", "-a", "--adminconnectionstring", "-acs", "--adminconnstring"},
+                    "The connection string for connecting to master, if you want to create the database."
                 )
                 {IsRequired = false};
 
@@ -80,15 +80,15 @@ namespace moo.Commands
 
         private static Option ServerName() =>
             new Option<string>(
-                new[] {"--instancename", "--instance", "--server", "--servername", "-s"},
-                () => DefaultServerName,
-                "The server and instance you would like to run on. (local) and (local)\\SQL2008 are both valid values"
+                new[] {"--instance", "--server", "--servername", "-s"},
+                //() => DefaultServerName,
+                "OBSOLETE: Please specify the connection string instead."
             );
         
         private static Option AccessToken() =>
             new Option<string>(
                 new[] {"--accesstoken"},
-                "This connection property is used to connect to a SQL Database using an access token (for example Azure AD token)."
+                "OBSOLETE: Please specify the connection string instead."
             );
         
         private static Option CommandTimeout() =>
@@ -100,7 +100,7 @@ namespace moo.Commands
         
         private static Option CommandTimeoutAdmin() =>
             new Option<int>(
-                new[] {"--commandtimeoutadmin", "-cta"},
+                new[] {"--admincommandtimeout", "-cta"},
                 () => DefaultAdminCommandTimeout,
                 "This is the timeout when administration commands are run (except for restore, which has its own)."
             );

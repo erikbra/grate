@@ -1,20 +1,16 @@
-using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Threading.Tasks;
 using System.Transactions;
 using Dapper;
 using FluentAssertions;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using moo.Configuration;
 using moo.Infrastructure;
 using moo.Migration;
 using NSubstitute;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 
 namespace moo.unittests.SqlServer
 {

@@ -33,13 +33,13 @@ namespace moo.Migration
             AdminConnectionString = configuration.AdminConnectionString;
             _adminConnection = new SqlConnection(AdminConnectionString);
             
-            _logger.LogInformation("ConnectionString is: " + ConnectionString);
-            _logger.LogInformation("AdminConnectionString is: " + AdminConnectionString);
+            //_logger.LogInformation("ConnectionString is: " + ConnectionString);
+            //_logger.LogInformation("AdminConnectionString is: " + AdminConnectionString);
             
             return Task.CompletedTask;
         }
 
-        private string AdminConnectionString { get; set; }
+        private string? AdminConnectionString { get; set; }
         private string? ConnectionString { get; set; }
 
         public async Task OpenConnection()
