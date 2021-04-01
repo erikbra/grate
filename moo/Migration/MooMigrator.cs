@@ -74,7 +74,7 @@ namespace moo.Migration
             Separator('=');
             Info("Moo Structure");
             Separator('=');
-            dbMigrator.RunSupportTasks();
+            await dbMigrator.RunSupportTasks();
             
             Separator('=');
             Info("Versioning");

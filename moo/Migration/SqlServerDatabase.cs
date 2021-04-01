@@ -18,8 +18,8 @@ namespace moo.Migration
         {
             _logger = logger;
         }
-        
-        public string? ServerName { get; set; }
+
+        public string? ServerName => _connection.DataSource;
         public string? DatabaseName => _connection?.Database;
         public bool SupportsDdlTransactions => true;
         
@@ -76,9 +76,33 @@ namespace moo.Migration
             }
         }
 
-        public void RunSupportTasks()
+        public async Task RunSupportTasks()
         {
             _logger.LogInformation("TODO: RunSupportTasks");
+            await CreateScriptsRunTable();
+
+        }
+
+        private async Task CreateScriptsRunTable()
+        {
+            var createSql = @"
+IF NOT EXISTS (SELECT OBJECT_ID(N'[moo].[ScriptsRun]', N'U'))
+CREATE TABLE [moo].[ScriptsRun](
+	[id] [bigint] IDENTITY(1,1) NOT NULL,
+	[version_id] [bigint] NULL,
+	[script_name] [nvarchar](255) NULL,
+	[text_of_script] [text] NULL,
+	[text_hash] [nvarchar](512) NULL,
+	[one_time_script] [bit] NULL,
+	[entry_date] [datetime] NULL,
+	[modified_date] [datetime] NULL,
+	[entered_by] [nvarchar](50) NULL,
+    CONSTRAINT PK_ScriptsRun_Id PRIMARY KEY CLUSTERED (id)
+);";
+
+            await using var cmd = _connection.CreateCommand();
+            cmd.CommandText = createSql;
+            var res = await cmd.ExecuteNonQueryAsync();
         }
 
         public string GetCurrentVersion()

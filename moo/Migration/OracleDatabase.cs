@@ -39,7 +39,7 @@ namespace moo.Migration
             throw new System.NotImplementedException();
         }
 
-        public void RunSupportTasks()
+        public Task RunSupportTasks()
         {
             throw new System.NotImplementedException();
         }

@@ -14,7 +14,7 @@ namespace moo.Migration
         Task OpenAdminConnection();
         Task CloseAdminConnection();
         Task CreateDatabase();
-        void RunSupportTasks();
+        Task RunSupportTasks();
         string GetCurrentVersion();
         string VersionTheDatabase(string newVersion);
         void Rollback();

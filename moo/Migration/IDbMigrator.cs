@@ -11,7 +11,7 @@ namespace moo.Migration
         void ApplyConfig(MooConfiguration config);
         Task<bool> CreateDatabase();
         Task OpenConnection();
-        void RunSupportTasks();
+        Task RunSupportTasks();
         string GetCurrentVersion();
         string VersionTheDatabase(string newVersion);
         Task OpenAdminConnection();
