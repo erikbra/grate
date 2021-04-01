@@ -9,7 +9,7 @@ namespace moo.unittests.Infrastructure
         public static string GetString(this Random random, int length, string allowedChars)
             => GetString(random, length, allowedChars.ToCharArray());
         
-        public static string GetString(this Random random, int length, char[] allowedChars = null)
+        public static string GetString(this Random random, int length, char[]? allowedChars = null)
         {
             allowedChars ??= DefaultAllowedChars;
             

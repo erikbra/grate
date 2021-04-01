@@ -8,7 +8,7 @@
 
     public class SqlServerTestContext
     {
-        public string AdminPassword { get; set; }
-        public int Port { get; set; }
+        public string? AdminPassword { get; set; }
+        public int? Port { get; set; }
     }
 }

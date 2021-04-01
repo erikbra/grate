@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +15,12 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="3.0.0-*" />
     <PackageReference Include="FluentAssertions" Version="6.0.0-*" />
+    <PackageReference Include="NSubstitute" Version="4.2.*" />
+    <PackageReference Include="Dapper" Version="2.0.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\moo\moo.csproj" />
   </ItemGroup>
 
 </Project>

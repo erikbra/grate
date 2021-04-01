@@ -14,7 +14,7 @@ namespace moo.Migration
             throw new System.NotImplementedException();
         }
 
-        public void OpenConnection()
+        public Task OpenConnection()
         {
             throw new System.NotImplementedException();
         }
@@ -24,17 +24,17 @@ namespace moo.Migration
             throw new System.NotImplementedException();
         }
 
-        public void OpenAdminConnection()
+        public Task OpenAdminConnection()
         {
             throw new System.NotImplementedException();
         }
 
-        public void CloseAdminConnection()
+        public Task CloseAdminConnection()
         {
             throw new System.NotImplementedException();
         }
 
-        public void CreateDatabase()
+        public Task CreateDatabase()
         {
             throw new System.NotImplementedException();
         }

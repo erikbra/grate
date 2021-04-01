@@ -4,8 +4,8 @@ namespace moo.Configuration
 {
     public class MooConfiguration
     {
-        public string? Database { get; init; } = null;
-        public string? Server { get; init; } = null;
+        //public string? Database { get; init; } = null;
+        //public string? Server { get; init; } = null;
         
         //public KnownFolders KnownFolders { get; set; } = InCurrentDirectory();
         public KnownFolders? KnownFolders { get; set; }
@@ -20,6 +20,7 @@ namespace moo.Configuration
         //public DirectoryInfo? OutputPath { get; set; }
         
         public string? ConnectionString { get; set; } = null;
+        public string? AdminConnectionString { get; set; } = null;
 
         public static MooConfiguration Default => new();
         public bool CreateDatabase { get; init; } = true;

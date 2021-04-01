@@ -6,14 +6,14 @@ namespace moo.Migration
     public interface IDatabase
     {
         string? ServerName { get; }
-        string? DatabaseName { get; set; }
+        string? DatabaseName { get; }
         bool SupportsDdlTransactions { get; }
         Task InitializeConnections(MooConfiguration configuration);
-        void OpenConnection();
+        Task OpenConnection();
         void CloseConnection();
-        void OpenAdminConnection();
-        void CloseAdminConnection();
-        void CreateDatabase();
+        Task OpenAdminConnection();
+        Task CloseAdminConnection();
+        Task CreateDatabase();
         void RunSupportTasks();
         string GetCurrentVersion();
         string VersionTheDatabase(string newVersion);

@@ -1,12 +1,18 @@
+using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Dapper;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using moo.Configuration;
 
 namespace moo.Migration
 {
-    public class SqlServerDatabase : IDatabase
+    public class SqlServerDatabase : IDatabase, IDisposable
     {
         private readonly ILogger<SqlServerDatabase> _logger;
+        private SqlConnection _connection;
+        private SqlConnection _adminConnection;
 
         public SqlServerDatabase(ILogger<SqlServerDatabase> logger)
         {
@@ -14,24 +20,31 @@ namespace moo.Migration
         }
         
         public string? ServerName { get; set; }
-        public string? DatabaseName { get; set; }
+        public string? DatabaseName => _connection?.Database;
         public bool SupportsDdlTransactions => true;
         
         public Task InitializeConnections(MooConfiguration configuration)
         {
             _logger.LogInformation("Initializing connections.");
 
-            DatabaseName = configuration.Database;
-            ConnectionString = configuration.ConnectionString ?? BuildConnectionString(configuration);
+            ConnectionString = configuration.ConnectionString;
+            _connection = new SqlConnection(ConnectionString);
+            
+            AdminConnectionString = configuration.AdminConnectionString;
+            _adminConnection = new SqlConnection(AdminConnectionString);
             
             _logger.LogInformation("ConnectionString is: " + ConnectionString);
+            _logger.LogInformation("AdminConnectionString is: " + AdminConnectionString);
             
             return Task.CompletedTask;
         }
 
-        public void OpenConnection()
+        private string AdminConnectionString { get; set; }
+        private string? ConnectionString { get; set; }
+
+        public async Task OpenConnection()
         {
-            _logger.LogInformation("TODO: OpenConnection");
+            await _connection.OpenAsync();
         }
 
         public void CloseConnection()
@@ -39,19 +52,28 @@ namespace moo.Migration
             _logger.LogInformation("TODO: CloseConnection");
         }
 
-        public void OpenAdminConnection()
+        public async Task OpenAdminConnection()
         {
-            _logger.LogInformation("TODO: OpenAdminConnection");
+            await _adminConnection.OpenAsync();
         }
 
-        public void CloseAdminConnection()
+        public async Task CloseAdminConnection()
         {
             _logger.LogInformation("TODO: CloseAdminConnection");
         }
 
-        public void CreateDatabase()
+        public async Task CreateDatabase()
         {
-            _logger.LogInformation("TODO: CreateDatabase");
+            const string? sql = "SELECT name FROM sys.databases";
+            var databases = await _adminConnection.QueryAsync<string>(sql);
+
+            if (!databases.Contains(DatabaseName))
+            {
+                var cmd = _adminConnection.CreateCommand();
+                //var res = await _cmd.Execute($"CREATE database {DatabaseName}");
+                cmd.CommandText = $"CREATE database {DatabaseName}";
+                var res = await cmd.ExecuteNonQueryAsync();
+            }
         }
 
         public void RunSupportTasks()
@@ -103,11 +125,9 @@ namespace moo.Migration
             _logger.LogInformation("TODO: InsertScriptRunError");
         }
 
-        private static string? BuildConnectionString(MooConfiguration configuration)
+        public void Dispose()
         {
-            return $"Initial Catalog={configuration.Database}";
+            _connection.Dispose();
         }
-
-        public string? ConnectionString { get; set; }
     }
 }

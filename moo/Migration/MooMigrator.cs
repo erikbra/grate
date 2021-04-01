@@ -28,12 +28,14 @@ namespace moo.Migration
 
             //TODO: Read from/put in config
             var silent = true;
+
+            var database = dbMigrator.Database;
             
             _logger.LogInformation("Running {0} v{1} against {2} - {3}.",
                 ApplicationInfo.Name,
                 ApplicationInfo.Version,
-                dbMigrator.Database?.ServerName,
-                dbMigrator.Database?.DatabaseName
+                database?.ServerName,
+                database?.DatabaseName
                 );
 
             var config = _migrator.Configuration;
@@ -44,7 +46,7 @@ namespace moo.Migration
             PressEnterWhenReady(silent);
             var runInTransaction = MakeSureWeCanRunInTransaction(config.RunInTransaction, silent, dbMigrator);
 
-            var changeDropFolder = ChangeDropFolder(config);
+            var changeDropFolder = ChangeDropFolder(config, database?.ServerName, database?.DatabaseName);
             CreateChangeDropFolder(config, changeDropFolder);
             
             Debug("The change_drop (output) folder is: {0}", changeDropFolder);
@@ -57,16 +59,17 @@ namespace moo.Migration
 
             if (config.CreateDatabase)
             {
-                databaseCreated = dbMigrator.CreateDatabase();
+                await dbMigrator.OpenAdminConnection();
+                databaseCreated = await dbMigrator.CreateDatabase();
             }
 
             TransactionScope? scope = null; 
             if (runInTransaction)
             {
-                scope = new TransactionScope();
+                scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
             }
 
-            dbMigrator.OpenConnection();
+            await dbMigrator.OpenConnection();
             
             Separator('=');
             Info("Moo Structure");
@@ -79,45 +82,45 @@ namespace moo.Migration
             var currentVersion = dbMigrator.GetCurrentVersion();
             var newVersion = config.Version;
             Info(" Migrating {0} from version {1} to {2}.", 
-                dbMigrator.Database?.DatabaseName, currentVersion, newVersion);
+                database?.DatabaseName, currentVersion, newVersion);
             var versionId = dbMigrator.VersionTheDatabase(newVersion);
             
             Separator('=');
             Info("Migration Scripts");
             Separator('=');
 
-            using (new TransactionScope(TransactionScopeOption.Suppress))
+            using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
-                LogAndProcess(knownFolders!.BeforeMigration!, versionId, newVersion, ConnectionType.Default);
+                LogAndProcess(knownFolders!.BeforeMigration!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
             }
 
             if (config.AlterDatabase)
             {
                 dbMigrator.OpenAdminConnection();
-                LogAndProcess(knownFolders!.AlterDatabase!, versionId, newVersion, ConnectionType.Admin);
+                LogAndProcess(knownFolders!.AlterDatabase!, changeDropFolder, versionId, newVersion, ConnectionType.Admin);
                 dbMigrator.CloseAdminConnection();
             }
 
             if (databaseCreated)
             {
-                LogAndProcess(knownFolders.RunAfterCreateDatabase!, versionId, newVersion, ConnectionType.Default);
+                LogAndProcess(knownFolders.RunAfterCreateDatabase!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
             }
             
-            LogAndProcess(knownFolders.RunBeforeUp!, versionId, newVersion, ConnectionType.Default);
-            LogAndProcess(knownFolders.Up!, versionId, newVersion, ConnectionType.Default);
-            LogAndProcess(knownFolders.RunFirstAfterUp!, versionId, newVersion, ConnectionType.Default);
-            LogAndProcess(knownFolders.Views!, versionId, newVersion, ConnectionType.Default);
-            LogAndProcess(knownFolders.Sprocs!, versionId, newVersion, ConnectionType.Default);
-            LogAndProcess(knownFolders.Triggers!, versionId, newVersion, ConnectionType.Default);
-            LogAndProcess(knownFolders.Indexes!, versionId, newVersion, ConnectionType.Default);
-            LogAndProcess(knownFolders.RunAfterOtherAnyTimeScripts!, versionId, newVersion, ConnectionType.Default);
+            LogAndProcess(knownFolders.RunBeforeUp!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
+            LogAndProcess(knownFolders.Up!, versionId, changeDropFolder, newVersion, ConnectionType.Default);
+            LogAndProcess(knownFolders.RunFirstAfterUp!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
+            LogAndProcess(knownFolders.Views!, versionId, changeDropFolder, newVersion, ConnectionType.Default);
+            LogAndProcess(knownFolders.Sprocs!, versionId, changeDropFolder, newVersion, ConnectionType.Default);
+            LogAndProcess(knownFolders.Triggers!, versionId, changeDropFolder, newVersion, ConnectionType.Default);
+            LogAndProcess(knownFolders.Indexes!, versionId, changeDropFolder, newVersion, ConnectionType.Default);
+            LogAndProcess(knownFolders.RunAfterOtherAnyTimeScripts!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
             
             scope?.Complete();
 
-            using (new TransactionScope(TransactionScopeOption.Suppress))
+            using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
-                LogAndProcess(knownFolders.Permissions!, versionId, newVersion, ConnectionType.Default);
-                LogAndProcess(knownFolders.AfterMigration!, versionId, newVersion, ConnectionType.Default);
+                LogAndProcess(knownFolders.Permissions!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
+                LogAndProcess(knownFolders.AfterMigration!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
             }
             
             Info(
@@ -132,7 +135,7 @@ namespace moo.Migration
             
         }
 
-        private void LogAndProcess(MigrationsFolder folder, string versionId, string newVersion, ConnectionType connectionType)
+        private void LogAndProcess(MigrationsFolder folder, string changeDropFolder, string versionId, string newVersion, ConnectionType connectionType)
         {
             Separator(' ');
 
@@ -149,12 +152,12 @@ namespace moo.Migration
                 msg);
 
             Separator('-');
-            Process(folder, versionId, newVersion, connectionType);
+            Process(folder, changeDropFolder, versionId, newVersion, connectionType);
             Separator('-');
             Separator(' ');
         }
 
-        private void Process(MigrationsFolder folder, string versionId, string newVersion, ConnectionType connectionType)
+        private void Process(MigrationsFolder folder, string changeDropFolder, string versionId, string newVersion, ConnectionType connectionType)
         {
             if (!folder.Path.Exists)
             {
@@ -176,7 +179,7 @@ namespace moo.Migration
                 {
                     try
                     {
-                        CopyToChangeDropFolder(file, folder);
+                        CopyToChangeDropFolder(file, folder, changeDropFolder);
                     }
                     catch (Exception ex)
                     {
@@ -191,13 +194,13 @@ namespace moo.Migration
             
         }
 
-        private void CopyToChangeDropFolder(FileSystemInfo file, MigrationsFolder folder)
+        private void CopyToChangeDropFolder(FileSystemInfo file, MigrationsFolder folder, string changeDropFolder)
         {
             var cfg = _migrator.Configuration;
 
             var relativePath = Path.GetRelativePath(folder.Path.FullName, file.FullName);
             
-            string destinationFile = Path.Combine(ChangeDropFolder(cfg), "itemsRan", relativePath);
+            string destinationFile = Path.Combine(changeDropFolder, "itemsRan", relativePath);
 
             var parent = Path.GetDirectoryName(destinationFile)!;
             var parentDir = new DirectoryInfo(parent);
@@ -231,13 +234,13 @@ namespace moo.Migration
             Directory.CreateDirectory(folder);
         }
 
-        private string ChangeDropFolder(MooConfiguration config)
+        private string ChangeDropFolder(MooConfiguration config, string? server, string? database)
         {
             var folder = Path.Combine(
                 config.OutputPath!.ToString(),
                 "migrations",
-                RemoveInvalidPathChars(config.Database),
-                RemoveInvalidPathChars(config.Server)
+                RemoveInvalidPathChars(database),
+                RemoveInvalidPathChars(server)
             );
             return folder;
         }

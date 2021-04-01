@@ -33,26 +33,26 @@ namespace moo.Migration
             Database = _factory.GetService<DatabaseType, IDatabase>(config.DatabaseType);
         }
 
-        public bool CreateDatabase()
+        public async Task<bool> CreateDatabase()
         {
             if (Configuration.CreateDatabase)
             {
-                Database.CreateDatabase();
+                await Database.CreateDatabase();
                 return true;
             }
             return false;
         }
 
-        public void OpenConnection()
+        public async Task OpenConnection()
         {
-            Database.OpenConnection();
+            await Database.OpenConnection();
         }
 
         public void RunSupportTasks() => Database.RunSupportTasks();
         public string GetCurrentVersion() => Database.GetCurrentVersion();
         public string VersionTheDatabase(string newVersion) => Database.VersionTheDatabase(newVersion);
-        public void OpenAdminConnection() => Database.OpenAdminConnection();
-        public void CloseAdminConnection() => Database.CloseAdminConnection();
+        public async Task OpenAdminConnection() => await Database.OpenAdminConnection();
+        public async Task CloseAdminConnection() => await Database.CloseAdminConnection();
 
         public MooConfiguration Configuration { get; set; }
 

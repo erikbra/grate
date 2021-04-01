@@ -13,6 +13,8 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0-*" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0-*" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-*" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="3.0.0-*" />
+    <PackageReference Include="Dapper" Version="2.0.*" />
   </ItemGroup>
   
   <PropertyGroup Condition=" '$(Configuration)' == 'Release'">

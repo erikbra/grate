@@ -21,7 +21,7 @@ namespace moo.unittests.SqlServer
             var sql = "SELECT @@VERSION";
 
             string? res;
-            using (var conn = new SqlConnection(connectionString))
+            await using (var conn = new SqlConnection(connectionString))
             {
                 await conn.OpenAsync();
 
@@ -29,7 +29,7 @@ namespace moo.unittests.SqlServer
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = sql;
 
-                res = (string) await cmd.ExecuteScalarAsync();
+                res = (string?) await cmd.ExecuteScalarAsync();
             }
 
             res.Should().StartWith("Microsoft SQL Server 2017");

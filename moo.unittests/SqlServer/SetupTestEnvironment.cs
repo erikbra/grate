@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Data;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Microsoft.Data.SqlClient;
 using moo.unittests.Infrastructure;
 using NUnit.Framework;
@@ -11,8 +10,8 @@ namespace moo.unittests.SqlServer
     [SetUpFixture]
     public class SetupTestEnvironment
     {
-        private string _serverName;
-        private string _containerId;
+        private string? _serverName;
+        private string? _containerId;
     
         private const string LowerCase = "abcdefghijklmnopqrstuvwxyz";
         private const string UpperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -38,21 +37,21 @@ namespace moo.unittests.SqlServer
             MooTestContext.SqlServer.AdminPassword = password;
             MooTestContext.SqlServer.Port = port;
             
-            await TestContext.Progress.WriteAsync("Started SQL server docker container: " + _containerId);
-            await TestContext.Progress.WriteAsync("Listening on port: " + port);
+            await TestContext.Progress.WriteLineAsync("Started SQL server docker container: " + _containerId);
+            await TestContext.Progress.WriteLineAsync("Listening on port: " + port);
             
             await TestContext.Progress.WriteAsync("Waiting until server is ready");
             var ready =  await WaitUntilServerIsReady();
             
-            await TestContext.Progress.WriteAsync(ready ? "...ready." : "...gave up.");
+            await TestContext.Progress.WriteLineAsync(ready ? "...ready." : "...gave up.");
         }
 
         [OneTimeTearDown]
         public async Task RunAfterAnyTests()
         {
             //await TestContext.Progress.WriteAsync("Removing SQL server docker container: ");
-            var containerId = await Docker.DeleteSqlServer(_containerId);
-            await TestContext.Progress.WriteAsync("Removed SQL server docker container: " + containerId);
+            var containerId = await Docker.DeleteSqlServer(_containerId!);
+            await TestContext.Progress.WriteLineAsync("Removed SQL server docker container: " + containerId);
         }
 
         private async Task<bool> WaitUntilServerIsReady()
@@ -68,6 +67,7 @@ namespace moo.unittests.SqlServer
                 await Task.Delay(delay);
                 ready = await ServerIsReady(true);
                 sleepTime += delay;
+                await TestContext.Progress.WriteAsync(".");
             }
 
             // Try one last time, and just fail with an exception if it still fails
@@ -105,10 +105,10 @@ namespace moo.unittests.SqlServer
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = sql;
 
-                res = (string) await cmd.ExecuteScalarAsync();
+                res = (string?) await cmd.ExecuteScalarAsync();
                 ready = res?.StartsWith("Microsoft SQL Server 2017") ?? false;
             }
-            catch (SqlException ex) when (swallowException)
+            catch (SqlException) when (swallowException)
             {
                 
             }

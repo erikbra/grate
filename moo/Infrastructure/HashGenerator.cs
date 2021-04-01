@@ -4,7 +4,7 @@ using System.Text;
 
 namespace moo.Infrastructure
 {
-    internal class HashGenerator : IHashGenerator
+    public class HashGenerator : IHashGenerator
     {
         private const string WindowsLineEnding = "\r\n";
         private const string UnixLineEnding = "\n";
