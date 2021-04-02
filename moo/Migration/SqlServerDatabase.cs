@@ -10,6 +10,7 @@ namespace moo.Migration
 {
     public class SqlServerDatabase : IDatabase, IDisposable
     {
+        private const string SchemaName = "moo";
         private readonly ILogger<SqlServerDatabase> _logger;
         private SqlConnection _connection;
         private SqlConnection _adminConnection;
@@ -22,6 +23,7 @@ namespace moo.Migration
         public string? ServerName => _connection.DataSource;
         public string? DatabaseName => _connection?.Database;
         public bool SupportsDdlTransactions => true;
+        //public bool SupportsDdlTransactions => false;
         
         public Task InitializeConnections(MooConfiguration configuration)
         {
@@ -47,9 +49,9 @@ namespace moo.Migration
             await _connection.OpenAsync();
         }
 
-        public void CloseConnection()
+        public async Task CloseConnection()
         {
-            _logger.LogInformation("TODO: CloseConnection");
+            await _connection.CloseAsync();
         }
 
         public async Task OpenAdminConnection()
@@ -57,9 +59,10 @@ namespace moo.Migration
             await _adminConnection.OpenAsync();
         }
 
-        public async Task CloseAdminConnection()
+        public Task CloseAdminConnection()
         {
             _logger.LogInformation("TODO: CloseAdminConnection");
+            return Task.CompletedTask;
         }
 
         public async Task CreateDatabase()
@@ -79,15 +82,37 @@ namespace moo.Migration
         public async Task RunSupportTasks()
         {
             _logger.LogInformation("TODO: RunSupportTasks");
+            await CreateRunSchema();
             await CreateScriptsRunTable();
+            await CreateScriptsRunErrorsTable();
+            await CreateVersionTable();
+        }
 
+        private async Task CreateRunSchema()
+        {
+            string createSql = @$"CREATE SCHEMA {SchemaName};";
+            
+            if (!await RunSchemaExists())
+            {
+                await using var cmd = _connection.CreateCommand();
+                cmd.CommandText = createSql;
+                await cmd.ExecuteNonQueryAsync();
+            }
+        }
+
+        private async Task<bool> RunSchemaExists()
+        {
+            string sql = "SELECT s.name FROM sys.schemas s WHERE name = '" + SchemaName + "'";
+            await using var cmd = _connection.CreateCommand();
+            cmd.CommandText = sql;
+            var res = await cmd.ExecuteScalarAsync();
+            return res?.ToString() == SchemaName;
         }
 
         private async Task CreateScriptsRunTable()
         {
-            var createSql = @"
-IF NOT EXISTS (SELECT OBJECT_ID(N'[moo].[ScriptsRun]', N'U'))
-CREATE TABLE [moo].[ScriptsRun](
+            string createSql = $@"
+CREATE TABLE [{SchemaName}].[ScriptsRun](
 	[id] [bigint] IDENTITY(1,1) NOT NULL,
 	[version_id] [bigint] NULL,
 	[script_name] [nvarchar](255) NULL,
@@ -99,10 +124,71 @@ CREATE TABLE [moo].[ScriptsRun](
 	[entered_by] [nvarchar](50) NULL,
     CONSTRAINT PK_ScriptsRun_Id PRIMARY KEY CLUSTERED (id)
 );";
+            if (!await ScriptsRunTableExists())
+            {
+                await using var cmd = _connection.CreateCommand();
+                cmd.CommandText = createSql;
+                var res = await cmd.ExecuteNonQueryAsync();
+            }
+        }
+        
+        private async Task CreateScriptsRunErrorsTable()
+        {
+            string createSql = $@"
+CREATE TABLE [{SchemaName}].[ScriptsRunErrors](
+	[id] [bigint] IDENTITY(1,1) NOT NULL,
+	[repository_path] [nvarchar](255) NULL,
+	[version] [nvarchar](50) NULL,
+	[script_name] [nvarchar](255) NULL,
+	[text_of_script] [ntext] NULL,
+	[erroneous_part_of_script] [ntext] NULL,
+	[error_message] [ntext] NULL,
+	[entry_date] [datetime] NULL,
+	[modified_date] [datetime] NULL,
+	[entered_by] [nvarchar](50) NULL,
+    CONSTRAINT PK_ScriptsRunErrors_Id PRIMARY KEY CLUSTERED (id)
+);";
+            if (!await ScriptsRunErrorsTableExists())
+            {
+                await using var cmd = _connection.CreateCommand();
+                cmd.CommandText = createSql;
+                var res = await cmd.ExecuteNonQueryAsync();
+            }
+        }
+        
+        private async Task CreateVersionTable()
+        {
+            string createSql = $@"
+CREATE TABLE [{SchemaName}].[Version](
+	[id] [bigint] IDENTITY(1,1) NOT NULL,
+	[repository_path] [nvarchar](255) NULL,
+	[version] [nvarchar](50) NULL,
+	[entry_date] [datetime] NULL,
+	[modified_date] [datetime] NULL,
+	[entered_by] [nvarchar](50) NULL,
+    CONSTRAINT PK_Version_Id PRIMARY KEY CLUSTERED (id)
+);";
+            if (!await VersionTableExists())
+            {
+                await using var cmd = _connection.CreateCommand();
+                cmd.CommandText = createSql;
+                var res = await cmd.ExecuteNonQueryAsync();
+            }
+        }
 
+        private async Task<bool> ScriptsRunTableExists() => await TableExists("ScriptsRun");
+        private async Task<bool> ScriptsRunErrorsTableExists() => await TableExists("ScriptsRunErrors");
+        private async Task<bool> VersionTableExists() => await TableExists("Version");
+        
+        
+        private async Task<bool> TableExists(string tableName)
+        {
+            string existsSql = $@"SELECT OBJECT_ID(N'[{SchemaName}].[{tableName}]', N'U');";
+            
             await using var cmd = _connection.CreateCommand();
-            cmd.CommandText = createSql;
-            var res = await cmd.ExecuteNonQueryAsync();
+            cmd.CommandText = existsSql;
+            var res = await cmd.ExecuteScalarAsync();
+            return !DBNull.Value.Equals(res);
         }
 
         public string GetCurrentVersion()

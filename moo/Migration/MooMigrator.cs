@@ -10,7 +10,7 @@ using moo.Configuration;
 
 namespace moo.Migration
 {
-    public class MooMigrator
+    public class MooMigrator: IAsyncDisposable
     {
         private readonly ILogger<MooMigrator> _logger;
         private readonly IDbMigrator _migrator;
@@ -61,6 +61,7 @@ namespace moo.Migration
             {
                 await dbMigrator.OpenAdminConnection();
                 databaseCreated = await dbMigrator.CreateDatabase();
+                await dbMigrator.CloseAdminConnection();
             }
 
             TransactionScope? scope = null; 
@@ -69,69 +70,87 @@ namespace moo.Migration
                 scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
             }
 
-            await dbMigrator.OpenConnection();
-            
-            Separator('=');
-            Info("Moo Structure");
-            Separator('=');
-            await dbMigrator.RunSupportTasks();
-            
-            Separator('=');
-            Info("Versioning");
-            Separator('=');
-            var currentVersion = dbMigrator.GetCurrentVersion();
-            var newVersion = config.Version;
-            Info(" Migrating {0} from version {1} to {2}.", 
-                database?.DatabaseName, currentVersion, newVersion);
-            var versionId = dbMigrator.VersionTheDatabase(newVersion);
-            
-            Separator('=');
-            Info("Migration Scripts");
-            Separator('=');
-
-            using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+            try
             {
-                LogAndProcess(knownFolders!.BeforeMigration!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
-            }
+                await dbMigrator.OpenConnection();
 
-            if (config.AlterDatabase)
-            {
-                dbMigrator.OpenAdminConnection();
-                LogAndProcess(knownFolders!.AlterDatabase!, changeDropFolder, versionId, newVersion, ConnectionType.Admin);
-                dbMigrator.CloseAdminConnection();
-            }
+                Separator('=');
+                Info("Moo Structure");
+                Separator('=');
+                await dbMigrator.RunSupportTasks();
 
-            if (databaseCreated)
-            {
-                LogAndProcess(knownFolders.RunAfterCreateDatabase!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
-            }
-            
-            LogAndProcess(knownFolders.RunBeforeUp!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
-            LogAndProcess(knownFolders.Up!, versionId, changeDropFolder, newVersion, ConnectionType.Default);
-            LogAndProcess(knownFolders.RunFirstAfterUp!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
-            LogAndProcess(knownFolders.Views!, versionId, changeDropFolder, newVersion, ConnectionType.Default);
-            LogAndProcess(knownFolders.Sprocs!, versionId, changeDropFolder, newVersion, ConnectionType.Default);
-            LogAndProcess(knownFolders.Triggers!, versionId, changeDropFolder, newVersion, ConnectionType.Default);
-            LogAndProcess(knownFolders.Indexes!, versionId, changeDropFolder, newVersion, ConnectionType.Default);
-            LogAndProcess(knownFolders.RunAfterOtherAnyTimeScripts!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
-            
-            scope?.Complete();
+                Separator('=');
+                Info("Versioning");
+                Separator('=');
+                var currentVersion = dbMigrator.GetCurrentVersion();
+                var newVersion = config.Version;
+                Info(" Migrating {0} from version {1} to {2}.",
+                    database?.DatabaseName, currentVersion, newVersion);
+                var versionId = dbMigrator.VersionTheDatabase(newVersion);
 
-            using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+                Separator('=');
+                Info("Migration Scripts");
+                Separator('=');
+
+                using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    LogAndProcess(knownFolders!.BeforeMigration!, changeDropFolder, versionId, newVersion,
+                        ConnectionType.Default);
+                }
+
+                if (config.AlterDatabase)
+                {
+                    using (new TransactionScope(TransactionScopeOption.Suppress,
+                        TransactionScopeAsyncFlowOption.Enabled))
+                    {
+                        await dbMigrator.OpenAdminConnection();
+                        LogAndProcess(knownFolders!.AlterDatabase!, changeDropFolder, versionId, newVersion,
+                            ConnectionType.Admin);
+                        await dbMigrator.CloseAdminConnection();
+                    }
+                }
+
+                if (databaseCreated)
+                {
+                    LogAndProcess(knownFolders.RunAfterCreateDatabase!, changeDropFolder, versionId, newVersion,
+                        ConnectionType.Default);
+                }
+
+                LogAndProcess(knownFolders.RunBeforeUp!, changeDropFolder, versionId, newVersion,
+                    ConnectionType.Default);
+                LogAndProcess(knownFolders.Up!, versionId, changeDropFolder, newVersion, ConnectionType.Default);
+                LogAndProcess(knownFolders.RunFirstAfterUp!, changeDropFolder, versionId, newVersion,
+                    ConnectionType.Default);
+                LogAndProcess(knownFolders.Views!, versionId, changeDropFolder, newVersion, ConnectionType.Default);
+                LogAndProcess(knownFolders.Sprocs!, versionId, changeDropFolder, newVersion, ConnectionType.Default);
+                LogAndProcess(knownFolders.Triggers!, versionId, changeDropFolder, newVersion, ConnectionType.Default);
+                LogAndProcess(knownFolders.Indexes!, versionId, changeDropFolder, newVersion, ConnectionType.Default);
+                LogAndProcess(knownFolders.RunAfterOtherAnyTimeScripts!, changeDropFolder, versionId, newVersion,
+                    ConnectionType.Default);
+
+                scope?.Complete();
+
+                using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    LogAndProcess(knownFolders.Permissions!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
+                    LogAndProcess(knownFolders.AfterMigration!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
+                }
+            
+                Info(
+                    "\n\n{1} v{2} has moo'd your database ({3})! You are now at version {4}. All changes and backups can be found at \"{5}\".",
+                    ApplicationInfo.Name,
+                    ApplicationInfo.Version,
+                    dbMigrator?.Database?.DatabaseName,
+                    newVersion,
+                    changeDropFolder);
+            
+                Separator(' ');
+                
+            } 
+            finally
             {
-                LogAndProcess(knownFolders.Permissions!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
-                LogAndProcess(knownFolders.AfterMigration!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
+                scope?.Dispose();
             }
-            
-            Info(
-                "\n\n{1} v{2} has moo'd your database ({3})! You are now at version {4}. All changes and backups can be found at \"{5}\".",
-                ApplicationInfo.Name,
-                ApplicationInfo.Version,
-                dbMigrator?.Database?.DatabaseName,
-                newVersion,
-                changeDropFolder);
-            
-            Separator(' ');
             
         }
 
@@ -281,6 +300,10 @@ namespace moo.Migration
 
             return runInTransaction;
         }
-        
+
+        public async ValueTask DisposeAsync()
+        {
+            await _migrator.DisposeAsync();
+        }
     }
 }

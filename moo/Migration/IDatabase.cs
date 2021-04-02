@@ -10,7 +10,7 @@ namespace moo.Migration
         bool SupportsDdlTransactions { get; }
         Task InitializeConnections(MooConfiguration configuration);
         Task OpenConnection();
-        void CloseConnection();
+        Task CloseConnection();
         Task OpenAdminConnection();
         Task CloseAdminConnection();
         Task CreateDatabase();

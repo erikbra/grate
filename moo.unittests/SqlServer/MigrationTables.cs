@@ -18,6 +18,7 @@ namespace moo.unittests.SqlServer
     public class MigrationTables
     {
         private static string? AdminConnectionString() => $"Data Source=localhost,{MooTestContext.SqlServer.Port};Initial Catalog=master;User Id=sa;Password={MooTestContext.SqlServer.AdminPassword}";
+        private static string? ConnectionString(string database) => $"Data Source=localhost,{MooTestContext.SqlServer.Port};Initial Catalog={database};User Id=sa;Password={MooTestContext.SqlServer.AdminPassword}";
 
         [TestCase("ScriptsRun")]
         [TestCase("ScriptsRunErrors")]
@@ -26,19 +27,18 @@ namespace moo.unittests.SqlServer
         {
             var db = "MonoBonoJono";
             var fullTableName = "moo." + tableName;
-            
-            var migrator = GetMigrator(db, true);
-            await migrator.Migrate();
+
+            await using (var migrator = GetMigrator(db, true))
+            {
+                await migrator.Migrate();
+            }
 
             IEnumerable<string> scripts;
-            string? sql = $"SELECT script_name FROM {fullTableName}";
+            string sql = $"SELECT modified_date FROM {fullTableName}";
             
-            using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+            await using (var conn = new SqlConnection(ConnectionString(db)))
             {
-                await using (var conn = new SqlConnection(AdminConnectionString()))
-                {
-                    scripts = await conn.QueryAsync<string>(sql);
-                }
+                scripts = await conn.QueryAsync<string>(sql);
             }
             scripts.Should().NotBeNull();
         }
@@ -46,11 +46,7 @@ namespace moo.unittests.SqlServer
 
         private MooMigrator GetMigrator(string databaseName, bool createDatabase)
         {
-            var db = databaseName;
-            var pw = MooTestContext.SqlServer.AdminPassword;
-            var port = MooTestContext.SqlServer.Port;
-
-            var connectionString = $"Data Source=localhost,{port};Initial Catalog={db};User Id=sa;Password={pw}";
+            var connectionString = ConnectionString(databaseName);
 
             var dbLogger = new NullLogger<SqlServerDatabase>();
             var factory = Substitute.For<IFactory>();

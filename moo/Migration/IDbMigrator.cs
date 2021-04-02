@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using moo.Configuration;
 
 namespace moo.Migration
 {
-    public interface IDbMigrator
+    public interface IDbMigrator: IAsyncDisposable
     {
         MooConfiguration Configuration { get; set; }
         IDatabase Database { get; set; }

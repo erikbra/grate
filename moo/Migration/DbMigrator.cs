@@ -43,10 +43,8 @@ namespace moo.Migration
             return false;
         }
 
-        public async Task OpenConnection()
-        {
-            await Database.OpenConnection();
-        }
+        public async Task OpenConnection() => await Database.OpenConnection();
+        public async Task CloseConnection() => await Database.CloseConnection();
 
         public async Task RunSupportTasks() => await Database.RunSupportTasks();
         public string GetCurrentVersion() => Database.GetCurrentVersion();
@@ -147,6 +145,12 @@ namespace moo.Migration
         private void record_script_in_scripts_run_errors_table(string scriptName, string sql, string errorSql, string errorMessage, object versionId)
         {
             Database.InsertScriptRunError(scriptName, sql, errorSql, errorMessage, versionId);
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await Database.CloseConnection();
+            await Database.CloseAdminConnection();
         }
     }
 }

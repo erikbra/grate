@@ -19,7 +19,7 @@ namespace moo.Migration
             throw new System.NotImplementedException();
         }
 
-        public void CloseConnection()
+        public Task CloseConnection()
         {
             throw new System.NotImplementedException();
         }
