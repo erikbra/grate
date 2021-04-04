@@ -15,8 +15,8 @@ namespace moo.Migration
         Task CloseAdminConnection();
         Task CreateDatabase();
         Task RunSupportTasks();
-        string GetCurrentVersion();
-        string VersionTheDatabase(string newVersion);
+        Task<string> GetCurrentVersion();
+        Task<string> VersionTheDatabase(string newVersion);
         void Rollback();
         void RunSql(string sql, ConnectionType connectionType);
         string GetCurrentHash(string scriptName);

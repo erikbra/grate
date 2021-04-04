@@ -47,8 +47,8 @@ namespace moo.Migration
         public async Task CloseConnection() => await Database.CloseConnection();
 
         public async Task RunSupportTasks() => await Database.RunSupportTasks();
-        public string GetCurrentVersion() => Database.GetCurrentVersion();
-        public string VersionTheDatabase(string newVersion) => Database.VersionTheDatabase(newVersion);
+        public Task<string> GetCurrentVersion() => Database.GetCurrentVersion();
+        public Task<string> VersionTheDatabase(string newVersion) => Database.VersionTheDatabase(newVersion);
         public async Task OpenAdminConnection() => await Database.OpenAdminConnection();
         public async Task CloseAdminConnection() => await Database.CloseAdminConnection();
 

@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using System.Reflection.Metadata;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Data.SqlClient;
@@ -23,7 +25,6 @@ namespace moo.Migration
         public string? ServerName => _connection.DataSource;
         public string? DatabaseName => _connection?.Database;
         public bool SupportsDdlTransactions => true;
-        //public bool SupportsDdlTransactions => false;
         
         public Task InitializeConnections(MooConfiguration configuration)
         {
@@ -191,16 +192,40 @@ CREATE TABLE [{SchemaName}].[Version](
             return !DBNull.Value.Equals(res);
         }
 
-        public string GetCurrentVersion()
+        public async Task<string> GetCurrentVersion()
         {
-            _logger.LogInformation("TODO: GetCurrentVersion");
-            return "1.2.3.4";
+            var sql = $@"
+SELECT TOP 1 [Version]
+FROM [{SchemaName}].Version
+ORDER BY id DESC
+";
+            await using var cmd = _connection.CreateCommand();
+            cmd.CommandText = sql;
+            var res = (string?) await cmd.ExecuteScalarAsync();
+            
+            return res ?? "0.0.0.0";
         }
 
-        public string VersionTheDatabase(string newVersion)
+        public async Task<string> VersionTheDatabase(string newVersion)
         {
-            _logger.LogInformation("TODO: VersionTheDatabase");
-            return "1.2.3.5";
+            var sql = $@"
+INSERT INTO [{SchemaName}].Version 
+(version, entry_date, modified_date, entered_by)
+VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy);
+";
+            var res = await  _connection.ExecuteAsync(
+                sql, 
+                new
+                {
+                    newVersion,
+                    entryDate = DateTime.UtcNow,
+                    modifiedDate = DateTime.UtcNow,
+                    enteredBy = ClaimsPrincipal.Current?.Identity?.Name ?? Environment.UserName
+                });
+            
+            _logger.LogInformation(" Versioning {0} database with version {1}.", DatabaseName, newVersion);
+            
+            return newVersion;
         }
 
         public void Rollback()

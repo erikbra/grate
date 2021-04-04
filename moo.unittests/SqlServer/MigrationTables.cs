@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
-using System.Transactions;
 using Dapper;
 using FluentAssertions;
 using Microsoft.Data.SqlClient;
@@ -15,7 +15,7 @@ using NUnit.Framework;
 namespace moo.unittests.SqlServer
 {
     [TestFixture]
-    public class MigrationTables
+    public class MigrationTable
     {
         private static string? AdminConnectionString() => $"Data Source=localhost,{MooTestContext.SqlServer.Port};Initial Catalog=master;User Id=sa;Password={MooTestContext.SqlServer.AdminPassword}";
         private static string? ConnectionString(string database) => $"Data Source=localhost,{MooTestContext.SqlServer.Port};Initial Catalog={database};User Id=sa;Password={MooTestContext.SqlServer.AdminPassword}";
@@ -23,7 +23,7 @@ namespace moo.unittests.SqlServer
         [TestCase("ScriptsRun")]
         [TestCase("ScriptsRunErrors")]
         [TestCase("Version")]
-        public async Task Are_created_if_they_do_not_exist(string tableName)
+        public async Task Is_created_if_it_does_not_exist(string tableName)
         {
             var db = "MonoBonoJono";
             var fullTableName = "moo." + tableName;
@@ -41,6 +41,48 @@ namespace moo.unittests.SqlServer
                 scripts = await conn.QueryAsync<string>(sql);
             }
             scripts.Should().NotBeNull();
+        }
+        
+        [TestCase("ScriptsRun")]
+        [TestCase("ScriptsRunErrors")]
+        [TestCase("Version")]
+        public async Task Migration_does_not_fail_if_table_already_exists(string tableName)
+        {
+            var db = "MonoBonoJono";
+
+            await using (var migrator = GetMigrator(db, true))
+            {
+                await migrator.Migrate();
+            }
+            
+            // Run migration again - make sure it does not throw an exception
+            await using (var migrator = GetMigrator(db, true))
+            {
+                Assert.DoesNotThrowAsync(() => migrator.Migrate());
+            }
+        }
+        
+        [Test()]
+        public async Task Inserts_version_in_version_table()
+        {
+            var db = "BooYaTribe";
+
+            await using (var migrator = GetMigrator(db, true))
+            {
+                await migrator.Migrate();
+            }
+
+            IEnumerable<string> entries;
+            string sql = $"SELECT version FROM moo.Version";
+            
+            await using (var conn = new SqlConnection(ConnectionString(db)))
+            {
+                entries = await conn.QueryAsync<string>(sql);
+            }
+
+            var versions = entries.ToList();
+            versions.Should().HaveCount(1);
+            versions.FirstOrDefault().Should().Be("a.b.c.d");
         }
 
 
@@ -61,6 +103,7 @@ namespace moo.unittests.SqlServer
                 CreateDatabase = createDatabase, 
                 ConnectionString = connectionString,
                 AdminConnectionString = AdminConnectionString(),
+                Version = "a.b.c.d",
                 KnownFolders = KnownFolders.In(new DirectoryInfo(@"C:\tmp\sql"))
             };
             dbMigrator.ApplyConfig(config);

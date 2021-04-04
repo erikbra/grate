@@ -82,11 +82,11 @@ namespace moo.Migration
                 Separator('=');
                 Info("Versioning");
                 Separator('=');
-                var currentVersion = dbMigrator.GetCurrentVersion();
+                var currentVersion = await dbMigrator.GetCurrentVersion();
                 var newVersion = config.Version;
                 Info(" Migrating {0} from version {1} to {2}.",
                     database?.DatabaseName, currentVersion, newVersion);
-                var versionId = dbMigrator.VersionTheDatabase(newVersion);
+                var versionId = await dbMigrator.VersionTheDatabase(newVersion);
 
                 Separator('=');
                 Info("Migration Scripts");

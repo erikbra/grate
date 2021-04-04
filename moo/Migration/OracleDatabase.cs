@@ -44,12 +44,12 @@ namespace moo.Migration
             throw new System.NotImplementedException();
         }
 
-        public string GetCurrentVersion()
+        public Task<string> GetCurrentVersion()
         {
             throw new System.NotImplementedException();
         }
 
-        public string VersionTheDatabase(string newVersion)
+        public Task<string> VersionTheDatabase(string newVersion)
         {
             throw new System.NotImplementedException();
         }
