@@ -98,13 +98,18 @@ namespace moo.unittests.SqlServer
             var dbMigrator = new DbMigrator(factory, new NullLogger<DbMigrator>(), new HashGenerator());
             var migrator = new MooMigrator(new NullLogger<MooMigrator>(), dbMigrator);
 
+            var dummyFile = Path.GetTempFileName();
+            File.Delete(dummyFile);
+
+            var scriptsDir = Directory.CreateDirectory(dummyFile);
+
             var config = new MooConfiguration()
             {
                 CreateDatabase = createDatabase, 
                 ConnectionString = connectionString,
                 AdminConnectionString = AdminConnectionString(),
                 Version = "a.b.c.d",
-                KnownFolders = KnownFolders.In(new DirectoryInfo(@"C:\tmp\sql"))
+                KnownFolders = KnownFolders.In(scriptsDir)
             };
             dbMigrator.ApplyConfig(config);
 

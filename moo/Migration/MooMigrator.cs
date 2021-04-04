@@ -94,7 +94,7 @@ namespace moo.Migration
 
                 using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    LogAndProcess(knownFolders!.BeforeMigration!, changeDropFolder, versionId, newVersion,
+                    await LogAndProcess(knownFolders!.BeforeMigration!, changeDropFolder, versionId, newVersion,
                         ConnectionType.Default);
                 }
 
@@ -104,7 +104,7 @@ namespace moo.Migration
                         TransactionScopeAsyncFlowOption.Enabled))
                     {
                         await dbMigrator.OpenAdminConnection();
-                        LogAndProcess(knownFolders!.AlterDatabase!, changeDropFolder, versionId, newVersion,
+                        await LogAndProcess(knownFolders!.AlterDatabase!, changeDropFolder, versionId, newVersion,
                             ConnectionType.Admin);
                         await dbMigrator.CloseAdminConnection();
                     }
@@ -112,28 +112,28 @@ namespace moo.Migration
 
                 if (databaseCreated)
                 {
-                    LogAndProcess(knownFolders.RunAfterCreateDatabase!, changeDropFolder, versionId, newVersion,
+                    await LogAndProcess(knownFolders.RunAfterCreateDatabase!, changeDropFolder, versionId, newVersion,
                         ConnectionType.Default);
                 }
 
-                LogAndProcess(knownFolders.RunBeforeUp!, changeDropFolder, versionId, newVersion,
+                await LogAndProcess(knownFolders.RunBeforeUp!, changeDropFolder, versionId, newVersion,
                     ConnectionType.Default);
-                LogAndProcess(knownFolders.Up!, versionId, changeDropFolder, newVersion, ConnectionType.Default);
-                LogAndProcess(knownFolders.RunFirstAfterUp!, changeDropFolder, versionId, newVersion,
+                await LogAndProcess(knownFolders.Up!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
+                await LogAndProcess(knownFolders.RunFirstAfterUp!, changeDropFolder, versionId, newVersion,
                     ConnectionType.Default);
-                LogAndProcess(knownFolders.Views!, versionId, changeDropFolder, newVersion, ConnectionType.Default);
-                LogAndProcess(knownFolders.Sprocs!, versionId, changeDropFolder, newVersion, ConnectionType.Default);
-                LogAndProcess(knownFolders.Triggers!, versionId, changeDropFolder, newVersion, ConnectionType.Default);
-                LogAndProcess(knownFolders.Indexes!, versionId, changeDropFolder, newVersion, ConnectionType.Default);
-                LogAndProcess(knownFolders.RunAfterOtherAnyTimeScripts!, changeDropFolder, versionId, newVersion,
+                await LogAndProcess(knownFolders.Views!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
+                await LogAndProcess(knownFolders.Sprocs!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
+                await LogAndProcess(knownFolders.Triggers!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
+                await LogAndProcess(knownFolders.Indexes!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
+                await LogAndProcess(knownFolders.RunAfterOtherAnyTimeScripts!, changeDropFolder, versionId, newVersion,
                     ConnectionType.Default);
 
                 scope?.Complete();
 
                 using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    LogAndProcess(knownFolders.Permissions!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
-                    LogAndProcess(knownFolders.AfterMigration!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
+                    await LogAndProcess(knownFolders.Permissions!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
+                    await LogAndProcess(knownFolders.AfterMigration!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
                 }
             
                 Info(
@@ -154,7 +154,7 @@ namespace moo.Migration
             
         }
 
-        private void LogAndProcess(MigrationsFolder folder, string changeDropFolder, string versionId, string newVersion, ConnectionType connectionType)
+        private async Task LogAndProcess(MigrationsFolder folder, string changeDropFolder, long versionId, string newVersion, ConnectionType connectionType)
         {
             Separator(' ');
 
@@ -171,12 +171,12 @@ namespace moo.Migration
                 msg);
 
             Separator('-');
-            Process(folder, changeDropFolder, versionId, newVersion, connectionType);
+            await Process(folder, changeDropFolder, versionId, newVersion, connectionType);
             Separator('-');
             Separator(' ');
         }
 
-        private void Process(MigrationsFolder folder, string changeDropFolder, string versionId, string newVersion, ConnectionType connectionType)
+        private async Task Process(MigrationsFolder folder, string changeDropFolder, long versionId, string newVersion, ConnectionType connectionType)
         {
             if (!folder.Path.Exists)
             {
@@ -192,7 +192,7 @@ namespace moo.Migration
                 var txt = File.ReadAllText(file.FullName);
                 var sql = ReplaceTokens(txt);
 
-                bool theSqlRan = _migrator.RunSql(sql, file.FullName, folder.Type, versionId, "", "", "",
+                bool theSqlRan = await  _migrator.RunSql(sql, file.FullName, folder.Type, versionId, "", "", "",
                     connectionType);
                 if (theSqlRan)
                 {
@@ -232,7 +232,8 @@ namespace moo.Migration
 
         private string ReplaceTokens(string txt)
         {
-            throw new NotImplementedException();
+            // TODO: Find out what this should really do 
+            return txt;
         }
 
         private static IEnumerable<FileSystemInfo> GetFiles(DirectoryInfo folderPath, string pattern)

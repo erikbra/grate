@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Security.Claims;
@@ -47,23 +48,34 @@ namespace moo.Migration
 
         public async Task OpenConnection()
         {
-            await _connection.OpenAsync();
+            if (_connection.State != ConnectionState.Open)
+            {
+                await _connection.OpenAsync();
+            }
         }
 
         public async Task CloseConnection()
         {
-            await _connection.CloseAsync();
+            if (_connection.State == ConnectionState.Open)
+            {
+                await _connection.CloseAsync();
+            }
         }
 
         public async Task OpenAdminConnection()
         {
-            await _adminConnection.OpenAsync();
+            if (_adminConnection.State != ConnectionState.Open)
+            {
+                await _adminConnection.OpenAsync();
+            }
         }
 
-        public Task CloseAdminConnection()
+        public async Task CloseAdminConnection()
         {
-            _logger.LogInformation("TODO: CloseAdminConnection");
-            return Task.CompletedTask;
+            if (_adminConnection.State == ConnectionState.Open)
+            {
+                await _adminConnection.CloseAsync();
+            }
         }
 
         public async Task CreateDatabase()
@@ -206,14 +218,16 @@ ORDER BY id DESC
             return res ?? "0.0.0.0";
         }
 
-        public async Task<string> VersionTheDatabase(string newVersion)
+        public async Task<long> VersionTheDatabase(string newVersion)
         {
             var sql = $@"
 INSERT INTO [{SchemaName}].Version 
 (version, entry_date, modified_date, entered_by)
 VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy);
+
+SELECT @@IDENTITY
 ";
-            var res = await  _connection.ExecuteAsync(
+            var res = (long) await  _connection.ExecuteAsync(
                 sql, 
                 new
                 {
@@ -225,7 +239,7 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy);
             
             _logger.LogInformation(" Versioning {0} database with version {1}.", DatabaseName, newVersion);
             
-            return newVersion;
+            return res;
         }
 
         public void Rollback()
@@ -233,9 +247,21 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy);
             _logger.LogInformation("TODO: Rollback");
         }
 
-        public void RunSql(string sql, ConnectionType connectionType)
+        public async Task RunSql(string sql, ConnectionType connectionType)
         {
-            _logger.LogInformation("TODO: RunSql");
+            _logger.LogDebug("[SQL] Running (on connection '{0}'): {1}{2}", connectionType.ToString(), Environment.NewLine, sql);
+
+            var conn = connectionType switch
+            {
+                ConnectionType.Default => _connection,
+                ConnectionType.Admin => _adminConnection,
+                _ => throw new ArgumentOutOfRangeException(nameof(connectionType), connectionType, "Unknown connection type: " + connectionType)
+            };
+
+            await using var cmd = conn.CreateCommand();
+            cmd.CommandText = sql;
+            cmd.CommandType = CommandType.Text;
+            await cmd.ExecuteNonQueryAsync();
         }
 
         public string GetCurrentHash(string scriptName)
@@ -250,9 +276,24 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy);
             return false;
         }
 
-        public void InsertScriptRun(string scriptName, string sql, string hash, bool runOnce, object versionId)
+        public async Task InsertScriptRun(string scriptName, string sql, string hash, bool runOnce, object versionId)
         {
-            _logger.LogInformation("TODO: InsertScriptRun");
+            var insertSql = $@"
+INSERT INTO [{SchemaName}].ScriptsRun
+(version_id, script_name, text_of_script, text_hash, one_time_script)
+VALUES (@versionId, @scriptName, @sql, @hash, @runOnce)";
+            
+            var scriptRun = new 
+            {
+                versionId,
+                scriptName,
+                sql,
+                hash,
+                runOnce
+            };
+
+            await _connection.ExecuteAsync(insertSql, scriptRun);
+            
         }
 
         public void InsertScriptRunError(string scriptName, string sql, string errorSql, string errorMessage, object versionId)

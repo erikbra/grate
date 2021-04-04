@@ -49,7 +49,7 @@ namespace moo.Migration
             throw new System.NotImplementedException();
         }
 
-        public Task<string> VersionTheDatabase(string newVersion)
+        public Task<long> VersionTheDatabase(string newVersion)
         {
             throw new System.NotImplementedException();
         }
@@ -59,7 +59,7 @@ namespace moo.Migration
             throw new System.NotImplementedException();
         }
 
-        public void RunSql(string sql, ConnectionType connectionType)
+        public Task RunSql(string sql, ConnectionType connectionType)
         {
             throw new System.NotImplementedException();
         }
@@ -74,7 +74,7 @@ namespace moo.Migration
             throw new System.NotImplementedException();
         }
 
-        public void InsertScriptRun(string scriptName, string sql, string hash, bool runOnce, object versionId)
+        public Task InsertScriptRun(string scriptName, string sql, string hash, bool runOnce, object versionId)
         {
             throw new System.NotImplementedException();
         }

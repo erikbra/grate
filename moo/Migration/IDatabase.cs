@@ -16,12 +16,12 @@ namespace moo.Migration
         Task CreateDatabase();
         Task RunSupportTasks();
         Task<string> GetCurrentVersion();
-        Task<string> VersionTheDatabase(string newVersion);
+        Task<long> VersionTheDatabase(string newVersion);
         void Rollback();
-        void RunSql(string sql, ConnectionType connectionType);
+        Task RunSql(string sql, ConnectionType connectionType);
         string GetCurrentHash(string scriptName);
         bool HasRun(string scriptName);
-        void InsertScriptRun(string scriptName, string sql, string hash, bool runOnce, object versionId);
+        Task InsertScriptRun(string scriptName, string sql, string hash, bool runOnce, object versionId);
         void InsertScriptRunError(string scriptName, string sql, string errorSql, string errorMessage, object versionId);
     }
 }

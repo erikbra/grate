@@ -48,13 +48,15 @@ namespace moo.Migration
 
         public async Task RunSupportTasks() => await Database.RunSupportTasks();
         public Task<string> GetCurrentVersion() => Database.GetCurrentVersion();
-        public Task<string> VersionTheDatabase(string newVersion) => Database.VersionTheDatabase(newVersion);
+        public Task<long> VersionTheDatabase(string newVersion) => Database.VersionTheDatabase(newVersion);
         public async Task OpenAdminConnection() => await Database.OpenAdminConnection();
         public async Task CloseAdminConnection() => await Database.CloseAdminConnection();
 
         public MooConfiguration Configuration { get; set; }
 
-        public bool RunSql(string sql, string scriptName, MigrationType migrationType, string versionId, object migratingEnvironmentSet, object repositoryVersion, object repositoryPath, ConnectionType connectionType)
+        public async Task<bool> RunSql(string sql, string scriptName, MigrationType migrationType, long versionId,
+            object migratingEnvironmentSet, object repositoryVersion, object repositoryPath,
+            ConnectionType connectionType)
         {
             var theSqlRun = false;
 
@@ -68,7 +70,7 @@ namespace moo.Migration
                             OneTimeScriptChanged(sql, scriptName, versionId);
                             break;
                         case MigrationType.EveryTime:
-                            RunTheActualSql(sql, scriptName, migrationType, versionId, connectionType);
+                            await RunTheActualSql(sql, scriptName, migrationType, versionId, connectionType);
                             theSqlRun = true;
                             break;
                     };
@@ -80,7 +82,7 @@ namespace moo.Migration
             }
             else
             {
-                RunTheActualSql(sql, scriptName, migrationType, versionId, connectionType);
+                await RunTheActualSql(sql, scriptName, migrationType, versionId, connectionType);
                 theSqlRun = true;
             }
 
@@ -102,29 +104,29 @@ namespace moo.Migration
 
         private bool ThisScriptIsAlreadyRun(string scriptName) => Database.HasRun(scriptName);
 
-        private void RunTheActualSql(
+        private async Task RunTheActualSql(
             string sql, 
             string scriptName, 
             MigrationType migrationType, 
-            string versionId,
+            long versionId,
             ConnectionType connectionType)
         {
             try
             {
-                Database.RunSql(sql, connectionType);
+                await Database.RunSql(sql, connectionType);
             }
             catch (Exception ex)
             {
                 Database.Rollback();
                 record_script_in_scripts_run_errors_table(scriptName, sql, sql, ex.Message, versionId);
-                Database.CloseConnection();
+                await Database.CloseConnection();
                 throw;
             }
 
-            record_script_in_scripts_run_table(scriptName, sql, migrationType, versionId);
+            await record_script_in_scripts_run_table(scriptName, sql, migrationType, versionId);
         }
 
-        private void OneTimeScriptChanged(string sql, string scriptName, object versionId)
+        private void OneTimeScriptChanged(string sql, string scriptName, long versionId)
         {
             Database.Rollback();
             string errorMessage =
@@ -134,15 +136,15 @@ namespace moo.Migration
             throw new ApplicationException(errorMessage);
         }
 
-        private void record_script_in_scripts_run_table(string scriptName, string sql, MigrationType migrationType, object versionId)
+        private async Task record_script_in_scripts_run_table(string scriptName, string sql, MigrationType migrationType, long versionId)
         {
             var hash = _hashGenerator.Hash(sql);
             
             _logger.LogDebug("Recording {0} script ran on {1} - {2}.", scriptName, Database.ServerName, Database.DatabaseName);
-            Database.InsertScriptRun(scriptName, sql, hash, migrationType == MigrationType.Once, versionId);
+            await Database.InsertScriptRun(scriptName, sql, hash, migrationType == MigrationType.Once, versionId);
         }
 
-        private void record_script_in_scripts_run_errors_table(string scriptName, string sql, string errorSql, string errorMessage, object versionId)
+        private void record_script_in_scripts_run_errors_table(string scriptName, string sql, string errorSql, string errorMessage, long versionId)
         {
             Database.InsertScriptRunError(scriptName, sql, errorSql, errorMessage, versionId);
         }
