@@ -16,7 +16,7 @@ namespace moo.Migration
         private const string SchemaName = "moo";
         private readonly ILogger<SqlServerDatabase> _logger;
         private SqlConnection _connection;
-        private SqlConnection _adminConnection;
+        private SqlConnection? _adminConnection;
 
         public SqlServerDatabase(ILogger<SqlServerDatabase> logger)
         {
@@ -35,7 +35,6 @@ namespace moo.Migration
             _connection = new SqlConnection(ConnectionString);
             
             AdminConnectionString = configuration.AdminConnectionString;
-            _adminConnection = new SqlConnection(AdminConnectionString);
             
             //_logger.LogInformation("ConnectionString is: " + ConnectionString);
             //_logger.LogInformation("AdminConnectionString is: " + AdminConnectionString);
@@ -46,11 +45,14 @@ namespace moo.Migration
         private string? AdminConnectionString { get; set; }
         private string? ConnectionString { get; set; }
 
+        private SqlConnection AdminConnection => _adminConnection ??= new SqlConnection(AdminConnectionString);
+
         public async Task OpenConnection()
         {
             if (_connection.State != ConnectionState.Open)
             {
                 await _connection.OpenAsync();
+                var res = await _connection.QueryAsync<string>("SELECT DB_NAME()");
             }
         }
 
@@ -64,32 +66,37 @@ namespace moo.Migration
 
         public async Task OpenAdminConnection()
         {
-            if (_adminConnection.State != ConnectionState.Open)
+            if (AdminConnection.State != ConnectionState.Open)
             {
-                await _adminConnection.OpenAsync();
+                await AdminConnection.OpenAsync();
             }
         }
 
         public async Task CloseAdminConnection()
         {
-            if (_adminConnection.State == ConnectionState.Open)
+            if (AdminConnection.State == ConnectionState.Open)
             {
-                await _adminConnection.CloseAsync();
+                await AdminConnection.CloseAsync();
             }
         }
 
         public async Task CreateDatabase()
         {
             const string? sql = "SELECT name FROM sys.databases";
-            var databases = await _adminConnection.QueryAsync<string>(sql);
+            
+            await OpenAdminConnection();
+            var databases = await AdminConnection.QueryAsync<string>(sql);
 
             if (!databases.Contains(DatabaseName))
             {
-                var cmd = _adminConnection.CreateCommand();
+                var cmd = AdminConnection.CreateCommand();
                 //var res = await _cmd.Execute($"CREATE database {DatabaseName}");
                 cmd.CommandText = $"CREATE database {DatabaseName}";
                 var res = await cmd.ExecuteNonQueryAsync();
+                await Task.Delay(5000);
             }
+            
+            await CloseAdminConnection();
         }
 
         public async Task RunSupportTasks()
@@ -254,7 +261,7 @@ SELECT @@IDENTITY
             var conn = connectionType switch
             {
                 ConnectionType.Default => _connection,
-                ConnectionType.Admin => _adminConnection,
+                ConnectionType.Admin => AdminConnection,
                 _ => throw new ArgumentOutOfRangeException(nameof(connectionType), connectionType, "Unknown connection type: " + connectionType)
             };
 

@@ -16,14 +16,14 @@ using NUnit.Framework;
 namespace moo.unittests.SqlServer.Running_MigrationScripts
 {
     [TestFixture]
-    public class Ordering
+    public class Order_Of_Scripts
     {
         private MooConfiguration _config;
         private static string? AdminConnectionString() => $"Data Source=localhost,{MooTestContext.SqlServer.Port};Initial Catalog=master;User Id=sa;Password={MooTestContext.SqlServer.AdminPassword}";
         private static string? ConnectionString(string database) => $"Data Source=localhost,{MooTestContext.SqlServer.Port};Initial Catalog={database};User Id=sa;Password={MooTestContext.SqlServer.AdminPassword}";
 
         [Test()]
-        public async Task Order_of_scripts()
+        public async Task Is_as_expected()
         {
             var db = "GoinRoundDrinkingMoonshine";
 

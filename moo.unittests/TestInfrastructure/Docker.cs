@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using NUnit.Framework;
 
-namespace moo.unittests.Infrastructure
+namespace moo.unittests.TestInfrastructure
 {
     public static class Docker
     {

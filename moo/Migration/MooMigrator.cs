@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using moo.Configuration;
 
@@ -59,9 +60,17 @@ namespace moo.Migration
 
             if (config.CreateDatabase)
             {
-                await dbMigrator.OpenAdminConnection();
-                databaseCreated = await dbMigrator.CreateDatabase();
-                await dbMigrator.CloseAdminConnection();
+                // Try to connect to database. If it exists already, don't bother trying to open an admin connection
+                if (await DatabaseAlreadyExists(dbMigrator))
+                {
+                    databaseCreated = false;
+                }
+                else
+                {
+                    await dbMigrator.OpenAdminConnection();
+                    databaseCreated = await dbMigrator.CreateDatabase();
+                    await dbMigrator.CloseAdminConnection();
+                }
             }
 
             TransactionScope? scope = null; 
@@ -152,6 +161,23 @@ namespace moo.Migration
                 scope?.Dispose();
             }
             
+        }
+
+        private async Task<bool> DatabaseAlreadyExists(IDbMigrator dbMigrator)
+        {
+            try
+            {
+                await dbMigrator.OpenConnection();
+                return true;
+            }
+            catch (SqlException)
+            {
+                return false;
+            }
+            finally
+            {
+                await dbMigrator.CloseConnection();
+            }
         }
 
         private async Task LogAndProcess(MigrationsFolder folder, string changeDropFolder, long versionId, string newVersion, ConnectionType connectionType)

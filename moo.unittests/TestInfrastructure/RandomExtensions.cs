@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace moo.unittests.Infrastructure
+namespace moo.unittests.TestInfrastructure
 {
     public static class RandomExtensions
     {

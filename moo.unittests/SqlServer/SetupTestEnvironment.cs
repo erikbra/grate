@@ -2,7 +2,7 @@
 using System.Data;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
-using moo.unittests.Infrastructure;
+using moo.unittests.TestInfrastructure;
 using NUnit.Framework;
 
 namespace moo.unittests.SqlServer

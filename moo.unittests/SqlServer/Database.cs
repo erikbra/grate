@@ -18,13 +18,14 @@ namespace moo.unittests.SqlServer
     public class Database
     {
         private static string? AdminConnectionString() => $"Data Source=localhost,{MooTestContext.SqlServer.Port};Initial Catalog=master;User Id=sa;Password={MooTestContext.SqlServer.AdminPassword}";
+        private static string? ConnectionString(string database) => $"Data Source=localhost,{MooTestContext.SqlServer.Port};Initial Catalog={database};User Id=sa;Password={MooTestContext.SqlServer.AdminPassword}";
 
         [Test]
         public async Task Is_created_if_confed_and_it_does_not_exist()
         {
             var db = "NewDatabase";
             
-            var migrator = GetMigrator(db, true);
+            var migrator = GetMigrator(GetConfiguration(db, true));
             await migrator.Migrate();
 
             IEnumerable<string> databases;
@@ -45,7 +46,7 @@ namespace moo.unittests.SqlServer
         {
             var db = "SomeOtherdatabase";
             
-            var migrator = GetMigrator(db, false);
+            var migrator = GetMigrator(GetConfiguration(db, false));
             
             // The migration should throw an error, as the database does not exist.
             Assert.ThrowsAsync<SqlException>(() => migrator.Migrate());
@@ -93,21 +94,52 @@ namespace moo.unittests.SqlServer
             }
             databasesBeforeMigration.Should().Contain(db);
             
-            var migrator = GetMigrator(db, true);
+            var migrator = GetMigrator(GetConfiguration(db, true));
+            
+            // There should be no errors running the migration
+            Assert.DoesNotThrowAsync(() => migrator.Migrate());
+        }
+        
+        [Test]
+        public async Task Does_not_need_admin_connection_if_database_already_exists()
+        {
+            const string? selectDatabasesSql = "SELECT name FROM sys.databases";
+            
+            var db = "datadatadatabase";
+            
+            // Create the database manually before running the migration
+            using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+            {
+                await using (var conn = new SqlConnection(AdminConnectionString()))
+                {
+                    conn.Open();
+                    await using var cmd = conn.CreateCommand();
+                    cmd.CommandText = $"CREATE DATABASE {db}";
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+            
+            // Check that the database has been created
+            IEnumerable<string> databasesBeforeMigration;
+            using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+            {
+                await using (var conn = new SqlConnection(AdminConnectionString()))
+                {
+                    databasesBeforeMigration = await conn.QueryAsync<string>(selectDatabasesSql);
+                }
+            }
+            databasesBeforeMigration.Should().Contain(db);
+            
+            // Change the admin connection string to rubbish and run the migration
+            var migrator = GetMigrator(GetConfiguration(db, true, "Invalid stuff"));
             
             // There should be no errors running the migration
             Assert.DoesNotThrowAsync(() => migrator.Migrate());
         }
 
 
-        private MooMigrator GetMigrator(string databaseName, bool createDatabase)
+        private MooMigrator GetMigrator(MooConfiguration config)
         {
-            var db = databaseName;
-            var pw = MooTestContext.SqlServer.AdminPassword;
-            var port = MooTestContext.SqlServer.Port;
-
-            var connectionString = $"Data Source=localhost,{port};Initial Catalog={db};User Id=sa;Password={pw}";
-
             var dbLogger = new NullLogger<SqlServerDatabase>();
             var factory = Substitute.For<IFactory>();
             factory.GetService<DatabaseType, IDatabase>(DatabaseType.sqlserver)
@@ -115,18 +147,20 @@ namespace moo.unittests.SqlServer
 
             var dbMigrator = new DbMigrator(factory, new NullLogger<DbMigrator>(), new HashGenerator());
             var migrator = new MooMigrator(new NullLogger<MooMigrator>(), dbMigrator);
-
-            var config = new MooConfiguration()
-            {
-                CreateDatabase = createDatabase, 
-                ConnectionString = connectionString,
-                AdminConnectionString = AdminConnectionString(),
-                KnownFolders = KnownFolders.In(new DirectoryInfo(@"C:\tmp\sql"))
-            };
+            
             dbMigrator.ApplyConfig(config);
-
             return migrator;
         }
-        
+
+        private static MooConfiguration GetConfiguration(string databaseName, bool createDatabase, string? adminConnectionString = null)
+        {
+            return new MooConfiguration()
+            {
+                CreateDatabase = createDatabase, 
+                ConnectionString = ConnectionString(databaseName),
+                AdminConnectionString = adminConnectionString ?? AdminConnectionString(),
+                KnownFolders = KnownFolders.In(new DirectoryInfo(@"C:\tmp\sql"))
+            };
+        }
     }
 }
