@@ -102,7 +102,7 @@ namespace moo.unittests
         }
         
 
-        private static async Task<MooConfiguration?> ParseMooConfiguration(string? commandline)
+        private static async Task<MooConfiguration?> ParseMooConfiguration(string commandline)
         {
             MooConfiguration? cfg = null;
             var cmd = CommandHandler.Create((MooConfiguration config) => cfg = config);

@@ -8,7 +8,7 @@ namespace moo.unittests.Infrastructure
     public class HashGenerator_
     {
         [Test]
-        public async Task Generates_the_correct_hash()
+        public void Generates_the_correct_hash()
         {
             string text_to_hash = "I want to see what the freak is going on here";
             string expected_hash = "TMGPZJmBhSO5uYbf/TBqNA==";

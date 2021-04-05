@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,7 +17,7 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
     [TestFixture]
     public class Order_Of_Scripts
     {
-        private MooConfiguration _config;
+        private MooConfiguration? _config;
         private static string? AdminConnectionString() => $"Data Source=localhost,{MooTestContext.SqlServer.Port};Initial Catalog=master;User Id=sa;Password={MooTestContext.SqlServer.AdminPassword}";
         private static string? ConnectionString(string database) => $"Data Source=localhost,{MooTestContext.SqlServer.Port};Initial Catalog={database};User Id=sa;Password={MooTestContext.SqlServer.AdminPassword}";
 
@@ -34,7 +33,7 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
             }
 
             string[] scripts;
-            string sql = $"SELECT script_name FROM moo.ScriptsRun";
+            string sql = "SELECT script_name FROM moo.ScriptsRun";
             
             await using (var conn = new SqlConnection(ConnectionString(db)))
             {
@@ -43,7 +42,7 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
 
             scripts.Should().HaveCount(13);
 
-            KnownFolders knownFolders = _config.KnownFolders ?? throw new ArgumentNullException(nameof(_config.KnownFolders));
+            KnownFolders knownFolders = _config?.KnownFolders ?? throw new ArgumentNullException(nameof(_config.KnownFolders));
             Assert.Multiple(() =>
                 {
                     AssertScriptPath(scripts[0], knownFolders.BeforeMigration);
@@ -116,11 +115,11 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
             return migrator;
         }
 
-        private static void CreateDummySql(MigrationsFolder? knownFolder)
+        private static void CreateDummySql(MigrationsFolder? folder)
         {
             var dummySql = "SELECT @@VERSION";
 
-            var path = knownFolder.Path;
+            var path = folder?.Path ?? throw new ArgumentException(nameof(folder.Path));
 
             if (!path.Exists)
             {

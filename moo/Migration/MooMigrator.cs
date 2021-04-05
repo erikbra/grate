@@ -40,7 +40,7 @@ namespace moo.Migration
                 );
 
             var config = _migrator.Configuration;
-            KnownFolders knownFolders = config.KnownFolders;
+            KnownFolders knownFolders = config.KnownFolders ?? throw new ArgumentException(nameof(config.KnownFolders));
             
             Info("Looking in {0} for scripts to run.", knownFolders?.Up?.Path);
             

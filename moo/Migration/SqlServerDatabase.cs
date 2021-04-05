@@ -15,7 +15,7 @@ namespace moo.Migration
     {
         private const string SchemaName = "moo";
         private readonly ILogger<SqlServerDatabase> _logger;
-        private SqlConnection _connection;
+        private SqlConnection? _connection;
         private SqlConnection? _adminConnection;
 
         public SqlServerDatabase(ILogger<SqlServerDatabase> logger)
@@ -23,8 +23,8 @@ namespace moo.Migration
             _logger = logger;
         }
 
-        public string? ServerName => _connection.DataSource;
-        public string? DatabaseName => _connection?.Database;
+        public string? ServerName => Connection?.DataSource;
+        public string? DatabaseName => Connection?.Database;
         public bool SupportsDdlTransactions => true;
         
         public Task InitializeConnections(MooConfiguration configuration)
@@ -32,12 +32,7 @@ namespace moo.Migration
             _logger.LogInformation("Initializing connections.");
 
             ConnectionString = configuration.ConnectionString;
-            _connection = new SqlConnection(ConnectionString);
-            
             AdminConnectionString = configuration.AdminConnectionString;
-            
-            //_logger.LogInformation("ConnectionString is: " + ConnectionString);
-            //_logger.LogInformation("AdminConnectionString is: " + AdminConnectionString);
             
             return Task.CompletedTask;
         }
@@ -46,21 +41,22 @@ namespace moo.Migration
         private string? ConnectionString { get; set; }
 
         private SqlConnection AdminConnection => _adminConnection ??= new SqlConnection(AdminConnectionString);
+        private SqlConnection Connection => _connection ??= new SqlConnection(ConnectionString);
 
         public async Task OpenConnection()
         {
-            if (_connection.State != ConnectionState.Open)
+            if (Connection.State != ConnectionState.Open)
             {
-                await _connection.OpenAsync();
-                var res = await _connection.QueryAsync<string>("SELECT DB_NAME()");
+                await Connection.OpenAsync();
+                var res = await Connection.QueryAsync<string>("SELECT DB_NAME()");
             }
         }
 
         public async Task CloseConnection()
         {
-            if (_connection.State == ConnectionState.Open)
+            if (Connection.State == ConnectionState.Open)
             {
-                await _connection.CloseAsync();
+                await Connection.CloseAsync();
             }
         }
 
@@ -114,7 +110,7 @@ namespace moo.Migration
             
             if (!await RunSchemaExists())
             {
-                await using var cmd = _connection.CreateCommand();
+                await using var cmd = Connection.CreateCommand();
                 cmd.CommandText = createSql;
                 await cmd.ExecuteNonQueryAsync();
             }
@@ -123,7 +119,7 @@ namespace moo.Migration
         private async Task<bool> RunSchemaExists()
         {
             string sql = "SELECT s.name FROM sys.schemas s WHERE name = '" + SchemaName + "'";
-            await using var cmd = _connection.CreateCommand();
+            await using var cmd = Connection.CreateCommand();
             cmd.CommandText = sql;
             var res = await cmd.ExecuteScalarAsync();
             return res?.ToString() == SchemaName;
@@ -146,7 +142,7 @@ CREATE TABLE [{SchemaName}].[ScriptsRun](
 );";
             if (!await ScriptsRunTableExists())
             {
-                await using var cmd = _connection.CreateCommand();
+                await using var cmd = Connection.CreateCommand();
                 cmd.CommandText = createSql;
                 var res = await cmd.ExecuteNonQueryAsync();
             }
@@ -170,7 +166,7 @@ CREATE TABLE [{SchemaName}].[ScriptsRunErrors](
 );";
             if (!await ScriptsRunErrorsTableExists())
             {
-                await using var cmd = _connection.CreateCommand();
+                await using var cmd = Connection.CreateCommand();
                 cmd.CommandText = createSql;
                 var res = await cmd.ExecuteNonQueryAsync();
             }
@@ -190,7 +186,7 @@ CREATE TABLE [{SchemaName}].[Version](
 );";
             if (!await VersionTableExists())
             {
-                await using var cmd = _connection.CreateCommand();
+                await using var cmd = Connection.CreateCommand();
                 cmd.CommandText = createSql;
                 var res = await cmd.ExecuteNonQueryAsync();
             }
@@ -205,7 +201,7 @@ CREATE TABLE [{SchemaName}].[Version](
         {
             string existsSql = $@"SELECT OBJECT_ID(N'[{SchemaName}].[{tableName}]', N'U');";
             
-            await using var cmd = _connection.CreateCommand();
+            await using var cmd = Connection.CreateCommand();
             cmd.CommandText = existsSql;
             var res = await cmd.ExecuteScalarAsync();
             return !DBNull.Value.Equals(res);
@@ -218,7 +214,7 @@ SELECT TOP 1 [Version]
 FROM [{SchemaName}].Version
 ORDER BY id DESC
 ";
-            await using var cmd = _connection.CreateCommand();
+            await using var cmd = Connection.CreateCommand();
             cmd.CommandText = sql;
             var res = (string?) await cmd.ExecuteScalarAsync();
             
@@ -234,7 +230,7 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy);
 
 SELECT @@IDENTITY
 ";
-            var res = (long) await  _connection.ExecuteAsync(
+            var res = (long) await  Connection.ExecuteAsync(
                 sql, 
                 new
                 {
@@ -260,7 +256,7 @@ SELECT @@IDENTITY
 
             var conn = connectionType switch
             {
-                ConnectionType.Default => _connection,
+                ConnectionType.Default => Connection,
                 ConnectionType.Admin => AdminConnection,
                 _ => throw new ArgumentOutOfRangeException(nameof(connectionType), connectionType, "Unknown connection type: " + connectionType)
             };
@@ -299,7 +295,7 @@ VALUES (@versionId, @scriptName, @sql, @hash, @runOnce)";
                 runOnce
             };
 
-            await _connection.ExecuteAsync(insertSql, scriptRun);
+            await Connection.ExecuteAsync(insertSql, scriptRun);
             
         }
 
@@ -310,7 +306,7 @@ VALUES (@versionId, @scriptName, @sql, @hash, @runOnce)";
 
         public void Dispose()
         {
-            _connection.Dispose();
+            Connection.Dispose();
         }
     }
 }
