@@ -267,16 +267,24 @@ SELECT @@IDENTITY
             await cmd.ExecuteNonQueryAsync();
         }
 
-        public string GetCurrentHash(string scriptName)
+        public async Task<string?> GetCurrentHash(string scriptName)
         {
-            _logger.LogInformation("TODO: GetCurrentHash");
-            return "1.2.3.3";
+            var hashSql = $@"
+SELECT text_hash FROM  [{SchemaName}].ScriptsRun
+WHERE script_name = @scriptName";
+            
+            var hash = await Connection.ExecuteScalarAsync<string?>(hashSql, new {scriptName});
+            return hash;
         }
 
-        public bool HasRun(string scriptName)
+        public async Task<bool> HasRun(string scriptName)
         {
-            _logger.LogInformation("TODO: HasRun");
-            return false;
+            var hasRunSql = $@"
+SELECT 1 FROM  [{SchemaName}].ScriptsRun
+WHERE script_name = @scriptName";
+
+            var run = await Connection.ExecuteScalarAsync<bool?>(hasRunSql, new {scriptName});
+            return run ?? false;
         }
 
         public async Task InsertScriptRun(string scriptName, string sql, string hash, bool runOnce, object versionId)

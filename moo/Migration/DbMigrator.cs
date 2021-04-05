@@ -60,9 +60,9 @@ namespace moo.Migration
         {
             var theSqlRun = false;
 
-            if (ThisScriptIsAlreadyRun(scriptName))
+            if (await ThisScriptIsAlreadyRun(scriptName))
             {
-                if (ScriptChanged(scriptName, sql))
+                if (await ScriptChanged(scriptName, sql))
                 {
                     switch (migrationType)
                     {
@@ -89,9 +89,9 @@ namespace moo.Migration
             return theSqlRun;
         }
 
-        private bool ScriptChanged(string scriptName, string sql)
+        private async Task<bool> ScriptChanged(string scriptName, string sql)
         {
-            var currentHash = Database.GetCurrentHash(scriptName);
+            var currentHash = await Database.GetCurrentHash(scriptName);
             var newHash = GetHash(sql);
 
             return currentHash != newHash;
@@ -102,7 +102,7 @@ namespace moo.Migration
             return _hashGenerator.Hash(sql);
         }
 
-        private bool ThisScriptIsAlreadyRun(string scriptName) => Database.HasRun(scriptName);
+        private Task<bool> ThisScriptIsAlreadyRun(string scriptName) => Database.HasRun(scriptName);
 
         private async Task RunTheActualSql(
             string sql, 
@@ -133,7 +133,7 @@ namespace moo.Migration
                 $"{scriptName} has changed since the last time it was run. By default this is not allowed - scripts that run once should never change. To change this behavior to a warning, please set warnOnOneTimeScriptChanges to true and run again. Stopping execution.";
             record_script_in_scripts_run_errors_table(scriptName, sql, sql, errorMessage, versionId);
             Database.CloseConnection();
-            throw new ApplicationException(errorMessage);
+            throw new OneTimeScriptChanged(errorMessage);
         }
 
         private async Task record_script_in_scripts_run_table(string scriptName, string sql, MigrationType migrationType, long versionId)

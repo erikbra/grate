@@ -64,12 +64,12 @@ namespace moo.Migration
             throw new System.NotImplementedException();
         }
 
-        public string GetCurrentHash(string scriptName)
+        public Task<string?> GetCurrentHash(string scriptName)
         {
             throw new System.NotImplementedException();
         }
 
-        public bool HasRun(string scriptName)
+        public Task<bool> HasRun(string scriptName)
         {
             throw new System.NotImplementedException();
         }

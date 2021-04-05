@@ -215,10 +215,10 @@ namespace moo.Migration
 
             foreach (var file in files)
             {
-                var txt = File.ReadAllText(file.FullName);
+                var txt = await File.ReadAllTextAsync(file.FullName);
                 var sql = ReplaceTokens(txt);
 
-                bool theSqlRan = await  _migrator.RunSql(sql, file.FullName, folder.Type, versionId, "", "", "",
+                bool theSqlRan = await _migrator.RunSql(sql, file.FullName, folder.Type, versionId, "", "", "",
                     connectionType);
                 if (theSqlRan)
                 {

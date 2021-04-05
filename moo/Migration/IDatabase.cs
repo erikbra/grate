@@ -19,8 +19,8 @@ namespace moo.Migration
         Task<long> VersionTheDatabase(string newVersion);
         void Rollback();
         Task RunSql(string sql, ConnectionType connectionType);
-        string GetCurrentHash(string scriptName);
-        bool HasRun(string scriptName);
+        Task<string?> GetCurrentHash(string scriptName);
+        Task<bool> HasRun(string scriptName);
         Task InsertScriptRun(string scriptName, string sql, string hash, bool runOnce, object versionId);
         void InsertScriptRunError(string scriptName, string sql, string errorSql, string errorMessage, object versionId);
     }
