@@ -141,7 +141,7 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
             File.WriteAllText(Path.Combine(path.ToString(), filename), sql);
         }
 
-        private static DirectoryInfo? MakeSurePathExists(MigrationsFolder? folder)
+        private static DirectoryInfo MakeSurePathExists(MigrationsFolder? folder)
         {
             var path = folder?.Path ?? throw new ArgumentException(nameof(folder.Path));
 

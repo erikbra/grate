@@ -74,19 +74,26 @@ namespace moo.Migration
             }
 
             TransactionScope? scope = null; 
-            if (runInTransaction)
-            {
-                scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-            }
-
             try
             {
+                // Run these first without a transaction, to make sure the tables are created even on a potential rollback
                 await dbMigrator.OpenConnection();
 
                 Separator('=');
                 Info("Moo Structure");
                 Separator('=');
+                
                 await dbMigrator.RunSupportTasks();
+                
+                await dbMigrator.CloseConnection();
+                
+                // Start the transaction, if configured
+                if (runInTransaction)
+                {
+                    scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+                }
+                
+                await dbMigrator.OpenConnection();
 
                 Separator('=');
                 Info("Versioning");

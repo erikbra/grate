@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using System.Transactions;
 using Microsoft.Extensions.Logging;
 using moo.Configuration;
 using moo.Infrastructure;
@@ -67,9 +68,10 @@ namespace moo.Migration
                     switch (migrationType)
                     {
                         case MigrationType.Once:
-                            OneTimeScriptChanged(sql, scriptName, versionId);
+                            await OneTimeScriptChanged(sql, scriptName, versionId);
                             break;
                         case MigrationType.EveryTime:
+                            _logger.LogInformation(" {3} {0} on {1} - {2}.", scriptName, Database.ServerName, Database.DatabaseName, "Running");
                             await RunTheActualSql(sql, scriptName, migrationType, versionId, connectionType);
                             theSqlRun = true;
                             break;
@@ -82,6 +84,7 @@ namespace moo.Migration
             }
             else
             {
+                _logger.LogInformation(" {3} {0} on {1} - {2}.", scriptName, Database.ServerName, Database.DatabaseName, "Running");
                 await RunTheActualSql(sql, scriptName, migrationType, versionId, connectionType);
                 theSqlRun = true;
             }
@@ -118,7 +121,10 @@ namespace moo.Migration
             catch (Exception ex)
             {
                 Database.Rollback();
-                record_script_in_scripts_run_errors_table(scriptName, sql, sql, ex.Message, versionId);
+                Transaction.Current?.Dispose();
+
+                await record_script_in_scripts_run_errors_table(scriptName, sql, sql, ex.Message, versionId);
+               
                 await Database.CloseConnection();
                 throw;
             }
@@ -126,13 +132,15 @@ namespace moo.Migration
             await record_script_in_scripts_run_table(scriptName, sql, migrationType, versionId);
         }
 
-        private void OneTimeScriptChanged(string sql, string scriptName, long versionId)
+        private async Task OneTimeScriptChanged(string sql, string scriptName, long versionId)
         {
             Database.Rollback();
+            Transaction.Current?.Dispose();
+            
             string errorMessage =
                 $"{scriptName} has changed since the last time it was run. By default this is not allowed - scripts that run once should never change. To change this behavior to a warning, please set warnOnOneTimeScriptChanges to true and run again. Stopping execution.";
-            record_script_in_scripts_run_errors_table(scriptName, sql, sql, errorMessage, versionId);
-            Database.CloseConnection();
+            await record_script_in_scripts_run_errors_table(scriptName, sql, sql, errorMessage, versionId);
+            await Database.CloseConnection();
             throw new OneTimeScriptChanged(errorMessage);
         }
 
@@ -144,9 +152,9 @@ namespace moo.Migration
             await Database.InsertScriptRun(scriptName, sql, hash, migrationType == MigrationType.Once, versionId);
         }
 
-        private void record_script_in_scripts_run_errors_table(string scriptName, string sql, string errorSql, string errorMessage, long versionId)
+        private async Task record_script_in_scripts_run_errors_table(string scriptName, string sql, string errorSql, string errorMessage, long versionId)
         {
-            Database.InsertScriptRunError(scriptName, sql, errorSql, errorMessage, versionId);
+            await Database.InsertScriptRunError(scriptName, sql, errorSql, errorMessage, versionId);
         }
 
         public async ValueTask DisposeAsync()

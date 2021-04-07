@@ -1,9 +1,12 @@
 ﻿using System.IO;
+using System.Text.RegularExpressions;
 
 namespace moo.Configuration
 {
     public class MooConfiguration
     {
+        private readonly string? _adminConnectionString = null;
+
         //public KnownFolders KnownFolders { get; set; } = InCurrentDirectory();
         public KnownFolders? KnownFolders { get; set; }
         
@@ -17,7 +20,23 @@ namespace moo.Configuration
         //public DirectoryInfo? OutputPath { get; set; }
         
         public string? ConnectionString { get; init; } = null;
-        public string? AdminConnectionString { get; init; } = null;
+
+        public string? AdminConnectionString
+        {
+            get => _adminConnectionString ?? WithAdminDb(ConnectionString);
+            init => _adminConnectionString = value;
+        }
+
+        private static string? WithAdminDb(string? connectionString)
+        {
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                return connectionString;
+            }
+            var pattern = new Regex("(.*;Initial Catalog=)([^;]*)(.*)");
+            var replaced = pattern.Replace(connectionString, "$1master$3");
+            return replaced;
+        }
 
         public static MooConfiguration Default => new();
         public bool CreateDatabase { get; init; } = true;

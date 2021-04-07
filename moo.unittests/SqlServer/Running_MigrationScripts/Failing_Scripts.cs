@@ -1,8 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
 using Dapper;
 using FluentAssertions;
 using Microsoft.Data.SqlClient;
@@ -13,53 +13,43 @@ using moo.Migration;
 using NSubstitute;
 using NUnit.Framework;
 
-namespace moo.unittests.SqlServer
+namespace moo.unittests.SqlServer.Running_MigrationScripts
 {
     [TestFixture]
-    public class MigrationTable
+    public class Failing_Scripts
     {
         private MooConfiguration? _config;
         private static string? AdminConnectionString() => $"Data Source=localhost,{MooTestContext.SqlServer.Port};Initial Catalog=master;User Id=sa;Password={MooTestContext.SqlServer.AdminPassword}";
         private static string? ConnectionString(string database) => $"Data Source=localhost,{MooTestContext.SqlServer.Port};Initial Catalog={database};User Id=sa;Password={MooTestContext.SqlServer.AdminPassword}";
-
-        [TestCase("ScriptsRun")]
-        [TestCase("ScriptsRunErrors")]
-        [TestCase("Version")]
-        public async Task Is_created_if_it_does_not_exist(string tableName)
-        {
-            var db = "MonoBonoJono";
-            var fullTableName = "moo." + tableName;
-            
-            var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-
-            await using (var migrator = GetMigrator(db, true, knownFolders))
-            {
-                await migrator.Migrate();
-            }
-
-            IEnumerable<string> scripts;
-            string sql = $"SELECT modified_date FROM {fullTableName}";
-            
-            await using (var conn = new SqlConnection(ConnectionString(db)))
-            {
-                scripts = await conn.QueryAsync<string>(sql);
-            }
-            scripts.Should().NotBeNull();
-        }
         
-        
-        [TestCase("ScriptsRun")]
-        [TestCase("ScriptsRunErrors")]
-        [TestCase("Version")]
-        public async Task Is_created_even_if_scripts_fail(string tableName)
+        [Test]
+        public async Task Aborts_the_run_giving_an_error_message()
         {
-            var db = "DatabaseWithFailingScripts";
-            var fullTableName = "moo." + tableName;
+            var db = "ErrorFailingDatabase";
+
+            MooMigrator? migrator;
             
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateInvalidSql(knownFolders.Up);
+            
+            await using (migrator = GetMigrator(db, true, knownFolders))
+            {
+                var ex = Assert.ThrowsAsync<SqlException>(migrator.Migrate);
+                ex?.Message.Should().Be("Incorrect syntax near 'TOP'.");
+            }
+        }
 
-            await using (var migrator = GetMigrator(db, true, knownFolders))
+        [Test]
+        public async Task Are_Inserted_Into_ScriptRunErrors_Table()
+        {
+            var db = "FailingScripts";
+
+            MooMigrator? migrator;
+            
+            var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
+            CreateInvalidSql(knownFolders.Up);
+            
+            await using (migrator = GetMigrator(db, true, knownFolders))
             {
                 try
                 {
@@ -70,63 +60,54 @@ namespace moo.unittests.SqlServer
                 }
             }
 
-            IEnumerable<string> scripts;
-            string sql = $"SELECT modified_date FROM {fullTableName}";
+            string[] scripts;
+            string sql = "SELECT script_name FROM moo.ScriptsRunErrors";
+
+            using (new TransactionScope(TransactionScopeOption.Suppress))
+            {
+                await using (var conn = new SqlConnection(ConnectionString(db)))
+                {
+                    scripts = (await conn.QueryAsync<string>(sql)).ToArray();
+                }
+            }
+
+            scripts.Should().HaveCount(1);
+        }
+        
+        [Test]
+        public async Task Makes_Whole_Transaction_Rollback()
+        {
+            var db = "DbToRollBack";
+
+            MooMigrator? migrator;
+            
+            var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
+            CreateDummySql(knownFolders.Up);
+            CreateInvalidSql(knownFolders.Up);
+            
+            await using (migrator = GetMigrator(db, true, knownFolders))
+            {
+                try
+                {
+                    await migrator.Migrate();
+                }
+                catch (SqlException)
+                {
+                }
+            }
+
+            string[] scripts;
+            string sql = "SELECT text_of_script FROM moo.ScriptsRun";
             
             await using (var conn = new SqlConnection(ConnectionString(db)))
             {
-                scripts = await conn.QueryAsync<string>(sql);
-            }
-            scripts.Should().NotBeNull();
-        }
-        
-        [TestCase("ScriptsRun")]
-        [TestCase("ScriptsRunErrors")]
-        [TestCase("Version")]
-        public async Task Migration_does_not_fail_if_table_already_exists(string tableName)
-        {
-            var db = "MonoBonoJono";
-
-            var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-            
-            await using (var migrator = GetMigrator(db, true, knownFolders))
-            {
-                await migrator.Migrate();
-            }
-            
-            // Run migration again - make sure it does not throw an exception
-            await using (var migrator = GetMigrator(db, true, knownFolders))
-            {
-                Assert.DoesNotThrowAsync(() => migrator.Migrate());
-            }
-        }
-        
-        [Test()]
-        public async Task Inserts_version_in_version_table()
-        {
-            var db = "BooYaTribe";
-
-            var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-            
-            await using (var migrator = GetMigrator(db, true, knownFolders))
-            {
-                await migrator.Migrate();
+                scripts = (await conn.QueryAsync<string>(sql)).ToArray();
             }
 
-            IEnumerable<string> entries;
-            string sql = $"SELECT version FROM moo.Version";
-            
-            await using (var conn = new SqlConnection(ConnectionString(db)))
-            {
-                entries = await conn.QueryAsync<string>(sql);
-            }
-
-            var versions = entries.ToList();
-            versions.Should().HaveCount(1);
-            versions.FirstOrDefault().Should().Be("a.b.c.d");
+            scripts.Should().BeEmpty();
         }
 
-   private MooMigrator GetMigrator(string databaseName, bool createDatabase, KnownFolders knownFolders)
+        private MooMigrator GetMigrator(string databaseName, bool createDatabase, KnownFolders knownFolders)
         {
             var connectionString = ConnectionString(databaseName);
 
@@ -193,6 +174,5 @@ namespace moo.unittests.SqlServer
 
             return path;
         }
-        
     }
 }

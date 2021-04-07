@@ -22,6 +22,6 @@ namespace moo.Migration
         Task<string?> GetCurrentHash(string scriptName);
         Task<bool> HasRun(string scriptName);
         Task InsertScriptRun(string scriptName, string sql, string hash, bool runOnce, object versionId);
-        void InsertScriptRunError(string scriptName, string sql, string errorSql, string errorMessage, object versionId);
+        Task InsertScriptRunError(string scriptName, string sql, string errorSql, string errorMessage, long versionId);
     }
 }

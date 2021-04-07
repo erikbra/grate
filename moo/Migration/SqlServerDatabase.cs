@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection.Metadata;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Transactions;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
@@ -85,23 +86,50 @@ namespace moo.Migration
 
             if (!databases.Contains(DatabaseName))
             {
+                using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
                 var cmd = AdminConnection.CreateCommand();
                 //var res = await _cmd.Execute($"CREATE database {DatabaseName}");
                 cmd.CommandText = $"CREATE database {DatabaseName}";
                 var res = await cmd.ExecuteNonQueryAsync();
-                await Task.Delay(5000);
+                //await Task.Delay(5000);
+                s.Complete();
             }
             
             await CloseAdminConnection();
+
+            await WaitUntilDatabaseIsReady();
+        }
+
+        private async Task WaitUntilDatabaseIsReady()
+        {
+            const int maxDelay = 10_000;
+            int totalDelay = 0;
+            
+            var databaseReady = false;
+            do
+            {
+                try
+                {
+                    await OpenConnection();
+                    databaseReady = true;
+                }
+                catch (SqlException)
+                {
+                    await Task.Delay(1000);
+                    totalDelay += 1000;
+                }
+            } while (!databaseReady && totalDelay < maxDelay);
         }
 
         public async Task RunSupportTasks()
         {
-            _logger.LogInformation("TODO: RunSupportTasks");
+            using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
             await CreateRunSchema();
             await CreateScriptsRunTable();
             await CreateScriptsRunErrorsTable();
             await CreateVersionTable();
+            s.Complete();
+            await CloseConnection();
         }
 
         private async Task CreateRunSchema()
@@ -247,7 +275,8 @@ SELECT @@IDENTITY
 
         public void Rollback()
         {
-            _logger.LogInformation("TODO: Rollback");
+            _logger.LogInformation("Rolling back changes.");
+            Transaction.Current?.Rollback();
         }
 
         public async Task RunSql(string sql, ConnectionType connectionType)
@@ -304,12 +333,28 @@ VALUES (@versionId, @scriptName, @sql, @hash, @runOnce)";
             };
 
             await Connection.ExecuteAsync(insertSql, scriptRun);
-            
         }
 
-        public void InsertScriptRunError(string scriptName, string sql, string errorSql, string errorMessage, object versionId)
+        public async Task InsertScriptRunError(string scriptName, string sql, string errorSql, string errorMessage, long versionId)
         {
-            _logger.LogInformation("TODO: InsertScriptRunError");
+            var insertSql = $@"
+INSERT INTO [{SchemaName}].ScriptsRunErrors
+(version, script_name, text_of_script, erroneous_part_of_script, error_message)
+VALUES ((SELECT version FROM [{SchemaName}].Version WHERE id = @versionId), @scriptName, @sql, @errorSql, @errorMessage)";
+            
+            var scriptRunErrors = new 
+            {
+                versionId,
+                scriptName,
+                sql,
+                errorSql,
+                errorMessage
+            };
+            
+            using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+            await Connection.ExecuteAsync(insertSql, scriptRunErrors);
+            
+            s.Complete();
         }
 
         public void Dispose()

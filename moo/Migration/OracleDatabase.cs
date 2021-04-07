@@ -79,7 +79,7 @@ namespace moo.Migration
             throw new System.NotImplementedException();
         }
 
-        public void InsertScriptRunError(string scriptName, string sql, string errorSql, string errorMessage, object versionId)
+        public Task InsertScriptRunError(string scriptName, string sql, string errorSql, string errorMessage, long versionId)
         {
             throw new System.NotImplementedException();
         }
