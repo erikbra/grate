@@ -33,7 +33,7 @@ namespace moo.Configuration
             {
                 return connectionString;
             }
-            var pattern = new Regex("(.*;Initial Catalog=)([^;]*)(.*)");
+            var pattern = new Regex("(.*;(?:Initial Catalog|Database)=)([^;]*)(.*)");
             var replaced = pattern.Replace(connectionString, "$1master$3");
             return replaced;
         }
