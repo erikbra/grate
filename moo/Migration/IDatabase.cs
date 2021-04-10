@@ -8,6 +8,11 @@ namespace moo.Migration
         string? ServerName { get; }
         string? DatabaseName { get; }
         bool SupportsDdlTransactions { get; }
+        
+        bool SplitBatchStatements { get; }
+        string StatementSeparatorRegex { get; }
+     
+        
         Task InitializeConnections(MooConfiguration configuration);
         Task OpenConnection();
         Task CloseConnection();

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Transactions;
 using Microsoft.Extensions.Logging;
@@ -27,11 +28,13 @@ namespace moo.Migration
         }
 
         public IDatabase Database { get; set; } = null!;
+        public StatementSplitter StatementSplitter { get; set; } = null!;
 
         public void ApplyConfig(MooConfiguration config)
         {
             this.Configuration = config;
             Database = _factory.GetService<DatabaseType, IDatabase>(config.DatabaseType);
+            StatementSplitter = new StatementSplitter(Database.StatementSeparatorRegex);
         }
 
         public async Task<bool> CreateDatabase()
@@ -114,23 +117,27 @@ namespace moo.Migration
             long versionId,
             ConnectionType connectionType)
         {
-            try
+            foreach (var statement in GetStatements(sql))
             {
-                await Database.RunSql(sql, connectionType);
-            }
-            catch (Exception ex)
-            {
-                Database.Rollback();
-                Transaction.Current?.Dispose();
+                try
+                {
+                    await Database.RunSql(sql, connectionType);
+                }
+                catch (Exception ex)
+                {
+                    Database.Rollback();
+                    Transaction.Current?.Dispose();
 
-                await record_script_in_scripts_run_errors_table(scriptName, sql, sql, ex.Message, versionId);
+                    await record_script_in_scripts_run_errors_table(scriptName, sql, statement, ex.Message, versionId);
                
-                await Database.CloseConnection();
-                throw;
+                    await Database.CloseConnection();
+                    throw;
+                }
             }
-
             await record_script_in_scripts_run_table(scriptName, sql, migrationType, versionId);
         }
+
+        private IEnumerable<string> GetStatements(string sql) => StatementSplitter.Split(sql);
 
         private async Task OneTimeScriptChanged(string sql, string scriptName, long versionId)
         {

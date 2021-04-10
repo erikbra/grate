@@ -8,6 +8,10 @@ namespace moo.Migration
         public string? ServerName { get; set; }
         public string? DatabaseName { get; set; }
         public bool SupportsDdlTransactions => false;
+        
+        public bool SplitBatchStatements => true;
+        
+        public string StatementSeparatorRegex =>  @"(?<KEEP1>^(?:.)*(?:-{2}).*$)|(?<KEEP1>/{1}\*{1}[\S\s]*?\*{1}/{1})|(?<KEEP1>^|\s)(?<BATCHSPLITTER>;)(?<KEEP2>\s|$)";
 
         public Task InitializeConnections(MooConfiguration? configuration)
         {

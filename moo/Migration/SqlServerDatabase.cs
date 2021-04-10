@@ -1,7 +1,6 @@
 using System;
 using System.Data;
 using System.Linq;
-using System.Reflection.Metadata;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -26,7 +25,21 @@ namespace moo.Migration
 
         public string? ServerName => Connection?.DataSource;
         public string? DatabaseName => Connection?.Database;
+        
         public bool SupportsDdlTransactions => true;
+        public bool SplitBatchStatements => true;
+        
+        public string StatementSeparatorRegex
+        {
+            get
+            {
+                const string strings = @"(?<KEEP1>'[^']*')";
+                const string dashComments = @"(?<KEEP1>--.*$)";
+                const string starComments = @"(?<KEEP1>/\*[\S\s]*?\*/)";
+                const string separator = @"(?<KEEP1>^|\s)(?<BATCHSPLITTER>GO)(?<KEEP2>\s|$)";
+                return strings + "|" + dashComments + "|" + starComments + "|" + separator;
+            }
+        }
         
         public Task InitializeConnections(MooConfiguration configuration)
         {

@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Infrastructure\SqlServer" />
     <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\afterMigration" />
     <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\alterDatabase" />
     <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\beforeMigration" />
