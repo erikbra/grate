@@ -63,7 +63,7 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
             string[] scripts;
             string sql = "SELECT script_name FROM moo.ScriptsRunErrors";
 
-            using (new TransactionScope(TransactionScopeOption.Suppress))
+            using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
                 await using (var conn = new SqlConnection(ConnectionString(db)))
                 {
@@ -126,7 +126,8 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
                 AdminConnectionString = AdminConnectionString(),
                 Version = "a.b.c.d",
                 KnownFolders = knownFolders,
-                AlterDatabase = true
+                AlterDatabase = true,
+                Transaction = true
             };
 
 

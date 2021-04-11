@@ -58,7 +58,7 @@ namespace moo.unittests.SqlServer
         {
             var delay = 2000;
             var sleepTime = 0;
-            var maxSleepTime = delay * 5;
+            var maxSleepTime = delay * 20;
 
             var ready = await ServerIsReady(true);
 

@@ -40,7 +40,7 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
                 scripts = (await conn.QueryAsync<string>(sql)).ToArray();
             }
 
-            scripts.Should().HaveCount(13);
+            scripts.Should().HaveCount(14);
 
             KnownFolders knownFolders = _config?.KnownFolders ?? throw new ArgumentNullException(nameof(_config.KnownFolders));
             Assert.Multiple(() =>
@@ -51,13 +51,14 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
                     AssertScriptPath(scripts[3], knownFolders.RunBeforeUp);
                     AssertScriptPath(scripts[4], knownFolders.Up);
                     AssertScriptPath(scripts[5], knownFolders.RunFirstAfterUp);
-                    AssertScriptPath(scripts[6], knownFolders.Views);
-                    AssertScriptPath(scripts[7], knownFolders.Sprocs);
-                    AssertScriptPath(scripts[8], knownFolders.Triggers);
-                    AssertScriptPath(scripts[9], knownFolders.Indexes);
-                    AssertScriptPath(scripts[10], knownFolders.RunAfterOtherAnyTimeScripts);
-                    AssertScriptPath(scripts[11], knownFolders.Permissions);
-                    AssertScriptPath(scripts[12], knownFolders.AfterMigration);
+                    AssertScriptPath(scripts[6], knownFolders.Functions);
+                    AssertScriptPath(scripts[7], knownFolders.Views);
+                    AssertScriptPath(scripts[8], knownFolders.Sprocs);
+                    AssertScriptPath(scripts[9], knownFolders.Triggers);
+                    AssertScriptPath(scripts[10], knownFolders.Indexes);
+                    AssertScriptPath(scripts[11], knownFolders.RunAfterOtherAnyTimeScripts);
+                    AssertScriptPath(scripts[12], knownFolders.Permissions);
+                    AssertScriptPath(scripts[13], knownFolders.AfterMigration);
                 }
             );
         }
