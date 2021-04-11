@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace moo.Infrastructure
 {
@@ -16,7 +18,15 @@ namespace moo.Infrastructure
         public IEnumerable<string> Split(string statement)
         {
             var replaced = _replacer.Replace(statement);
-            return replaced.Split(BatchTerminatorReplacementString);
+            
+            var statements = replaced.Split(BatchTerminatorReplacementString);
+            return statements.Where(HasScriptsToRun);
+        }
+        
+        private static bool HasScriptsToRun(string sqlStatement)
+        {
+            var trimmedStatement = sqlStatement.Replace(BatchTerminatorReplacementString, string.Empty, StringComparison.InvariantCultureIgnoreCase);
+            return !string.IsNullOrEmpty(trimmedStatement.ToLower().Replace(Environment.NewLine, string.Empty).Replace(" ", string.Empty));
         }
 
     }

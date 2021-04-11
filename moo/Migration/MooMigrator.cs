@@ -235,8 +235,7 @@ namespace moo.Migration
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogWarning(ex, "Unable to copy {0} to {1}. {2}{3}", file, folder.Path,
-                            System.Environment.NewLine, ex.Message);
+                        _logger.LogWarning(ex, "Unable to copy {0} to {1}. \n{2}", file, changeDropFolder, ex.Message);
                     }
                 }
                 
@@ -250,7 +249,7 @@ namespace moo.Migration
         {
             var cfg = _migrator.Configuration;
 
-            var relativePath = Path.GetRelativePath(folder.Path.FullName, file.FullName);
+            var relativePath = Path.GetRelativePath(cfg.SqlFilesDirectory.ToString(), file.FullName);
             
             string destinationFile = Path.Combine(changeDropFolder, "itemsRan", relativePath);
 
@@ -271,7 +270,10 @@ namespace moo.Migration
 
         private static IEnumerable<FileSystemInfo> GetFiles(DirectoryInfo folderPath, string pattern)
         {
-            return folderPath.EnumerateFileSystemInfos(pattern, SearchOption.AllDirectories);
+            return folderPath
+                .EnumerateFileSystemInfos(pattern, SearchOption.AllDirectories).ToList()
+                .OrderBy(f => f.Name, StringComparer.CurrentCultureIgnoreCase);
+                //.OrderBy(f => f.FullName, StringComparer.CurrentCultureIgnoreCase);
         }
 
         private void Info(string format, params object?[] args) => _logger.LogInformation(format, args);
@@ -284,6 +286,10 @@ namespace moo.Migration
 
         private void CreateChangeDropFolder(MooConfiguration config, string folder)
         {
+            if (Directory.Exists(folder))
+            {
+                Directory.Delete(folder, recursive: true);
+            }
             Directory.CreateDirectory(folder);
         }
 

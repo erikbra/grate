@@ -36,7 +36,7 @@ namespace moo.Migration
                 const string strings = @"(?<KEEP1>'[^']*')";
                 const string dashComments = @"(?<KEEP1>--.*$)";
                 const string starComments = @"(?<KEEP1>/\*[\S\s]*?\*/)";
-                const string separator = @"(?<KEEP1>^|\s)(?<BATCHSPLITTER>GO)(?<KEEP2>\s|$)";
+                const string separator = @"(?<KEEP1>^|\s)(?<BATCHSPLITTER>GO)(?<KEEP2>\s|;|$)";
                 return strings + "|" + dashComments + "|" + starComments + "|" + separator;
             }
         }
@@ -352,8 +352,8 @@ VALUES (@versionId, @scriptName, @sql, @hash, @runOnce)";
         {
             var insertSql = $@"
 INSERT INTO [{SchemaName}].ScriptsRunErrors
-(version, script_name, text_of_script, erroneous_part_of_script, error_message)
-VALUES ((SELECT version FROM [{SchemaName}].Version WHERE id = @versionId), @scriptName, @sql, @errorSql, @errorMessage)";
+(version, script_name, text_of_script, erroneous_part_of_script, error_message, entry_date, modified_date, entered_by)
+VALUES ((SELECT version FROM [{SchemaName}].Version WHERE id = @versionId), @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @user)";
             
             var scriptRunErrors = new 
             {
@@ -361,7 +361,9 @@ VALUES ((SELECT version FROM [{SchemaName}].Version WHERE id = @versionId), @scr
                 scriptName,
                 sql,
                 errorSql,
-                errorMessage
+                errorMessage,
+                now = DateTime.UtcNow,
+                user = Environment.UserName
             };
             
             using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);

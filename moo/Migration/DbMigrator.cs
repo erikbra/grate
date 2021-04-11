@@ -121,7 +121,7 @@ namespace moo.Migration
             {
                 try
                 {
-                    await Database.RunSql(sql, connectionType);
+                    await Database.RunSql(statement, connectionType);
                 }
                 catch (Exception ex)
                 {
