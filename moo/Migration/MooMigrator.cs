@@ -45,7 +45,8 @@ namespace moo.Migration
             Info("Looking in {0} for scripts to run.", knownFolders?.Up?.Path);
             
             PressEnterWhenReady(silent);
-            var runInTransaction = MakeSureWeCanRunInTransaction(config.RunInTransaction, silent, dbMigrator);
+            //var runInTransaction = MakeSureWeCanRunInTransaction(bool.Parse(config.Transaction), silent, dbMigrator);
+            var runInTransaction = MakeSureWeCanRunInTransaction(config.Transaction, silent, dbMigrator);
 
             var changeDropFolder = ChangeDropFolder(config, database?.ServerName, database?.DatabaseName);
             CreateChangeDropFolder(config, changeDropFolder);
@@ -137,6 +138,7 @@ namespace moo.Migration
                 await LogAndProcess(knownFolders.Up!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
                 await LogAndProcess(knownFolders.RunFirstAfterUp!, changeDropFolder, versionId, newVersion,
                     ConnectionType.Default);
+                await LogAndProcess(knownFolders.Functions!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
                 await LogAndProcess(knownFolders.Views!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
                 await LogAndProcess(knownFolders.Sprocs!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
                 await LogAndProcess(knownFolders.Triggers!, changeDropFolder, versionId, newVersion, ConnectionType.Default);

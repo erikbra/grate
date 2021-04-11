@@ -41,7 +41,8 @@ namespace moo.Configuration
         public static MooConfiguration Default => new();
         public bool CreateDatabase { get; init; } = true;
         public bool AlterDatabase { get; init; } = false;
-        public bool RunInTransaction { get; init; } = true;
+        public bool Transaction { get; init; } = false;
+        //public string Transaction { get; set; }
         public string Version { get; init; } = "0.0.0.1";
         
         public int CommandTimeout { get; set; }

@@ -26,6 +26,7 @@ namespace moo.Commands
             Add(CommandTimeoutAdmin());
             Add(DatabaseType());
             Add(Version());
+            Add(RunInTransaction());
 
             Handler = CommandHandler.Create(
                 async (MooConfiguration config) =>
@@ -117,5 +118,11 @@ namespace moo.Commands
                 new[] {"--version"},
                 "Specify the version directly."
             );
+
+        private static Option RunInTransaction() => //new Argument<bool>("-t");
+            new Option<string>(
+                new[] {"--transaction", "--trx", "-t"},
+                "Run the migration in a transaction"
+                );
     }
 }

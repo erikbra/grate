@@ -101,6 +101,36 @@ namespace moo.unittests
             cfg?.AdminCommandTimeout.Should().Be(timeout);
         }
         
+        [TestCase("-t")]
+        [TestCase("--trx")]
+        [TestCase("--transaction")]
+        public async Task WithTransaction(string argName)
+        {
+            var commandline = argName;
+            var cfg = await ParseMooConfiguration(commandline);
+
+            cfg?.Transaction.Should().Be(true);
+        }
+        
+        [TestCase("-t 0")]
+        [TestCase("--trx false")]
+        [TestCase("--transaction false")]
+        [TestCase("--transaction=false")]
+        public async Task WithoutTransaction(string argName)
+        {
+            var commandline = argName;
+            var cfg = await ParseMooConfiguration(commandline);
+
+            cfg?.Transaction.Should().Be(false);
+        }
+        
+        [Test]
+        public async Task WithoutTransaction_Default()
+        {
+            var cfg = await ParseMooConfiguration("");
+            cfg?.Transaction.Should().Be(false);
+        }
+        
 
         private static async Task<MooConfiguration?> ParseMooConfiguration(string commandline)
         {

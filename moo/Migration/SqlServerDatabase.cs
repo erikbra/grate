@@ -333,8 +333,8 @@ WHERE script_name = @scriptName";
         {
             var insertSql = $@"
 INSERT INTO [{SchemaName}].ScriptsRun
-(version_id, script_name, text_of_script, text_hash, one_time_script)
-VALUES (@versionId, @scriptName, @sql, @hash, @runOnce)";
+(version_id, script_name, text_of_script, text_hash, one_time_script, entry_date, modified_date, entered_by)
+VALUES (@versionId, @scriptName, @sql, @hash, @runOnce, @now, @now, @user)";
             
             var scriptRun = new 
             {
@@ -342,7 +342,9 @@ VALUES (@versionId, @scriptName, @sql, @hash, @runOnce)";
                 scriptName,
                 sql,
                 hash,
-                runOnce
+                runOnce,
+                now = DateTime.UtcNow,
+                user = Environment.UserName
             };
 
             await Connection.ExecuteAsync(insertSql, scriptRun);
