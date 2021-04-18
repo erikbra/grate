@@ -2,9 +2,6 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <PublishSingleFile>true</PublishSingleFile>
-    <PublishTrimmed>True</PublishTrimmed>
-    <TrimMode>link</TrimMode>
     <TargetFramework>net6.0</TargetFramework>
     <DebugType>Embedded</DebugType>
     <Nullable>enable</Nullable>
@@ -19,8 +16,12 @@
     <PackageReference Include="Dapper" Version="2.0.*" />
   </ItemGroup>
   
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release'">
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <PublishTrimmed>True</PublishTrimmed>
+    <TrimMode>link</TrimMode>
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
     <RuntimeIdentifiers>win-x64;alpine-x64</RuntimeIdentifiers>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
   </PropertyGroup>
