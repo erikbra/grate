@@ -16,27 +16,78 @@ using NUnit.Framework;
 namespace moo.unittests.SqlServer.Running_MigrationScripts
 {
     [TestFixture]
-    public class One_time_scripts
+    public class Environment_scripts
     {
         private MooConfiguration? _config;
         private static string? AdminConnectionString() => $"Data Source=localhost,{MooTestContext.SqlServer.Port};Initial Catalog=master;User Id=sa;Password={MooTestContext.SqlServer.AdminPassword}";
         private static string? ConnectionString(string database) => $"Data Source=localhost,{MooTestContext.SqlServer.Port};Initial Catalog={database};User Id=sa;Password={MooTestContext.SqlServer.AdminPassword}";
 
         [Test]
-        public async Task Are_not_run_more_than_once_when_unchanged()
+        public async Task Are_not_run_if_not_in_environment()
         {
             var db = TestConfig.RandomDatabase();
 
             MooMigrator? migrator;
             
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-            CreateDummySql(knownFolders.Up);
+            CreateDummySql(knownFolders.Up, "1_.OTHER.filename.ENV.sql");
             
-            await using (migrator = GetMigrator(db, true, knownFolders))
+            await using (migrator = GetMigrator(db, true, knownFolders, "TEST"))
             {
                 await migrator.Migrate();
             }
-            await using (migrator = GetMigrator(db, true, knownFolders))
+
+            string[] scripts;
+            string sql = "SELECT script_name FROM moo.ScriptsRun";
+            
+            await using (var conn = new SqlConnection(ConnectionString(db)))
+            {
+                scripts = (await conn.QueryAsync<string>(sql)).ToArray();
+            }
+
+            scripts.Should().BeEmpty();
+        }
+        
+        [Test]
+        public async Task Are_run_if_in_environment()
+        {
+            var db = TestConfig.RandomDatabase();
+
+            MooMigrator? migrator;
+            
+            var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
+            CreateDummySql(knownFolders.Up, "1_.TEST.filename.ENV.sql");
+            CreateDummySql(knownFolders.Up, "2_.TEST.ENV.otherfilename.sql");
+            
+            await using (migrator = GetMigrator(db, true, knownFolders, "TEST"))
+            {
+                await migrator.Migrate();
+            }
+
+            string[] scripts;
+            string sql = "SELECT script_name FROM moo.ScriptsRun";
+            
+            await using (var conn = new SqlConnection(ConnectionString(db)))
+            {
+                scripts = (await conn.QueryAsync<string>(sql)).ToArray();
+            }
+
+            scripts.Should().HaveCount(2);
+        }
+        
+        [Test]
+        public async Task Non_environment_scripts_are_always_run()
+        {
+            var db = TestConfig.RandomDatabase();
+
+            MooMigrator? migrator;
+            
+            var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
+            CreateDummySql(knownFolders.Up, "1_.filename.sql");
+            CreateDummySql(knownFolders.Up, "2_.TEST.ENV.otherfilename.sql");
+            CreateDummySql(knownFolders.Up, "2_.TEST.ENV.somethingelse.sql");
+            
+            await using (migrator = GetMigrator(db, true, knownFolders, "PROD"))
             {
                 await migrator.Migrate();
             }
@@ -51,42 +102,9 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
 
             scripts.Should().HaveCount(1);
         }
-        
-        [Test]
-        public async Task Fails_if_changed_between_runs()
-        {
-            var db = TestConfig.RandomDatabase();
+       
 
-            MooMigrator? migrator;
-            
-            var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-            CreateDummySql(knownFolders.Up);
-            
-            await using (migrator = GetMigrator(db, true, knownFolders))
-            {
-                await migrator.Migrate();
-            }
-            
-            WriteSomeOtherSql(knownFolders.Up);
-            
-            await using (migrator = GetMigrator(db, true, knownFolders))
-            {
-                Assert.ThrowsAsync<OneTimeScriptChanged>(() => migrator.Migrate());
-            }
-
-            string[] scripts;
-            string sql = "SELECT text_of_script FROM moo.ScriptsRun";
-            
-            await using (var conn = new SqlConnection(ConnectionString(db)))
-            {
-                scripts = (await conn.QueryAsync<string>(sql)).ToArray();
-            }
-
-            scripts.Should().HaveCount(1);
-            scripts.First().Should().Be("SELECT @@VERSION");
-        }
-
-        private MooMigrator GetMigrator(string databaseName, bool createDatabase, KnownFolders knownFolders)
+        private MooMigrator GetMigrator(string databaseName, bool createDatabase, KnownFolders knownFolders, params string[] environments)
         {
             var connectionString = ConnectionString(databaseName);
 
@@ -105,7 +123,8 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
                 AdminConnectionString = AdminConnectionString(),
                 Version = "a.b.c.d",
                 KnownFolders = knownFolders,
-                AlterDatabase = true
+                AlterDatabase = true,
+                Environments = environments.Select(env => new MooEnvironment(env))
             };
 
 
@@ -123,20 +142,13 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
             return scriptsDir;
         }
 
-        private static void CreateDummySql(MigrationsFolder? folder)
+        private static void CreateDummySql(MigrationsFolder? folder, string filename)
         {
             var dummySql = "SELECT @@VERSION";
             var path = MakeSurePathExists(folder);
-            WriteSql(path, "1_jalla.sql", dummySql);
+            WriteSql(path, filename, dummySql);
         }
-        
-        private static void WriteSomeOtherSql(MigrationsFolder? folder)
-        {
-            var dummySql = "SELECT DB_NAME()";
-            var path = MakeSurePathExists(folder);
-            WriteSql(path, "1_jalla.sql", dummySql);
-        }
-
+       
         private static void WriteSql(DirectoryInfo path, string filename, string? sql)
         {
             File.WriteAllText(Path.Combine(path.ToString(), filename), sql);

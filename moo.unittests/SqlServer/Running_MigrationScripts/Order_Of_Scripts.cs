@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using moo.Configuration;
 using moo.Infrastructure;
 using moo.Migration;
+using moo.unittests.TestInfrastructure;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -24,7 +25,7 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
         [Test()]
         public async Task Is_as_expected()
         {
-            var db = "GoinRoundDrinkingMoonshine";
+            var db = TestConfig.RandomDatabase();
 
             MooMigrator? migrator;
             await using (migrator = GetMigrator(db, true))

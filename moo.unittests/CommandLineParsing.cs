@@ -1,11 +1,13 @@
 ﻿using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using moo.Commands;
 using moo.Configuration;
+using moo.Infrastructure;
 using NUnit.Framework;
 
 namespace moo.unittests
@@ -122,6 +124,18 @@ namespace moo.unittests
             var cfg = await ParseMooConfiguration(commandline);
 
             cfg?.Transaction.Should().Be(false);
+        }
+        
+        [TestCase("--env KASHMIR", "KASHMIR")]
+        [TestCase("--environment JALLA", "JALLA")]
+        [TestCase("--environments JALLA NALLA", "JALLA", "NALLA")]
+        [TestCase("--environments JALLA NALLA OTHER --trx", "JALLA", "NALLA", "OTHER")]
+        public async Task Environments(string argName, params string[] expected)
+        {
+            var commandline = argName;
+            var cfg = await ParseMooConfiguration(commandline);
+
+            cfg?.Environments.Should().BeEquivalentTo(expected.Select(e => new MooEnvironment(e)));
         }
         
         [Test]

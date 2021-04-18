@@ -16,29 +16,28 @@ using NUnit.Framework;
 namespace moo.unittests.SqlServer.Running_MigrationScripts
 {
     [TestFixture]
-    public class One_time_scripts
+    public class Everytime_scripts
     {
         private MooConfiguration? _config;
         private static string? AdminConnectionString() => $"Data Source=localhost,{MooTestContext.SqlServer.Port};Initial Catalog=master;User Id=sa;Password={MooTestContext.SqlServer.AdminPassword}";
         private static string? ConnectionString(string database) => $"Data Source=localhost,{MooTestContext.SqlServer.Port};Initial Catalog={database};User Id=sa;Password={MooTestContext.SqlServer.AdminPassword}";
 
         [Test]
-        public async Task Are_not_run_more_than_once_when_unchanged()
+        public async Task Are_run_every_time_even_when_unchanged()
         {
             var db = TestConfig.RandomDatabase();
 
             MooMigrator? migrator;
             
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-            CreateDummySql(knownFolders.Up);
-            
-            await using (migrator = GetMigrator(db, true, knownFolders))
+            CreateDummySql(knownFolders.Permissions);
+
+            for (var i = 0; i < 3; i++)
             {
-                await migrator.Migrate();
-            }
-            await using (migrator = GetMigrator(db, true, knownFolders))
-            {
-                await migrator.Migrate();
+                await using (migrator = GetMigrator(db, true, knownFolders))
+                {
+                    await migrator.Migrate();
+                }
             }
 
             string[] scripts;
@@ -49,43 +48,43 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
                 scripts = (await conn.QueryAsync<string>(sql)).ToArray();
             }
 
-            scripts.Should().HaveCount(1);
+            scripts.Should().HaveCount(3);
         }
         
         [Test]
-        public async Task Fails_if_changed_between_runs()
+        public async Task Are_recognized_by_script_name()
         {
             var db = TestConfig.RandomDatabase();
 
             MooMigrator? migrator;
             
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-            CreateDummySql(knownFolders.Up);
+
+            var folder = knownFolders.Up;// not an everytime folder
             
-            await using (migrator = GetMigrator(db, true, knownFolders))
+            CreateDummySql(folder); 
+            CreateEveryTimeScriptFile(folder); 
+            CreateOtherEveryTimeScriptFile(folder); 
+
+            for (var i = 0; i < 3; i++)
             {
-                await migrator.Migrate();
-            }
-            
-            WriteSomeOtherSql(knownFolders.Up);
-            
-            await using (migrator = GetMigrator(db, true, knownFolders))
-            {
-                Assert.ThrowsAsync<OneTimeScriptChanged>(() => migrator.Migrate());
+                await using (migrator = GetMigrator(db, true, knownFolders))
+                {
+                    await migrator.Migrate();
+                }
             }
 
             string[] scripts;
-            string sql = "SELECT text_of_script FROM moo.ScriptsRun";
+            string sql = "SELECT script_name FROM moo.ScriptsRun";
             
             await using (var conn = new SqlConnection(ConnectionString(db)))
             {
                 scripts = (await conn.QueryAsync<string>(sql)).ToArray();
             }
 
-            scripts.Should().HaveCount(1);
-            scripts.First().Should().Be("SELECT @@VERSION");
+            scripts.Should().HaveCount(7); // one time script ran once, the two everytime scripts ran every time.
         }
-
+        
         private MooMigrator GetMigrator(string databaseName, bool createDatabase, KnownFolders knownFolders)
         {
             var connectionString = ConnectionString(databaseName);
@@ -130,11 +129,18 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
             WriteSql(path, "1_jalla.sql", dummySql);
         }
         
-        private static void WriteSomeOtherSql(MigrationsFolder? folder)
+        private static void CreateEveryTimeScriptFile(MigrationsFolder? folder)
         {
             var dummySql = "SELECT DB_NAME()";
             var path = MakeSurePathExists(folder);
-            WriteSql(path, "1_jalla.sql", dummySql);
+            WriteSql(path, "everytime.1_jalla.sql", dummySql);
+        }
+        
+        private static void CreateOtherEveryTimeScriptFile(MigrationsFolder? folder)
+        {
+            var dummySql = "SELECT DB_NAME()";
+            var path = MakeSurePathExists(folder);
+            WriteSql(path, "1_jalla.everytime.and.always.sql", dummySql);
         }
 
         private static void WriteSql(DirectoryInfo path, string filename, string? sql)

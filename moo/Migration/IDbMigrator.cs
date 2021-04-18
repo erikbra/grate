@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using moo.Configuration;
+using moo.Infrastructure;
 
 namespace moo.Migration
 {
@@ -19,7 +21,7 @@ namespace moo.Migration
         Task OpenAdminConnection();
         Task CloseAdminConnection();
         Task<bool> RunSql(string sql, string scriptName, MigrationType migrationType, long versionId,
-            object migratingEnvironmentSet, object repositoryVersion, object repositoryPath,
+            IEnumerable<MooEnvironment> environments, object repositoryVersion, object repositoryPath,
             ConnectionType connectionType);
     }
 }

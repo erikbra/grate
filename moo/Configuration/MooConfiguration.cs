@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
+using moo.Infrastructure;
 
 namespace moo.Configuration
 {
@@ -42,11 +44,12 @@ namespace moo.Configuration
         public bool CreateDatabase { get; init; } = true;
         public bool AlterDatabase { get; init; } = false;
         public bool Transaction { get; init; } = false;
-        //public string Transaction { get; set; }
+        public IEnumerable<MooEnvironment> Environments { get; init; }
         public string Version { get; init; } = "0.0.0.1";
         
         public int CommandTimeout { get; set; }
         public int AdminCommandTimeout { get; set; }
+        
         
         //private static KnownFolders InCurrentDirectory() => KnownFolders.In(CurrentDirectory);
         private static DirectoryInfo CurrentDirectory => new(Directory.GetCurrentDirectory());

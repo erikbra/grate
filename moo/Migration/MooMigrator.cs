@@ -197,7 +197,8 @@ namespace moo.Migration
             {
                 MigrationType.Once => " These should be one time only scripts.",
                 MigrationType.EveryTime => " These scripts will run every time.",
-                _ => throw new ArgumentOutOfRangeException()
+                MigrationType.AnyTime => "",
+                _ => throw new ArgumentOutOfRangeException(nameof(folder.Type))
             };
 
             Info("Looking for {0} scripts in \"{1}\".{2}",
@@ -227,7 +228,7 @@ namespace moo.Migration
                 var txt = await File.ReadAllTextAsync(file.FullName);
                 var sql = ReplaceTokens(txt);
 
-                bool theSqlRan = await _migrator.RunSql(sql, file.FullName, folder.Type, versionId, "", "", "",
+                bool theSqlRan = await _migrator.RunSql(sql, file.FullName, folder.Type, versionId, _migrator.Configuration.Environments, "", "",
                     connectionType);
                 if (theSqlRan)
                 {

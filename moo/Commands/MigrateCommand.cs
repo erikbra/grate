@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using moo.Configuration;
+using moo.Infrastructure;
 using moo.Migration;
 using static moo.Configuration.DefaultConfiguration;
 
@@ -27,6 +29,7 @@ namespace moo.Commands
             Add(DatabaseType());
             Add(Version());
             Add(RunInTransaction());
+            Add(Environment());
 
             Handler = CommandHandler.Create(
                 async (MooConfiguration config) =>
@@ -124,5 +127,11 @@ namespace moo.Commands
                 new[] {"--transaction", "--trx", "-t"},
                 "Run the migration in a transaction"
                 );
+        
+        private static Option Environment() => //new Argument<bool>("-t");
+            new Option<IEnumerable<MooEnvironment>>(
+                new[] {"--environments", "--environment", "--env"},
+                "Run for only a certain (set of) environment(s)"
+            );
     }
 }

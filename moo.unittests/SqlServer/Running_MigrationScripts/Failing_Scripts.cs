@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using moo.Configuration;
 using moo.Infrastructure;
 using moo.Migration;
+using moo.unittests.TestInfrastructure;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -25,7 +26,7 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
         [Test]
         public async Task Aborts_the_run_giving_an_error_message()
         {
-            var db = "ErrorFailingDatabase";
+            var db = TestConfig.RandomDatabase();
 
             MooMigrator? migrator;
             
@@ -42,7 +43,7 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
         [Test]
         public async Task Are_Inserted_Into_ScriptRunErrors_Table()
         {
-            var db = "FailingScripts";
+            var db = TestConfig.RandomDatabase();
 
             MooMigrator? migrator;
             
@@ -77,7 +78,7 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
         [Test]
         public async Task Makes_Whole_Transaction_Rollback()
         {
-            var db = "DbToRollBack";
+            var db = TestConfig.RandomDatabase();
 
             MooMigrator? migrator;
             

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
 using Microsoft.Extensions.Logging;
@@ -59,12 +61,24 @@ namespace moo.Migration
         public MooConfiguration Configuration { get; set; }
 
         public async Task<bool> RunSql(string sql, string scriptName, MigrationType migrationType, long versionId,
-            object migratingEnvironmentSet, object repositoryVersion, object repositoryPath,
+            IEnumerable<MooEnvironment> environments, object repositoryVersion, object repositoryPath,
             ConnectionType connectionType)
         {
             var theSqlRun = false;
 
-            if (await ThisScriptIsAlreadyRun(scriptName))
+            async Task LogAndRunSql()
+            {
+                _logger.LogInformation(" {3} {0} on {1} - {2}.", scriptName, Database.ServerName, Database.DatabaseName, "Running");
+                await RunTheActualSql(sql, scriptName, migrationType, versionId, connectionType);
+                theSqlRun = true;
+            }
+
+            if (!InCorrectEnvironment(scriptName, environments))
+            {
+                return false;
+            }
+
+            if (await ThisScriptIsAlreadyRun(scriptName) && !IsEverytimeScript(scriptName, migrationType))
             {
                 if (await ScriptChanged(scriptName, sql))
                 {
@@ -73,10 +87,9 @@ namespace moo.Migration
                         case MigrationType.Once:
                             await OneTimeScriptChanged(sql, scriptName, versionId);
                             break;
+                        case MigrationType.AnyTime:
                         case MigrationType.EveryTime:
-                            _logger.LogInformation(" {3} {0} on {1} - {2}.", scriptName, Database.ServerName, Database.DatabaseName, "Running");
-                            await RunTheActualSql(sql, scriptName, migrationType, versionId, connectionType);
-                            theSqlRun = true;
+                            await LogAndRunSql();
                             break;
                     };
                 }
@@ -87,13 +100,20 @@ namespace moo.Migration
             }
             else
             {
-                _logger.LogInformation(" {3} {0} on {1} - {2}.", scriptName, Database.ServerName, Database.DatabaseName, "Running");
-                await RunTheActualSql(sql, scriptName, migrationType, versionId, connectionType);
-                theSqlRun = true;
+                await LogAndRunSql();
             }
 
             return theSqlRun;
         }
+
+        private static bool InCorrectEnvironment(string scriptName, IEnumerable<MooEnvironment> environments) =>
+            environments.Any(env => env.ShouldRun(scriptName));
+
+        private static bool IsEverytimeScript(string scriptName, MigrationType migrationType) =>
+            migrationType == MigrationType.EveryTime ||
+            FileName(scriptName).StartsWith("everytime.", StringComparison.InvariantCultureIgnoreCase) ||
+            FileName(scriptName).Contains(".everytime.", StringComparison.InvariantCultureIgnoreCase);
+        
 
         private async Task<bool> ScriptChanged(string scriptName, string sql)
         {
@@ -102,6 +122,8 @@ namespace moo.Migration
 
             return currentHash != newHash;
         }
+
+        private static string FileName(string path) => new FileInfo(path).Name;
 
         private string GetHash(string sql)
         {

@@ -16,7 +16,7 @@ using NUnit.Framework;
 namespace moo.unittests.SqlServer.Running_MigrationScripts
 {
     [TestFixture]
-    public class One_time_scripts
+    public class Anytime_scripts
     {
         private MooConfiguration? _config;
         private static string? AdminConnectionString() => $"Data Source=localhost,{MooTestContext.SqlServer.Port};Initial Catalog=master;User Id=sa;Password={MooTestContext.SqlServer.AdminPassword}";
@@ -30,7 +30,7 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
             MooMigrator? migrator;
             
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-            CreateDummySql(knownFolders.Up);
+            CreateDummySql(knownFolders.Sprocs);
             
             await using (migrator = GetMigrator(db, true, knownFolders))
             {
@@ -53,27 +53,27 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
         }
         
         [Test]
-        public async Task Fails_if_changed_between_runs()
+        public async Task Are_run_again_if_changed_between_runs()
         {
             var db = TestConfig.RandomDatabase();
 
             MooMigrator? migrator;
             
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-            CreateDummySql(knownFolders.Up);
+            CreateDummySql(knownFolders.Sprocs);
             
             await using (migrator = GetMigrator(db, true, knownFolders))
             {
                 await migrator.Migrate();
             }
             
-            WriteSomeOtherSql(knownFolders.Up);
+            WriteSomeOtherSql(knownFolders.Sprocs);
             
             await using (migrator = GetMigrator(db, true, knownFolders))
             {
-                Assert.ThrowsAsync<OneTimeScriptChanged>(() => migrator.Migrate());
+                await migrator.Migrate();
             }
-
+            
             string[] scripts;
             string sql = "SELECT text_of_script FROM moo.ScriptsRun";
             
@@ -82,8 +82,9 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
                 scripts = (await conn.QueryAsync<string>(sql)).ToArray();
             }
 
-            scripts.Should().HaveCount(1);
+            scripts.Should().HaveCount(2);
             scripts.First().Should().Be("SELECT @@VERSION");
+            scripts.Last().Should().Be("SELECT DB_NAME()");
         }
 
         private MooMigrator GetMigrator(string databaseName, bool createDatabase, KnownFolders knownFolders)
