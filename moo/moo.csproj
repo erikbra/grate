@@ -3,8 +3,8 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <PublishSingleFile>true</PublishSingleFile>
-<!--    <PublishTrimmed>True</PublishTrimmed>-->
-<!--    <TrimMode>link</TrimMode>-->
+    <PublishTrimmed>True</PublishTrimmed>
+    <TrimMode>link</TrimMode>
     <TargetFramework>net6.0</TargetFramework>
     <DebugType>Embedded</DebugType>
     <Nullable>enable</Nullable>

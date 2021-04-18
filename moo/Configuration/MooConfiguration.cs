@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using moo.Infrastructure;
 
@@ -35,7 +36,7 @@ namespace moo.Configuration
             {
                 return connectionString;
             }
-            var pattern = new Regex("(.*;(?:Initial Catalog|Database)=)([^;]*)(.*)");
+            var pattern = new Regex("(.*;\\s*(?:Initial Catalog|Database)=)([^;]*)(.*)");
             var replaced = pattern.Replace(connectionString, "$1master$3");
             return replaced;
         }
@@ -44,7 +45,7 @@ namespace moo.Configuration
         public bool CreateDatabase { get; init; } = true;
         public bool AlterDatabase { get; init; } = false;
         public bool Transaction { get; init; } = false;
-        public IEnumerable<MooEnvironment> Environments { get; init; }
+        public IEnumerable<MooEnvironment> Environments { get; init; } = Enumerable.Empty<MooEnvironment>();
         public string Version { get; init; } = "0.0.0.1";
         
         public int CommandTimeout { get; set; }
