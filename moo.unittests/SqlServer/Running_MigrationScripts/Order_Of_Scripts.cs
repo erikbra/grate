@@ -46,27 +46,22 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
             KnownFolders knownFolders = _config?.KnownFolders ?? throw new ArgumentNullException(nameof(_config.KnownFolders));
             Assert.Multiple(() =>
                 {
-                    AssertScriptPath(scripts[0], knownFolders.BeforeMigration);
-                    AssertScriptPath(scripts[1], knownFolders.AlterDatabase);
-                    AssertScriptPath(scripts[2], knownFolders.RunAfterCreateDatabase);
-                    AssertScriptPath(scripts[3], knownFolders.RunBeforeUp);
-                    AssertScriptPath(scripts[4], knownFolders.Up);
-                    AssertScriptPath(scripts[5], knownFolders.RunFirstAfterUp);
-                    AssertScriptPath(scripts[6], knownFolders.Functions);
-                    AssertScriptPath(scripts[7], knownFolders.Views);
-                    AssertScriptPath(scripts[8], knownFolders.Sprocs);
-                    AssertScriptPath(scripts[9], knownFolders.Triggers);
-                    AssertScriptPath(scripts[10], knownFolders.Indexes);
-                    AssertScriptPath(scripts[11], knownFolders.RunAfterOtherAnyTimeScripts);
-                    AssertScriptPath(scripts[12], knownFolders.Permissions);
-                    AssertScriptPath(scripts[13], knownFolders.AfterMigration);
+                    scripts[0].Should().Be("1_beforemigration.sql");
+                    scripts[1].Should().Be("1_alterdatabase.sql");
+                    scripts[2].Should().Be("1_aftercreate.sql");
+                    scripts[3].Should().Be("1_beforeup.sql");
+                    scripts[4].Should().Be("1_up.sql");
+                    scripts[5].Should().Be("1_firstafterup.sql");
+                    scripts[6].Should().Be("1_functions.sql");
+                    scripts[7].Should().Be("1_views.sql");
+                    scripts[8].Should().Be("1_sprocs.sql");
+                    scripts[9].Should().Be("1_triggers.sql");
+                    scripts[10].Should().Be("1_indexes.sql");
+                    scripts[11].Should().Be("1_afterotherany.sql");
+                    scripts[12].Should().Be("1_permissions.sql");
+                    scripts[13].Should().Be("1_aftermigration.sql");
                 }
             );
-        }
-
-        private static void AssertScriptPath(string scriptPath, MigrationsFolder? migrationsFolder)
-        {
-            scriptPath.Should().Be(Path.Combine(migrationsFolder!.Path.ToString(), "1_jalla.sql"));
         }
 
 
@@ -97,27 +92,27 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
                 AlterDatabase = true
             };
 
-            CreateDummySql(_config.KnownFolders.AfterMigration);
-            CreateDummySql(_config.KnownFolders.AlterDatabase);
-            CreateDummySql(_config.KnownFolders.BeforeMigration);
-            CreateDummySql(_config.KnownFolders.Functions);
-            CreateDummySql(_config.KnownFolders.Indexes);
-            CreateDummySql(_config.KnownFolders.Permissions);
-            CreateDummySql(_config.KnownFolders.RunAfterCreateDatabase);
-            CreateDummySql(_config.KnownFolders.RunAfterOtherAnyTimeScripts);
-            CreateDummySql(_config.KnownFolders.RunBeforeUp);
-            CreateDummySql(_config.KnownFolders.RunFirstAfterUp);
-            CreateDummySql(_config.KnownFolders.Sprocs);
-            CreateDummySql(_config.KnownFolders.Triggers);
-            CreateDummySql(_config.KnownFolders.Up);
-            CreateDummySql(_config.KnownFolders.Views);
+            CreateDummySql(_config.KnownFolders.AfterMigration, "1_aftermigration.sql");
+            CreateDummySql(_config.KnownFolders.AlterDatabase, "1_alterdatabase.sql");
+            CreateDummySql(_config.KnownFolders.BeforeMigration, "1_beforemigration.sql");
+            CreateDummySql(_config.KnownFolders.Functions, "1_functions.sql");
+            CreateDummySql(_config.KnownFolders.Indexes, "1_indexes.sql");
+            CreateDummySql(_config.KnownFolders.Permissions, "1_permissions.sql");
+            CreateDummySql(_config.KnownFolders.RunAfterCreateDatabase, "1_aftercreate.sql");
+            CreateDummySql(_config.KnownFolders.RunAfterOtherAnyTimeScripts, "1_afterotherany.sql");
+            CreateDummySql(_config.KnownFolders.RunBeforeUp, "1_beforeup.sql");
+            CreateDummySql(_config.KnownFolders.RunFirstAfterUp, "1_firstafterup.sql");
+            CreateDummySql(_config.KnownFolders.Sprocs, "1_sprocs.sql");
+            CreateDummySql(_config.KnownFolders.Triggers, "1_triggers.sql");
+            CreateDummySql(_config.KnownFolders.Up, "1_up.sql");
+            CreateDummySql(_config.KnownFolders.Views, "1_views.sql");
 
             dbMigrator.ApplyConfig(_config);
 
             return migrator;
         }
 
-        private static void CreateDummySql(MigrationsFolder? folder)
+        private static void CreateDummySql(MigrationsFolder? folder, string filename)
         {
             var dummySql = "SELECT @@VERSION";
 
@@ -128,7 +123,7 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
                 path.Create();
             }
 
-            File.WriteAllText(Path.Combine(path.ToString(), "1_jalla.sql"), dummySql);
+            File.WriteAllText(Path.Combine(path.ToString(), filename), dummySql);
         }
     }
 }
