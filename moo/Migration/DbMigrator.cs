@@ -107,7 +107,7 @@ namespace moo.Migration
         }
 
         private static bool InCorrectEnvironment(string scriptName, IEnumerable<MooEnvironment> environments) =>
-            environments.Any(env => env.ShouldRun(scriptName));
+            !environments.Safe().Any() || environments.Any(env => env.ShouldRun(scriptName));
 
         private static bool IsEverytimeScript(string scriptName, MigrationType migrationType) =>
             migrationType == MigrationType.EveryTime ||
