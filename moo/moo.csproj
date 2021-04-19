@@ -22,7 +22,7 @@
     <PublishTrimmed>True</PublishTrimmed>
     <TrimMode>link</TrimMode>
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
-    <RuntimeIdentifiers>win-x64;alpine-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win-x64;alpine-x64;linux-x64</RuntimeIdentifiers>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
   </PropertyGroup>
 
