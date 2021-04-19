@@ -109,7 +109,6 @@ namespace moo.unittests.SqlServer.Running_MigrationScripts
                 AlterDatabase = true
             };
 
-
             dbMigrator.ApplyConfig(_config);
 
             return migrator;

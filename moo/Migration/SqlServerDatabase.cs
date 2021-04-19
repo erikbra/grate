@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Data;
 using System.Linq;
 using System.Security.Claims;
@@ -17,6 +19,8 @@ namespace moo.Migration
         private readonly ILogger<SqlServerDatabase> _logger;
         private SqlConnection? _connection;
         private SqlConnection? _adminConnection;
+
+        private IDictionary<string, string>? _scriptsRunCache;
 
         public SqlServerDatabase(ILogger<SqlServerDatabase> logger)
         {
@@ -248,7 +252,7 @@ CREATE TABLE [{SchemaName}].[Version](
             var res = await cmd.ExecuteScalarAsync();
             return !DBNull.Value.Equals(res);
         }
-
+        
         public async Task<string> GetCurrentVersion()
         {
             var sql = $@"
@@ -310,8 +314,42 @@ SELECT @@IDENTITY
             await cmd.ExecuteNonQueryAsync();
         }
 
+        private class ScriptsRunCacheItem
+        {
+#pragma warning disable 8618
+            // ReSharper disable InconsistentNaming
+            // ReSharper disable UnusedAutoPropertyAccessor.Local
+            
+            public string script_name { get; init; }
+            public string text_hash { get; init; }
+            
+            // ReSharper restore InconsistentNaming
+            // ReSharper restore UnusedAutoPropertyAccessor.Local
+#pragma warning restore 8618
+        }
+
+        private async Task<IDictionary<string, string>> GetAllScriptsRun()
+        {
+            var sql = $@"
+SELECT script_name, text_hash
+FROM [{SchemaName}].[ScriptsRun] sr
+WHERE id = (SELECT MAX(id) FROM [{SchemaName}].[ScriptsRun] sr2 WHERE sr2.script_name = sr.script_name)
+";
+            var results = await Connection.QueryAsync<ScriptsRunCacheItem>(sql);
+            return results.ToDictionary(item => item.script_name, item => item.text_hash);
+            //return ImmutableDictionary<string, string>.Empty;
+        }
+
+        private async Task<IDictionary<string, string>> GetScriptsRunCache() => _scriptsRunCache ??= await GetAllScriptsRun();
+
         public async Task<string?> GetCurrentHash(string scriptName)
         {
+            var cache = await GetScriptsRunCache();
+            if (cache.ContainsKey(scriptName))
+            {
+                return cache[scriptName];
+            }
+            
             var hashSql = $@"
 SELECT text_hash FROM  [{SchemaName}].ScriptsRun
 WHERE script_name = @scriptName";
@@ -322,6 +360,12 @@ WHERE script_name = @scriptName";
 
         public async Task<bool> HasRun(string scriptName)
         {
+            var cache = await GetScriptsRunCache();
+            if (cache.ContainsKey(scriptName))
+            {
+                return true;
+            }
+            
             var hasRunSql = $@"
 SELECT 1 FROM  [{SchemaName}].ScriptsRun
 WHERE script_name = @scriptName";
@@ -332,6 +376,9 @@ WHERE script_name = @scriptName";
 
         public async Task InsertScriptRun(string scriptName, string sql, string hash, bool runOnce, object versionId)
         {
+            var cache = await GetScriptsRunCache();
+            cache.Remove(scriptName);
+            
             var insertSql = $@"
 INSERT INTO [{SchemaName}].ScriptsRun
 (version_id, script_name, text_of_script, text_hash, one_time_script, entry_date, modified_date, entered_by)

@@ -84,12 +84,20 @@ namespace moo.unittests.SqlServer
             }
             
             // Check that the database has been created
-            IEnumerable<string> databasesBeforeMigration;
+            IEnumerable<string>? databasesBeforeMigration = null;
             using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
-                await using (var conn = new SqlConnection(AdminConnectionString()))
+                for (var i = 0; i < 5; i++)
                 {
-                    databasesBeforeMigration = await conn.QueryAsync<string>(selectDatabasesSql);
+                    try
+                    {
+                        await using (var conn = new SqlConnection(AdminConnectionString()))
+                        {
+                            databasesBeforeMigration = await conn.QueryAsync<string>(selectDatabasesSql);
+                        }
+                        break;
+                    }
+                    catch (SqlException) { }
                 }
             }
             databasesBeforeMigration.Should().Contain(db);
@@ -110,12 +118,20 @@ namespace moo.unittests.SqlServer
             // Create the database manually before running the migration
             using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
-                await using (var conn = new SqlConnection(AdminConnectionString()))
+                for (var i = 0; i < 5; i++)
                 {
-                    conn.Open();
-                    await using var cmd = conn.CreateCommand();
-                    cmd.CommandText = $"CREATE DATABASE {db}";
-                    await cmd.ExecuteNonQueryAsync();
+                    try
+                    {
+                        await using (var conn = new SqlConnection(AdminConnectionString()))
+                        {
+                            conn.Open();
+                            await using var cmd = conn.CreateCommand();
+                            cmd.CommandText = $"CREATE DATABASE {db}";
+                            await cmd.ExecuteNonQueryAsync();
+                        }
+                        break;
+                    }
+                    catch (SqlException) { }
                 }
             }
             
