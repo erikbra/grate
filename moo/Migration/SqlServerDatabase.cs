@@ -13,7 +13,7 @@ namespace moo.Migration
 {
     public class SqlServerDatabase : IDatabase, IDisposable
     {
-        private const string SchemaName = "moo";
+        private string SchemaName { get; set; } = ""; 
         private readonly ILogger<SqlServerDatabase> _logger;
         private SqlConnection? _connection;
         private SqlConnection? _adminConnection;
@@ -47,6 +47,7 @@ namespace moo.Migration
 
             ConnectionString = configuration.ConnectionString;
             AdminConnectionString = configuration.AdminConnectionString;
+            SchemaName = configuration.SchemaName;
             
             return Task.CompletedTask;
         }

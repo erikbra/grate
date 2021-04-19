@@ -138,6 +138,18 @@ namespace moo.unittests
             cfg?.Environments.Should().BeEquivalentTo(expected.Select(e => new MooEnvironment(e)));
         }
         
+        [TestCase("", "moo")]
+        [TestCase("--sc RoundhousE", "RoundhousE")]
+        [TestCase("--schema SquareHouse", "SquareHouse")]
+        [TestCase("--schemaname TrianglehousE", "TrianglehousE")]
+        public async Task Schema(string argName, string expected)
+        {
+            var commandline = argName;
+            var cfg = await ParseMooConfiguration(commandline);
+
+            cfg?.SchemaName.Should().Be(expected);
+        }
+        
         [Test]
         public async Task WithoutTransaction_Default()
         {

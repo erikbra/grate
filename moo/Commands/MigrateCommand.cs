@@ -30,6 +30,7 @@ namespace moo.Commands
             Add(Version());
             Add(RunInTransaction());
             Add(Environment());
+            Add(SchemaName());
 
             Handler = CommandHandler.Create(
                 async (MooConfiguration config) =>
@@ -132,6 +133,13 @@ namespace moo.Commands
             new Option<IEnumerable<MooEnvironment>>(
                 new[] {"--environments", "--environment", "--env"},
                 "Run for only a certain (set of) environment(s)"
+            );
+        
+        private static Option SchemaName() => //new Argument<bool>("-t");
+            new Option<string>(
+                new[] {"--sc", "--schema", "--schemaname"},
+                () => "moo",
+                "The schema to use for the migration tables"
             );
     }
 }

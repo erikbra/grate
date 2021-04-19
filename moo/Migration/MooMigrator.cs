@@ -228,7 +228,7 @@ namespace moo.Migration
                 var txt = await File.ReadAllTextAsync(file.FullName);
                 var sql = ReplaceTokens(txt);
 
-                bool theSqlRan = await _migrator.RunSql(sql, file.FullName, folder.Type, versionId, _migrator.Configuration.Environments, "", "",
+                bool theSqlRan = await _migrator.RunSql(sql, file.Name, folder.Type, versionId, _migrator.Configuration.Environments, "", "",
                     connectionType);
                 if (theSqlRan)
                 {

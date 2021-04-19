@@ -24,6 +24,8 @@ namespace moo.Configuration
         
         public string? ConnectionString { get; init; } = null;
 
+        public string SchemaName { get; init; } = "moo";
+
         public string? AdminConnectionString
         {
             get => _adminConnectionString ?? WithAdminDb(ConnectionString);
