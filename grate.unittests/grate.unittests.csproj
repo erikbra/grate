@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0-*" />
+    <PackageReference Include="NUnit" Version="3.13.*" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.17.*">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="2.1.*" />
+    <PackageReference Include="FluentAssertions" Version="6.0.0-*" />
+    <PackageReference Include="NSubstitute" Version="4.2.*" />
+    <PackageReference Include="Dapper" Version="2.0.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\grate\grate.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Infrastructure\SqlServer" />
+    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\afterMigration" />
+    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\alterDatabase" />
+    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\beforeMigration" />
+    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\functions" />
+    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\indexes" />
+    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\permissions" />
+    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\runAfterCreateDatabase" />
+    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\runAfterOtherAnyTimeScripts" />
+    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\runBeforeUp" />
+    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\runFirstAfterUp" />
+    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\sprocs" />
+    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\triggers" />
+    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\up" />
+    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\views" />
+  </ItemGroup>
+
+</Project>
