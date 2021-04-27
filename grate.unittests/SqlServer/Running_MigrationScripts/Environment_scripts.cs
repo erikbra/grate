@@ -124,7 +124,8 @@ namespace grate.unittests.SqlServer.Running_MigrationScripts
                 Version = "a.b.c.d",
                 KnownFolders = knownFolders,
                 AlterDatabase = true,
-                Environments = environments.Select(env => new GrateEnvironment(env))
+                Environments = environments.Select(env => new GrateEnvironment(env)),
+                NonInteractive = true
             };
 
 

@@ -106,7 +106,8 @@ namespace grate.unittests.SqlServer.Running_MigrationScripts
                 AdminConnectionString = AdminConnectionString(),
                 Version = "a.b.c.d",
                 KnownFolders = knownFolders,
-                AlterDatabase = true
+                AlterDatabase = true,
+                NonInteractive = true
             };
 
             dbMigrator.ApplyConfig(_config);

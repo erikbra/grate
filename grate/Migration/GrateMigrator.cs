@@ -27,8 +27,7 @@ namespace grate.Migration
             IDbMigrator dbMigrator = _migrator;
             await dbMigrator.InitializeConnections();
 
-            //TODO: Read from/put in config
-            var silent = true;
+            var silent = dbMigrator.Configuration.Silent;
 
             var database = dbMigrator.Database;
             

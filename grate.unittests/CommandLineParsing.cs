@@ -150,6 +150,24 @@ namespace grate.unittests
             cfg?.SchemaName.Should().Be(expected);
         }
         
+        [TestCase("", false)]
+        [TestCase("--silent true", true)]
+        [TestCase("--silent", true)]
+        [TestCase("--silent false", false)]
+        [TestCase("--ni true", true)]
+        [TestCase("--ni", true)]
+        [TestCase("--ni false", false)]
+        [TestCase("--noninteractive true", true)]
+        [TestCase("--noninteractive", true)]
+        [TestCase("--noninteractive false", false)]
+        public async Task Silent(string argName, bool expected)
+        {
+            var commandline = argName;
+            var cfg = await ParseGrateConfiguration(commandline);
+
+            cfg?.Silent.Should().Be(expected);
+        }
+        
         [Test]
         public async Task WithoutTransaction_Default()
         {

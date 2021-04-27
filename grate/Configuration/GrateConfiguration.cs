@@ -50,8 +50,10 @@ namespace grate.Configuration
         public IEnumerable<GrateEnvironment> Environments { get; init; } = Enumerable.Empty<GrateEnvironment>();
         public string Version { get; init; } = "0.0.0.1";
         
-        public int CommandTimeout { get; set; }
-        public int AdminCommandTimeout { get; set; }
+        public int CommandTimeout { get; init; }
+        public int AdminCommandTimeout { get; init; }
+        public bool Silent => NonInteractive;
+        public bool NonInteractive { get; init; }
         
         
         //private static KnownFolders InCurrentDirectory() => KnownFolders.In(CurrentDirectory);

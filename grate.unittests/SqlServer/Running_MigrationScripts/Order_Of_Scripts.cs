@@ -89,7 +89,8 @@ namespace grate.unittests.SqlServer.Running_MigrationScripts
                 AdminConnectionString = AdminConnectionString(),
                 Version = "a.b.c.d",
                 KnownFolders = KnownFolders.In(scriptsDir),
-                AlterDatabase = true
+                AlterDatabase = true,
+                NonInteractive = true
             };
 
             CreateDummySql(_config.KnownFolders.AfterMigration, "1_aftermigration.sql");

@@ -175,7 +175,8 @@ namespace grate.unittests.SqlServer
                 CreateDatabase = createDatabase, 
                 ConnectionString = ConnectionString(databaseName),
                 AdminConnectionString = adminConnectionString ?? AdminConnectionString(),
-                KnownFolders = KnownFolders.In(new DirectoryInfo(@"C:\tmp\sql"))
+                KnownFolders = KnownFolders.In(new DirectoryInfo(@"C:\tmp\sql")),
+                NonInteractive = true
             };
         }
     }

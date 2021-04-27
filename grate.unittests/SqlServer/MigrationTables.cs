@@ -145,7 +145,8 @@ namespace grate.unittests.SqlServer
                 AdminConnectionString = AdminConnectionString(),
                 Version = "a.b.c.d",
                 KnownFolders = knownFolders,
-                AlterDatabase = true
+                AlterDatabase = true,
+                NonInteractive = true
             };
 
 

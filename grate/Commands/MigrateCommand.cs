@@ -31,6 +31,7 @@ namespace grate.Commands
             Add(RunInTransaction());
             Add(Environment());
             Add(SchemaName());
+            Add(Silent());
 
             Handler = CommandHandler.Create(
                 async (GrateConfiguration config) =>
@@ -140,6 +141,12 @@ namespace grate.Commands
                 new[] {"--sc", "--schema", "--schemaname"},
                 () => "grate",
                 "The schema to use for the migration tables"
+            );
+        
+        private static Option<bool> Silent() => //new Argument<bool>("-t");
+            new Option<bool>(
+                new[] {"--noninteractive", "--ni", "--silent"},
+                "Silent - tells grate not to ask for any input when it runs."
             );
     }
 }
