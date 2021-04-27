@@ -128,7 +128,8 @@ namespace grate.unittests.SqlServer.Running_MigrationScripts
                 Version = "a.b.c.d",
                 KnownFolders = knownFolders,
                 AlterDatabase = true,
-                Transaction = true
+                Transaction = true,
+                NonInteractive = true
             };
 
 
