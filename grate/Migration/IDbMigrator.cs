@@ -21,7 +21,7 @@ namespace grate.Migration
         Task OpenAdminConnection();
         Task CloseAdminConnection();
         Task<bool> RunSql(string sql, string scriptName, MigrationType migrationType, long versionId,
-            IEnumerable<GrateEnvironment> environments, object repositoryVersion, object repositoryPath,
+            IEnumerable<GrateEnvironment> environments,
             ConnectionType connectionType);
     }
 }

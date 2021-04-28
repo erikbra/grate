@@ -26,18 +26,14 @@ namespace grate.Configuration
         {
             DirectoryInfo Wrap(string folderName)
             {
-                //var info = parent.GetDirectories(folderName).FirstOrDefault();
-
                 var folder = Path.Combine(parent.FullName, folderName);
-                var info = new DirectoryInfo(folder);
-                return info;
+                return new DirectoryInfo(folder);
             }
 
             return new KnownFolders()
             {
                 AlterDatabase = new MigrationsFolder("AlterDatabase", Wrap("alterDatabase"), AnyTime),
-                RunAfterCreateDatabase =
-                    new MigrationsFolder("Run After Create Database", Wrap("runAfterCreateDatabase"), AnyTime),
+                RunAfterCreateDatabase = new MigrationsFolder("Run After Create Database", Wrap("runAfterCreateDatabase"), AnyTime),
                 RunBeforeUp = new MigrationsFolder("Run Before Update", Wrap("runBeforeUp"), AnyTime),
                 Up = new MigrationsFolder("Update", Wrap("up"), Once),
                 Down = new MigrationsFolder("Down Folder - Nothing to see here. Move along.", Wrap("down"), Once),
@@ -47,8 +43,7 @@ namespace grate.Configuration
                 Sprocs = new MigrationsFolder("Stored Procedures", Wrap("sprocs"), AnyTime),
                 Triggers = new MigrationsFolder("Triggers", Wrap("triggers"), AnyTime),
                 Indexes = new MigrationsFolder("Indexes", Wrap("indexes"), AnyTime),
-                RunAfterOtherAnyTimeScripts = new MigrationsFolder("Run after Other Anytime Scripts",
-                    Wrap("runAfterOtherAnyTimeScripts"), AnyTime),
+                RunAfterOtherAnyTimeScripts = new MigrationsFolder("Run after Other Anytime Scripts", Wrap("runAfterOtherAnyTimeScripts"), AnyTime),
                 Permissions = new MigrationsFolder("Permissions", Wrap("permissions"), EveryTime),
                 BeforeMigration = new MigrationsFolder("BeforeMigration", Wrap("beforeMigration"), EveryTime),
                 AfterMigration = new MigrationsFolder("AfterMigration", Wrap("afterMigration"), EveryTime),

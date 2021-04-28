@@ -28,8 +28,10 @@ namespace grate.Migration
             await dbMigrator.InitializeConnections();
 
             var silent = dbMigrator.Configuration.Silent;
-
             var database = dbMigrator.Database;
+            var config = dbMigrator.Configuration;
+            KnownFolders knownFolders = config.KnownFolders ?? throw new ArgumentException(nameof(config.KnownFolders));
+            
             
             _logger.LogInformation("Running {0} v{1} against {2} - {3}.",
                 ApplicationInfo.Name,
@@ -38,17 +40,14 @@ namespace grate.Migration
                 database?.DatabaseName
                 );
 
-            var config = _migrator.Configuration;
-            KnownFolders knownFolders = config.KnownFolders ?? throw new ArgumentException(nameof(config.KnownFolders));
-            
             Info("Looking in {0} for scripts to run.", knownFolders?.Up?.Path);
             
             PressEnterWhenReady(silent);
-            //var runInTransaction = MakeSureWeCanRunInTransaction(bool.Parse(config.Transaction), silent, dbMigrator);
+            
             var runInTransaction = MakeSureWeCanRunInTransaction(config.Transaction, silent, dbMigrator);
-
+            
             var changeDropFolder = ChangeDropFolder(config, database?.ServerName, database?.DatabaseName);
-            CreateChangeDropFolder(config, changeDropFolder);
+            CreateChangeDropFolder(changeDropFolder);
             
             Debug("The change_drop (output) folder is: {0}", changeDropFolder);
             Separator('=');
@@ -60,33 +59,15 @@ namespace grate.Migration
 
             if (config.CreateDatabase)
             {
-                // Try to connect to database. If it exists already, don't bother trying to open an admin connection
-                if (await DatabaseAlreadyExists(dbMigrator))
-                {
-                    databaseCreated = false;
-                }
-                else
-                {
-                    await dbMigrator.OpenAdminConnection();
-                    databaseCreated = await dbMigrator.CreateDatabase();
-                    await dbMigrator.CloseAdminConnection();
-                }
+                databaseCreated = await CreateDatabaseIfItDoesNotExist(dbMigrator);
             }
 
             TransactionScope? scope = null; 
             try
             {
                 // Run these first without a transaction, to make sure the tables are created even on a potential rollback
-                await dbMigrator.OpenConnection();
+                await CreateGrateStructure(dbMigrator);
 
-                Separator('=');
-                Info("Grate Structure");
-                Separator('=');
-                
-                await dbMigrator.RunSupportTasks();
-                
-                await dbMigrator.CloseConnection();
-                
                 // Start the transaction, if configured
                 if (runInTransaction)
                 {
@@ -94,56 +75,36 @@ namespace grate.Migration
                 }
                 
                 await dbMigrator.OpenConnection();
-
-                Separator('=');
-                Info("Versioning");
-                Separator('=');
-                var currentVersion = await dbMigrator.GetCurrentVersion();
-                var newVersion = config.Version;
-                Info(" Migrating {0} from version {1} to {2}.",
-                    database?.DatabaseName, currentVersion, newVersion);
-                var versionId = await dbMigrator.VersionTheDatabase(newVersion);
+                var (versionId, newVersion) = await VersionTheDatabase(dbMigrator);
 
                 Separator('=');
                 Info("Migration Scripts");
                 Separator('=');
 
-                using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
-                {
-                    await LogAndProcess(knownFolders!.BeforeMigration!, changeDropFolder, versionId, newVersion,
-                        ConnectionType.Default);
-                }
+                // This one should not be necessary, we throw on assignment if null
+                System.Diagnostics.Debug.Assert(knownFolders != null, nameof(knownFolders) + " != null");
+                
+                await BeforeMigration(knownFolders, changeDropFolder, versionId, newVersion);
 
                 if (config.AlterDatabase)
                 {
-                    using (new TransactionScope(TransactionScopeOption.Suppress,
-                        TransactionScopeAsyncFlowOption.Enabled))
-                    {
-                        await dbMigrator.OpenAdminConnection();
-                        await LogAndProcess(knownFolders!.AlterDatabase!, changeDropFolder, versionId, newVersion,
-                            ConnectionType.Admin);
-                        await dbMigrator.CloseAdminConnection();
-                    }
+                    await AlterDatabase(dbMigrator, knownFolders, changeDropFolder, versionId, newVersion);
                 }
 
                 if (databaseCreated)
                 {
-                    await LogAndProcess(knownFolders.RunAfterCreateDatabase!, changeDropFolder, versionId, newVersion,
-                        ConnectionType.Default);
+                    await LogAndProcess(knownFolders.RunAfterCreateDatabase!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
                 }
 
-                await LogAndProcess(knownFolders.RunBeforeUp!, changeDropFolder, versionId, newVersion,
-                    ConnectionType.Default);
+                await LogAndProcess(knownFolders.RunBeforeUp!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
                 await LogAndProcess(knownFolders.Up!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
-                await LogAndProcess(knownFolders.RunFirstAfterUp!, changeDropFolder, versionId, newVersion,
-                    ConnectionType.Default);
+                await LogAndProcess(knownFolders.RunFirstAfterUp!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
                 await LogAndProcess(knownFolders.Functions!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
                 await LogAndProcess(knownFolders.Views!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
                 await LogAndProcess(knownFolders.Sprocs!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
                 await LogAndProcess(knownFolders.Triggers!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
                 await LogAndProcess(knownFolders.Indexes!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
-                await LogAndProcess(knownFolders.RunAfterOtherAnyTimeScripts!, changeDropFolder, versionId, newVersion,
-                    ConnectionType.Default);
+                await LogAndProcess(knownFolders.RunAfterOtherAnyTimeScripts!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
 
                 scope?.Complete();
 
@@ -154,7 +115,7 @@ namespace grate.Migration
                 }
             
                 Info(
-                    "\n\n{1} v{2} has grate'd your database ({3})! You are now at version {4}. All changes and backups can be found at \"{5}\".",
+                    "\n\n{1} v{2} has grated your database ({3})! You are now at version {4}. All changes and backups can be found at \"{5}\".",
                     ApplicationInfo.Name,
                     ApplicationInfo.Version,
                     dbMigrator?.Database?.DatabaseName,
@@ -171,7 +132,71 @@ namespace grate.Migration
             
         }
 
-        private async Task<bool> DatabaseAlreadyExists(IDbMigrator dbMigrator)
+        private async Task AlterDatabase(IDbMigrator dbMigrator, KnownFolders knownFolders, string changeDropFolder,
+            long versionId, string newVersion)
+        {
+            using (new TransactionScope(TransactionScopeOption.Suppress,
+                TransactionScopeAsyncFlowOption.Enabled))
+            {
+                await dbMigrator.OpenAdminConnection();
+                await LogAndProcess(knownFolders!.AlterDatabase!, changeDropFolder, versionId, newVersion, ConnectionType.Admin);
+                await dbMigrator.CloseAdminConnection();
+            }
+        }
+
+        private async Task BeforeMigration(KnownFolders knownFolders, string changeDropFolder, long versionId, string newVersion)
+        {
+            using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+            {
+                await LogAndProcess(knownFolders!.BeforeMigration!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
+            }
+        }
+
+        private async Task CreateGrateStructure(IDbMigrator dbMigrator)
+        {
+            await dbMigrator.OpenConnection();
+
+            Separator('=');
+            Info("Grate Structure");
+            Separator('=');
+
+            await dbMigrator.RunSupportTasks();
+
+            await dbMigrator.CloseConnection();
+        }
+
+        private async Task<(long, string)> VersionTheDatabase(IDbMigrator dbMigrator)
+        {
+            Separator('=');
+            Info("Versioning");
+            Separator('=');
+            
+            var currentVersion = await dbMigrator.GetCurrentVersion();
+            var newVersion = dbMigrator.Configuration.Version;
+            Info(" Migrating {0} from version {1} to {2}.", dbMigrator.Database?.DatabaseName, currentVersion, newVersion);
+            var versionId = await dbMigrator.VersionTheDatabase(newVersion);
+
+            return (versionId, newVersion);
+        }
+
+        private static async Task<bool> CreateDatabaseIfItDoesNotExist(IDbMigrator dbMigrator)
+        {
+            bool databaseCreated;
+            // Try to connect to database. If it exists already, don't bother trying to open an admin connection
+            if (await DatabaseAlreadyExists(dbMigrator))
+            {
+                databaseCreated = false;
+            }
+            else
+            {
+                await dbMigrator.OpenAdminConnection();
+                databaseCreated = await dbMigrator.CreateDatabase();
+                await dbMigrator.CloseAdminConnection();
+            }
+            return databaseCreated;
+        }
+
+        private static async Task<bool> DatabaseAlreadyExists(IDbMigrator dbMigrator)
         {
             try
             {
@@ -227,7 +252,7 @@ namespace grate.Migration
                 var txt = await File.ReadAllTextAsync(file.FullName);
                 var sql = ReplaceTokens(txt);
 
-                bool theSqlRan = await _migrator.RunSql(sql, file.Name, folder.Type, versionId, _migrator.Configuration.Environments, "", "",
+                bool theSqlRan = await _migrator.RunSql(sql, file.Name, folder.Type, versionId, _migrator.Configuration.Environments,
                     connectionType);
                 if (theSqlRan)
                 {
@@ -240,9 +265,6 @@ namespace grate.Migration
                         _logger.LogWarning(ex, "Unable to copy {0} to {1}. \n{2}", file, changeDropFolder, ex.Message);
                     }
                 }
-                
-                
-
             }
             
         }
@@ -281,12 +303,9 @@ namespace grate.Migration
         private void Info(string format, params object?[] args) => _logger.LogInformation(format, args);
         private void Debug(string format, params object?[] args) => _logger.LogDebug(format, args);
 
-        private void Separator(char c)
-        {
-            _logger.LogInformation(new string(c, 80));
-        }
+        private void Separator(char c) => _logger.LogInformation(new string(c, 80));
 
-        private void CreateChangeDropFolder(GrateConfiguration config, string folder)
+        private static void CreateChangeDropFolder(string folder)
         {
             if (Directory.Exists(folder))
             {
@@ -295,7 +314,7 @@ namespace grate.Migration
             Directory.CreateDirectory(folder);
         }
 
-        private string ChangeDropFolder(GrateConfiguration config, string? server, string? database)
+        private static string ChangeDropFolder(GrateConfiguration config, string? server, string? database)
         {
             var folder = Path.Combine(
                 config.OutputPath!.ToString(),

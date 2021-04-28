@@ -24,10 +24,7 @@ namespace grate.Migration
             Configuration = GrateConfiguration.Default;
         }
         
-        public async Task InitializeConnections()
-        {
-            await Database?.InitializeConnections(Configuration)!;
-        }
+        public Task InitializeConnections() => Database?.InitializeConnections(Configuration)!;
 
         public IDatabase Database { get; set; } = null!;
         public StatementSplitter StatementSplitter { get; set; } = null!;
@@ -49,19 +46,19 @@ namespace grate.Migration
             return false;
         }
 
-        public async Task OpenConnection() => await Database.OpenConnection();
-        public async Task CloseConnection() => await Database.CloseConnection();
+        public Task OpenConnection() => Database.OpenConnection();
+        public Task CloseConnection() => Database.CloseConnection();
 
-        public async Task RunSupportTasks() => await Database.RunSupportTasks();
+        public Task RunSupportTasks() => Database.RunSupportTasks();
         public Task<string> GetCurrentVersion() => Database.GetCurrentVersion();
         public Task<long> VersionTheDatabase(string newVersion) => Database.VersionTheDatabase(newVersion);
-        public async Task OpenAdminConnection() => await Database.OpenAdminConnection();
-        public async Task CloseAdminConnection() => await Database.CloseAdminConnection();
+        public Task OpenAdminConnection() => Database.OpenAdminConnection();
+        public Task CloseAdminConnection() => Database.CloseAdminConnection();
 
         public GrateConfiguration Configuration { get; set; }
 
         public async Task<bool> RunSql(string sql, string scriptName, MigrationType migrationType, long versionId,
-            IEnumerable<GrateEnvironment> environments, object repositoryVersion, object repositoryPath,
+            IEnumerable<GrateEnvironment> environments,
             ConnectionType connectionType)
         {
             var theSqlRun = false;
@@ -150,13 +147,13 @@ namespace grate.Migration
                     Database.Rollback();
                     Transaction.Current?.Dispose();
 
-                    await record_script_in_scripts_run_errors_table(scriptName, sql, statement, ex.Message, versionId);
+                    await RecordScriptInScriptsRunErrorsTable(scriptName, sql, statement, ex.Message, versionId);
                
                     await Database.CloseConnection();
                     throw;
                 }
             }
-            await record_script_in_scripts_run_table(scriptName, sql, migrationType, versionId);
+            await RecordScriptInScriptsRunTable(scriptName, sql, migrationType, versionId);
         }
 
         private IEnumerable<string> GetStatements(string sql) => StatementSplitter.Split(sql);
@@ -168,22 +165,22 @@ namespace grate.Migration
             
             string errorMessage =
                 $"{scriptName} has changed since the last time it was run. By default this is not allowed - scripts that run once should never change. To change this behavior to a warning, please set warnOnOneTimeScriptChanges to true and run again. Stopping execution.";
-            await record_script_in_scripts_run_errors_table(scriptName, sql, sql, errorMessage, versionId);
+            await RecordScriptInScriptsRunErrorsTable(scriptName, sql, sql, errorMessage, versionId);
             await Database.CloseConnection();
             throw new OneTimeScriptChanged(errorMessage);
         }
 
-        private async Task record_script_in_scripts_run_table(string scriptName, string sql, MigrationType migrationType, long versionId)
+        private Task RecordScriptInScriptsRunTable(string scriptName, string sql, MigrationType migrationType, long versionId)
         {
             var hash = _hashGenerator.Hash(sql);
             
             _logger.LogDebug("Recording {0} script ran on {1} - {2}.", scriptName, Database.ServerName, Database.DatabaseName);
-            await Database.InsertScriptRun(scriptName, sql, hash, migrationType == MigrationType.Once, versionId);
+            return Database.InsertScriptRun(scriptName, sql, hash, migrationType == MigrationType.Once, versionId);
         }
 
-        private async Task record_script_in_scripts_run_errors_table(string scriptName, string sql, string errorSql, string errorMessage, long versionId)
+        private Task RecordScriptInScriptsRunErrorsTable(string scriptName, string sql, string errorSql, string errorMessage, long versionId)
         {
-            await Database.InsertScriptRunError(scriptName, sql, errorSql, errorMessage, versionId);
+            return Database.InsertScriptRunError(scriptName, sql, errorSql, errorMessage, versionId);
         }
 
         public async ValueTask DisposeAsync()

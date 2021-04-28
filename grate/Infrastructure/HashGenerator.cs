@@ -13,7 +13,9 @@ namespace grate.Infrastructure
         public string Hash(string text)
         {
             var input = text.Replace(@"'", @"''");
-            input = input.Replace(WindowsLineEnding, UnixLineEnding).Replace(MacLineEnding, UnixLineEnding);
+            input = input
+                .Replace(WindowsLineEnding, UnixLineEnding)
+                .Replace(MacLineEnding, UnixLineEnding);
             
             var messageBytes =  Encoding.UTF8.GetBytes(input);
             var hash = ComputeHash(messageBytes);

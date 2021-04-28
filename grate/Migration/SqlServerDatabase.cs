@@ -67,7 +67,7 @@ namespace grate.Migration
             if (Connection.State != ConnectionState.Open)
             {
                 await Connection.OpenAsync();
-                var res = await Connection.QueryAsync<string>("SELECT DB_NAME()");
+                await Connection.QueryAsync<string>("SELECT DB_NAME()");
             }
         }
 
@@ -106,15 +106,12 @@ namespace grate.Migration
             {
                 using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
                 var cmd = AdminConnection.CreateCommand();
-                //var res = await _cmd.Execute($"CREATE database {DatabaseName}");
                 cmd.CommandText = $"CREATE database {DatabaseName}";
-                var res = await cmd.ExecuteNonQueryAsync();
-                //await Task.Delay(5000);
+                await cmd.ExecuteNonQueryAsync();
                 s.Complete();
             }
             
             await CloseAdminConnection();
-
             await WaitUntilDatabaseIsReady();
         }
 
@@ -214,7 +211,7 @@ CREATE TABLE [{SchemaName}].[ScriptsRunErrors](
             {
                 await using var cmd = Connection.CreateCommand();
                 cmd.CommandText = createSql;
-                var res = await cmd.ExecuteNonQueryAsync();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
         
@@ -234,7 +231,7 @@ CREATE TABLE [{SchemaName}].[Version](
             {
                 await using var cmd = Connection.CreateCommand();
                 cmd.CommandText = createSql;
-                var res = await cmd.ExecuteNonQueryAsync();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
 
@@ -314,6 +311,7 @@ SELECT @@IDENTITY
             await cmd.ExecuteNonQueryAsync();
         }
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         private class ScriptsRunCacheItem
         {
 #pragma warning disable 8618
@@ -337,7 +335,6 @@ WHERE id = (SELECT MAX(id) FROM [{SchemaName}].[ScriptsRun] sr2 WHERE sr2.script
 ";
             var results = await Connection.QueryAsync<ScriptsRunCacheItem>(sql);
             return results.ToDictionary(item => item.script_name, item => item.text_hash);
-            //return ImmutableDictionary<string, string>.Empty;
         }
 
         private async Task<IDictionary<string, string>> GetScriptsRunCache() => _scriptsRunCache ??= await GetAllScriptsRun();

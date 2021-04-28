@@ -11,22 +11,26 @@ namespace grate.Infrastructure
     {
         public static IServiceCollection AddCliCommands(this IServiceCollection services)
         {
-            Type mooCommandType = typeof(GrateCommand);
-            Type commandType = typeof(Command);
+            // Don't need this - might lead to issues when illink-ing, and we have only 1 of these
+            // Type grateCommandType = typeof(GrateCommand);
+            // Type commandType = typeof(Command);
+            //
+            // IEnumerable<Type> commands = grateCommandType
+            //     .Assembly
+            //     .GetExportedTypes()
+            //     .Where(x => 
+            //         x.Namespace == grateCommandType.Namespace && 
+            //         !x.IsAbstract &&
+            //         commandType.IsAssignableFrom(x));
+            //
+            // foreach (Type command in commands)
+            // {
+            //     services.AddSingleton(command, command);
+            //     services.AddSingleton(commandType, command);
+            // }
 
-            IEnumerable<Type> commands = mooCommandType
-                .Assembly
-                .GetExportedTypes()
-                .Where(x => 
-                    x.Namespace == mooCommandType.Namespace && 
-                    !x.IsAbstract &&
-                    commandType.IsAssignableFrom(x));
-
-            foreach (Type command in commands)
-            {
-                services.AddSingleton(command, command);
-                services.AddSingleton(commandType, command);
-            }
+            services.AddSingleton<Command, MigrateCommand>();
+            services.AddSingleton<MigrateCommand, MigrateCommand>();
 
             return services;
         }

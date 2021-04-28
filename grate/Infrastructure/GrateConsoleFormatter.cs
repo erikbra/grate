@@ -36,8 +36,8 @@ namespace grate.Infrastructure
         {
             FormatterOptions = options;
         }
-        
-        internal SimpleConsoleFormatterOptions? FormatterOptions { get; set; }
+
+        private SimpleConsoleFormatterOptions? FormatterOptions { get; set; }
 
         public void Dispose()
         {

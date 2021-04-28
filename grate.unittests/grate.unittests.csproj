@@ -25,20 +25,6 @@
 
   <ItemGroup>
     <Folder Include="Infrastructure\SqlServer" />
-    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\afterMigration" />
-    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\alterDatabase" />
-    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\beforeMigration" />
-    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\functions" />
-    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\indexes" />
-    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\permissions" />
-    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\runAfterCreateDatabase" />
-    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\runAfterOtherAnyTimeScripts" />
-    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\runBeforeUp" />
-    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\runFirstAfterUp" />
-    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\sprocs" />
-    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\triggers" />
-    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\up" />
-    <Folder Include="SqlServer\Running_MigrationScripts\actual_migration_scripts\views" />
   </ItemGroup>
 
 </Project>
