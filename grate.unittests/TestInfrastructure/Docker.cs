@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
@@ -21,15 +23,32 @@ namespace grate.unittests.TestInfrastructure
             return (serverName, int.Parse(hostPort));
         }
 
-        public static async Task<string> DeleteSqlServer(string serverName)
+        public static async Task<(string containerId, int port)> StartOracle(string serverName, string adminPassword)
         {
-            await RunDockerCommand($"stop {serverName}");
-            return await RunDockerCommand($"rm {serverName}");
+            var startArgs = 
+                $"run -d --name {serverName} -e ORACLE_PWD={adminPassword} -P store/oracle/database-enterprise:12.2.0.1";
+            
+            var containerId = await RunDockerCommand(startArgs);
+            var findPortArgs = "inspect --format=\"{{range $p, $conf := .NetworkSettings.Ports}} {{(index $conf 0).HostPort}} {{end}}\" " + containerId;
+
+            //TestContext.Progress.WriteLine("find port: " + findPortArgs);
+            
+            var hostPortList = await RunDockerCommand(findPortArgs);
+            var hostPort = hostPortList.Split(" ", StringSplitOptions.RemoveEmptyEntries).First();
+            //return (containerId, hostPort);
+            return (serverName, int.Parse(hostPort));
         }
         
+        
+        public static async Task<string> Delete(string container)
+        {
+            await RunDockerCommand($"stop {container}");
+            return await RunDockerCommand($"rm {container}");
+        }
+
+
         private static async Task<string> RunDockerCommand(string args)
         {
-            
             //TestContext.Progress.WriteLine("args: " + args);
             
             var proc = new Process

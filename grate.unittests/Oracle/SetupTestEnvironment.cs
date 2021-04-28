@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Data;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
 using grate.unittests.TestInfrastructure;
+using Microsoft.Data.SqlClient;
 using NUnit.Framework;
+using Oracle.ManagedDataAccess.Client;
 
-namespace grate.unittests.SqlServer
+namespace grate.unittests.Oracle
 {
     [SetUpFixture]
     public class SetupTestEnvironment
@@ -24,7 +25,7 @@ namespace grate.unittests.SqlServer
         {
             var random = new Random();
             
-            _serverName = "grate-sqlserver-" + random.GetString(10, ServerNameAllowedChars);
+            _serverName = "grate-oracle-" + random.GetString(10, ServerNameAllowedChars);
             var password = 
                 random.GetString(10, UpperCase) + 
                 random.GetString(10, LowerCase) +
@@ -32,12 +33,12 @@ namespace grate.unittests.SqlServer
             
             //await TestContext.Out.WriteAsync("Starting SQL server docker container: ");
             int port;
-            (_containerId, port) = await Docker.StartSqlServer(_serverName, password);
+            (_containerId, port) = await Docker.StartOracle(_serverName, password);
             
-            GrateTestContext.SqlServer.AdminPassword = password;
-            GrateTestContext.SqlServer.Port = port;
+            GrateTestContext.Oracle.AdminPassword = password;
+            GrateTestContext.Oracle.Port = port;
             
-            await TestContext.Progress.WriteLineAsync("Started SQL server docker container: " + _containerId);
+            await TestContext.Progress.WriteLineAsync("Started Oracle docker container: " + _containerId);
             await TestContext.Progress.WriteLineAsync("Listening on port: " + port);
             
             await TestContext.Progress.WriteAsync("Waiting until server is ready");
@@ -49,9 +50,9 @@ namespace grate.unittests.SqlServer
         [OneTimeTearDown]
         public async Task RunAfterAnyTests()
         {
-            //await TestContext.Progress.WriteAsync("Removing SQL server docker container: ");
+            //await TestContext.Progress.WriteAsync("Removing Oracle docker container: ");
             var containerId = await Docker.Delete(_containerId!);
-            await TestContext.Progress.WriteLineAsync("Removed SQL server docker container: " + containerId);
+            await TestContext.Progress.WriteLineAsync("Removed Oracle docker container: " + containerId);
         }
 
         private async Task<bool> WaitUntilServerIsReady()
@@ -82,15 +83,12 @@ namespace grate.unittests.SqlServer
         private static async Task<bool> ServerIsReady(bool swallowException)
         {
             var db = "master";
-            //var pw = "LYFDIDKQULvrurqwakee1666029582";
-            //var port = 49165;
             
-            var pw = GrateTestContext.SqlServer.AdminPassword;
-            var port = GrateTestContext.SqlServer.Port;
-        
+            var pw = GrateTestContext.Oracle.AdminPassword;
+            var port = GrateTestContext.Oracle.Port;
 
-            var connectionString = $"Data Source=localhost,{port};Initial Catalog={db};User Id=sa;Password={pw}";
-            var sql = "SELECT @@VERSION";
+            var connectionString = $"User Id=pdbadmin;Password={pw};Data Source=localhost:{port}/{db}";
+            var sql = "SELECT * FROM v$version;";
 
             string? res;
 
@@ -98,7 +96,7 @@ namespace grate.unittests.SqlServer
 
             try
             {
-                await using var conn = new SqlConnection(connectionString);
+                await using var conn = new OracleConnection(connectionString);
                 await conn.OpenAsync();
 
                 var cmd = conn.CreateCommand();
@@ -108,9 +106,10 @@ namespace grate.unittests.SqlServer
                 res = (string?) await cmd.ExecuteScalarAsync();
                 ready = res?.StartsWith("Microsoft SQL Server 2017") ?? false;
             }
-            catch (SqlException) when (swallowException)
+            catch (OracleException e ) when (swallowException)
             {
-                
+                var m = e.Message;
+
             }
 
             return ready;

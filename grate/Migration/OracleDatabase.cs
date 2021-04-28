@@ -1,10 +1,20 @@
 using System.Threading.Tasks;
 using grate.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace grate.Migration
 {
     public class OracleDatabase : IDatabase
     {
+        private readonly ILogger<OracleDatabase> _logger;
+
+        public OracleDatabase(ILogger<OracleDatabase> logger)
+        {
+            _logger = logger;
+            throw new System.NotImplementedException();
+        }
+
         public string? ServerName { get; set; }
         public string? DatabaseName { get; set; }
         public bool SupportsDdlTransactions => false;
