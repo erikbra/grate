@@ -26,7 +26,7 @@ namespace grate.unittests.TestInfrastructure
         public static async Task<(string containerId, int port)> StartOracle(string serverName, string adminPassword)
         {
             var startArgs = 
-                $"run -d --name {serverName} -e ORACLE_PWD={adminPassword} -P store/oracle/database-enterprise:12.2.0.1";
+                $"run -d --name {serverName} -e ORACLE_PWD={adminPassword} -e ORACLE_ALLOW_REMOTE=true -P store/oracle/database-enterprise:12.2.0.1";
             
             var containerId = await RunDockerCommand(startArgs);
             var findPortArgs = "inspect --format=\"{{range $p, $conf := .NetworkSettings.Ports}} {{(index $conf 0).HostPort}} {{end}}\" " + containerId;

@@ -16,7 +16,7 @@ namespace grate.unittests.Oracle
             var pw = GrateTestContext.SqlServer.AdminPassword;
             var port = GrateTestContext.SqlServer.Port;
 
-            var connectionString = $"Data Source=localhost,{port};Initial Catalog={db};User Id=sa;Password={pw}";
+            var connectionString = $"Data Source=localhost:{port};Initial Catalog={db};User Id=sa;Password={pw};DBA Privilege=SYSDBA";
 
             var sql = "SELECT @@VERSION";
 
