@@ -12,13 +12,13 @@ namespace grate.unittests.PostgreSQL
         [Test]
         public async Task IsUpAndRunning()
         {
-            var db = "postgresql";
+            var db = "postgres";
             var pw = GrateTestContext.PostgreSql.AdminPassword;
             var port = GrateTestContext.PostgreSql.Port;
 
             var connectionString = $"Host=localhost;Port={port};Database={db};Username=postgres;Password={pw}";
 
-            var sql = "SELECT @@VERSION";
+            var sql = "SELECT version()";
 
             string? res;
             await using (var conn = new NpgsqlConnection(connectionString))
@@ -32,7 +32,7 @@ namespace grate.unittests.PostgreSQL
                 res = (string?) await cmd.ExecuteScalarAsync();
             }
 
-            res.Should().StartWith("Microsoft SQL Server 2017");
+            res.Should().StartWith("PostgreSQL 13.");
 
             //TestContext.Progress.WriteLine("Connection string: " + connectionString);
         }

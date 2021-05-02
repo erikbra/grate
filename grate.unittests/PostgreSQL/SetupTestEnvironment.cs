@@ -81,7 +81,7 @@ namespace grate.unittests.PostgreSQL
 
         private static async Task<bool> ServerIsReady(bool swallowException)
         {
-            var db = "postgresql";
+            var db = "postgres";
             //var pw = "LYFDIDKQULvrurqwakee1666029582";
             //var port = 49165;
             
@@ -90,7 +90,7 @@ namespace grate.unittests.PostgreSQL
         
 
             var connectionString = $"Host=localhost;Port={port};Database={db};Username=postgres;Password={pw}";
-            var sql = "SELECT @@VERSION";
+            var sql = "SELECT version()";
 
             string? res;
 
@@ -106,7 +106,7 @@ namespace grate.unittests.PostgreSQL
                 cmd.CommandText = sql;
 
                 res = (string?) await cmd.ExecuteScalarAsync();
-                ready = res?.StartsWith("Microsoft PostgreSQL 2017") ?? false;
+                ready = res?.StartsWith("PostgreSQL 13.") ?? false;
             }
             catch (NpgsqlException) when (swallowException)
             {
