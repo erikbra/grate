@@ -2,19 +2,15 @@
 {
     public static class GrateTestContext
     {
-        public static SqlServerTestContext SqlServer = new();
-        public static OracleTestContext Oracle = new();
+        public static SqlTestContext SqlServer = new();
+        public static SqlTestContext Oracle = new();
+        public static SqlTestContext PostgreSql = new();
     }
 
-    public class SqlServerTestContext
+    public class SqlTestContext
     {
         public string? AdminPassword { get; set; }
         public int? Port { get; set; }
     }
-    
-    public class OracleTestContext
-    {
-        public string? AdminPassword { get; set; }
-        public int? Port { get; set; }
-    }
+   
 }

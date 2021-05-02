@@ -39,6 +39,21 @@ namespace grate.unittests.TestInfrastructure
             return (serverName, int.Parse(hostPort));
         }
         
+        public static async Task<(string containerId, int port)> StartPostgreSQL(string serverName, string adminPassword)
+        {
+            var startArgs =
+                $"run -d --name {serverName} -e POSTGRES_PASSWORD={adminPassword} -P postgres:latest";
+            
+            var containerId = await RunDockerCommand(startArgs);
+            var findPortArgs = "inspect --format=\"{{range $p, $conf := .NetworkSettings.Ports}} {{(index $conf 0).HostPort}} {{end}}\" " + containerId;
+
+            //TestContext.Progress.WriteLine("find port: " + findPortArgs);
+            
+            var hostPort = await RunDockerCommand(findPortArgs);
+            //return (containerId, hostPort);
+            return (serverName, int.Parse(hostPort));
+        }
+        
         
         public static async Task<string> Delete(string container)
         {

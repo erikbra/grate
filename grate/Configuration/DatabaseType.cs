@@ -4,6 +4,7 @@ namespace grate.Configuration
     public enum DatabaseType
     {
         sqlserver,
-        oracle
+        oracle,
+        postgresql
     }
 }

@@ -2,11 +2,10 @@
 using System.Data;
 using System.Threading.Tasks;
 using grate.unittests.TestInfrastructure;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using NUnit.Framework;
-using Oracle.ManagedDataAccess.Client;
 
-namespace grate.unittests.Oracle
+namespace grate.unittests.PostgreSQL
 {
     [SetUpFixture]
     public class SetupTestEnvironment
@@ -25,20 +24,20 @@ namespace grate.unittests.Oracle
         {
             var random = new Random();
             
-            _serverName = "grate-oracle-" + random.GetString(10, ServerNameAllowedChars);
+            _serverName = "grate-postgresql-" + random.GetString(10, ServerNameAllowedChars);
             var password = 
                 random.GetString(10, UpperCase) + 
                 random.GetString(10, LowerCase) +
                 random.GetString(10, Digits);
             
-            //await TestContext.Out.WriteAsync("Starting SQL server docker container: ");
+            //await TestContext.Out.WriteAsync("Starting PostgreSQL docker container: ");
             int port;
-            (_containerId, port) = await Docker.StartOracle(_serverName, password);
+            (_containerId, port) = await Docker.StartPostgreSQL(_serverName, password);
             
-            GrateTestContext.Oracle.AdminPassword = password;
-            GrateTestContext.Oracle.Port = port;
+            GrateTestContext.PostgreSql.AdminPassword = password;
+            GrateTestContext.PostgreSql.Port = port;
             
-            await TestContext.Progress.WriteLineAsync("Started Oracle docker container: " + _containerId);
+            await TestContext.Progress.WriteLineAsync("Started PostgreSQL docker container: " + _containerId);
             await TestContext.Progress.WriteLineAsync("Listening on port: " + port);
             
             await TestContext.Progress.WriteAsync("Waiting until server is ready");
@@ -50,9 +49,9 @@ namespace grate.unittests.Oracle
         [OneTimeTearDown]
         public async Task RunAfterAnyTests()
         {
-            //await TestContext.Progress.WriteAsync("Removing Oracle docker container: ");
+            //await TestContext.Progress.WriteAsync("Removing PostgreSQL docker container: ");
             var containerId = await Docker.Delete(_containerId!);
-            await TestContext.Progress.WriteLineAsync("Removed Oracle docker container: " + containerId);
+            await TestContext.Progress.WriteLineAsync("Removed PostgreSQL docker container: " + containerId);
         }
 
         private async Task<bool> WaitUntilServerIsReady()
@@ -82,13 +81,16 @@ namespace grate.unittests.Oracle
 
         private static async Task<bool> ServerIsReady(bool swallowException)
         {
-            var db = "cdb1";
+            var db = "postgresql";
+            //var pw = "LYFDIDKQULvrurqwakee1666029582";
+            //var port = 49165;
             
-            var pw = GrateTestContext.Oracle.AdminPassword;
-            var port = GrateTestContext.Oracle.Port;
+            var pw = GrateTestContext.PostgreSql.AdminPassword;
+            var port = GrateTestContext.PostgreSql.Port;
+        
 
-            var connectionString = $"User Id=pdbadmin;Password={pw};Data Source=localhost:{port}/{db}";
-            var sql = "SELECT * FROM v$version;";
+            var connectionString = $"Host=localhost;Port={port};Database={db};Username=postgres;Password={pw}";
+            var sql = "SELECT @@VERSION";
 
             string? res;
 
@@ -96,7 +98,7 @@ namespace grate.unittests.Oracle
 
             try
             {
-                await using var conn = new OracleConnection(connectionString);
+                await using var conn = new NpgsqlConnection(connectionString);
                 await conn.OpenAsync();
 
                 var cmd = conn.CreateCommand();
@@ -104,12 +106,11 @@ namespace grate.unittests.Oracle
                 cmd.CommandText = sql;
 
                 res = (string?) await cmd.ExecuteScalarAsync();
-                ready = res?.StartsWith("Microsoft SQL Server 2017") ?? false;
+                ready = res?.StartsWith("Microsoft PostgreSQL 2017") ?? false;
             }
-            catch (OracleException e ) when (swallowException)
+            catch (NpgsqlException) when (swallowException)
             {
-                var m = e.Message;
-
+                
             }
 
             return ready;
