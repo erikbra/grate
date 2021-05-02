@@ -42,7 +42,7 @@ namespace grate.unittests.PostgreSQL.Running_MigrationScripts
             }
 
             string[] scripts;
-            string sql = "SELECT script_name FROM grate.ScriptsRun";
+            string sql = "SELECT script_name FROM grate.\"ScriptsRun\"";
             
             await using (var conn = new NpgsqlConnection(ConnectionString(db)))
             {
@@ -75,7 +75,7 @@ namespace grate.unittests.PostgreSQL.Running_MigrationScripts
             }
 
             string[] scripts;
-            string sql = "SELECT text_of_script FROM grate.ScriptsRun";
+            string sql = "SELECT text_of_script FROM grate.\"ScriptsRun\"";
             
             await using (var conn = new NpgsqlConnection(ConnectionString(db)))
             {
@@ -83,7 +83,7 @@ namespace grate.unittests.PostgreSQL.Running_MigrationScripts
             }
 
             scripts.Should().HaveCount(1);
-            scripts.First().Should().Be("SELECT @@VERSION");
+            scripts.First().Should().Be("SELECT version()");
         }
 
         private GrateMigrator GetMigrator(string databaseName, bool createDatabase, KnownFolders knownFolders)
@@ -106,7 +106,8 @@ namespace grate.unittests.PostgreSQL.Running_MigrationScripts
                 Version = "a.b.c.d",
                 KnownFolders = knownFolders,
                 AlterDatabase = true,
-                NonInteractive = true
+                NonInteractive = true,
+                DatabaseType = DatabaseType.postgresql
             };
 
 
@@ -126,14 +127,14 @@ namespace grate.unittests.PostgreSQL.Running_MigrationScripts
 
         private static void CreateDummySql(MigrationsFolder? folder)
         {
-            var dummySql = "SELECT @@VERSION";
+            var dummySql = "SELECT version()";
             var path = MakeSurePathExists(folder);
             WriteSql(path, "1_jalla.sql", dummySql);
         }
         
         private static void WriteSomeOtherSql(MigrationsFolder? folder)
         {
-            var dummySql = "SELECT DB_NAME()";
+            var dummySql = "SELECT current_database()";
             var path = MakeSurePathExists(folder);
             WriteSql(path, "1_jalla.sql", dummySql);
         }

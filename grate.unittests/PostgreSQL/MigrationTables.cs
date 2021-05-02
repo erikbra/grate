@@ -28,7 +28,7 @@ namespace grate.unittests.PostgreSQL
         public async Task Is_created_if_it_does_not_exist(string tableName)
         {
             var db = "MonoBonoJono";
-            var fullTableName = "grate." + tableName;
+            var fullTableName = "grate.\"" + tableName + "\"";
             
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
 
@@ -54,7 +54,7 @@ namespace grate.unittests.PostgreSQL
         public async Task Is_created_even_if_scripts_fail(string tableName)
         {
             var db = "DatabaseWithFailingScripts";
-            var fullTableName = "grate." + tableName;
+            var fullTableName = "grate.\"" + tableName + "\"";
             
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateInvalidSql(knownFolders.Up);
@@ -114,7 +114,7 @@ namespace grate.unittests.PostgreSQL
             }
 
             IEnumerable<string> entries;
-            string sql = $"SELECT version FROM grate.Version";
+            string sql = $"SELECT version FROM grate.\"Version\"";
             
             await using (var conn = new NpgsqlConnection(ConnectionString(db)))
             {
@@ -146,7 +146,8 @@ namespace grate.unittests.PostgreSQL
                 Version = "a.b.c.d",
                 KnownFolders = knownFolders,
                 AlterDatabase = true,
-                NonInteractive = true
+                NonInteractive = true,
+                DatabaseType = DatabaseType.postgresql
             };
 
 

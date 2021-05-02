@@ -67,7 +67,7 @@ namespace grate.Migration
             if (Connection.State != ConnectionState.Open)
             {
                 await Connection.OpenAsync();
-                await Connection.QueryAsync<string>("SELECT DB_NAME()");
+                await Connection.QueryAsync<string>("SELECT current_database()");
             }
         }
 
@@ -97,7 +97,7 @@ namespace grate.Migration
 
         public async Task CreateDatabase()
         {
-            const string? sql = "SELECT name FROM sys.databases";
+            const string? sql = "SELECT datname FROM pg_database";
             
             await OpenAdminConnection();
             var databases = await AdminConnection.QueryAsync<string>(sql);
@@ -106,7 +106,7 @@ namespace grate.Migration
             {
                 using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
                 var cmd = AdminConnection.CreateCommand();
-                cmd.CommandText = $"CREATE database {DatabaseName}";
+                cmd.CommandText = $"CREATE database \"{DatabaseName}\"";
                 await cmd.ExecuteNonQueryAsync();
                 s.Complete();
             }
@@ -149,7 +149,7 @@ namespace grate.Migration
 
         private async Task CreateRunSchema()
         {
-            string createSql = @$"CREATE SCHEMA {SchemaName};";
+            string createSql = @$"CREATE SCHEMA ""{SchemaName}"";";
             
             if (!await RunSchemaExists())
             {
@@ -161,7 +161,7 @@ namespace grate.Migration
 
         private async Task<bool> RunSchemaExists()
         {
-            string sql = "SELECT s.name FROM sys.schemas s WHERE name = '" + SchemaName + "'";
+            string sql = "SELECT s.schema_name FROM information_schema.schemata s WHERE s.schema_name = '" + SchemaName + "'";
             await using var cmd = Connection.CreateCommand();
             cmd.CommandText = sql;
             var res = await cmd.ExecuteScalarAsync();
@@ -171,17 +171,17 @@ namespace grate.Migration
         private async Task CreateScriptsRunTable()
         {
             string createSql = $@"
-CREATE TABLE [{SchemaName}].[ScriptsRun](
-	[id] [bigint] IDENTITY(1,1) NOT NULL,
-	[version_id] [bigint] NULL,
-	[script_name] [nvarchar](255) NULL,
-	[text_of_script] [text] NULL,
-	[text_hash] [nvarchar](512) NULL,
-	[one_time_script] [bit] NULL,
-	[entry_date] [datetime] NULL,
-	[modified_date] [datetime] NULL,
-	[entered_by] [nvarchar](50) NULL,
-    CONSTRAINT PK_ScriptsRun_Id PRIMARY KEY CLUSTERED (id)
+CREATE TABLE {SchemaName}.""ScriptsRun""(
+	id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+	version_id bigint NULL,
+	script_name varchar(255) NULL,
+	text_of_script text NULL,
+	text_hash varchar(512) NULL,
+	one_time_script boolean NULL,
+	entry_date timestamp NULL,
+	modified_date timestamp NULL,
+	entered_by varchar(50) NULL,
+    CONSTRAINT PK_ScriptsRun_Id PRIMARY KEY (id)
 );";
             if (!await ScriptsRunTableExists())
             {
@@ -194,18 +194,18 @@ CREATE TABLE [{SchemaName}].[ScriptsRun](
         private async Task CreateScriptsRunErrorsTable()
         {
             string createSql = $@"
-CREATE TABLE [{SchemaName}].[ScriptsRunErrors](
-	[id] [bigint] IDENTITY(1,1) NOT NULL,
-	[repository_path] [nvarchar](255) NULL,
-	[version] [nvarchar](50) NULL,
-	[script_name] [nvarchar](255) NULL,
-	[text_of_script] [ntext] NULL,
-	[erroneous_part_of_script] [ntext] NULL,
-	[error_message] [ntext] NULL,
-	[entry_date] [datetime] NULL,
-	[modified_date] [datetime] NULL,
-	[entered_by] [nvarchar](50) NULL,
-    CONSTRAINT PK_ScriptsRunErrors_Id PRIMARY KEY CLUSTERED (id)
+CREATE TABLE {SchemaName}.""ScriptsRunErrors""(
+	id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+	repository_path varchar(255) NULL,
+	version varchar(50) NULL,
+	script_name varchar(255) NULL,
+	text_of_script text NULL,
+	erroneous_part_of_script text NULL,
+	error_message text NULL,
+	entry_date timestamp NULL,
+	modified_date timestamp NULL,
+	entered_by varchar(50) NULL,
+    CONSTRAINT PK_ScriptsRunErrors_Id PRIMARY KEY (id)
 );";
             if (!await ScriptsRunErrorsTableExists())
             {
@@ -218,14 +218,14 @@ CREATE TABLE [{SchemaName}].[ScriptsRunErrors](
         private async Task CreateVersionTable()
         {
             string createSql = $@"
-CREATE TABLE [{SchemaName}].[Version](
-	[id] [bigint] IDENTITY(1,1) NOT NULL,
-	[repository_path] [nvarchar](255) NULL,
-	[version] [nvarchar](50) NULL,
-	[entry_date] [datetime] NULL,
-	[modified_date] [datetime] NULL,
-	[entered_by] [nvarchar](50) NULL,
-    CONSTRAINT PK_Version_Id PRIMARY KEY CLUSTERED (id)
+CREATE TABLE {SchemaName}.""Version""(
+	id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+	repository_path varchar(255) NULL,
+	version varchar(50) NULL,
+	entry_date timestamp NULL,
+	modified_date timestamp NULL,
+	entered_by varchar(50) NULL,
+    CONSTRAINT PK_Version_Id PRIMARY KEY (id)
 );";
             if (!await VersionTableExists())
             {
@@ -242,20 +242,27 @@ CREATE TABLE [{SchemaName}].[Version](
         
         private async Task<bool> TableExists(string tableName)
         {
-            string existsSql = $@"SELECT OBJECT_ID(N'[{SchemaName}].[{tableName}]', N'U');";
+            string existsSql = $@"
+SELECT * FROM information_schema.tables 
+WHERE table_schema = '{SchemaName}'
+AND table_name = '{tableName}'
+";
+            
+            //string existsSql = $@"SELECT OBJECT_ID(N'[{SchemaName}].[{tableName}]', N'U');";
             
             await using var cmd = Connection.CreateCommand();
             cmd.CommandText = existsSql;
             var res = await cmd.ExecuteScalarAsync();
-            return !DBNull.Value.Equals(res);
+            return !DBNull.Value.Equals(res) && res is not null;
         }
         
         public async Task<string> GetCurrentVersion()
         {
             var sql = $@"
-SELECT TOP 1 [Version]
-FROM [{SchemaName}].Version
+SELECT version
+FROM {SchemaName}.""Version""
 ORDER BY id DESC
+LIMIT 1
 ";
             await using var cmd = Connection.CreateCommand();
             cmd.CommandText = sql;
@@ -267,11 +274,11 @@ ORDER BY id DESC
         public async Task<long> VersionTheDatabase(string newVersion)
         {
             var sql = $@"
-INSERT INTO [{SchemaName}].Version 
+INSERT INTO {SchemaName}.""Version""
 (version, entry_date, modified_date, entered_by)
-VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy);
+VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
 
-SELECT @@IDENTITY
+RETURNING id;
 ";
             var res = (long) await  Connection.ExecuteAsync(
                 sql, 
@@ -330,8 +337,8 @@ SELECT @@IDENTITY
         {
             var sql = $@"
 SELECT script_name, text_hash
-FROM [{SchemaName}].[ScriptsRun] sr
-WHERE id = (SELECT MAX(id) FROM [{SchemaName}].[ScriptsRun] sr2 WHERE sr2.script_name = sr.script_name)
+FROM {SchemaName}.""ScriptsRun"" sr
+WHERE id = (SELECT MAX(id) FROM {SchemaName}.""ScriptsRun"" sr2 WHERE sr2.script_name = sr.script_name)
 ";
             var results = await Connection.QueryAsync<ScriptsRunCacheItem>(sql);
             return results.ToDictionary(item => item.script_name, item => item.text_hash);
@@ -348,7 +355,7 @@ WHERE id = (SELECT MAX(id) FROM [{SchemaName}].[ScriptsRun] sr2 WHERE sr2.script
             }
             
             var hashSql = $@"
-SELECT text_hash FROM  [{SchemaName}].ScriptsRun
+SELECT text_hash FROM  {SchemaName}.""ScriptsRun""
 WHERE script_name = @scriptName";
             
             var hash = await Connection.ExecuteScalarAsync<string?>(hashSql, new {scriptName});
@@ -364,7 +371,7 @@ WHERE script_name = @scriptName";
             }
             
             var hasRunSql = $@"
-SELECT 1 FROM  [{SchemaName}].ScriptsRun
+SELECT 1 FROM  {SchemaName}.""ScriptsRun""
 WHERE script_name = @scriptName";
 
             var run = await Connection.ExecuteScalarAsync<bool?>(hasRunSql, new {scriptName});
@@ -377,7 +384,7 @@ WHERE script_name = @scriptName";
             cache.Remove(scriptName);
             
             var insertSql = $@"
-INSERT INTO [{SchemaName}].ScriptsRun
+INSERT INTO {SchemaName}.""ScriptsRun""
 (version_id, script_name, text_of_script, text_hash, one_time_script, entry_date, modified_date, entered_by)
 VALUES (@versionId, @scriptName, @sql, @hash, @runOnce, @now, @now, @user)";
             
@@ -398,9 +405,9 @@ VALUES (@versionId, @scriptName, @sql, @hash, @runOnce, @now, @now, @user)";
         public async Task InsertScriptRunError(string scriptName, string sql, string errorSql, string errorMessage, long versionId)
         {
             var insertSql = $@"
-INSERT INTO [{SchemaName}].ScriptsRunErrors
+INSERT INTO {SchemaName}.""ScriptsRunErrors""
 (version, script_name, text_of_script, erroneous_part_of_script, error_message, entry_date, modified_date, entered_by)
-VALUES ((SELECT version FROM [{SchemaName}].Version WHERE id = @versionId), @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @user)";
+VALUES ((SELECT version FROM {SchemaName}.""Version"" WHERE id = @versionId), @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @user)";
             
             var scriptRunErrors = new 
             {

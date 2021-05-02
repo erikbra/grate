@@ -13,7 +13,7 @@ namespace grate.Configuration
         //public KnownFolders KnownFolders { get; set; } = InCurrentDirectory();
         public KnownFolders? KnownFolders { get; set; }
         
-        public DatabaseType DatabaseType { get; init; } = DatabaseType.sqlserver;
+        public DatabaseType DatabaseType { get; init; } // = DatabaseType.sqlserver;
         //public DatabaseType DatabaseType { get; init; }
         
         public DirectoryInfo SqlFilesDirectory { get; init; } = CurrentDirectory;

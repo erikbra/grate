@@ -35,8 +35,11 @@ namespace grate.unittests.PostgreSQL.Running_MigrationScripts
             
             await using (migrator = GetMigrator(db, true, knownFolders))
             {
-                var ex = Assert.ThrowsAsync<NpgsqlException>(migrator.Migrate);
-                ex?.Message.Should().Be("Incorrect syntax near 'TOP'.");
+                var ex = Assert.ThrowsAsync<PostgresException >(migrator.Migrate);
+                ex?.Message.Should().Be(
+@"42703: column ""top"" does not exist
+
+POSITION: 8");
             }
         }
 
@@ -62,7 +65,7 @@ namespace grate.unittests.PostgreSQL.Running_MigrationScripts
             }
 
             string[] scripts;
-            string sql = "SELECT script_name FROM grate.ScriptsRunErrors";
+            string sql = "SELECT script_name FROM grate.\"ScriptsRunErrors\"";
 
             using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -98,7 +101,7 @@ namespace grate.unittests.PostgreSQL.Running_MigrationScripts
             }
 
             string[] scripts;
-            string sql = "SELECT text_of_script FROM grate.ScriptsRun";
+            string sql = "SELECT text_of_script FROM grate.\"ScriptsRun\"";
             
             await using (var conn = new NpgsqlConnection(ConnectionString(db)))
             {
@@ -129,7 +132,8 @@ namespace grate.unittests.PostgreSQL.Running_MigrationScripts
                 KnownFolders = knownFolders,
                 AlterDatabase = true,
                 Transaction = true,
-                NonInteractive = true
+                NonInteractive = true,
+                DatabaseType = DatabaseType.postgresql
             };
 
 
@@ -149,7 +153,7 @@ namespace grate.unittests.PostgreSQL.Running_MigrationScripts
 
         private static void CreateDummySql(MigrationsFolder? folder)
         {
-            var dummySql = "SELECT @@VERSION";
+            var dummySql = "SELECT version()";
             var path = MakeSurePathExists(folder);
             WriteSql(path, "1_jalla.sql", dummySql);
         }

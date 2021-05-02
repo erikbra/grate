@@ -29,7 +29,7 @@ namespace grate.unittests.PostgreSQL
             await migrator.Migrate();
 
             IEnumerable<string> databases;
-            const string? sql = "SELECT name FROM sys.databases";
+            const string? sql = "SELECT datname FROM pg_database";
             
             using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -49,11 +49,11 @@ namespace grate.unittests.PostgreSQL
             var migrator = GetMigrator(GetConfiguration(db, false));
             
             // The migration should throw an error, as the database does not exist.
-            Assert.ThrowsAsync<NpgsqlException>(() => migrator.Migrate());
+            Assert.ThrowsAsync<PostgresException>(() => migrator.Migrate());
 
             // Ensure that the database was in fact not created 
             IEnumerable<string> databases;
-            const string? sql = "SELECT name FROM sys.databases";
+            const string? sql = "SELECT datname FROM pg_database";
             using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
                 await using (var conn = new NpgsqlConnection(AdminConnectionString()))
@@ -67,7 +67,7 @@ namespace grate.unittests.PostgreSQL
         [Test]
         public async Task Does_not_error_if_confed_to_create_but_already_exists()
         {
-            const string? selectDatabasesSql = "SELECT name FROM sys.databases";
+            const string? selectDatabasesSql = "SELECT datname FROM pg_database";
             
             var db = "daataa";
             
@@ -111,7 +111,7 @@ namespace grate.unittests.PostgreSQL
         [Test]
         public async Task Does_not_need_admin_connection_if_database_already_exists()
         {
-            const string? selectDatabasesSql = "SELECT name FROM sys.databases";
+            const string? selectDatabasesSql = "SELECT datname FROM pg_database";
             
             var db = "datadatadatabase";
             
@@ -176,7 +176,8 @@ namespace grate.unittests.PostgreSQL
                 ConnectionString = ConnectionString(databaseName),
                 AdminConnectionString = adminConnectionString ?? AdminConnectionString(),
                 KnownFolders = KnownFolders.In(new DirectoryInfo(@"C:\tmp\sql")),
-                NonInteractive = true
+                NonInteractive = true,
+                DatabaseType = DatabaseType.postgresql
             };
         }
     }

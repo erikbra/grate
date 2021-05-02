@@ -34,7 +34,7 @@ namespace grate.unittests.PostgreSQL.Running_MigrationScripts
             }
 
             string[] scripts;
-            string sql = "SELECT script_name FROM grate.ScriptsRun";
+            string sql = "SELECT script_name FROM grate.\"ScriptsRun\"";
             
             await using (var conn = new NpgsqlConnection(ConnectionString(db)))
             {
@@ -90,7 +90,8 @@ namespace grate.unittests.PostgreSQL.Running_MigrationScripts
                 Version = "a.b.c.d",
                 KnownFolders = KnownFolders.In(scriptsDir),
                 AlterDatabase = true,
-                NonInteractive = true
+                NonInteractive = true,
+                DatabaseType = DatabaseType.postgresql
             };
 
             CreateDummySql(_config.KnownFolders.AfterMigration, "1_aftermigration.sql");
@@ -115,7 +116,7 @@ namespace grate.unittests.PostgreSQL.Running_MigrationScripts
 
         private static void CreateDummySql(MigrationsFolder? folder, string filename)
         {
-            var dummySql = "SELECT @@VERSION";
+            var dummySql = "SELECT version()";
 
             var path = folder?.Path ?? throw new ArgumentException(nameof(folder.Path));
 

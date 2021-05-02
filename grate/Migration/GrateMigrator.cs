@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ using System.Transactions;
 using grate.Configuration;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 
 namespace grate.Migration
 {
@@ -203,7 +205,7 @@ namespace grate.Migration
                 await dbMigrator.OpenConnection();
                 return true;
             }
-            catch (SqlException)
+            catch (DbException)
             {
                 return false;
             }
