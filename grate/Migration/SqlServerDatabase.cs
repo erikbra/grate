@@ -161,7 +161,7 @@ namespace grate.Migration
 
         private async Task<bool> RunSchemaExists()
         {
-            string sql = "SELECT s.name FROM sys.schemas s WHERE name = '" + SchemaName + "'";
+            string sql = "SELECT s.schema_name FROM information_schema.schemata s WHERE s.schema_name = '" + SchemaName + "'";
             await using var cmd = Connection.CreateCommand();
             cmd.CommandText = sql;
             var res = await cmd.ExecuteScalarAsync();
@@ -242,12 +242,18 @@ CREATE TABLE [{SchemaName}].[Version](
         
         private async Task<bool> TableExists(string tableName)
         {
-            string existsSql = $@"SELECT OBJECT_ID(N'[{SchemaName}].[{tableName}]', N'U');";
+            string existsSql = $@"
+SELECT * FROM information_schema.tables 
+WHERE table_schema = '{SchemaName}'
+AND table_name = '{tableName}'
+";
+            
+            //string existsSql = $@"SELECT OBJECT_ID(N'[{SchemaName}].[{tableName}]', N'U');";
             
             await using var cmd = Connection.CreateCommand();
             cmd.CommandText = existsSql;
             var res = await cmd.ExecuteScalarAsync();
-            return !DBNull.Value.Equals(res);
+            return !DBNull.Value.Equals(res) && res is not null;
         }
         
         public async Task<string> GetCurrentVersion()
