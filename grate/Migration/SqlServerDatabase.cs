@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Transactions;
 using Dapper;
 using grate.Configuration;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
+using Microsoft.Data.SqlClient;
 
 namespace grate.Migration
 {
@@ -17,8 +17,8 @@ namespace grate.Migration
     {
         private string SchemaName { get; set; } = ""; 
         private readonly ILogger<SqlServerDatabase> _logger;
-        private SqlConnection? _connection;
-        private SqlConnection? _adminConnection;
+        private DbConnection? _connection;
+        private DbConnection? _adminConnection;
 
         private IDictionary<string, string>? _scriptsRunCache;
 
@@ -59,8 +59,8 @@ namespace grate.Migration
         private string? AdminConnectionString { get; set; }
         private string? ConnectionString { get; set; }
 
-        private SqlConnection AdminConnection => _adminConnection ??= new SqlConnection(AdminConnectionString);
-        private SqlConnection Connection => _connection ??= new SqlConnection(ConnectionString);
+        private DbConnection AdminConnection => _adminConnection ??= new SqlConnection(AdminConnectionString);
+        private DbConnection Connection => _connection ??= new SqlConnection(ConnectionString);
 
         public async Task OpenConnection()
         {
@@ -106,7 +106,7 @@ namespace grate.Migration
             {
                 using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
                 var cmd = AdminConnection.CreateCommand();
-                cmd.CommandText = $"CREATE database {DatabaseName}";
+                cmd.CommandText = $"CREATE database \"{DatabaseName}\"";
                 await cmd.ExecuteNonQueryAsync();
                 s.Complete();
             }
@@ -128,7 +128,7 @@ namespace grate.Migration
                     await OpenConnection();
                     databaseReady = true;
                 }
-                catch (SqlException)
+                catch (DbException)
                 {
                     await Task.Delay(1000);
                     totalDelay += 1000;
@@ -149,7 +149,7 @@ namespace grate.Migration
 
         private async Task CreateRunSchema()
         {
-            string createSql = @$"CREATE SCHEMA {SchemaName};";
+            string createSql = @$"CREATE SCHEMA ""{SchemaName}"";";
             
             if (!await RunSchemaExists())
             {
@@ -260,7 +260,7 @@ AND table_name = '{tableName}'
         {
             var sql = $@"
 SELECT TOP 1 [Version]
-FROM [{SchemaName}].Version
+FROM {SchemaName}.""Version""
 ORDER BY id DESC
 ";
             await using var cmd = Connection.CreateCommand();
@@ -273,11 +273,11 @@ ORDER BY id DESC
         public async Task<long> VersionTheDatabase(string newVersion)
         {
             var sql = $@"
-INSERT INTO [{SchemaName}].Version 
+INSERT INTO {SchemaName}.""Version""
 (version, entry_date, modified_date, entered_by)
-VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy);
+VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
 
-SELECT @@IDENTITY
+;SELECT @@IDENTITY
 ";
             var res = (long) await  Connection.ExecuteAsync(
                 sql, 
@@ -336,8 +336,8 @@ SELECT @@IDENTITY
         {
             var sql = $@"
 SELECT script_name, text_hash
-FROM [{SchemaName}].[ScriptsRun] sr
-WHERE id = (SELECT MAX(id) FROM [{SchemaName}].[ScriptsRun] sr2 WHERE sr2.script_name = sr.script_name)
+FROM {SchemaName}.""ScriptsRun"" sr
+WHERE id = (SELECT MAX(id) FROM {SchemaName}.""ScriptsRun"" sr2 WHERE sr2.script_name = sr.script_name)
 ";
             var results = await Connection.QueryAsync<ScriptsRunCacheItem>(sql);
             return results.ToDictionary(item => item.script_name, item => item.text_hash);
@@ -354,7 +354,7 @@ WHERE id = (SELECT MAX(id) FROM [{SchemaName}].[ScriptsRun] sr2 WHERE sr2.script
             }
             
             var hashSql = $@"
-SELECT text_hash FROM  [{SchemaName}].ScriptsRun
+SELECT text_hash FROM  {SchemaName}.""ScriptsRun""
 WHERE script_name = @scriptName";
             
             var hash = await Connection.ExecuteScalarAsync<string?>(hashSql, new {scriptName});
@@ -370,7 +370,7 @@ WHERE script_name = @scriptName";
             }
             
             var hasRunSql = $@"
-SELECT 1 FROM  [{SchemaName}].ScriptsRun
+SELECT 1 FROM  {SchemaName}.""ScriptsRun""
 WHERE script_name = @scriptName";
 
             var run = await Connection.ExecuteScalarAsync<bool?>(hasRunSql, new {scriptName});
@@ -383,7 +383,7 @@ WHERE script_name = @scriptName";
             cache.Remove(scriptName);
             
             var insertSql = $@"
-INSERT INTO [{SchemaName}].ScriptsRun
+INSERT INTO {SchemaName}.""ScriptsRun""
 (version_id, script_name, text_of_script, text_hash, one_time_script, entry_date, modified_date, entered_by)
 VALUES (@versionId, @scriptName, @sql, @hash, @runOnce, @now, @now, @user)";
             
@@ -404,9 +404,9 @@ VALUES (@versionId, @scriptName, @sql, @hash, @runOnce, @now, @now, @user)";
         public async Task InsertScriptRunError(string scriptName, string sql, string errorSql, string errorMessage, long versionId)
         {
             var insertSql = $@"
-INSERT INTO [{SchemaName}].ScriptsRunErrors
+INSERT INTO {SchemaName}.""ScriptsRunErrors""
 (version, script_name, text_of_script, erroneous_part_of_script, error_message, entry_date, modified_date, entered_by)
-VALUES ((SELECT version FROM [{SchemaName}].Version WHERE id = @versionId), @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @user)";
+VALUES ((SELECT version FROM {SchemaName}.""Version"" WHERE id = @versionId), @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @user)";
             
             var scriptRunErrors = new 
             {

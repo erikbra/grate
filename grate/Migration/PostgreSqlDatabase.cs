@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -17,8 +17,8 @@ namespace grate.Migration
     {
         private string SchemaName { get; set; } = ""; 
         private readonly ILogger<PostgreSqlDatabase> _logger;
-        private NpgsqlConnection? _connection;
-        private NpgsqlConnection? _adminConnection;
+        private DbConnection? _connection;
+        private DbConnection? _adminConnection;
 
         private IDictionary<string, string>? _scriptsRunCache;
 
@@ -59,8 +59,8 @@ namespace grate.Migration
         private string? AdminConnectionString { get; set; }
         private string? ConnectionString { get; set; }
 
-        private NpgsqlConnection AdminConnection => _adminConnection ??= new NpgsqlConnection(AdminConnectionString);
-        private NpgsqlConnection Connection => _connection ??= new NpgsqlConnection(ConnectionString);
+        private DbConnection AdminConnection => _adminConnection ??= new NpgsqlConnection(AdminConnectionString);
+        private DbConnection Connection => _connection ??= new NpgsqlConnection(ConnectionString);
 
         public async Task OpenConnection()
         {
@@ -128,7 +128,7 @@ namespace grate.Migration
                     await OpenConnection();
                     databaseReady = true;
                 }
-                catch (NpgsqlException)
+                catch (DbException)
                 {
                     await Task.Delay(1000);
                     totalDelay += 1000;
