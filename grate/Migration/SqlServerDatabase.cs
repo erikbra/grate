@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Dapper;
 using grate.Configuration;
+using grate.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Microsoft.Data.SqlClient;
 
@@ -19,6 +20,7 @@ namespace grate.Migration
         private readonly ILogger<SqlServerDatabase> _logger;
         private DbConnection? _connection;
         private DbConnection? _adminConnection;
+        private readonly ISyntax _syntax = new SqlServerSyntax();
 
         private IDictionary<string, string>? _scriptsRunCache;
 
@@ -32,18 +34,9 @@ namespace grate.Migration
         
         public bool SupportsDdlTransactions => true;
         public bool SplitBatchStatements => true;
-        
-        public string StatementSeparatorRegex
-        {
-            get
-            {
-                const string strings = @"(?<KEEP1>'[^']*')";
-                const string dashComments = @"(?<KEEP1>--.*$)";
-                const string starComments = @"(?<KEEP1>/\*[\S\s]*?\*/)";
-                const string separator = @"(?<KEEP1>^|\s)(?<BATCHSPLITTER>GO)(?<KEEP2>\s|;|$)";
-                return strings + "|" + dashComments + "|" + starComments + "|" + separator;
-            }
-        }
+
+        public string StatementSeparatorRegex => _syntax.StatementSeparatorRegex;
+     
         
         public Task InitializeConnections(GrateConfiguration configuration)
         {
@@ -59,15 +52,15 @@ namespace grate.Migration
         private string? AdminConnectionString { get; set; }
         private string? ConnectionString { get; set; }
 
-        private DbConnection AdminConnection => _adminConnection ??= new SqlConnection(AdminConnectionString);
-        private DbConnection Connection => _connection ??= new SqlConnection(ConnectionString);
+        protected DbConnection AdminConnection => _adminConnection ??= new SqlConnection(AdminConnectionString);
+        protected DbConnection Connection => _connection ??= new SqlConnection(ConnectionString);
 
         public async Task OpenConnection()
         {
             if (Connection.State != ConnectionState.Open)
             {
                 await Connection.OpenAsync();
-                await Connection.QueryAsync<string>("SELECT DB_NAME()");
+                await Connection.QueryAsync<string>(_syntax.CurrentDatabase);
             }
         }
 
@@ -97,7 +90,7 @@ namespace grate.Migration
 
         public async Task CreateDatabase()
         {
-            const string? sql = "SELECT name FROM sys.databases";
+            string? sql = _syntax.ListDatabases;
             
             await OpenAdminConnection();
             var databases = await AdminConnection.QueryAsync<string>(sql);
@@ -161,7 +154,7 @@ namespace grate.Migration
 
         private async Task<bool> RunSchemaExists()
         {
-            string sql = "SELECT s.schema_name FROM information_schema.schemata s WHERE s.schema_name = '" + SchemaName + "'";
+            string sql = $"SELECT s.schema_name FROM information_schema.schemata s WHERE s.schema_name = '{SchemaName}'";
             await using var cmd = Connection.CreateCommand();
             cmd.CommandText = sql;
             var res = await cmd.ExecuteScalarAsync();
@@ -171,17 +164,17 @@ namespace grate.Migration
         private async Task CreateScriptsRunTable()
         {
             string createSql = $@"
-CREATE TABLE [{SchemaName}].[ScriptsRun](
-	[id] [bigint] IDENTITY(1,1) NOT NULL,
-	[version_id] [bigint] NULL,
-	[script_name] [nvarchar](255) NULL,
-	[text_of_script] [text] NULL,
-	[text_hash] [nvarchar](512) NULL,
-	[one_time_script] [bit] NULL,
-	[entry_date] [datetime] NULL,
-	[modified_date] [datetime] NULL,
-	[entered_by] [nvarchar](50) NULL,
-    CONSTRAINT PK_ScriptsRun_Id PRIMARY KEY CLUSTERED (id)
+CREATE TABLE {SchemaName}.""ScriptsRun""(
+	id bigint {_syntax.Identity} NOT NULL,
+	version_id bigint NULL,
+	script_name {_syntax.VarcharType}(255) NULL,
+	text_of_script {_syntax.TextType} NULL,
+	text_hash {_syntax.VarcharType}(512) NULL,
+	one_time_script {_syntax.BooleanType} NULL,
+	entry_date {_syntax.TimestampType} NULL,
+	modified_date {_syntax.TimestampType} NULL,
+	entered_by {_syntax.VarcharType}(50) NULL,
+    CONSTRAINT PK_ScriptsRun_Id {_syntax.PrimaryKey("id")}
 );";
             if (!await ScriptsRunTableExists())
             {
@@ -194,18 +187,18 @@ CREATE TABLE [{SchemaName}].[ScriptsRun](
         private async Task CreateScriptsRunErrorsTable()
         {
             string createSql = $@"
-CREATE TABLE [{SchemaName}].[ScriptsRunErrors](
-	[id] [bigint] IDENTITY(1,1) NOT NULL,
-	[repository_path] [nvarchar](255) NULL,
-	[version] [nvarchar](50) NULL,
-	[script_name] [nvarchar](255) NULL,
-	[text_of_script] [ntext] NULL,
-	[erroneous_part_of_script] [ntext] NULL,
-	[error_message] [ntext] NULL,
-	[entry_date] [datetime] NULL,
-	[modified_date] [datetime] NULL,
-	[entered_by] [nvarchar](50) NULL,
-    CONSTRAINT PK_ScriptsRunErrors_Id PRIMARY KEY CLUSTERED (id)
+CREATE TABLE {SchemaName}.""ScriptsRunErrors""(
+	id bigint {_syntax.Identity} NOT NULL,
+	repository_path {_syntax.VarcharType}(255) NULL,
+	version {_syntax.VarcharType}(50) NULL,
+	script_name {_syntax.VarcharType}(255) NULL,
+	text_of_script {_syntax.TextType} NULL,
+	erroneous_part_of_script {_syntax.TextType} NULL,
+	error_message {_syntax.TextType} NULL,
+	entry_date {_syntax.TimestampType} NULL,
+	modified_date {_syntax.TimestampType} NULL,
+	entered_by {_syntax.VarcharType}(50) NULL,
+    CONSTRAINT PK_ScriptsRunErrors_Id {_syntax.PrimaryKey("id")}
 );";
             if (!await ScriptsRunErrorsTableExists())
             {
@@ -218,14 +211,14 @@ CREATE TABLE [{SchemaName}].[ScriptsRunErrors](
         private async Task CreateVersionTable()
         {
             string createSql = $@"
-CREATE TABLE [{SchemaName}].[Version](
-	[id] [bigint] IDENTITY(1,1) NOT NULL,
-	[repository_path] [nvarchar](255) NULL,
-	[version] [nvarchar](50) NULL,
-	[entry_date] [datetime] NULL,
-	[modified_date] [datetime] NULL,
-	[entered_by] [nvarchar](50) NULL,
-    CONSTRAINT PK_Version_Id PRIMARY KEY CLUSTERED (id)
+CREATE TABLE {SchemaName}.""Version""(
+	id bigint {_syntax.Identity} NOT NULL,
+	repository_path {_syntax.VarcharType}(255) NULL,
+	version {_syntax.VarcharType}(50) NULL,
+	entry_date {_syntax.TimestampType} NULL,
+	modified_date {_syntax.TimestampType} NULL,
+	entered_by {_syntax.VarcharType}(50) NULL,
+    CONSTRAINT PK_Version_Id {_syntax.PrimaryKey("id")}
 );";
             if (!await VersionTableExists())
             {
@@ -259,9 +252,11 @@ AND table_name = '{tableName}'
         public async Task<string> GetCurrentVersion()
         {
             var sql = $@"
-SELECT TOP 1 [Version]
+SELECT 
+{_syntax.LimitN($@"
+version
 FROM {SchemaName}.""Version""
-ORDER BY id DESC
+ORDER BY id DESC", 1)}
 ";
             await using var cmd = Connection.CreateCommand();
             cmd.CommandText = sql;
@@ -277,7 +272,7 @@ INSERT INTO {SchemaName}.""Version""
 (version, entry_date, modified_date, entered_by)
 VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
 
-;SELECT @@IDENTITY
+{_syntax.ReturnId}
 ";
             var res = (long) await  Connection.ExecuteAsync(
                 sql, 
