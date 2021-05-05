@@ -8,19 +8,24 @@ namespace grate.unittests.TestInfrastructure
 {
     public static class Docker
     {
-        public static async Task<(string containerId, int port)> StartSqlServer(string serverName, string adminPassword)
+        public static async Task<(string containerId, int port)> StartDockerContainer(string serverName, string adminPassword, Func<string, string, string> getStartArgs)
         {
-            var startArgs =
-                $"run -d --name {serverName} -e ACCEPT_EULA=Y -e SA_PASSWORD={adminPassword} -e MSSQL_PID=Developer -e MSSQL_COLLATION=Danish_Norwegian_CI_AS -P microsoft/mssql-server-linux:2017-latest";
-            
-            var containerId = await RunDockerCommand(startArgs);
+            var containerId = await RunDockerCommand(getStartArgs(serverName, adminPassword));
             var findPortArgs = "inspect --format=\"{{range $p, $conf := .NetworkSettings.Ports}} {{(index $conf 0).HostPort}} {{end}}\" " + containerId;
 
             //TestContext.Progress.WriteLine("find port: " + findPortArgs);
             
-            var hostPort = await RunDockerCommand(findPortArgs);
-            //return (containerId, hostPort);
+            var hostPortList = await RunDockerCommand(findPortArgs);
+            var hostPort = hostPortList.Split(" ", StringSplitOptions.RemoveEmptyEntries).First();
             return (serverName, int.Parse(hostPort));
+        }
+        
+        public static async Task<(string containerId, int port)> StartSqlServer(string serverName, string adminPassword)
+        {
+            var startArgs =
+                $"run -d --name {serverName} -e ACCEPT_EULA=Y -e SA_PASSWORD={adminPassword} -e MSSQL_PID=Developer -e MSSQL_COLLATION=Danish_Norwegian_CI_AS -P microsoft/mssql-server-linux:2017-latest";
+
+            return await StartDockerContainer(serverName, adminPassword, (_, _) => startArgs);
         }
 
         public static async Task<(string containerId, int port)> StartOracle(string serverName, string adminPassword)
@@ -28,15 +33,7 @@ namespace grate.unittests.TestInfrastructure
             var startArgs = 
                 $"run -d --name {serverName} -e ORACLE_PWD={adminPassword} -e ORACLE_ALLOW_REMOTE=true -P store/oracle/database-enterprise:12.2.0.1";
             
-            var containerId = await RunDockerCommand(startArgs);
-            var findPortArgs = "inspect --format=\"{{range $p, $conf := .NetworkSettings.Ports}} {{(index $conf 0).HostPort}} {{end}}\" " + containerId;
-
-            //TestContext.Progress.WriteLine("find port: " + findPortArgs);
-            
-            var hostPortList = await RunDockerCommand(findPortArgs);
-            var hostPort = hostPortList.Split(" ", StringSplitOptions.RemoveEmptyEntries).First();
-            //return (containerId, hostPort);
-            return (serverName, int.Parse(hostPort));
+            return await StartDockerContainer(serverName, adminPassword, (_, _) => startArgs);
         }
         
         public static async Task<(string containerId, int port)> StartPostgreSQL(string serverName, string adminPassword)
@@ -44,14 +41,7 @@ namespace grate.unittests.TestInfrastructure
             var startArgs =
                 $"run -d --name {serverName} -e POSTGRES_PASSWORD={adminPassword} -P postgres:latest";
             
-            var containerId = await RunDockerCommand(startArgs);
-            var findPortArgs = "inspect --format=\"{{range $p, $conf := .NetworkSettings.Ports}} {{(index $conf 0).HostPort}} {{end}}\" " + containerId;
-
-            //TestContext.Progress.WriteLine("find port: " + findPortArgs);
-            
-            var hostPort = await RunDockerCommand(findPortArgs);
-            //return (containerId, hostPort);
-            return (serverName, int.Parse(hostPort));
+            return await StartDockerContainer(serverName, adminPassword, (_, _) => startArgs);
         }
         
         

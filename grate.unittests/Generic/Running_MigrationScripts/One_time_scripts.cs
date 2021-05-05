@@ -5,22 +5,17 @@ using System.Threading.Tasks;
 using Dapper;
 using FluentAssertions;
 using grate.Configuration;
-using grate.Infrastructure;
 using grate.Migration;
 using grate.unittests.TestInfrastructure;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Logging.Abstractions;
-using NSubstitute;
+using Npgsql;
 using NUnit.Framework;
 
-namespace grate.unittests.Oracle.Running_MigrationScripts
+namespace grate.unittests.Generic.Running_MigrationScripts
 {
     [TestFixture]
-    public class One_time_scripts
+    public abstract class One_time_scripts
     {
-        private GrateConfiguration? _config;
-        private static string? AdminConnectionString() => $"Data Source=localhost,{GrateTestContext.SqlServer.Port};Initial Catalog=master;User Id=sa;Password={GrateTestContext.SqlServer.AdminPassword}";
-        private static string? ConnectionString(string database) => $"Data Source=localhost,{GrateTestContext.SqlServer.Port};Initial Catalog={database};User Id=sa;Password={GrateTestContext.SqlServer.AdminPassword}";
+        protected abstract IGrateTestContext Context { get; }
 
         [Test]
         public async Task Are_not_run_more_than_once_when_unchanged()
@@ -32,19 +27,19 @@ namespace grate.unittests.Oracle.Running_MigrationScripts
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateDummySql(knownFolders.Up);
             
-            await using (migrator = GetMigrator(db, true, knownFolders))
+            await using (migrator = Context.GetMigrator(db, true, knownFolders))
             {
                 await migrator.Migrate();
             }
-            await using (migrator = GetMigrator(db, true, knownFolders))
+            await using (migrator = Context.GetMigrator(db, true, knownFolders))
             {
                 await migrator.Migrate();
             }
 
             string[] scripts;
-            string sql = "SELECT script_name FROM grate.ScriptsRun";
+            string sql = "SELECT script_name FROM grate.\"ScriptsRun\"";
             
-            await using (var conn = new SqlConnection(ConnectionString(db)))
+            await using (var conn = Context.CreateDbConnection(Context.ConnectionString(db)))
             {
                 scripts = (await conn.QueryAsync<string>(sql)).ToArray();
             }
@@ -62,57 +57,28 @@ namespace grate.unittests.Oracle.Running_MigrationScripts
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateDummySql(knownFolders.Up);
             
-            await using (migrator = GetMigrator(db, true, knownFolders))
+            await using (migrator = Context.GetMigrator(db, true, knownFolders))
             {
                 await migrator.Migrate();
             }
             
             WriteSomeOtherSql(knownFolders.Up);
             
-            await using (migrator = GetMigrator(db, true, knownFolders))
+            await using (migrator = Context.GetMigrator(db, true, knownFolders))
             {
                 Assert.ThrowsAsync<OneTimeScriptChanged>(() => migrator.Migrate());
             }
 
             string[] scripts;
-            string sql = "SELECT text_of_script FROM grate.ScriptsRun";
+            string sql = "SELECT text_of_script FROM grate.\"ScriptsRun\"";
             
-            await using (var conn = new SqlConnection(ConnectionString(db)))
+            await using (var conn = Context.CreateDbConnection(Context.ConnectionString(db)))
             {
                 scripts = (await conn.QueryAsync<string>(sql)).ToArray();
             }
 
             scripts.Should().HaveCount(1);
-            scripts.First().Should().Be("SELECT @@VERSION");
-        }
-
-        private GrateMigrator GetMigrator(string databaseName, bool createDatabase, KnownFolders knownFolders)
-        {
-            var connectionString = ConnectionString(databaseName);
-
-            var dbLogger = new NullLogger<SqlServerDatabase>();
-            var factory = Substitute.For<IFactory>();
-            factory.GetService<DatabaseType, IDatabase>(DatabaseType.sqlserver)
-                .Returns(new SqlServerDatabase(dbLogger));
-
-            var dbMigrator = new DbMigrator(factory, new NullLogger<DbMigrator>(), new HashGenerator());
-            var migrator = new GrateMigrator(new NullLogger<GrateMigrator>(), dbMigrator);
-
-            _config = new GrateConfiguration()
-            {
-                CreateDatabase = createDatabase, 
-                ConnectionString = connectionString,
-                AdminConnectionString = AdminConnectionString(),
-                Version = "a.b.c.d",
-                KnownFolders = knownFolders,
-                AlterDatabase = true,
-                NonInteractive = true
-            };
-
-
-            dbMigrator.ApplyConfig(_config);
-
-            return migrator;
+            scripts.First().Should().Be(Context.Sql.SelectVersion);
         }
 
         private static DirectoryInfo CreateRandomTempDirectory()
@@ -126,14 +92,14 @@ namespace grate.unittests.Oracle.Running_MigrationScripts
 
         private void CreateDummySql(MigrationsFolder? folder)
         {
-            var dummySql = "SELECT @@VERSION";
+            var dummySql = Context.Sql.SelectVersion;
             var path = MakeSurePathExists(folder);
             WriteSql(path, "1_jalla.sql", dummySql);
         }
         
-        private static void WriteSomeOtherSql(MigrationsFolder? folder)
+        private void WriteSomeOtherSql(MigrationsFolder? folder)
         {
-            var dummySql = "SELECT DB_NAME()";
+            var dummySql = Context.Sql.SelectCurrentDatabase;
             var path = MakeSurePathExists(folder);
             WriteSql(path, "1_jalla.sql", dummySql);
         }
