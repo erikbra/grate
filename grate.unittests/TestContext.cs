@@ -5,14 +5,14 @@ namespace grate.unittests
 {
     public static class GrateTestContext
     {
-        public static SqlTestContext SqlServer = new();
+        public static IGrateTestContext SqlServer = new SqlServerGrateTestContext();
         public static SqlTestContext Oracle = new();
         public static IGrateTestContext PostgreSql = new PostgreSqlGrateTestContext();
 
         public static IGrateTestContext GetTestContext(DatabaseType databaseType) => databaseType switch
         {
             //DatabaseType.oracle => Oracle;
-            //DatabaseType.sqlserver => SqlServer;
+            DatabaseType.sqlserver => SqlServer,
             DatabaseType.postgresql => PostgreSql
         };
     }

@@ -29,4 +29,16 @@
     <Folder Include="Infrastructure\SqlServer" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Oracle\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="Oracle\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Oracle\**" />
+  </ItemGroup>
+
 </Project>

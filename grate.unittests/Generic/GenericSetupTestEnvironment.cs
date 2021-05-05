@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Data.Common;
 using System.Threading.Tasks;
 using grate.unittests.TestInfrastructure;
 using Npgsql;
@@ -102,7 +103,7 @@ namespace grate.unittests.Generic
                 res = (string?) await cmd.ExecuteScalarAsync();
                 ready = res?.StartsWith(Context.ExpectedVersionPrefix) ?? false;
             }
-            catch (NpgsqlException) when (swallowException)
+            catch (DbException) when (swallowException)
             {
                 
             }

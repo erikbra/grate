@@ -7,6 +7,5 @@ namespace grate.unittests.PostgreSQL
     public class SetupTestEnvironment : Generic.GenericSetupTestEnvironment
     {
         protected override IGrateTestContext Context => GrateTestContext.PostgreSql;
-
     }
 }
