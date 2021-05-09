@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -13,10 +11,8 @@ using NUnit.Framework;
 namespace grate.unittests.Generic.Running_MigrationScripts
 {
     [TestFixture]
-    public abstract class Anytime_scripts
+    public abstract class Anytime_scripts : MigrationsScriptsBase
     {
-        protected abstract IGrateTestContext Context { get; }
-
         [Test]
         public async Task Are_not_run_more_than_once_when_unchanged()
         {
@@ -84,46 +80,6 @@ namespace grate.unittests.Generic.Running_MigrationScripts
                 scripts.First().Should().Be(Context.Sql.SelectVersion);
                 scripts.Last().Should().Be(Context.Sql.SelectCurrentDatabase);
             }
-        }
-
-        private static DirectoryInfo CreateRandomTempDirectory()
-        {
-            var dummyFile = Path.GetTempFileName();
-            File.Delete(dummyFile);
-
-            var scriptsDir = Directory.CreateDirectory(dummyFile);
-            return scriptsDir;
-        }
-
-        private void CreateDummySql(MigrationsFolder? folder)
-        {
-            var dummySql = Context.Sql.SelectVersion;
-            var path = MakeSurePathExists(folder);
-            WriteSql(path, "1_jalla.sql", dummySql);
-        }
-        
-        private void WriteSomeOtherSql(MigrationsFolder? folder)
-        {
-            var dummySql = Context.Sql.SelectCurrentDatabase;
-            var path = MakeSurePathExists(folder);
-            WriteSql(path, "1_jalla.sql", dummySql);
-        }
-
-        private static void WriteSql(DirectoryInfo path, string filename, string? sql)
-        {
-            File.WriteAllText(Path.Combine(path.ToString(), filename), sql);
-        }
-
-        private static DirectoryInfo MakeSurePathExists(MigrationsFolder? folder)
-        {
-            var path = folder?.Path ?? throw new ArgumentException(nameof(folder.Path));
-
-            if (!path.Exists)
-            {
-                path.Create();
-            }
-
-            return path;
         }
     }
 }

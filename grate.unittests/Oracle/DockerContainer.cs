@@ -1,8 +1,8 @@
 using System.Data;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.Data.SqlClient;
 using NUnit.Framework;
+using Oracle.ManagedDataAccess.Client;
 
 namespace grate.unittests.Oracle
 {
@@ -21,7 +21,7 @@ namespace grate.unittests.Oracle
             var sql = "SELECT @@VERSION";
 
             string? res;
-            await using (var conn = new SqlConnection(connectionString))
+            await using (var conn = new OracleConnection(connectionString))
             {
                 await conn.OpenAsync();
 

@@ -3,7 +3,6 @@ using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
 using grate.unittests.TestInfrastructure;
-using Npgsql;
 using NUnit.Framework;
 
 namespace grate.unittests.Generic

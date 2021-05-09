@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using grate.Infrastructure;
 using NUnit.Framework;
 

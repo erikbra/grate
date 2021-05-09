@@ -1,6 +1,4 @@
-using System;
 using System.Data.Common;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -14,10 +12,10 @@ using NUnit.Framework;
 namespace grate.unittests.Generic.Running_MigrationScripts
 {
     [TestFixture]
-    public abstract class Failing_Scripts
+    public abstract class Failing_Scripts: MigrationsScriptsBase
     {
-        protected abstract IGrateTestContext Context { get; }
-       
+        protected abstract string ExpextedErrorMessageForInvalidSql { get; }
+        
         [Test]
         public async Task Aborts_the_run_giving_an_error_message()
         {
@@ -31,10 +29,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             await using (migrator = Context.GetMigrator(db, true, knownFolders))
             {
                 var ex = Assert.ThrowsAsync(Context.DbExceptionType, migrator.Migrate);
-                ex?.Message.Should().Be(
-@"42703: column ""top"" does not exist
-
-POSITION: 8");
+                ex?.Message.Should().Be(ExpextedErrorMessageForInvalidSql);
             }
         }
 
@@ -105,45 +100,12 @@ POSITION: 8");
 
             scripts.Should().BeEmpty();
         }
-
-        private static DirectoryInfo CreateRandomTempDirectory()
-        {
-            var dummyFile = Path.GetTempFileName();
-            File.Delete(dummyFile);
-
-            var scriptsDir = Directory.CreateDirectory(dummyFile);
-            return scriptsDir;
-        }
-
-        private void CreateDummySql(MigrationsFolder? folder)
-        {
-            var dummySql = Context.Sql.SelectVersion;
-            var path = MakeSurePathExists(folder);
-            WriteSql(path, "1_jalla.sql", dummySql);
-        }
         
         private static void CreateInvalidSql(MigrationsFolder? folder)
         {
             var dummySql = "SELECT TOP";
             var path = MakeSurePathExists(folder);
             WriteSql(path, "2_failing.sql", dummySql);
-        }
-
-        private static void WriteSql(DirectoryInfo path, string filename, string? sql)
-        {
-            File.WriteAllText(Path.Combine(path.ToString(), filename), sql);
-        }
-
-        private static DirectoryInfo MakeSurePathExists(MigrationsFolder? folder)
-        {
-            var path = folder?.Path ?? throw new ArgumentException(nameof(folder.Path));
-
-            if (!path.Exists)
-            {
-                path.Create();
-            }
-
-            return path;
         }
     }
 }

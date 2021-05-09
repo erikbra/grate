@@ -87,7 +87,7 @@ namespace grate.unittests.Oracle
             var pw = GrateTestContext.Oracle.AdminPassword;
             var port = GrateTestContext.Oracle.Port;
 
-            var connectionString = $"User Id=pdbadmin;Password={pw};Data Source=localhost:{port}/{db}";
+            var connectionString = $"User Id=pdbadmin;Password={pw};Data Source=//localhost:{port}/{db}";
             var sql = "SELECT * FROM v$version;";
 
             string? res;

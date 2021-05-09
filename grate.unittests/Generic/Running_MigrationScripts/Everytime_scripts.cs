@@ -1,25 +1,17 @@
-using System;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using FluentAssertions;
 using grate.Configuration;
-using grate.Infrastructure;
 using grate.Migration;
 using grate.unittests.TestInfrastructure;
-using Microsoft.Extensions.Logging.Abstractions;
-using Npgsql;
-using NSubstitute;
 using NUnit.Framework;
 
 namespace grate.unittests.Generic.Running_MigrationScripts
 {
     [TestFixture]
-    public abstract class Everytime_scripts
+    public abstract class Everytime_scripts : MigrationsScriptsBase
     {
-        protected abstract IGrateTestContext Context { get; }
-
         [Test]
         public async Task Are_run_every_time_even_when_unchanged()
         {
@@ -83,51 +75,19 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             scripts.Should().HaveCount(7); // one time script ran once, the two everytime scripts ran every time.
         }
 
-        private static DirectoryInfo CreateRandomTempDirectory()
+        private void CreateEveryTimeScriptFile(MigrationsFolder? folder)
         {
-            var dummyFile = Path.GetTempFileName();
-            File.Delete(dummyFile);
-
-            var scriptsDir = Directory.CreateDirectory(dummyFile);
-            return scriptsDir;
-        }
-
-        private static void CreateDummySql(MigrationsFolder? folder)
-        {
-            var dummySql = "SELECT version()";
-            var path = MakeSurePathExists(folder);
-            WriteSql(path, "1_jalla.sql", dummySql);
-        }
-        
-        private static void CreateEveryTimeScriptFile(MigrationsFolder? folder)
-        {
-            var dummySql = "SELECT current_database()";
+            var dummySql = Context.Sql.SelectCurrentDatabase;
             var path = MakeSurePathExists(folder);
             WriteSql(path, "everytime.1_jalla.sql", dummySql);
         }
         
-        private static void CreateOtherEveryTimeScriptFile(MigrationsFolder? folder)
+        private void CreateOtherEveryTimeScriptFile(MigrationsFolder? folder)
         {
-            var dummySql = "SELECT version()";
+            var dummySql = Context.Sql.SelectCurrentDatabase;
             var path = MakeSurePathExists(folder);
             WriteSql(path, "1_jalla.everytime.and.always.sql", dummySql);
         }
 
-        private static void WriteSql(DirectoryInfo path, string filename, string? sql)
-        {
-            File.WriteAllText(Path.Combine(path.ToString(), filename), sql);
-        }
-
-        private static DirectoryInfo MakeSurePathExists(MigrationsFolder? folder)
-        {
-            var path = folder?.Path ?? throw new ArgumentException(nameof(folder.Path));
-
-            if (!path.Exists)
-            {
-                path.Create();
-            }
-
-            return path;
-        }
     }
 }

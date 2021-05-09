@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,7 +9,6 @@ using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
 using grate.unittests.TestInfrastructure;
-using Npgsql;
 using NUnit.Framework;
 
 namespace grate.unittests.Generic
@@ -61,7 +61,7 @@ namespace grate.unittests.Generic
                 {
                     await migrator.Migrate();
                 }
-                catch (NpgsqlException)
+                catch (DbException)
                 {
                 }
             }

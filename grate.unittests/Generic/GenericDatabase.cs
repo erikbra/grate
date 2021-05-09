@@ -37,6 +37,7 @@ namespace grate.unittests.Generic
             }
             databases.Should().Contain(db);
         }
+     
         
         [Test]
         public async Task Is_not_created_if_not_confed()
@@ -163,7 +164,7 @@ namespace grate.unittests.Generic
                 AdminConnectionString = adminConnectionString ?? Context.AdminConnectionString,
                 KnownFolders = KnownFolders.In(new DirectoryInfo(@"C:\tmp\sql")),
                 NonInteractive = true,
-                DatabaseType = DatabaseType.postgresql
+                DatabaseType = Context.DatabaseType
             };
         }
     }

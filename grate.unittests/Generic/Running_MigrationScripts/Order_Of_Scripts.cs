@@ -1,25 +1,18 @@
-using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using FluentAssertions;
 using grate.Configuration;
-using grate.Infrastructure;
 using grate.Migration;
 using grate.unittests.TestInfrastructure;
-using Microsoft.Extensions.Logging.Abstractions;
-using Npgsql;
-using NSubstitute;
 using NUnit.Framework;
 
 namespace grate.unittests.Generic.Running_MigrationScripts
 {
     [TestFixture]
-    public abstract class Order_Of_Scripts
+    public abstract class Order_Of_Scripts: MigrationsScriptsBase
     {
-        protected abstract IGrateTestContext Context { get; }
-        
         [Test()]
         public async Task Is_as_expected()
         {
@@ -98,20 +91,6 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
             return Context.GetMigrator(config);
 
-        }
-
-        private static void CreateDummySql(MigrationsFolder? folder, string filename)
-        {
-            var dummySql = "SELECT version()";
-
-            var path = folder?.Path ?? throw new ArgumentException(nameof(folder.Path));
-
-            if (!path.Exists)
-            {
-                path.Create();
-            }
-
-            File.WriteAllText(Path.Combine(path.ToString(), filename), dummySql);
         }
     }
 }
