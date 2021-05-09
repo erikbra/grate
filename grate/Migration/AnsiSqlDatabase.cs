@@ -137,12 +137,14 @@ namespace grate.Migration
 
         public async Task RunSupportTasks()
         {
-            using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
-            await CreateRunSchema();
-            await CreateScriptsRunTable();
-            await CreateScriptsRunErrorsTable();
-            await CreateVersionTable();
-            s.Complete();
+            using (var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+            {
+                await CreateRunSchema();
+                await CreateScriptsRunTable();
+                await CreateScriptsRunErrorsTable();
+                await CreateVersionTable();
+                s.Complete();
+            }
             await CloseConnection();
         }
 
