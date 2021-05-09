@@ -12,6 +12,7 @@ namespace grate.Migration
         { }
 
         public override bool SupportsDdlTransactions => false;
+        public override bool SupportsSchemas => false;
         protected override DbConnection GetSqlConnection(string? connectionString) => new MySqlConnection(connectionString);
     }
 }

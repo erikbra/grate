@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using grate.Configuration;
 using grate.Migration;
 using grate.unittests.TestInfrastructure;
@@ -25,7 +26,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             }
 
             string[] scripts;
-            string sql = $"SELECT text_of_script FROM grate.{Context.Syntax.Quote("ScriptsRun")}";
+            string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
             
             await using (var conn = Context.CreateDbConnection(Context.ConnectionString(db)))
             {
@@ -34,7 +35,8 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
             scripts.Should().HaveCount(14);
 
-            Assert.Multiple(() =>
+            using (new AssertionScope())
+            {
                 {
                     scripts[0].Should().Be("1_beforemigration.sql");
                     scripts[1].Should().Be("1_alterdatabase.sql");
@@ -51,7 +53,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
                     scripts[12].Should().Be("1_permissions.sql");
                     scripts[13].Should().Be("1_aftermigration.sql");
                 }
-            );
+            }
         }
 
 

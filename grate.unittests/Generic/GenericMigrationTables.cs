@@ -24,7 +24,7 @@ namespace grate.unittests.Generic
         public async Task Is_created_if_it_does_not_exist(string tableName)
         {
             var db = "MonoBonoJono";
-            var fullTableName = $"grate.{Context.Syntax.Quote(tableName)}";
+            var fullTableName = Context.Syntax.TableWithSchema("grate", tableName);
             
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
 
@@ -50,7 +50,7 @@ namespace grate.unittests.Generic
         public async Task Is_created_even_if_scripts_fail(string tableName)
         {
             var db = "DatabaseWithFailingScripts";
-            var fullTableName = $"grate.{Context.Syntax.Quote(tableName)}";
+            var fullTableName = Context.Syntax.TableWithSchema("grate", tableName);
             
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateInvalidSql(knownFolders.Up);

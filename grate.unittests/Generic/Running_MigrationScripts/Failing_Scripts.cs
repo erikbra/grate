@@ -55,7 +55,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             }
 
             string[] scripts;
-            string sql = $"SELECT text_of_script FROM grate.{Context.Syntax.Quote("ScriptsRun")}";
+            string sql = $"SELECT text_of_script FROM grate.{Context.Syntax.Quote("ScriptsRunErrors")}";
 
             using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {

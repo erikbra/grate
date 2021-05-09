@@ -11,6 +11,7 @@
         string Identity(string columnDefinition, string nullability);
         string CreateSchema(string schemaName);
         string CreateDatabase(string schemaName);
+        string TableWithSchema(string schemaName, string tableName);
         
         string PrimaryKey(string column);
         string LimitN(string sql, int n);

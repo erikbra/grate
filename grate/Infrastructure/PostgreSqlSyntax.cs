@@ -22,6 +22,7 @@
         public string Identity(string columnDefinition, string nullability) => $"{columnDefinition} GENERATED ALWAYS AS IDENTITY {nullability}";
         public string CreateSchema(string schemaName) => @$"CREATE SCHEMA ""{schemaName}"";";
         public string CreateDatabase(string schemaName) => @$"CREATE DATABASE ""{schemaName}""";
+        public string TableWithSchema(string schemaName, string tableName) => $"{schemaName}.\"{tableName}\"";
         public string ReturnId => "RETURNING id;";
         public string TimestampType => "timestamp";
         public string Quote(string text) => $"\"{text}\"";
