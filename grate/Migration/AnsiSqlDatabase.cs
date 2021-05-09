@@ -163,6 +163,8 @@ namespace grate.Migration
             return res?.ToString() == SchemaName;
         }
         
+        // TODO: Change MySQL/MariaDB from using schemas to using grate_ prefix
+        
         private async Task CreateScriptsRunTable()
         {
             string createSql = $@"
