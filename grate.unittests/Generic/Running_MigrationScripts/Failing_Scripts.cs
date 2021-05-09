@@ -55,7 +55,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             }
 
             string[] scripts;
-            string sql = $"SELECT text_of_script FROM grate.{Context.Syntax.Quote("ScriptsRunErrors")}";
+            string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRunErrors")}";
 
             using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -91,7 +91,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             }
 
             string[] scripts;
-            string sql = $"SELECT text_of_script FROM grate.{Context.Syntax.Quote("ScriptsRun")}";
+            string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
             
             await using (var conn = Context.CreateDbConnection(Context.ConnectionString(db)))
             {

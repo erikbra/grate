@@ -110,7 +110,8 @@ namespace grate.unittests.Generic
             }
 
             IEnumerable<string> entries;
-            string sql = $"SELECT version FROM grate.{Context.Syntax.Quote("Version")}";
+            var fullTableName = Context.Syntax.TableWithSchema("grate", "Version");
+            string sql = $"SELECT version FROM {fullTableName}";
             
             await using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
             {
