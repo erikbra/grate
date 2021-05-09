@@ -32,7 +32,7 @@ namespace grate.Migration
         public string? ServerName => Connection?.DataSource;
         public string? DatabaseName => Connection?.Database;
         
-        public bool SupportsDdlTransactions => true;
+        public abstract bool SupportsDdlTransactions { get; }
         public bool SplitBatchStatements => true;
 
         public string StatementSeparatorRegex => _syntax.StatementSeparatorRegex;
@@ -101,7 +101,7 @@ namespace grate.Migration
             {
                 using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
                 var cmd = AdminConnection.CreateCommand();
-                cmd.CommandText = $"CREATE database \"{DatabaseName}\"";
+                cmd.CommandText = _syntax.CreateDatabase(DatabaseName);
                 await cmd.ExecuteNonQueryAsync();
                 s.Complete();
             }
@@ -144,7 +144,7 @@ namespace grate.Migration
 
         private async Task CreateRunSchema()
         {
-            string createSql = @$"CREATE SCHEMA ""{SchemaName}"";";
+            string createSql = _syntax.CreateSchema(SchemaName);
             
             if (!await RunSchemaExists())
             {
@@ -162,12 +162,12 @@ namespace grate.Migration
             var res = await cmd.ExecuteScalarAsync();
             return res?.ToString() == SchemaName;
         }
-
+        
         private async Task CreateScriptsRunTable()
         {
             string createSql = $@"
-CREATE TABLE {SchemaName}.""ScriptsRun""(
-	id bigint {_syntax.Identity} NOT NULL,
+CREATE TABLE {SchemaName}.{_syntax.Quote("ScriptsRun")}(
+	{_syntax.Identity("id bigint", "NOT NULL")},
 	version_id bigint NULL,
 	script_name {_syntax.VarcharType}(255) NULL,
 	text_of_script {_syntax.TextType} NULL,
@@ -189,8 +189,8 @@ CREATE TABLE {SchemaName}.""ScriptsRun""(
         private async Task CreateScriptsRunErrorsTable()
         {
             string createSql = $@"
-CREATE TABLE {SchemaName}.""ScriptsRunErrors""(
-	id bigint {_syntax.Identity} NOT NULL,
+CREATE TABLE {SchemaName}.{_syntax.Quote("ScriptsRunErrors")}(
+	{_syntax.Identity("id bigint", "NOT NULL")},
 	repository_path {_syntax.VarcharType}(255) NULL,
 	version {_syntax.VarcharType}(50) NULL,
 	script_name {_syntax.VarcharType}(255) NULL,
@@ -213,8 +213,8 @@ CREATE TABLE {SchemaName}.""ScriptsRunErrors""(
         private async Task CreateVersionTable()
         {
             string createSql = $@"
-CREATE TABLE {SchemaName}.""Version""(
-	id bigint {_syntax.Identity} NOT NULL,
+CREATE TABLE {SchemaName}.{_syntax.Quote("Version")}(
+	{_syntax.Identity("id bigint", "NOT NULL")},
 	repository_path {_syntax.VarcharType}(255) NULL,
 	version {_syntax.VarcharType}(50) NULL,
 	entry_date {_syntax.TimestampType} NULL,
@@ -257,7 +257,7 @@ AND table_name = '{tableName}'
 SELECT 
 {_syntax.LimitN($@"
 version
-FROM {SchemaName}.""Version""
+FROM {SchemaName}.{_syntax.Quote("Version")}
 ORDER BY id DESC", 1)}
 ";
             await using var cmd = Connection.CreateCommand();
@@ -270,7 +270,7 @@ ORDER BY id DESC", 1)}
         public async Task<long> VersionTheDatabase(string newVersion)
         {
             var sql = $@"
-INSERT INTO {SchemaName}.""Version""
+INSERT INTO {SchemaName}.{_syntax.Quote("Version")}
 (version, entry_date, modified_date, entered_by)
 VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
 
@@ -333,8 +333,8 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
         {
             var sql = $@"
 SELECT script_name, text_hash
-FROM {SchemaName}.""ScriptsRun"" sr
-WHERE id = (SELECT MAX(id) FROM {SchemaName}.""ScriptsRun"" sr2 WHERE sr2.script_name = sr.script_name)
+FROM {SchemaName}.{_syntax.Quote("ScriptsRun")} sr
+WHERE id = (SELECT MAX(id) FROM {SchemaName}.{_syntax.Quote("ScriptsRun")} sr2 WHERE sr2.script_name = sr.script_name)
 ";
             var results = await Connection.QueryAsync<ScriptsRunCacheItem>(sql);
             return results.ToDictionary(item => item.script_name, item => item.text_hash);
@@ -351,7 +351,7 @@ WHERE id = (SELECT MAX(id) FROM {SchemaName}.""ScriptsRun"" sr2 WHERE sr2.script
             }
             
             var hashSql = $@"
-SELECT text_hash FROM  {SchemaName}.""ScriptsRun""
+SELECT text_hash FROM  {SchemaName}.{_syntax.Quote("ScriptsRun")}
 WHERE script_name = @scriptName";
             
             var hash = await Connection.ExecuteScalarAsync<string?>(hashSql, new {scriptName});
@@ -367,7 +367,7 @@ WHERE script_name = @scriptName";
             }
             
             var hasRunSql = $@"
-SELECT 1 FROM  {SchemaName}.""ScriptsRun""
+SELECT 1 FROM  {SchemaName}.{_syntax.Quote("ScriptsRun")}
 WHERE script_name = @scriptName";
 
             var run = await Connection.ExecuteScalarAsync<bool?>(hasRunSql, new {scriptName});
@@ -380,7 +380,7 @@ WHERE script_name = @scriptName";
             cache.Remove(scriptName);
             
             var insertSql = $@"
-INSERT INTO {SchemaName}.""ScriptsRun""
+INSERT INTO {SchemaName}.{_syntax.Quote("ScriptsRun")}
 (version_id, script_name, text_of_script, text_hash, one_time_script, entry_date, modified_date, entered_by)
 VALUES (@versionId, @scriptName, @sql, @hash, @runOnce, @now, @now, @user)";
             
@@ -401,9 +401,9 @@ VALUES (@versionId, @scriptName, @sql, @hash, @runOnce, @now, @now, @user)";
         public async Task InsertScriptRunError(string scriptName, string sql, string errorSql, string errorMessage, long versionId)
         {
             var insertSql = $@"
-INSERT INTO {SchemaName}.""ScriptsRunErrors""
+INSERT INTO {SchemaName}.{_syntax.Quote("ScriptsRunErrors")}
 (version, script_name, text_of_script, erroneous_part_of_script, error_message, entry_date, modified_date, entered_by)
-VALUES ((SELECT version FROM {SchemaName}.""Version"" WHERE id = @versionId), @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @user)";
+VALUES ((SELECT version FROM {SchemaName}.{_syntax.Quote("Version")} WHERE id = @versionId), @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @user)";
             
             var scriptRunErrors = new 
             {

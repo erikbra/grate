@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.Common;
 using grate.Configuration;
+using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.Logging;
 
@@ -21,6 +22,8 @@ namespace grate.unittests.TestInfrastructure
         DbConnection CreateAdminDbConnection() => GetDbConnection(AdminConnectionString);
         DbConnection CreateDbConnection(string database) => GetDbConnection(ConnectionString(database));
         
+        ISyntax Syntax { get; }
+        
         Type DbExceptionType { get;  }
         ILogger Logger { get; }
         DatabaseType DatabaseType { get; }
@@ -33,7 +36,6 @@ namespace grate.unittests.TestInfrastructure
         string ExpectedVersionPrefix { get; }
 
         GrateMigrator GetMigrator(GrateConfiguration config);
-
         GrateMigrator GetMigrator(string databaseName, bool createDatabase, KnownFolders knownFolders, params string[] environments);
     }
 }

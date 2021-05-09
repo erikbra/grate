@@ -1,6 +1,6 @@
 ﻿namespace grate.Infrastructure
 {
-    public class PostgreSqlSyntax : ISyntax
+    public class MariaDbSyntax : ISyntax
     {
         public string StatementSeparatorRegex
         {
@@ -14,17 +14,17 @@
             }
         }
 
-        public string CurrentDatabase => "SELECT current_database()";
-        public string ListDatabases => "SELECT datname FROM pg_database";
+        public string CurrentDatabase => "SELECT DATABASE()";
+        public string ListDatabases => "SHOW DATABASES";
         public string VarcharType => "varchar";
         public string TextType => "text";
         public string BooleanType => "boolean";
-        public string Identity(string columnDefinition, string nullability) => $"{columnDefinition} GENERATED ALWAYS AS IDENTITY {nullability}";
-        public string CreateSchema(string schemaName) => @$"CREATE SCHEMA ""{schemaName}"";";
-        public string CreateDatabase(string schemaName) => @$"CREATE DATABASE ""{schemaName}""";
-        public string ReturnId => "RETURNING id;";
+        public string Identity(string columnDefinition, string nullability) => $"{columnDefinition} {nullability} AUTO_INCREMENT";
+        public string CreateSchema(string schemaName) => @$"CREATE SCHEMA {schemaName}";
+        public string CreateDatabase(string schemaName) => @$"CREATE DATABASE {schemaName}";
+        public string ReturnId => ";SELECT LAST_INSERT_ID();";
         public string TimestampType => "timestamp";
-        public string Quote(string text) => $"\"{text}\"";
+        public string Quote(string text) => $"`{text}`";
         public string PrimaryKey(string column) => $"PRIMARY KEY ({column})";
         public string LimitN(string sql, int n) => sql + "\nLIMIT 1";
     }

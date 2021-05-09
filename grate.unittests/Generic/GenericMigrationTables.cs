@@ -24,7 +24,7 @@ namespace grate.unittests.Generic
         public async Task Is_created_if_it_does_not_exist(string tableName)
         {
             var db = "MonoBonoJono";
-            var fullTableName = "grate.\"" + tableName + "\"";
+            var fullTableName = $"grate.{Context.Syntax.Quote(tableName)}";
             
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
 
@@ -50,7 +50,7 @@ namespace grate.unittests.Generic
         public async Task Is_created_even_if_scripts_fail(string tableName)
         {
             var db = "DatabaseWithFailingScripts";
-            var fullTableName = "grate.\"" + tableName + "\"";
+            var fullTableName = $"grate.{Context.Syntax.Quote(tableName)}";
             
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateInvalidSql(knownFolders.Up);
@@ -110,7 +110,7 @@ namespace grate.unittests.Generic
             }
 
             IEnumerable<string> entries;
-            string sql = $"SELECT version FROM grate.\"Version\"";
+            string sql = $"SELECT version FROM grate.{Context.Syntax.Quote("Version")}";
             
             await using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
             {
@@ -147,13 +147,6 @@ namespace grate.unittests.Generic
 
             var scriptsDir = Directory.CreateDirectory(dummyFile);
             return scriptsDir;
-        }
-
-        private static void CreateDummySql(MigrationsFolder? folder)
-        {
-            var dummySql = "SELECT @@VERSION";
-            var path = MakeSurePathExists(folder);
-            WriteSql(path, "1_jalla.sql", dummySql);
         }
         
         private static void CreateInvalidSql(MigrationsFolder? folder)

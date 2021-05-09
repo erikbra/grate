@@ -13,7 +13,7 @@ namespace grate.unittests.TestInfrastructure
 {
     class SqlServerGrateTestContext : IGrateTestContext
     {
-        public string? AdminPassword { get; set; }
+        public string AdminPassword { get; set; } = default!;
         public int? Port { get; set; }
         
         public string DockerCommand(string serverName, string adminPassword) =>
@@ -24,6 +24,7 @@ namespace grate.unittests.TestInfrastructure
 
         public DbConnection GetDbConnection(string connectionString) => new SqlConnection(connectionString);
 
+        public ISyntax Syntax => new SqlServerSyntax();
         public Type DbExceptionType => typeof(SqlException);
         
         public ILogger Logger => NullLogger();

@@ -11,6 +11,7 @@ namespace grate.Migration
             : base(logger, new SqlServerSyntax())
         { }
 
+        public override bool SupportsDdlTransactions => true;
         protected override DbConnection GetSqlConnection(string? connectionString) => new SqlConnection(connectionString);
     }
 }

@@ -6,41 +6,41 @@ using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Npgsql;
+using MySqlConnector;
 using NSubstitute;
 
 namespace grate.unittests.TestInfrastructure
 {
-    class PostgreSqlGrateTestContext : IGrateTestContext
+    class MariaDbGrateTestContext : IGrateTestContext
     {
         public string AdminPassword { get; set; } = default!;
         public int? Port { get; set; }
         
         public string DockerCommand(string serverName, string adminPassword) =>
-            $"run -d --name {serverName} -e POSTGRES_PASSWORD={adminPassword} -P postgres:latest";
+            $"run -d --name {serverName} -e MYSQL_ROOT_PASSWORD={adminPassword} -P mariadb";
         
-        public string AdminConnectionString  => $"Host=localhost;Port={Port};Database=postgres;Username=postgres;Password={AdminPassword}";
-        public string ConnectionString(string database) => $"Host=localhost;Port={Port};Database={database};Username=postgres;Password={AdminPassword}";
+        public string AdminConnectionString  => $"Server=localhost;Port={Port};Database=mysql;Uid=root;Pwd={AdminPassword}";
+        public string ConnectionString(string database) => $"Server=localhost;Port={Port};Database={database};Uid=root;Pwd={AdminPassword}";
 
-        public DbConnection GetDbConnection(string connectionString) => new NpgsqlConnection(connectionString);
+        public DbConnection GetDbConnection(string connectionString) => new MySqlConnection(connectionString);
 
-        public ISyntax Syntax => new PostgreSqlSyntax();
-        public Type DbExceptionType => typeof(PostgresException);
+        public ISyntax Syntax => new MariaDbSyntax();
+        public Type DbExceptionType => typeof(MySqlException);
         
         public ILogger Logger => NullLogger();
-        private static NullLogger<PostgreSqlDatabase> NullLogger() => new();
+        private static NullLogger<MariaDbDatabase> NullLogger() => new();
 
-        public DatabaseType DatabaseType => DatabaseType.postgresql;
-        public string DatabaseTypeName => "PostgreSQL";
-        public string MasterDatabase => "postgres";
+        public DatabaseType DatabaseType => DatabaseType.mariadb;
+        public string DatabaseTypeName => "MariaDB Server";
+        public string MasterDatabase => "mysql";
 
-        public IDatabase DatabaseMigrator => new PostgreSqlDatabase(NullLogger());
+        public IDatabase DatabaseMigrator => new MariaDbDatabase(NullLogger());
 
         public SqlStatements Sql => new()
         {
-            SelectAllDatabases = "SELECT datname FROM pg_database",
-            SelectVersion = "SELECT version()",
-            SelectCurrentDatabase = "SELECT current_database()"
+            SelectAllDatabases = "SHOW DATABASES",
+            SelectVersion = "SELECT VERSION()",
+            SelectCurrentDatabase = "SELECT DATABASE()"
         };
 
 
@@ -48,7 +48,7 @@ namespace grate.unittests.TestInfrastructure
         {
             var factory = Substitute.For<IFactory>();
             factory.GetService<DatabaseType, IDatabase>(DatabaseType)
-                .Returns(new PostgreSqlDatabase(NullLogger()));
+                .Returns(new MariaDbDatabase(NullLogger()));
 
             var dbMigrator = new DbMigrator(factory, new NullLogger<DbMigrator>(), new HashGenerator());
             var migrator = new GrateMigrator(new NullLogger<GrateMigrator>(), dbMigrator);
@@ -77,6 +77,6 @@ namespace grate.unittests.TestInfrastructure
         }
         
 
-        public string ExpectedVersionPrefix => "PostgreSQL 13.";
+        public string ExpectedVersionPrefix => "10.5.9-MariaDB";
     }
 }

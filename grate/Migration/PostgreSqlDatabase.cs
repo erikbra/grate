@@ -11,6 +11,7 @@ namespace grate.Migration
             : base(logger, new PostgreSqlSyntax())
         { }
 
+        public override bool SupportsDdlTransactions => true;
         protected override DbConnection GetSqlConnection(string? connectionString) => new NpgsqlConnection(connectionString);
     }
 }

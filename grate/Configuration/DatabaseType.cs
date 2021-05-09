@@ -5,6 +5,7 @@ namespace grate.Configuration
     {
         sqlserver,
         oracle,
-        postgresql
+        postgresql,
+        mariadb
     }
 }
