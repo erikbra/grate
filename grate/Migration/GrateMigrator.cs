@@ -163,7 +163,6 @@ namespace grate.Migration
             Separator('=');
 
             await dbMigrator.RunSupportTasks();
-
             await dbMigrator.CloseConnection();
         }
 

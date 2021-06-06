@@ -68,7 +68,7 @@ namespace grate.unittests.TestInfrastructure
                 KnownFolders = knownFolders,
                 AlterDatabase = true,
                 NonInteractive = true,
-                Transaction = true,
+                Transaction = false,
                 Environments = environments.Select(env => new GrateEnvironment(env)),
                 DatabaseType = DatabaseType
             };

@@ -249,23 +249,15 @@ CREATE TABLE {VersionTable}(
         private async Task<bool> TableExists(string schemaName, string tableName)
         {
             var fullTableName = SupportsSchemas ? tableName : _syntax.TableWithSchema(schemaName, tableName);
+            var tableSchema = SupportsSchemas ? schemaName : DatabaseName;
             
             string existsSql = $@"
-            SELECT * FROM information_schema.tables 
-            WHERE ";
-
-            if (SupportsSchemas)
-            {
-                existsSql += $@"
-table_schema = '{schemaName}' AND
-";
-            }
-            
-            existsSql += $@"
+SELECT * FROM information_schema.tables 
+WHERE 
+table_schema = '{tableSchema}' AND
 table_name = '{fullTableName}'
-            ";
-            
-            
+";
+
             await using var cmd = Connection.CreateCommand();
             cmd.CommandText = existsSql;
             var res = await cmd.ExecuteScalarAsync();

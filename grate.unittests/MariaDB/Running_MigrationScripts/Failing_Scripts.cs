@@ -7,6 +7,6 @@ namespace grate.unittests.MariaDB.Running_MigrationScripts
     public class Failing_Scripts: Generic.Running_MigrationScripts.Failing_Scripts
     {
         protected override IGrateTestContext Context => GrateTestContext.MariaDB;
-        protected override string ExpextedErrorMessageForInvalidSql => "Incorrect syntax near 'TOP'.";
+        protected override string ExpextedErrorMessageForInvalidSql => "Unknown column 'TOP' in 'field list'";
     }
 }
