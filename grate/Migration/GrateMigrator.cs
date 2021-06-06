@@ -321,16 +321,17 @@ namespace grate.Migration
                 config.OutputPath!.ToString(),
                 "migrations",
                 RemoveInvalidPathChars(database),
-                RemoveInvalidPathChars(server)
+                RemoveInvalidPathChars(server),
+                RemoveInvalidPathChars(DateTime.Now.ToString("s"))
             );
             return folder;
         }
 
         private static readonly char[] InvalidPathCharacters = Path.GetInvalidPathChars().Append(':').ToArray();
 
-        private static string RemoveInvalidPathChars(string? configDatabase)
+        private static string RemoveInvalidPathChars(string? path)
         {
-            var builder = new StringBuilder(configDatabase);
+            var builder = new StringBuilder(path);
             foreach (var c in InvalidPathCharacters)
             {
                 builder.Replace(c, '_');

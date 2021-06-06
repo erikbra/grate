@@ -29,8 +29,8 @@ namespace grate.Migration
             _syntax = syntax;
         }
 
-        public string? ServerName => Connection?.DataSource;
-        public string? DatabaseName => Connection?.Database;
+        public string ServerName => Connection.DataSource;
+        public string DatabaseName => Connection.Database;
         
         public abstract bool SupportsDdlTransactions { get; }
         public abstract bool SupportsSchemas { get; }
