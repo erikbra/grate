@@ -3,6 +3,7 @@ using System.CommandLine.Parsing;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.Extensions.DependencyInjection;
 using grate.Commands;
 using grate.Configuration;
@@ -165,6 +166,24 @@ namespace grate.unittests
             var cfg = await ParseGrateConfiguration(commandline);
 
             cfg?.Silent.Should().Be(expected);
+        }
+        
+        [TestCase("-w, --warnononetimescriptchanges"),]
+        [TestCase("--warnandignoreononetimescriptchanges"),]
+        [TestCase("--ut, --usertokens={SomeToken"),]
+        [TestCase("--disabletokens, --disabletokenreplacement"),]
+        [TestCase("--runallanytimescripts, --forceanytimescripts"),]
+        [TestCase("--baseline"),]
+        [TestCase("--dryrun"),]
+        [TestCase("--isuptodate"),]
+        [TestCase("--donotstorescriptsruntext"),]
+        [TestCase("--defaultencoding=VALUE")]
+        public async Task Missing_Ones(string missingOption)
+        {
+            using (new AssertionScope())
+            {
+                Assert.Fail("Missing option " + missingOption);
+            }
         }
         
         [Test]

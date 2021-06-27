@@ -106,14 +106,14 @@ namespace grate.Commands
         
         private static Option CommandTimeoutAdmin() =>
             new Option<int>(
-                new[] {"--admincommandtimeout", "-cta"},
+                new[] {"--admincommandtimeout", "--cta"},
                 () => DefaultAdminCommandTimeout,
                 "This is the timeout when administration commands are run (except for restore, which has its own)."
             );
         
         private static Option DatabaseType() =>
             new Option<DatabaseType>(
-                new[] {"--databasetype", "-dt", "-dbt"},
+                new[] {"--databasetype", "--dt", "--dbt"},
                 () => Configuration.DatabaseType.sqlserver,
                 "Tells grate what type of database it is running on."
             );
