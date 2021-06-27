@@ -132,20 +132,20 @@ namespace grate.Commands
         
         private static Option Environment() => //new Argument<bool>("-t");
             new Option<IEnumerable<GrateEnvironment>>(
-                new[] {"--environments", "--environment", "-env"},
+                new[] {"--environments", "--environment", "--env"},
                 "Run for only a certain (set of) environment(s)"
             );
         
         private static Option SchemaName() => //new Argument<bool>("-t");
             new Option<string>(
-                new[] {"-sc", "--schema", "--schemaname"},
+                new[] {"--sc", "--schema", "--schemaname"},
                 () => "grate",
                 "The schema to use for the migration tables"
             );
         
         private static Option<bool> Silent() => //new Argument<bool>("-t");
             new Option<bool>(
-                new[] {"--noninteractive", "-ni", "--silent"},
+                new[] {"--noninteractive", "--ni", "--silent"},
                 "Silent - tells grate not to ask for any input when it runs."
             );
     }
