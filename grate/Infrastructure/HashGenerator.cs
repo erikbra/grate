@@ -25,7 +25,7 @@ namespace grate.Infrastructure
 
         private static byte[] ComputeHash(byte[] messageBytes)
         {
-            using var alg = new MD5CryptoServiceProvider();
+            using var alg = MD5.Create();
             alg.ComputeHash(messageBytes);
             return alg.Hash!;
         }
