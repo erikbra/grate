@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace grate.Infrastructure
@@ -57,21 +58,30 @@ namespace grate.Infrastructure
 
         private static bool GetSupportsAnsiColors()
         {
-            lock (Console.Out)
+            try
+            // Calling Console.GetCursorPosition() sometimes fails if the console has not been written to yet
             {
-                var (oldPosition, _) = Console.GetCursorPosition();
-                SetColors(Console.Out, GrateConsoleColor.Background.Gray.AnsiColorCode, GrateConsoleColor.Foreground.Blue.AnsiColorCode);
-                var (currentPosition, yPos) = Console.GetCursorPosition();
-            
-                ResetColors(Console.Out);
-            
-                if (currentPosition != oldPosition)
+                lock (Console.Out)
                 {
-                    Console.SetCursorPosition(oldPosition, yPos);
-                    Console.Out.Write("                                                                                ");
-                    Console.SetCursorPosition(oldPosition, yPos);
-                    return false;
+                    var (oldPosition, _) = Console.GetCursorPosition();
+                    SetColors(Console.Out, GrateConsoleColor.Background.Gray.AnsiColorCode, GrateConsoleColor.Foreground.Blue.AnsiColorCode);
+                    var (currentPosition, yPos) = Console.GetCursorPosition();
+
+                    ResetColors(Console.Out);
+
+                    if (currentPosition != oldPosition)
+                    {
+                        Console.SetCursorPosition(oldPosition, yPos);
+                        Console.Out.Write("                                                                                ");
+                        Console.SetCursorPosition(oldPosition, yPos);
+                        return false;
+                    }
+
+                    return true;
                 }
+            }
+            catch (Exception)
+            {
                 return true;
             }
         }
