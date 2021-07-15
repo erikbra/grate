@@ -106,7 +106,7 @@ namespace grate.Commands
         
         private static Option CommandTimeoutAdmin() =>
             new Option<int>(
-                new[] {"--admincommandtimeout", "--cta"},
+                new[] {"--admincommandtimeout", "-cta"},
                 () => DefaultAdminCommandTimeout,
                 "This is the timeout when administration commands are run (except for restore, which has its own)."
             );
@@ -145,7 +145,7 @@ namespace grate.Commands
         
         private static Option<bool> Silent() => //new Argument<bool>("-t");
             new Option<bool>(
-                new[] {"--noninteractive", "--ni", "--silent"},
+                new[] {"--noninteractive", "-ni", "--ni", "--silent"},
                 "Silent - tells grate not to ask for any input when it runs."
             );
     }
