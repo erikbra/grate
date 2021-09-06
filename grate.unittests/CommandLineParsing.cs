@@ -128,14 +128,16 @@ namespace grate.unittests
         
         [TestCase("--env KASHMIR", "KASHMIR")]
         [TestCase("--environment JALLA", "JALLA")]
-        [TestCase("--environments JALLA NALLA", "JALLA", "NALLA")]
-        [TestCase("--environments JALLA NALLA OTHER --trx", "JALLA", "NALLA", "OTHER")]
-        public async Task Environments(string argName, params string[] expected)
+        [TestCase("--environment JALLA --environment NALLA", "JALLA", "NALLA")]
+        [TestCase("--environment JALLA --environment NALLA --environment OTHER --trx", "JALLA", "NALLA", "OTHER")]
+        public async Task Environment(string argName, params string[] expected)
         {
             var commandline = argName;
             var cfg = await ParseGrateConfiguration(commandline);
 
-            cfg?.Environments.Should().BeEquivalentTo(expected.Select(e => new GrateEnvironment(e)));
+            var expectedEnvironments = expected.Select(e => new GrateEnvironment(e));
+            
+            cfg?.Environments.Should().BeEquivalentTo(expectedEnvironments);
         }
         
         [TestCase("", "grate")]

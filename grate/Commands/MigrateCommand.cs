@@ -27,12 +27,12 @@ namespace grate.Commands
             Add(CommandTimeout());
             Add(CommandTimeoutAdmin());
             Add(DatabaseType());
-            Add(Version());
+            Add(SchemaVersion());
             Add(RunInTransaction());
             Add(Environment());
             Add(SchemaName());
             Add(Silent());
-
+            
             Handler = CommandHandler.Create(
                 async (GrateConfiguration config) =>
                 {
@@ -118,9 +118,9 @@ namespace grate.Commands
                 "Tells grate what type of database it is running on."
             );
         
-        private static Option Version() =>
+        private static Option SchemaVersion() =>
             new Option<string>(
-                new[] {"--version"},
+                new[] {"--schemaversion"},
                 "Specify the version directly."
             );
 
@@ -132,8 +132,8 @@ namespace grate.Commands
         
         private static Option Environment() => //new Argument<bool>("-t");
             new Option<IEnumerable<GrateEnvironment>>(
-                new[] {"--environments", "--environment", "--env"},
-                "Run for only a certain (set of) environment(s)"
+                new[] {"--environment", "--env"},
+                "Run for only a certain environment (can be specified multiple times to run for more environments)"
             );
         
         private static Option SchemaName() => //new Argument<bool>("-t");
