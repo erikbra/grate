@@ -36,8 +36,8 @@ jobs:
         include-prerelease: true
     - name: Restore dependencies
       run: dotnet restore
-    - name: Build
-      run: dotnet publish --no-restore -r win-64 -c release -o ./publish/win-x64
+    - name: Publish
+      run: dotnet publish --no-restore -r win-64 -c release --self-contained -o ./publish/win-x64
     - name: Upload published file
       uses: actions/upload-artifact@v2
       with:
