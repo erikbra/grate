@@ -36,13 +36,21 @@ jobs:
         include-prerelease: true
     - name: Restore dependencies
       run: dotnet restore
-    - name: Publish
+
+    - name: Publish win-x64
       run: dotnet publish ./grate/grate.csproj -r win-x64 -c release --self-contained -o ./publish/win-x64
-    - name: Upload published file
+    - name: Upload published win-x64
       uses: actions/upload-artifact@v2
       with:
         name: grate-win64
         path: ./publish/win-x64/grate.exe
+    - name: Publish alpine-x64
+      run: dotnet publish ./grate/grate.csproj -r alpine-x64 -c release --self-contained -o ./publish/alpine-x64
+    - name: Upload published alpine-x64
+      uses: actions/upload-artifact@v2
+      with:
+        name: alpine-x64.tar.gz
+        path: ./publish/alpine-x64/grate
 
   test:
 
