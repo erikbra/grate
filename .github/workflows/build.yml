@@ -22,8 +22,27 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
-#    - name: Test
-#      run: dotnet test --no-build --verbosity normal
+
+  publish:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+        include-prerelease: true
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet publish --no-restore -r win-64 -c release -o ./publish/win-x64
+    - name: Upload published file
+      uses: actions/upload-artifact@v2
+      with:
+        name: grate-win64
+        path: ./publish/win-x64/grate.exe
 
   test:
 
