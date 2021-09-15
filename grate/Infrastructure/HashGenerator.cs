@@ -13,6 +13,7 @@ namespace grate.Infrastructure
         public string Hash(string text)
         {
             var input = text.Replace(@"'", @"''");
+            
             input = input
                 .Replace(WindowsLineEnding, UnixLineEnding)
                 .Replace(MacLineEnding, UnixLineEnding);
