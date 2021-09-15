@@ -1,4 +1,4 @@
-name: Build and run tests
+name: Build
 
 on:
   push:
@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-    name: Build
 
     runs-on: ubuntu-latest
 
@@ -25,7 +24,6 @@ jobs:
       run: dotnet build --no-restore
 
   publish:
-    name: Publish 
 
     runs-on: ubuntu-latest
     strategy:
@@ -50,12 +48,8 @@ jobs:
         
 
   test:
-    name: Run tests
 
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB" ]
 
     steps:
     - uses: actions/checkout@v2
@@ -65,4 +59,30 @@ jobs:
         dotnet-version: 6.0.x
         include-prerelease: true
     - name: Test
-      run: dotnet test --filter Category=${{ matrix.category }}
+      run:  dotnet test --filter "FullyQualifiedName=grate.unittests.Infrastructure.GrateEnvironment_" -c Release --logger "trx;LogFileName=grate.unittests.trx"
+    
+    - name: Upload Unit Test Results
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: artifacts
+        path:  /home/runner/work/grate/grate/grate.unittests/TestResults/grate.unittests.trx
+
+  publish-test-results:
+    name: "Publish Unit Tests Results"
+    needs: test
+    runs-on: windows-latest
+    # the build-and-test job might be skipped, we don't need to run this job then
+    if: success() || failure()
+
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: artifacts
+
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action/composite@v1
+        with:
+          files: artifacts/**/grate.unittests.trx
+  
