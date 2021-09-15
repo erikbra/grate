@@ -1,6 +1,8 @@
 # grate
 SQL scripts migration runner 
 
+[![Build](https://github.com/erikbra/grate/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/erikbra/grate/actions/workflows/build.yml)
+
 ## Goal
 
 The goal of grate is to be (at least almost) feature-complete with RoundhousE, which is an amazing tool. It is initiated by the main
