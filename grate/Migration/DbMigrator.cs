@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -58,7 +58,7 @@ namespace grate.Migration
         public GrateConfiguration Configuration { get; set; }
 
         public async Task<bool> RunSql(string sql, string scriptName, MigrationType migrationType, long versionId,
-            IEnumerable<GrateEnvironment> environments,
+            GrateEnvironment? environment,
             ConnectionType connectionType)
         {
             var theSqlRun = false;
@@ -70,7 +70,7 @@ namespace grate.Migration
                 theSqlRun = true;
             }
 
-            if (!InCorrectEnvironment(scriptName, environments))
+            if (!InCorrectEnvironment(scriptName, environment))
             {
                 return false;
             }
@@ -103,8 +103,7 @@ namespace grate.Migration
             return theSqlRun;
         }
 
-        private static bool InCorrectEnvironment(string scriptName, IEnumerable<GrateEnvironment> environments) =>
-            !environments.Safe().Any() || environments.Any(env => env.ShouldRun(scriptName));
+        private static bool InCorrectEnvironment(string scriptName, GrateEnvironment? env) => env?.ShouldRun(scriptName) ?? true;
 
         private static bool IsEverytimeScript(string scriptName, MigrationType migrationType) =>
             migrationType == MigrationType.EveryTime ||

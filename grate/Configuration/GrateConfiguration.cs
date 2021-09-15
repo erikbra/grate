@@ -50,11 +50,13 @@ namespace grate.Configuration
         public bool Transaction { get; init; } = false;
 
         /// <summary>
-        /// The set of environments the current migration is targeting.
+        /// The environment the current migration is targeting for env-specific scripts.
         /// </summary>
-        public IEnumerable<GrateEnvironment> Environments { get; init; } = Enumerable.Empty<GrateEnvironment>();
+        public GrateEnvironment? Environment { get; init; }
 
-
+        /// <summary>
+        /// The database version we're migrating to on this run.
+        /// </summary>
         public string Version { get; init; } = "0.0.0.1";
         
         public int CommandTimeout { get; init; }

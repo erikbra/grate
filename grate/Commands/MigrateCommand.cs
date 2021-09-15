@@ -27,12 +27,11 @@ namespace grate.Commands
             Add(CommandTimeout());
             Add(CommandTimeoutAdmin());
             Add(DatabaseType());
-            Add(SchemaVersion());
             Add(RunInTransaction());
             Add(Environment());
             Add(SchemaName());
             Add(Silent());
-            // Add(Version()); //Even though the tests pass with this enabled the app fails at runtime :(
+            Add(Version());
 
             Handler = CommandHandler.Create(
                 async (GrateConfiguration config) =>
@@ -119,42 +118,36 @@ namespace grate.Commands
                 "Tells grate what type of database it is running on."
             );
 
-        private static Option SchemaVersion() =>
-            new Option<string>(
-                new[] { "--schemaversion" },
-                "Specify the version directly."
-            );
-
         private static Option RunInTransaction() => //new Argument<bool>("-t");
             new Option<string>(
                 new[] { "--transaction", "--trx", "-t" },
                 "Run the migration in a transaction"
                 );
 
-        private static Option Environment() =>
-            new Option<IEnumerable<GrateEnvironment>>(
-                new[] { "--environment", "--env" },
-                "Run for only a certain environment (can be specified multiple times to run for more environments)"
-            )
-            { Name = "Environments"}; // bind to the pluralised property
+        private static Option<GrateEnvironment> Environment() =>
+            new(
+                new[] { "--env", "--environment" }, // we'll only support a single environment initially
+                "Environment Name - This allows grate to be environment aware and only run scripts that are in a particular environment based on the name of the script.  'something.ENV.LOCAL.sql' would only be run if --env=LOCAL was set."
+            );
 
-        private static Option SchemaName() => //new Argument<bool>("-t");
-            new Option<string>(
+        private static Option<string> SchemaName() =>
+            new(
                 new[] { "--sc", "--schema", "--schemaname" },
                 () => "grate",
                 "The schema to use for the migration tables"
             );
 
-        private static Option<bool> Silent() => //new Argument<bool>("-t");
-            new Option<bool>(
+        private static Option<bool> Silent() =>
+            new(
                 new[] { "--noninteractive", "-ni", "--ni", "--silent" },
                 "Silent - tells grate not to ask for any input when it runs."
             );
 
         private static Option<string> Version() =>
-            new Option<string>(
-                new[] { "--version" },
-                "Version - specify the version of the current migration directly on the command line.  See also --version-file."
-            );
+            new(
+                new[] { "--dbversion" }, // we can't use --version as it conflicts with the standard option
+                "Database Version - specify the version of the current migration directly on the command line."
+            )
+            { Name = "version" }; // But still bind to the `Version` property, this also allows using `grate version=1.1.1.1` if wanted
     }
 }

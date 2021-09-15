@@ -36,6 +36,7 @@ namespace grate.unittests.TestInfrastructure
         string ExpectedVersionPrefix { get; }
 
         GrateMigrator GetMigrator(GrateConfiguration config);
-        GrateMigrator GetMigrator(string databaseName, bool createDatabase, KnownFolders knownFolders, params string[] environments);
+        GrateMigrator GetMigrator(string databaseName, bool createDatabase, KnownFolders knownFolders);
+        GrateMigrator GetMigrator(string databaseName, bool createDatabase, KnownFolders knownFolders, string? environment = null);
     }
 }
