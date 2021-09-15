@@ -32,7 +32,8 @@ namespace grate.Commands
             Add(Environment());
             Add(SchemaName());
             Add(Silent());
-            
+            Add(Version());
+
             Handler = CommandHandler.Create(
                 async (GrateConfiguration config) =>
                 {
@@ -147,6 +148,12 @@ namespace grate.Commands
             new Option<bool>(
                 new[] {"--noninteractive", "-ni", "--ni", "--silent"},
                 "Silent - tells grate not to ask for any input when it runs."
+            );
+
+        private static Option<string> Version() =>
+            new Option<string>(
+                new[] { "--version" },
+                "Version - specify the version of the current migration directly on the command line.  See also --version-file."
             );
     }
 }

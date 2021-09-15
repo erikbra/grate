@@ -137,7 +137,7 @@ namespace grate.unittests
 
             var expectedEnvironments = expected.Select(e => new GrateEnvironment(e));
             
-            cfg?.Environments.Should().BeEquivalentTo(expectedEnvironments);
+            cfg?.Environment.Should().BeEquivalentTo(expectedEnvironments);
         }
         
         [TestCase("", "grate")]
@@ -180,8 +180,11 @@ namespace grate.unittests
         [TestCase("--isuptodate"),]
         [TestCase("--donotstorescriptsruntext"),]
         [TestCase("--defaultencoding=VALUE")]
-        public async Task Missing_Ones(string missingOption)
+        [TestCase("--version-file, -vf")]
+        public void Missing_Ones(string missingOption)
         {
+            // Test for the outstanding set of features not yet implemented
+
             using (new AssertionScope())
             {
                 Assert.Fail("Missing option " + missingOption);

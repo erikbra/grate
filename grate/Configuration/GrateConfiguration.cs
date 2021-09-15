@@ -6,6 +6,10 @@ using grate.Infrastructure;
 
 namespace grate.Configuration
 {
+    /// <summary>
+    /// This is the 'schema' that System.CommandLine parses into for the MigrateCommand.
+    /// This means that this object's properties should align with the options and arguments in `MigrateCommand` by convention.
+    /// </summary>
     public class GrateConfiguration
     {
         private readonly string? _adminConnectionString = null;
@@ -14,13 +18,10 @@ namespace grate.Configuration
         public KnownFolders? KnownFolders { get; set; }
         
         public DatabaseType DatabaseType { get; init; } // = DatabaseType.sqlserver;
-        //public DatabaseType DatabaseType { get; init; }
         
         public DirectoryInfo SqlFilesDirectory { get; init; } = CurrentDirectory;
-        //public DirectoryInfo? SqlFilesDirectory { get; init; }
         
         public DirectoryInfo OutputPath { get; init; } = new(Path.Combine(CurrentDirectory.FullName, "output"));
-        //public DirectoryInfo? OutputPath { get; set; }
         
         public string? ConnectionString { get; init; } = null;
 
@@ -47,7 +48,14 @@ namespace grate.Configuration
         public bool CreateDatabase { get; init; } = true;
         public bool AlterDatabase { get; init; } = false;
         public bool Transaction { get; init; } = false;
-        public IEnumerable<GrateEnvironment> Environments { get; init; } = Enumerable.Empty<GrateEnvironment>();
+
+        /// <summary>
+        /// The set of environments the current migration is targeting.
+        /// </summary>
+        // Yes this should be plural name for coding standards, but the command-line option is named 'Environment' so this matches by convention.
+        public IEnumerable<GrateEnvironment> Environment { get; init; } = Enumerable.Empty<GrateEnvironment>();
+
+
         public string Version { get; init; } = "0.0.0.1";
         
         public int CommandTimeout { get; init; }
