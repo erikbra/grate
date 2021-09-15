@@ -42,7 +42,7 @@ jobs:
 
     - name: Publish ${{ matrix.arch }}
       run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -o ./publish/${{ matrix.arch }}
-    - name: Upload published ${{ matrix.arch }
+    - name: Upload published ${{ matrix.arch }}
       uses: actions/upload-artifact@v2
       with:
         name: grate-${{ matrix.arch }}
