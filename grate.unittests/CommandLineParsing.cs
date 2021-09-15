@@ -70,9 +70,8 @@ namespace grate.unittests
             cfg?.OutputPath?.ToString().Should().Be(database);
         }
         
-        [TestCase("--dbversion=")]
-        [TestCase("--dbversion ")]
-        [TestCase("version ")]
+        [TestCase("--version=")]
+        [TestCase("--version ")]
         public async Task Version(string argName)
         {
             var version = "1.2.5.6-a";

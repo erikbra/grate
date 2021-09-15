@@ -145,9 +145,9 @@ namespace grate.Commands
 
         private static Option<string> Version() =>
             new(
-                new[] { "--dbversion" }, // we can't use --version as it conflicts with the standard option
+                new[] { "--version" }, // we can't use --version as it conflicts with the standard option
                 "Database Version - specify the version of the current migration directly on the command line."
-            )
-            { Name = "version" }; // But still bind to the `Version` property, this also allows using `grate version=1.1.1.1` if wanted
+            );/*
+            { Name = "version" }; // But still bind to the `Version` property, this also allows using `grate version=1.1.1.1` if wanted */
     }
 }
