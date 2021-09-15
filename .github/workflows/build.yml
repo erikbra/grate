@@ -37,7 +37,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Publish
-      run: dotnet publish -r win-x64 -c release --self-contained -o ./publish/win-x64
+      run: dotnet publish ./grate/grate.csproj -r win-x64 -c release --self-contained -o ./publish/win-x64
     - name: Upload published file
       uses: actions/upload-artifact@v2
       with:
