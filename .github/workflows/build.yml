@@ -46,7 +46,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: grate-${{ matrix.arch }}
-        path: ./publish/win-x64/*
+        path: ./publish/${{ matrix.arch }}/*
         
 
 #  test:
