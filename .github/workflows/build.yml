@@ -26,6 +26,9 @@ jobs:
   publish:
 
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [ "win-x64", "alpine-x64", "linux-x64" ]
 
     steps:
     - uses: actions/checkout@v2
@@ -37,40 +40,25 @@ jobs:
 #    - name: Restore dependencies
 #      run: dotnet restore
 
-    - name: Publish win-x64
-      run: dotnet publish ./grate/grate.csproj -r win-x64 -c release --self-contained -o ./publish/win-x64
-    - name: Upload published win-x64
+    - name: Publish ${{ matrix.arch }}
+      run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -o ./publish/${{ matrix.arch }}
+    - name: Upload published ${{ matrix.arch }
       uses: actions/upload-artifact@v2
       with:
-        name: grate-win64
-        path: ./publish/win-x64/grate.exe
+        name: grate-${{ matrix.arch }}
+        path: ./publish/win-x64/*
         
-    - name: Publish alpine-x64
-      run: dotnet publish ./grate/grate.csproj -r alpine-x64 -c release --self-contained -o ./publish/alpine-x64
-    - name: Upload published alpine-x64
-      uses: actions/upload-artifact@v2
-      with:
-        name: alpine-x64
-        path: ./publish/alpine-x64/grate
-        
-    - name: Publish osx.11.0-x64
-      run: dotnet publish ./grate/grate.csproj -r osx.11.0-x64 -c release --self-contained -o ./publish/osx.11.0-x64
-    - name: Upload published osx.11.0-x64
-      uses: actions/upload-artifact@v2
-      with:
-        name: osx.11.0-x64
-        path: ./publish/osx.11.0-x64/grate
 
-  test:
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 6.0.x
-        include-prerelease: true
-    - name: Test
-      run: dotnet test --verbosity normal
+#  test:
+#
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#    - uses: actions/checkout@v2
+#    - name: Setup .NET
+#      uses: actions/setup-dotnet@v1
+#      with:
+#        dotnet-version: 6.0.x
+#        include-prerelease: true
+#    - name: Test
+#      run: dotnet test --verbosity normal
