@@ -137,7 +137,7 @@ namespace grate.unittests
 
             var expectedEnvironments = expected.Select(e => new GrateEnvironment(e));
             
-            cfg?.Environment.Should().BeEquivalentTo(expectedEnvironments);
+            cfg?.Environments.Should().BeEquivalentTo(expectedEnvironments);
         }
         
         [TestCase("", "grate")]

@@ -52,8 +52,7 @@ namespace grate.Configuration
         /// <summary>
         /// The set of environments the current migration is targeting.
         /// </summary>
-        // Yes this should be plural name for coding standards, but the command-line option is named 'Environment' so this matches by convention.
-        public IEnumerable<GrateEnvironment> Environment { get; init; } = Enumerable.Empty<GrateEnvironment>();
+        public IEnumerable<GrateEnvironment> Environments { get; init; } = Enumerable.Empty<GrateEnvironment>();
 
 
         public string Version { get; init; } = "0.0.0.1";
