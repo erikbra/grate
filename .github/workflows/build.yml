@@ -37,8 +37,6 @@ jobs:
       with:
         dotnet-version: 6.0.x
         include-prerelease: true
-#    - name: Restore dependencies
-#      run: dotnet restore
 
     - name: Publish ${{ matrix.arch }}
       run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -o ./publish/${{ matrix.arch }}
@@ -49,16 +47,16 @@ jobs:
         path: ./publish/${{ matrix.arch }}/*
         
 
-#  test:
-#
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#    - uses: actions/checkout@v2
-#    - name: Setup .NET
-#      uses: actions/setup-dotnet@v1
-#      with:
-#        dotnet-version: 6.0.x
-#        include-prerelease: true
-#    - name: Test
-#      run: dotnet test --verbosity normal
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+        include-prerelease: true
+    - name: Test
+      run: dotnet test --verbosity normal
