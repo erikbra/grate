@@ -22,5 +22,41 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
+
+  publish:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [ "win-x64", "alpine-x64", "linux-x64", "osx.11.0-x64", "osx-x64" ]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+        include-prerelease: true
+
+    - name: Publish ${{ matrix.arch }}
+      run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -o ./publish/${{ matrix.arch }}
+    - name: Upload published ${{ matrix.arch }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: grate-${{ matrix.arch }}
+        path: ./publish/${{ matrix.arch }}/*
+        
+
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+        include-prerelease: true
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --verbosity normal
