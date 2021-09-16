@@ -50,6 +50,9 @@ jobs:
   test:
 
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        gategory: [ "Fast", "SqlServer", "PostgreSQL", "MariaDB" ]
 
     steps:
     - uses: actions/checkout@v2
@@ -59,4 +62,4 @@ jobs:
         dotnet-version: 6.0.x
         include-prerelease: true
     - name: Test
-      run: dotnet test --verbosity normal
+      run: dotnet test --filter Category=${{ matrix.category }}
