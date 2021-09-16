@@ -46,6 +46,17 @@ namespace grate.Migration
             return false;
         }
 
+        public async Task<bool> DropDatabase()
+        {
+            if (Configuration.Drop && await Database.DatabaseExists())
+            {
+                await Database.DropDatabase();
+                return true;
+            }
+
+            return false;
+        }
+
         public Task OpenConnection() => Database.OpenConnection();
         public Task CloseConnection() => Database.CloseConnection();
 

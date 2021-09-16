@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -15,7 +15,7 @@ namespace grate.Migration
 {
     public abstract class AnsiSqlDatabase : IDatabase, IDisposable
     {
-        private string SchemaName { get; set; } = ""; 
+        private string SchemaName { get; set; } = "";
         private readonly ILogger _logger;
         private DbConnection? _connection;
         private DbConnection? _adminConnection;
@@ -31,7 +31,7 @@ namespace grate.Migration
 
         public string ServerName => Connection.DataSource;
         public string DatabaseName => Connection.Database;
-        
+
         public abstract bool SupportsDdlTransactions { get; }
         public abstract bool SupportsSchemas { get; }
         public bool SplitBatchStatements => true;
@@ -41,7 +41,7 @@ namespace grate.Migration
         private string ScriptsRunTable => _syntax.TableWithSchema(SchemaName, "ScriptsRun");
         private string ScriptsRunErrorsTable => _syntax.TableWithSchema(SchemaName, "ScriptsRunErrors");
         private string VersionTable => _syntax.TableWithSchema(SchemaName, "Version");
-        
+
         public Task InitializeConnections(GrateConfiguration configuration)
         {
             _logger.LogInformation("Initializing connections.");
@@ -49,7 +49,7 @@ namespace grate.Migration
             ConnectionString = configuration.ConnectionString;
             AdminConnectionString = configuration.AdminConnectionString;
             SchemaName = configuration.SchemaName;
-            
+
             return Task.CompletedTask;
         }
 
@@ -96,12 +96,7 @@ namespace grate.Migration
 
         public async Task CreateDatabase()
         {
-            string? sql = _syntax.ListDatabases;
-            
-            await OpenAdminConnection();
-            var databases = await AdminConnection.QueryAsync<string>(sql);
-
-            if (!databases.Contains(DatabaseName))
+            if (!await DatabaseExists())
             {
                 using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
                 var cmd = AdminConnection.CreateCommand();
@@ -109,16 +104,42 @@ namespace grate.Migration
                 await cmd.ExecuteNonQueryAsync();
                 s.Complete();
             }
-            
+
             await CloseAdminConnection();
             await WaitUntilDatabaseIsReady();
+        }
+
+        public async Task DropDatabase()
+        {
+            if (await DatabaseExists())
+            {
+                using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+                var cmd = AdminConnection.CreateCommand();
+                cmd.CommandText = _syntax.DropDatabase(DatabaseName);
+                await cmd.ExecuteNonQueryAsync();
+                s.Complete();
+            }
+        }
+
+        /// <summary>
+        /// Gets whether the Database currently exists on the server or not.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> DatabaseExists()
+        {
+            var sql = _syntax.ListDatabases;
+
+            await OpenAdminConnection();
+            var databases = await AdminConnection.QueryAsync<string>(sql);
+
+            return databases.Contains(DatabaseName);
         }
 
         private async Task WaitUntilDatabaseIsReady()
         {
             const int maxDelay = 10_000;
             int totalDelay = 0;
-            
+
             var databaseReady = false;
             do
             {
@@ -153,7 +174,7 @@ namespace grate.Migration
             if (SupportsSchemas)
             {
                 string createSql = _syntax.CreateSchema(SchemaName);
-            
+
                 if (!await RunSchemaExists())
                 {
                     await using var cmd = Connection.CreateCommand();
@@ -171,9 +192,9 @@ namespace grate.Migration
             var res = await cmd.ExecuteScalarAsync();
             return res?.ToString() == SchemaName;
         }
-        
+
         // TODO: Change MySQL/MariaDB from using schemas to using grate_ prefix
-        
+
         private async Task CreateScriptsRunTable()
         {
             string createSql = $@"
@@ -196,7 +217,7 @@ CREATE TABLE {ScriptsRunTable}(
                 var res = await cmd.ExecuteNonQueryAsync();
             }
         }
-        
+
         private async Task CreateScriptsRunErrorsTable()
         {
             string createSql = $@"
@@ -220,7 +241,7 @@ CREATE TABLE {ScriptsRunErrorsTable}(
                 await cmd.ExecuteNonQueryAsync();
             }
         }
-        
+
         private async Task CreateVersionTable()
         {
             string createSql = $@"
@@ -244,13 +265,13 @@ CREATE TABLE {VersionTable}(
         private async Task<bool> ScriptsRunTableExists() => await TableExists(SchemaName, "ScriptsRun");
         private async Task<bool> ScriptsRunErrorsTableExists() => await TableExists(SchemaName, "ScriptsRunErrors");
         private async Task<bool> VersionTableExists() => await TableExists(SchemaName, "Version");
-        
-        
+
+
         private async Task<bool> TableExists(string schemaName, string tableName)
         {
             var fullTableName = SupportsSchemas ? tableName : _syntax.TableWithSchema(schemaName, tableName);
             var tableSchema = SupportsSchemas ? schemaName : DatabaseName;
-            
+
             string existsSql = $@"
 SELECT * FROM information_schema.tables 
 WHERE 
@@ -263,7 +284,7 @@ table_name = '{fullTableName}'
             var res = await cmd.ExecuteScalarAsync();
             return !DBNull.Value.Equals(res) && res is not null;
         }
-        
+
         public async Task<string> GetCurrentVersion()
         {
             var sql = $@"
@@ -275,8 +296,8 @@ ORDER BY id DESC", 1)}
 ";
             await using var cmd = Connection.CreateCommand();
             cmd.CommandText = sql;
-            var res = (string?) await cmd.ExecuteScalarAsync();
-            
+            var res = (string?)await cmd.ExecuteScalarAsync();
+
             return res ?? "0.0.0.0";
         }
 
@@ -289,8 +310,8 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
 
 {_syntax.ReturnId}
 ";
-            var res = (long) await  Connection.ExecuteAsync(
-                sql, 
+            var res = (long)await Connection.ExecuteAsync(
+                sql,
                 new
                 {
                     newVersion,
@@ -298,9 +319,9 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
                     modifiedDate = DateTime.UtcNow,
                     enteredBy = ClaimsPrincipal.Current?.Identity?.Name ?? Environment.UserName
                 });
-            
+
             _logger.LogInformation(" Versioning {0} database with version {1}.", DatabaseName, newVersion);
-            
+
             return res;
         }
 
@@ -333,10 +354,10 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
 #pragma warning disable 8618
             // ReSharper disable InconsistentNaming
             // ReSharper disable UnusedAutoPropertyAccessor.Local
-            
+
             public string script_name { get; init; }
             public string text_hash { get; init; }
-            
+
             // ReSharper restore InconsistentNaming
             // ReSharper restore UnusedAutoPropertyAccessor.Local
 #pragma warning restore 8618
@@ -362,12 +383,12 @@ WHERE id = (SELECT MAX(id) FROM {ScriptsRunTable} sr2 WHERE sr2.script_name = sr
             {
                 return cache[scriptName];
             }
-            
+
             var hashSql = $@"
 SELECT text_hash FROM  {ScriptsRunTable}
 WHERE script_name = @scriptName";
-            
-            var hash = await Connection.ExecuteScalarAsync<string?>(hashSql, new {scriptName});
+
+            var hash = await Connection.ExecuteScalarAsync<string?>(hashSql, new { scriptName });
             return hash;
         }
 
@@ -378,12 +399,12 @@ WHERE script_name = @scriptName";
             {
                 return true;
             }
-            
+
             var hasRunSql = $@"
 SELECT 1 FROM  {ScriptsRunTable}
 WHERE script_name = @scriptName";
 
-            var run = await Connection.ExecuteScalarAsync<bool?>(hasRunSql, new {scriptName});
+            var run = await Connection.ExecuteScalarAsync<bool?>(hasRunSql, new { scriptName });
             return run ?? false;
         }
 
@@ -391,13 +412,13 @@ WHERE script_name = @scriptName";
         {
             var cache = await GetScriptsRunCache();
             cache.Remove(scriptName);
-            
+
             var insertSql = $@"
 INSERT INTO {ScriptsRunTable}
 (version_id, script_name, text_of_script, text_hash, one_time_script, entry_date, modified_date, entered_by)
 VALUES (@versionId, @scriptName, @sql, @hash, @runOnce, @now, @now, @user)";
-            
-            var scriptRun = new 
+
+            var scriptRun = new
             {
                 versionId,
                 scriptName,
@@ -417,8 +438,8 @@ VALUES (@versionId, @scriptName, @sql, @hash, @runOnce, @now, @now, @user)";
 INSERT INTO {ScriptsRunErrorsTable}
 (version, script_name, text_of_script, erroneous_part_of_script, error_message, entry_date, modified_date, entered_by)
 VALUES ((SELECT version FROM {VersionTable} WHERE id = @versionId), @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @user)";
-            
-            var scriptRunErrors = new 
+
+            var scriptRunErrors = new
             {
                 versionId,
                 scriptName,
@@ -428,10 +449,10 @@ VALUES ((SELECT version FROM {VersionTable} WHERE id = @versionId), @scriptName,
                 now = DateTime.UtcNow,
                 user = Environment.UserName
             };
-            
+
             using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
             await Connection.ExecuteAsync(insertSql, scriptRunErrors);
-            
+
             s.Complete();
         }
 

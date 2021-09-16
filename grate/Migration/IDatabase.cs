@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using grate.Configuration;
 
 namespace grate.Migration
@@ -19,6 +19,8 @@ namespace grate.Migration
         Task OpenAdminConnection();
         Task CloseAdminConnection();
         Task CreateDatabase();
+        Task DropDatabase();
+        Task<bool> DatabaseExists();
         Task RunSupportTasks();
         Task<string> GetCurrentVersion();
         Task<long> VersionTheDatabase(string newVersion);

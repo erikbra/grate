@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using grate.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -52,7 +52,14 @@ namespace grate.Migration
         {
             throw new System.NotImplementedException();
         }
-
+        public Task DropDatabase()
+        {
+            throw new System.NotImplementedException();
+        }
+        public Task<bool> DatabaseExists()
+        {
+            throw new System.NotImplementedException();
+        }
         public Task RunSupportTasks()
         {
             throw new System.NotImplementedException();
