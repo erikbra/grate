@@ -30,7 +30,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [ "win-x64", "alpine-x64", "linux-x64", "osx.11.0-x64", "osx-x64" ]
+#        arch: [ "win-x64", "alpine-x64", "linux-x64", "osx.11.0-x64", "osx-x64" ]
+        arch: [ "alpine-x64" ]
 
     steps:
     - uses: actions/checkout@v2
