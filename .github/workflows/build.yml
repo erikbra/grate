@@ -22,7 +22,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet pack --no-restore -c release -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
+      run: dotnet pack -c release -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
       
     - name: Upload published tool artifact
       uses: actions/upload-artifact@v2
