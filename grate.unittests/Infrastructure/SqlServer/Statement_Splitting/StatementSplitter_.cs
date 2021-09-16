@@ -7,6 +7,7 @@ using NUnit.Framework;
 namespace grate.unittests.Infrastructure.SqlServer.Statement_Splitting
 {
     [TestFixture]
+    [Category("Fast")]
     // ReSharper disable once InconsistentNaming
     public class StatementSplitter_
     {

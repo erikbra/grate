@@ -13,6 +13,7 @@ using NUnit.Framework;
 namespace grate.unittests
 {
     [TestFixture]
+    [Category("Fast")]
     public class CommandLineParsing
     {
         [TestCase("-c ")]

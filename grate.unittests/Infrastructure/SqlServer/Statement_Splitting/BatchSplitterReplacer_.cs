@@ -8,6 +8,7 @@ using NUnit.Framework;
 namespace grate.unittests.Infrastructure.SqlServer.Statement_Splitting
 {
     [TestFixture]
+    [Category("Fast")]
     public class BatchSplitterReplacer_
     {
         private const string batch_terminator_replacement_string = StatementSplitter.BatchTerminatorReplacementString;

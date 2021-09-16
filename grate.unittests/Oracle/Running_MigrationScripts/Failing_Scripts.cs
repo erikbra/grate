@@ -17,6 +17,7 @@ using NUnit.Framework;
 namespace grate.unittests.Oracle.Running_MigrationScripts
 {
     [TestFixture]
+    [Category("Oracle")]
     public class Failing_Scripts
     {
         private GrateConfiguration? _config;

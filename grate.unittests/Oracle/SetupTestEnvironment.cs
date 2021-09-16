@@ -9,6 +9,7 @@ using Oracle.ManagedDataAccess.Client;
 namespace grate.unittests.Oracle
 {
     [SetUpFixture]
+    [Category("Oracle")]
     public class SetupTestEnvironment
     {
         private string? _serverName;

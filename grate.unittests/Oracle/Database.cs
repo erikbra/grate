@@ -15,6 +15,7 @@ using NUnit.Framework;
 namespace grate.unittests.Oracle
 {
     [TestFixture]
+    [Category("Oracle")]
     public class Database
     {
         private static string? AdminConnectionString() => $"Data Source=localhost,{GrateTestContext.Oracle.Port};Initial Catalog=master;User Id=sa;Password={GrateTestContext.Oracle.AdminPassword}";

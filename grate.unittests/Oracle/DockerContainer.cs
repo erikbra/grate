@@ -7,6 +7,7 @@ using Oracle.ManagedDataAccess.Client;
 namespace grate.unittests.Oracle
 {
     [TestFixture]
+    [Category("Oracle")]
     public class DockerContainer
     {
         [Test]
