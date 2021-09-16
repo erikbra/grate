@@ -31,7 +31,7 @@ jobs:
         path: ./nupkg/*   
 
   publish:
-    name: Publish native builds
+    name: Build stand-alone
 
     runs-on: ubuntu-latest
     strategy:
