@@ -68,8 +68,9 @@ jobs:
       run: dotnet test --filter Category=${{ matrix.category }} -c Release --logger:"junit;LogFilePath=test-results-${{ matrix.category }}.xml"
 #      run:  dotnet test --verbosity Normal -c Release --logger "trx;LogFileName=/tmp/test-results/grate.unittests.trx"
       
-    - name: Publish Unit Test Results
-      uses: EnricoMi/publish-unit-test-result-action@v1
+    - name: Upload Unit Test Results
       if: always()
+      uses: actions/upload-artifact@v2
       with:
-        files: grate.unittests/test-results-${{ matrix.category }}.xml
+        name: Unit Test Results (${{ matrix.category }})
+        path: grate.unittests/test-results-${{ matrix.category }}.xml
