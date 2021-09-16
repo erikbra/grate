@@ -1,5 +1,7 @@
 ﻿using System;
 using System.CommandLine;
+using System.CommandLine.Builder;
+using System.CommandLine.Parsing;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,7 +27,22 @@ namespace grate
             
             rootCommand.Description = "The new grate - sql for the 20s";
 
-            var result = await rootCommand.InvokeAsync(args);
+            var parser = new CommandLineBuilder(rootCommand)
+                // These are all the CommandLine features enabled by default
+                // .UseVersionOption()  //but we don't want version (as we use the --version option ourselves)
+                .UseHelp()
+                .UseEnvironmentVariableDirective()
+                .UseParseDirective()
+                .UseDebugDirective()
+                .UseSuggestDirective()
+                .RegisterWithDotnetSuggest()
+                .UseTypoCorrections()
+                .UseParseErrorReporting()
+                .UseExceptionHandler()
+                .CancelOnProcessTermination()
+                .Build(); 
+            
+            var result = await parser.InvokeAsync(args);
             
             await WaitForLoggerToFinish();
 

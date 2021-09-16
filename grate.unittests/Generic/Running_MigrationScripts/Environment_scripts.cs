@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using FluentAssertions;
@@ -22,8 +22,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateDummySql(knownFolders.Up, "1_.OTHER.filename.ENV.sql");
 
-            string[] environments = {"TEST"};
-            await using (migrator = Context.GetMigrator(db, true, knownFolders, environments))
+            await using (migrator = Context.GetMigrator(db, true, knownFolders, "TEST"))
             {
                 await migrator.Migrate();
             }
@@ -50,8 +49,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             CreateDummySql(knownFolders.Up, "1_.TEST.filename.ENV.sql");
             CreateDummySql(knownFolders.Up, "2_.TEST.ENV.otherfilename.sql");
 
-            string[] environments = new[] {"TEST"};
-            await using (migrator = Context.GetMigrator(db, true, knownFolders, environments))
+            await using (migrator = Context.GetMigrator(db, true, knownFolders, "TEST"))
             {
                 await migrator.Migrate();
             }
@@ -79,8 +77,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             CreateDummySql(knownFolders.Up, "2_.TEST.ENV.otherfilename.sql");
             CreateDummySql(knownFolders.Up, "2_.TEST.ENV.somethingelse.sql");
 
-            string[] environments = new[] {"PROD"};
-            await using (migrator = Context.GetMigrator(db, true, knownFolders, environments))
+            await using (migrator = Context.GetMigrator(db, true, knownFolders, "PROD"))
             {
                 await migrator.Migrate();
             }

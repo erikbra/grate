@@ -56,8 +56,13 @@ namespace grate.unittests.TestInfrastructure
             dbMigrator.ApplyConfig(config);
             return migrator;
         }
-        
-        public GrateMigrator GetMigrator(string databaseName, bool createDatabase, KnownFolders knownFolders, params string[] environments)
+
+        public GrateMigrator GetMigrator(string databaseName, bool createDatabase, KnownFolders knownFolders)
+        {
+            return GetMigrator(databaseName, createDatabase, knownFolders, null);
+        }
+
+        public GrateMigrator GetMigrator(string databaseName, bool createDatabase, KnownFolders knownFolders, string? env)
         {
             var config = new GrateConfiguration()
             {
@@ -69,7 +74,7 @@ namespace grate.unittests.TestInfrastructure
                 AlterDatabase = true,
                 NonInteractive = true,
                 Transaction = true,
-                Environments = environments.Select(env => new GrateEnvironment(env)),
+                Environment = env != null ? new GrateEnvironment(env) : null,
                 DatabaseType = DatabaseType
             };
 
