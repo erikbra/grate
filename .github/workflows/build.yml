@@ -1,4 +1,4 @@
-name: Build and run tests
+name: Build
 
 on:
   push:
@@ -30,13 +30,16 @@ jobs:
         name: grate-dotnet-tool
         path: /tmp/grate/nupkg/*   
 
-  publish:
+  build-standalone:
     name: Build stand-alone
 
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [ "win-x64", "alpine-x64", "linux-x64", "osx.11.0-x64", "osx-x64" ]
+        arch: [ "win-x64", "win-x86", "win-arm", "win-arm64", 
+                "alpine-x64", "linux-x64", "linux-arm", "linux-arm64",
+                 "osx.11.0-x64", "osx.10.12-x64", "osx-x64"
+              ]
 
     steps:
     - uses: actions/checkout@v2
@@ -46,14 +49,24 @@ jobs:
         dotnet-version: 6.0.x
         include-prerelease: true
 
-    - name: Publish ${{ matrix.arch }}
-      run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -o ./publish/${{ matrix.arch }}
-    - name: Upload published ${{ matrix.arch }}
+    - name: Publish self-contained ${{ matrix.arch }}
+      run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
+
+    - name: Publish .NET 6 dependent ${{ matrix.arch }}
+      run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --no-self-contained -o ./publish/${{ matrix.arch }}/dependent
+
+    - name: Upload self-contined ${{ matrix.arch }}
       uses: actions/upload-artifact@v2
       with:
-        name: grate-${{ matrix.arch }}
-        path: ./publish/${{ matrix.arch }}/*
-        
+        name: grate-${{ matrix.arch }}-self-contained
+        path: ./publish/${{ matrix.arch }}/self-contained/*
+    
+    - name: Upload .net dependent ${{ matrix.arch }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: grate-${{ matrix.arch }}-framework-dependent
+        path: ./publish/${{ matrix.arch }}/dependent/*
+
 
   test:
     name: Run tests
