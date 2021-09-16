@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace grate.Migration
 {
-    public class DbMigrator: IDbMigrator
+    public class DbMigrator : IDbMigrator
     {
         private readonly IFactory _factory;
         private readonly ILogger<DbMigrator> _logger;
@@ -23,7 +24,7 @@ namespace grate.Migration
             _hashGenerator = hashGenerator;
             Configuration = GrateConfiguration.Default;
         }
-        
+
         public Task InitializeConnections() => Database?.InitializeConnections(Configuration)!;
 
         public IDatabase Database { get; set; } = null!;
@@ -46,15 +47,10 @@ namespace grate.Migration
             return false;
         }
 
-        public async Task<bool> DropDatabase()
+        public async Task DropDatabase()
         {
-            if (Configuration.Drop && await Database.DatabaseExists())
-            {
-                await Database.DropDatabase();
-                return true;
-            }
-
-            return false;
+            Debug.Assert(Configuration.Drop, "How did we get into a drop command when not configured to do so?");
+            await Database.DropDatabase();
         }
 
         public Task OpenConnection() => Database.OpenConnection();
@@ -120,7 +116,7 @@ namespace grate.Migration
             migrationType == MigrationType.EveryTime ||
             FileName(scriptName).StartsWith("everytime.", StringComparison.InvariantCultureIgnoreCase) ||
             FileName(scriptName).Contains(".everytime.", StringComparison.InvariantCultureIgnoreCase);
-        
+
 
         private async Task<bool> ScriptChanged(string scriptName, string sql)
         {
@@ -140,9 +136,9 @@ namespace grate.Migration
         private Task<bool> ThisScriptIsAlreadyRun(string scriptName) => Database.HasRun(scriptName);
 
         private async Task RunTheActualSql(
-            string sql, 
-            string scriptName, 
-            MigrationType migrationType, 
+            string sql,
+            string scriptName,
+            MigrationType migrationType,
             long versionId,
             ConnectionType connectionType)
         {
@@ -158,7 +154,7 @@ namespace grate.Migration
                     Transaction.Current?.Dispose();
 
                     await RecordScriptInScriptsRunErrorsTable(scriptName, sql, statement, ex.Message, versionId);
-               
+
                     await Database.CloseConnection();
                     throw;
                 }
@@ -172,7 +168,7 @@ namespace grate.Migration
         {
             Database.Rollback();
             Transaction.Current?.Dispose();
-            
+
             string errorMessage =
                 $"{scriptName} has changed since the last time it was run. By default this is not allowed - scripts that run once should never change. To change this behavior to a warning, please set warnOnOneTimeScriptChanges to true and run again. Stopping execution.";
             await RecordScriptInScriptsRunErrorsTable(scriptName, sql, sql, errorMessage, versionId);
@@ -183,7 +179,7 @@ namespace grate.Migration
         private Task RecordScriptInScriptsRunTable(string scriptName, string sql, MigrationType migrationType, long versionId)
         {
             var hash = _hashGenerator.Hash(sql);
-            
+
             _logger.LogDebug("Recording {0} script ran on {1} - {2}.", scriptName, Database.ServerName, Database.DatabaseName);
             return Database.InsertScriptRun(scriptName, sql, hash, migrationType == MigrationType.Once, versionId);
         }

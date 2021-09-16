@@ -111,14 +111,13 @@ namespace grate.Migration
 
         public async Task DropDatabase()
         {
-            if (await DatabaseExists())
-            {
-                using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
-                var cmd = AdminConnection.CreateCommand();
-                cmd.CommandText = _syntax.DropDatabase(DatabaseName);
-                await cmd.ExecuteNonQueryAsync();
-                s.Complete();
-            }
+            using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+            await OpenAdminConnection();
+            var cmd = AdminConnection.CreateCommand();
+            cmd.CommandText = _syntax.DropDatabase(DatabaseName);
+            await cmd.ExecuteNonQueryAsync();
+            s.Complete();
+
         }
 
         /// <summary>
