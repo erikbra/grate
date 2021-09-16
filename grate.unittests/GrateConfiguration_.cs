@@ -5,6 +5,7 @@ using NUnit.Framework;
 namespace grate.unittests
 {
     [TestFixture]
+    [Category("Basic")]
     public class GrateConfiguration_
     {
         [Test]

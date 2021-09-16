@@ -16,6 +16,7 @@ using NUnit.Framework;
 namespace grate.unittests.Oracle.Running_MigrationScripts
 {
     [TestFixture]
+    [Category("Oracle")]
     public class Order_Of_Scripts
     {
         private GrateConfiguration? _config;

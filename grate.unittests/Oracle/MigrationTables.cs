@@ -16,6 +16,7 @@ using NUnit.Framework;
 namespace grate.unittests.Oracle
 {
     [TestFixture]
+    [Category("Oracle")]
     public class MigrationTable
     {
         private GrateConfiguration? _config;
