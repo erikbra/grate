@@ -75,20 +75,20 @@ jobs:
         name: Unit Test Results (${{ matrix.category }})
         path: grate.unittests/test-results-${{ matrix.category }}.xml
 
-#  publish-test-results:
-#    name: "Publish Unit Tests Results"
-#    needs: test
-#    runs-on: ubuntu-latest
-#    # the build-and-test job might be skipped, we don't need to run this job then
-#    if: success() || failure()
-#
-#    steps:
-#      - name: Download Artifacts
-#        uses: actions/download-artifact@v2
-#        with:
-#          path: artifacts
-#
-#      - name: Publish Unit Test Results
-#        uses: EnricoMi/publish-unit-test-result-action@v1
-#        with:
-#          files: artifacts/**/*.xml
+  publish-test-results:
+    name: "Publish Unit Tests Results"
+    needs: test
+    runs-on: ubuntu-latest
+    # the build-and-test job might be skipped, we don't need to run this job then
+    if: success() || failure()
+
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: artifacts
+
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        with:
+          files: artifacts/**/*.xml
