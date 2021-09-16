@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace grate.unittests.Infrastructure
 {
     [TestFixture]
-    [Category("Fast")]
+    [Category("Basic")]
     public class HashGenerator_
     {
         [Test]

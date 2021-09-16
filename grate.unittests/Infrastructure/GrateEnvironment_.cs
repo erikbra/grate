@@ -1,11 +1,12 @@
-﻿using FluentAssertions;
+﻿using System.IO;
+using FluentAssertions;
 using grate.Infrastructure;
 using NUnit.Framework;
 
 namespace grate.unittests.Infrastructure
 {
     [TestFixture]
-    [Category("Fast")]
+    [Category("Basic")]
     public class GrateEnvironment_
     {
         [Test]
@@ -52,11 +53,10 @@ namespace grate.unittests.Infrastructure
 
             env.ShouldRun(file).Should().BeFalse();
         }
-
+        
         private static string FullPath(string fileName) {
-            return "C:\\tmp\\" + fileName;
+            return Path.Combine(Path.GetTempPath(), fileName);
         }
-     
         
     }
 }
