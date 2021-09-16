@@ -1,4 +1,4 @@
-name: Publish Unit Test Resultsz
+name: Publish Unit Test Results
 
 on:
   workflow_run:
@@ -10,11 +10,6 @@ jobs:
   unit-test-results:
     name: Unit Test Results
     runs-on: ubuntu-latest
-#    if: >
-#      github.event.workflow_run.conclusion != 'skipped' && (
-#        github.event.sender.login == 'dependabot[bot]' ||
-#        github.event.workflow_run.head_repository.full_name != github.repository
-#      )
 
     steps:
       - name: Download and Extract Artifacts
