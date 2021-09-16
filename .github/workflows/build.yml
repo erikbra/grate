@@ -7,22 +7,22 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-    name: Build
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 6.0.x
-        include-prerelease: true
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
+#  build:
+#    name: Build
+#
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#    - uses: actions/checkout@v2
+#    - name: Setup .NET
+#      uses: actions/setup-dotnet@v1
+#      with:
+#        dotnet-version: 6.0.x
+#        include-prerelease: true
+#    - name: Restore dependencies
+#      run: dotnet restore
+#    - name: Build
+#      run: dotnet build --no-restore
 
   publish:
     name: Publish 
@@ -75,20 +75,20 @@ jobs:
         name: Unit Test Results (${{ matrix.category }})
         path: grate.unittests/test-results-${{ matrix.category }}.xml
 
-  publish-test-results:
-    name: "Publish Unit Tests Results"
-    needs: test
-    runs-on: ubuntu-latest
-    # the build-and-test job might be skipped, we don't need to run this job then
-    if: success() || failure()
-
-    steps:
-      - name: Download Artifacts
-        uses: actions/download-artifact@v2
-        with:
-          path: artifacts
-
-      - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v1
-        with:
-          files: artifacts/**/*.xml
+#  publish-test-results:
+#    name: "Publish Unit Tests Results"
+#    needs: test
+#    runs-on: ubuntu-latest
+#    # the build-and-test job might be skipped, we don't need to run this job then
+#    if: success() || failure()
+#
+#    steps:
+#      - name: Download Artifacts
+#        uses: actions/download-artifact@v2
+#        with:
+#          path: artifacts
+#
+#      - name: Publish Unit Test Results
+#        uses: EnricoMi/publish-unit-test-result-action@v1
+#        with:
+#          files: artifacts/**/*.xml
