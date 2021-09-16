@@ -19,17 +19,25 @@
   </ItemGroup>
   
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <SelfContained>true</SelfContained>
-    <PublishSingleFile>true</PublishSingleFile>
-    <PublishTrimmed>True</PublishTrimmed>
-    <PublishReadyToRun>False</PublishReadyToRun>
     <DebugType>None</DebugType>
-    <TrimMode>link</TrimMode>
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
-    <RuntimeIdentifiers>win-x64;alpine-x64;linux-x64;osx.11.0-x64;osx-x64</RuntimeIdentifiers>
-    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+    <RuntimeIdentifiers>win-x64;win-x86;win-arm;win-arm64;alpine-x64;linux-x64;linux-arm;linux-arm64;osx.11.0-x64;osx.10.12-x64;osx-x64</RuntimeIdentifiers>
+
+    <!-- <PublishSingleFile>true</PublishSingleFile>
+    <PublishTrimmed>true</PublishTrimmed>
+    <PublishReadyToRun>false</PublishReadyToRun>
+    <TrimMode>link</TrimMode>
+    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract> -->
 
     <ToolCommandName>grate</ToolCommandName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(SelfContained)' == 'true'">
+    <PublishSingleFile>true</PublishSingleFile>
+    <PublishTrimmed>true</PublishTrimmed>
+    <PublishReadyToRun>false</PublishReadyToRun>
+    <TrimMode>link</TrimMode>
+    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
   </PropertyGroup>
 
 </Project>
