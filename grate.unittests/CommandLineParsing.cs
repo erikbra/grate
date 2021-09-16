@@ -170,27 +170,6 @@ namespace grate.unittests
             cfg?.Silent.Should().Be(expected);
         }
         
-        [TestCase("-w, --warnononetimescriptchanges"),]
-        [TestCase("--warnandignoreononetimescriptchanges"),]
-        [TestCase("--ut, --usertokens={SomeToken"),]
-        [TestCase("--disabletokens, --disabletokenreplacement"),]
-        [TestCase("--runallanytimescripts, --forceanytimescripts"),]
-        [TestCase("--baseline"),]
-        [TestCase("--dryrun"),]
-        [TestCase("--isuptodate"),]
-        [TestCase("--donotstorescriptsruntext"),]
-        [TestCase("--defaultencoding=VALUE")]
-        [TestCase("--version-file, -vf")]
-        public void Missing_Ones(string missingOption)
-        {
-            // Test for the outstanding set of features not yet implemented
-
-            using (new AssertionScope())
-            {
-                Assert.Fail("Missing option " + missingOption);
-            }
-        }
-        
         [Test]
         public async Task WithoutTransaction_Default()
         {
