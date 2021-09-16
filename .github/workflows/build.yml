@@ -24,6 +24,7 @@ jobs:
       run: dotnet build --no-restore
 
   publish:
+    name: Publish 
 
     runs-on: ubuntu-latest
     strategy:
@@ -47,7 +48,8 @@ jobs:
         path: ./publish/${{ matrix.arch }}/*
         
 
-  run-tests:
+  test:
+    name: Run tests
 
     runs-on: ubuntu-latest
     strategy:
