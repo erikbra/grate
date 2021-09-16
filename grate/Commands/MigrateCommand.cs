@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
@@ -14,7 +13,6 @@ namespace grate.Commands
 {
     public sealed class MigrateCommand : RootCommand
     {
-        //public MigrateCommand() : base("migrate", "Migrates the database")
         public MigrateCommand(IServiceProvider services) : base("Migrates the database")
         {
             Add(Database());
@@ -32,6 +30,7 @@ namespace grate.Commands
             Add(SchemaName());
             Add(Silent());
             Add(Version());
+            Add(Drop());
             Add(Tokens());
 
             Handler = CommandHandler.Create(
@@ -67,7 +66,7 @@ namespace grate.Commands
         private static Option AdminConnectionString() =>
             new Option<string>(
                 new[] { "-csa", "-a", "--adminconnectionstring", "-acs", "--adminconnstring" },
-                    "The connection string for connecting to master, if you want to create the database."
+                    "The connection string for connecting to master, if you want to create the database.  Defaults to the same as --connstring."
                 )
             { IsRequired = false };
 
@@ -148,8 +147,11 @@ namespace grate.Commands
             new(
                 new[] { "--version" }, // we can't use --version as it conflicts with the standard option
                 "Database Version - specify the version of the current migration directly on the command line."
-            );/*
-            { Name = "version" }; // But still bind to the `Version` property, this also allows using `grate version=1.1.1.1` if wanted */
+            );
+
+        private static Option<bool> Drop() =>
+            new(new[] { "--drop" },
+                "Drop - This instructs grate to remove the target database.  Unlike RoundhousE grate will continue to run the migration scripts after the drop.");
 
         private static Option<bool> Tokens() =>
             new(

@@ -71,6 +71,13 @@ namespace grate.Configuration
         public bool DisableTokenReplacement { get; init; }
 
 
+        
+        /// <summary>
+        /// Whether to drop the database prior to migration or not.
+        /// </summary>
+        public bool Drop { get; init; }
+        
+        
         //private static KnownFolders InCurrentDirectory() => KnownFolders.In(CurrentDirectory);
         private static DirectoryInfo CurrentDirectory => new(Directory.GetCurrentDirectory());
     }
