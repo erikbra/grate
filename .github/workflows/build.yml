@@ -22,7 +22,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet pack -c release -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
+      run: dotnet pack ./grate/grate.csproj -c release -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
       
     - name: Upload published tool artifact
       uses: actions/upload-artifact@v2
@@ -55,7 +55,7 @@ jobs:
     - name: Publish .NET 6 dependent ${{ matrix.arch }}
       run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --no-self-contained -o ./publish/${{ matrix.arch }}/dependent
 
-    - name: Upload self-contined ${{ matrix.arch }}
+    - name: Upload self-contained ${{ matrix.arch }}
       uses: actions/upload-artifact@v2
       with:
         name: grate-${{ matrix.arch }}-self-contained
