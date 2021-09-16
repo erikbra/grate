@@ -7,25 +7,25 @@ on:
     branches: [ main ]
 
 jobs:
-#  build:
-#    name: Build
-#
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#    - uses: actions/checkout@v2
-#    - name: Setup .NET
-#      uses: actions/setup-dotnet@v1
-#      with:
-#        dotnet-version: 6.0.x
-#        include-prerelease: true
-#    - name: Restore dependencies
-#      run: dotnet restore
-#    - name: Build
-#      run: dotnet build --no-restore
+  build-netcore-tool:
+    name: Build .NET Core (global) tool
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+        include-prerelease: true
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet pack --no-restore -p:PackAsTool=true 
 
   publish:
-    name: Publish 
+    name: Publish native builds
 
     runs-on: ubuntu-latest
     strategy:
