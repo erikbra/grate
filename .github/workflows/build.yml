@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        gategory: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB" ]
+        category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB" ]
 
     steps:
     - uses: actions/checkout@v2
