@@ -47,12 +47,12 @@ jobs:
         path: ./publish/${{ matrix.arch }}/*
         
 
-  test:
+  run-tests:
 
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        gategory: [ "Fast", "SqlServer", "PostgreSQL", "MariaDB" ]
+        category: [ "Fast", "SqlServer", "PostgreSQL", "MariaDB" ]
 
     steps:
     - uses: actions/checkout@v2
