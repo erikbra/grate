@@ -20,6 +20,11 @@ namespace grate.Migration
         Task OpenAdminConnection();
         Task CloseAdminConnection();
         Task CreateDatabase();
+        
+        /// <summary>
+        /// Drops the databse if it exists, and does nothing if it doesn't.
+        /// </summary>
+        /// <returns></returns>
         Task DropDatabase();
         Task<bool> DatabaseExists();
         Task RunSupportTasks();

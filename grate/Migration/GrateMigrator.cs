@@ -61,14 +61,8 @@ namespace grate.Migration
 
             if (config.Drop)
             {
-                if (await dbMigrator.DropDatabase())
-                {
-                    Info("{appName} has removed database ({databaseName})", ApplicationInfo.Name, database?.DatabaseName);
-                }
-                else
-                {
-                    Warn("{appName} was requested to remove database ({ databaseName}) but that database doesn't currently exist.  Continuing...", ApplicationInfo.Name, database?.DatabaseName);
-                }
+                await dbMigrator.DropDatabase();
+                Info("{appName} has removed database ({databaseName}) if it existed.", ApplicationInfo.Name, database?.DatabaseName);
             }
 
             var databaseCreated = false;
