@@ -32,6 +32,7 @@ namespace grate.Commands
             Add(SchemaName());
             Add(Silent());
             Add(Version());
+            Add(Tokens());
 
             Handler = CommandHandler.Create(
                 async (GrateConfiguration config) =>
@@ -149,5 +150,11 @@ namespace grate.Commands
                 "Database Version - specify the version of the current migration directly on the command line."
             );/*
             { Name = "version" }; // But still bind to the `Version` property, this also allows using `grate version=1.1.1.1` if wanted */
+
+        private static Option<bool> Tokens() =>
+            new(
+                new[] { "--disabletokenreplacement", "--disabletokens" },
+                "Tokens - This instructs grate to not perform token replacement ({{somename}}). Defaults to false."
+            );
     }
 }
