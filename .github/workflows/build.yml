@@ -1,10 +1,7 @@
 name: Build
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  [push, pull_request] # Trigger on pushes to feature branches for safety before a PR
 
 jobs:
   build-netcore-tool:
