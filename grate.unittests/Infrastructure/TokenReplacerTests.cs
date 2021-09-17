@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using FluentAssertions;
 using grate.Configuration;
 using grate.Infrastructure;
@@ -37,11 +39,30 @@ namespace grate.unittests.Infrastructure
         [Test]
         public void EnsureConfigMakesItToTokens()
         {
-            var config = new GrateConfiguration() { SchemaName = "Test"};
-            var provider = new TokenProvider(config);
+            var config = new GrateConfiguration() { SchemaName = "Test" };
+            var provider = new TokenProvider(config, GrateTestContext.SqlServer.DatabaseMigrator);
             var tokens = provider.GetTokens();
 
             tokens["SchemaName"].Should().Be("Test");
+
+        }
+
+        [Test]
+        public void EnsureDBMakesItToTokens()
+        {
+            var config = new GrateConfiguration()
+            {
+                ConnectionString = "Server=(LocalDb)\\mssqllocaldb;Database=TestDb;"
+            };
+
+            var folders = KnownFolders.In(new DirectoryInfo(Path.GetTempPath()));
+            var migrator = GrateTestContext.SqlServer.GetMigrator("TestDb", true, folders);
+            var db = migrator.DbMigrator.Database;
+            var provider = new TokenProvider(config, db);
+            var tokens = provider.GetTokens();
+
+            tokens["DatabaseName"].Should().Be("TestDb");
+            tokens["ServerName"].Should().Be("(LocalDb)\\mssqllocaldb");
 
         }
 
