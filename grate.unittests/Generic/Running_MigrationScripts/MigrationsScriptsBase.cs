@@ -36,6 +36,10 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
         protected static void WriteSql(DirectoryInfo path, string filename, string? sql)
         {
+            if (!path.Exists)
+            {
+                path.Create();
+            }
             File.WriteAllText(Path.Combine(path.ToString(), filename), sql);
         }
 
