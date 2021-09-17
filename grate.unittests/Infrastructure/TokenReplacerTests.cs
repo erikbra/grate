@@ -4,6 +4,8 @@ using System.IO;
 using FluentAssertions;
 using grate.Configuration;
 using grate.Infrastructure;
+using grate.Migration;
+using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 
 namespace grate.unittests.Infrastructure
@@ -39,11 +41,15 @@ namespace grate.unittests.Infrastructure
         [Test]
         public void EnsureConfigMakesItToTokens()
         {
-            var config = new GrateConfiguration() { SchemaName = "Test" };
+            var folders = KnownFolders.In(new DirectoryInfo(Path.GetTempPath()));
+            var config = new GrateConfiguration() { SchemaName = "Test", KnownFolders = folders };
             var provider = new TokenProvider(config, GrateTestContext.SqlServer.DatabaseMigrator);
             var tokens = provider.GetTokens();
 
             tokens["SchemaName"].Should().Be("Test");
+
+            //RH Only uses the name of a folder, not it's full path.  Make sure we're compat
+            tokens["UpFolderName"].Should().Be("up");
 
         }
 
@@ -52,18 +58,19 @@ namespace grate.unittests.Infrastructure
         {
             var config = new GrateConfiguration()
             {
-                ConnectionString = "Server=(LocalDb)\\mssqllocaldb;Database=TestDb;"
+                ConnectionString = "Server=(LocalDb)\\mssqllocaldb;Database=TestDb;",
+                KnownFolders = KnownFolders.In(new DirectoryInfo(Path.GetTempPath()))
             };
 
-            var folders = KnownFolders.In(new DirectoryInfo(Path.GetTempPath()));
-            var migrator = GrateTestContext.SqlServer.GetMigrator("TestDb", true, folders);
-            var db = migrator.DbMigrator.Database;
+            
+            var db = new SqlServerDatabase(NullLogger<SqlServerDatabase>.Instance);
+            db.InitializeConnections(config);
+
             var provider = new TokenProvider(config, db);
             var tokens = provider.GetTokens();
 
             tokens["DatabaseName"].Should().Be("TestDb");
             tokens["ServerName"].Should().Be("(LocalDb)\\mssqllocaldb");
-
         }
 
     }

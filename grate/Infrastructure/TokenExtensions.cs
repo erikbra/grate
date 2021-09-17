@@ -8,7 +8,7 @@ namespace grate.Infrastructure
 
         public static string? ToToken(this MigrationsFolder? folder)
         {
-            return folder?.Path.FullName;
+            return folder?.Path.Name;
         }
 
     }
