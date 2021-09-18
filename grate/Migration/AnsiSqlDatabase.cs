@@ -85,6 +85,7 @@ namespace grate.Migration
         public async Task DropDatabase()
         {
             using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+            await CloseConnection(); // try and ensure there's nobody else in there...
             await OpenAdminConnection();
             var cmd = AdminConnection.CreateCommand();
             cmd.CommandText = _syntax.DropDatabase(DatabaseName);

@@ -22,7 +22,7 @@
         public string Identity(string columnDefinition, string nullability) => $"{columnDefinition} IDENTITY(1,1) {nullability}";
         public string CreateSchema(string schemaName) => @$"CREATE SCHEMA ""{schemaName}"";";
         public string CreateDatabase(string databaseName) => @$"CREATE DATABASE ""{databaseName}""";
-        public string DropDatabase(string databaseName) => @"USE master; 
+        public string DropDatabase(string databaseName) => @$"USE master; 
                         IF EXISTS(SELECT * FROM sysdatabases WHERE [name] = '{databaseName}') 
                         BEGIN 
                             ALTER DATABASE [{databaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE                            
