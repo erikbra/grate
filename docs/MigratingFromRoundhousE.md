@@ -12,6 +12,7 @@ grate is built using the new [`System.CommandLine`](https://github.com/dotnet/co
 
 - By default grate stores version information in the `grate` database schema.  To continue using your existing version information pass `--schema=RoundhousE`
 - grate has a single mandatory `-cs`/`--connstring` argument for simplicity.  RH's `--database`, `--server`, `--accesstoken` etc arguments are now longer allowed.
+- Not all previously supported tokens are available yet.  For the current set of supported tokens please see [the `TokenProvider` class](../grate/infrastructure/TokenProvider.cs).
 
 
 ## RH Features that aren't yet in grate
@@ -32,7 +33,7 @@ Expect this list to shrink over time.
 - `--runallanytimescripts`
 - Recovery Modes (`--simple`, `--recoverymode` etc)
 - Restore Options (`--restorefrompath`, `--restoreoptions`, `--restoretimeout` etc)
-- Token Replacement (`--disabletokens`, `--usertokens` etc)
+- User Token Replacement (`--usertokens`)
 - Version info sourced from a file.  `--version=<VALUE>` support is available on the command line
 - `--warnononetimescriptchanges`, `--warnandignoreonetimescriptchanges`
 
