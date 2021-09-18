@@ -47,10 +47,10 @@ namespace grate.Migration
             return false;
         }
 
-        public async Task DropDatabase()
+        public Task DropDatabase()
         {
             Debug.Assert(Configuration.Drop, "How did we get into a drop command when not configured to do so?");
-            await Database.DropDatabase();
+            return Database.DropDatabase();
         }
 
         public Task OpenConnection() => Database.OpenConnection();
