@@ -139,7 +139,7 @@ namespace grate.Migration
         /// <summary>
         /// Lazily initialised only if needed.
         /// </summary>
-        private Dictionary<string, string?> _tokens;
+        private Dictionary<string, string?>? _tokens;
         private string ReplaceTokensIn(string sql)
         {
             if (_tokens == null)

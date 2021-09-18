@@ -23,11 +23,11 @@ namespace grate.Infrastructure
                 key = m.Groups["key"].Value;
                 if (!tokens.ContainsKey(key))
                 {
-                    return "{{" + key + "}}";
+                    return "{{" + key + "}}"; //leave unrecognised token alone
                 }
 
                 var value = tokens[key];
-                return value;
+                return value ?? string.Empty;
             });
 
             return output;
