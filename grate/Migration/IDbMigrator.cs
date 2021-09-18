@@ -18,7 +18,7 @@ namespace grate.Migration
         /// Requests a database drop if configuration allows it.
         /// </summary>
         /// <returns>Returns whether the database was actually dropped or not.</returns>
-        Task<bool> DropDatabase();
+        Task DropDatabase();
         Task<bool> DatabaseExists();
         Task OpenConnection();
         Task CloseConnection();

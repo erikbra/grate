@@ -13,7 +13,6 @@ grate is built using the new [`System.CommandLine`](https://github.com/dotnet/co
 - By default grate stores version information in the `grate` database schema.  To continue using your existing version information pass `--schema=RoundhousE`
 - grate has a single mandatory `-cs`/`--connstring` argument for simplicity.  RH's `--database`, `--server`, `--accesstoken` etc arguments are now longer allowed.
 - Not all previously supported tokens are available yet.  For the current set of supported tokens please see [the `TokenProvider` class](../grate/infrastructure/TokenProvider.cs).
-- grate has a single mandatory `-cs`/`--connstring` argument for simplicity.  RH's `--database`, `--server`, `--accesstoken` etc arguments are now longer supported.
 - The `DropCreate` mode and the `--drop` option have been merged.  grate uses the `--drop` option only, but **it operates like `DropCreate`**! If you have a scenario for dropping a database but _not_ then running a migration, please open an issue!
 
 
