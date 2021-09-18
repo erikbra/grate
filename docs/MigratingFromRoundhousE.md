@@ -4,7 +4,7 @@
 
 # Changes compared to RoundhousE
 
-There's a number of general changes in grate as a result of moving to the latest .Net bits that will apply to all users
+There's a number of general changes in grate as a result of moving to the latest .Net bits that will apply to all users.
 
 grate is built using the new [`System.CommandLine`](https://github.com/dotnet/command-line-api) API's, so:
 - Command line arguments are now **case-sensitive** on all operating systems (including windows)
