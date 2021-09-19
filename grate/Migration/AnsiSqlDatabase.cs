@@ -312,7 +312,7 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
 
         public async Task RunSql(string sql, ConnectionType connectionType)
         {
-            _logger.LogDebug("[SQL] Running (on connection '{connType}'): {newLine}{sql}", connectionType.ToString(), Environment.NewLine, sql);
+            _logger.LogDebug("[SQL] Running (on connection '{connType}'): " + Environment.NewLine + "{sql}", connectionType.ToString(), sql);
 
             var conn = connectionType switch
             {
