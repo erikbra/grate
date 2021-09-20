@@ -38,6 +38,7 @@
     <PublishReadyToRun>false</PublishReadyToRun>
     <TrimMode>link</TrimMode>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+    <NoWarn>IL2026;IL2104</NoWarn>
   </PropertyGroup>
 
 </Project>
