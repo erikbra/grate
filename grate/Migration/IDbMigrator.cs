@@ -13,6 +13,7 @@ namespace grate.Migration
         Task InitializeConnections();
         void ApplyConfig(GrateConfiguration config);
         Task<bool> CreateDatabase();
+        Task<bool> DatabaseExists();
         Task OpenConnection();
         Task CloseConnection();
         Task RunSupportTasks();

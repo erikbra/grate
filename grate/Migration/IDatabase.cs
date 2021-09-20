@@ -20,6 +20,8 @@ namespace grate.Migration
         Task OpenAdminConnection();
         Task CloseAdminConnection();
         Task CreateDatabase();
+        Task<bool> DatabaseExists();
+        
         Task RunSupportTasks();
         Task<string> GetCurrentVersion();
         Task<long> VersionTheDatabase(string newVersion);
