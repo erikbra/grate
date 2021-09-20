@@ -3,6 +3,7 @@ using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using grate.Commands;
@@ -81,12 +82,7 @@ namespace grate
                         options.FormatterName = GrateConsoleFormatter.FormatterName;
                     }).SetMinimumLevel(_verbose ? LogLevel.Trace: LogLevel.Information)
                 .AddConsoleFormatter<GrateConsoleFormatter, SimpleConsoleFormatterOptions>());
-            
-            // services.AddLogging(logging =>
-            //     logging
-            //         .AddConsole()
-            //         .SetMinimumLevel(_verbose ? LogLevel.Trace : LogLevel.Information));
-            
+         
             services.AddTransient<IDbMigrator, DbMigrator>();
             services.AddTransient<IHashGenerator, HashGenerator>();
 
