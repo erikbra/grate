@@ -82,6 +82,17 @@ namespace grate.Migration
             await WaitUntilDatabaseIsReady();
         }
 
+        public async Task DropDatabase()
+        {
+            using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+            await CloseConnection(); // try and ensure there's nobody else in there...
+            await OpenAdminConnection();
+            var cmd = AdminConnection.CreateCommand();
+            cmd.CommandText = _syntax.DropDatabase(DatabaseName);
+            await cmd.ExecuteNonQueryAsync();
+            s.Complete();
+        }
+
 
         /// <summary>
         /// Gets whether the Database currently exists on the server or not.

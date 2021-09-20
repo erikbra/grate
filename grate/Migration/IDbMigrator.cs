@@ -13,6 +13,13 @@ namespace grate.Migration
         Task InitializeConnections();
         void ApplyConfig(GrateConfiguration config);
         Task<bool> CreateDatabase();
+        
+        /// <summary>
+        /// Requests a database drop if configuration allows it.
+        /// </summary>
+        /// <returns>Returns whether the database was actually dropped or not.</returns>
+        Task DropDatabase();
+        
         Task<bool> DatabaseExists();
         Task OpenConnection();
         Task CloseConnection();

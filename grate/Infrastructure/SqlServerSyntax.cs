@@ -21,7 +21,13 @@
         public string BooleanType => "bit";
         public string Identity(string columnDefinition, string nullability) => $"{columnDefinition} IDENTITY(1,1) {nullability}";
         public string CreateSchema(string schemaName) => @$"CREATE SCHEMA ""{schemaName}"";";
-        public string CreateDatabase(string schemaName) => @$"CREATE DATABASE ""{schemaName}""";
+        public string CreateDatabase(string databaseName) => @$"CREATE DATABASE ""{databaseName}""";
+        public string DropDatabase(string databaseName) => @$"USE master; 
+                        IF EXISTS(SELECT * FROM sysdatabases WHERE [name] = '{databaseName}') 
+                        BEGIN 
+                            ALTER DATABASE [{databaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE                            
+                            DROP DATABASE [{databaseName}] 
+                        END";
         public string TableWithSchema(string schemaName, string tableName) => $"{schemaName}.\"{tableName}\"";
         public string ReturnId => ";SELECT @@IDENTITY";
         public string TimestampType => "datetime";

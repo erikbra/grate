@@ -64,13 +64,17 @@ namespace grate.Configuration
         public int AdminCommandTimeout { get; init; }
         public bool Silent => NonInteractive;
         public bool NonInteractive { get; init; }
-
+      
         /// <summary>
         /// This instructs grate to not perform token replacement {{somename}}. Defaults to false.
         /// </summary>
         public bool DisableTokenReplacement { get; init; }
 
-
+        /// <summary>
+        /// Whether to drop the database prior to migration or not.
+        /// </summary>
+        public bool Drop { get; init; }
+      
         //private static KnownFolders InCurrentDirectory() => KnownFolders.In(CurrentDirectory);
         private static DirectoryInfo CurrentDirectory => new(Directory.GetCurrentDirectory());
     }

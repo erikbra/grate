@@ -13,7 +13,7 @@ using Npgsql;
 
 namespace grate.Migration
 {
-    public class GrateMigrator: IAsyncDisposable
+    public class GrateMigrator : IAsyncDisposable
     {
         private readonly ILogger<GrateMigrator> _logger;
         private readonly IDbMigrator _migrator;
@@ -35,8 +35,8 @@ namespace grate.Migration
             var database = dbMigrator.Database;
             var config = dbMigrator.Configuration;
             KnownFolders knownFolders = config.KnownFolders ?? throw new ArgumentException(nameof(config.KnownFolders));
-            
-            
+
+
             _logger.LogInformation("Running {0} v{1} against {2} - {3}.",
                 ApplicationInfo.Name,
                 ApplicationInfo.Version,
@@ -44,20 +44,26 @@ namespace grate.Migration
                 database?.DatabaseName
                 );
 
-            Info("Looking in {0} for scripts to run.", knownFolders?.Up?.Path);
-            
+            Info("Looking in {upPath} for scripts to run.", knownFolders?.Up?.Path);
+
             PressEnterWhenReady(silent);
-            
+
             var runInTransaction = MakeSureWeCanRunInTransaction(config.Transaction, silent, dbMigrator);
-            
+
             var changeDropFolder = ChangeDropFolder(config, database?.ServerName, database?.DatabaseName);
             CreateChangeDropFolder(changeDropFolder);
-            
-            Debug("The change_drop (output) folder is: {0}", changeDropFolder);
+
+            Debug("The change_drop (output) folder is: {changeDropFolder}", changeDropFolder);
             Separator('=');
-            
+
             Info("Setup, Backup, Create/Restore/Drop");
             Separator('=');
+
+            if (config.Drop)
+            {
+                await dbMigrator.DropDatabase();
+                Info("{appName} has removed database ({databaseName}) if it existed.", ApplicationInfo.Name, database?.DatabaseName);
+            }
 
             var databaseCreated = false;
 
@@ -66,7 +72,7 @@ namespace grate.Migration
                 databaseCreated = await CreateDatabaseIfItDoesNotExist(dbMigrator);
             }
 
-            TransactionScope? scope = null; 
+            TransactionScope? scope = null;
             try
             {
                 // Run these first without a transaction, to make sure the tables are created even on a potential rollback
@@ -77,7 +83,7 @@ namespace grate.Migration
                 {
                     scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
                 }
-                
+
                 await dbMigrator.OpenConnection();
                 var (versionId, newVersion) = await VersionTheDatabase(dbMigrator);
 
@@ -87,7 +93,7 @@ namespace grate.Migration
 
                 // This one should not be necessary, we throw on assignment if null
                 System.Diagnostics.Debug.Assert(knownFolders != null, nameof(knownFolders) + " != null");
-                
+
                 await BeforeMigration(knownFolders, changeDropFolder, versionId, newVersion);
 
                 if (config.AlterDatabase)
@@ -117,7 +123,7 @@ namespace grate.Migration
                     await LogAndProcess(knownFolders.Permissions!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
                     await LogAndProcess(knownFolders.AfterMigration!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
                 }
-            
+
                 Info(
                     "\n\n{1} v{2} has grated your database ({3})! You are now at version {4}. All changes and backups can be found at \"{5}\".",
                     ApplicationInfo.Name,
@@ -125,15 +131,15 @@ namespace grate.Migration
                     dbMigrator?.Database?.DatabaseName,
                     newVersion,
                     changeDropFolder);
-            
+
                 Separator(' ');
-                
-            } 
+
+            }
             finally
             {
                 scope?.Dispose();
             }
-            
+
         }
 
         private async Task AlterDatabase(IDbMigrator dbMigrator, KnownFolders knownFolders, string changeDropFolder,
@@ -173,10 +179,10 @@ namespace grate.Migration
             Separator('=');
             Info("Versioning");
             Separator('=');
-            
+
             var currentVersion = await dbMigrator.GetCurrentVersion();
             var newVersion = dbMigrator.Configuration.Version;
-            Info(" Migrating {0} from version {1} to {2}.", dbMigrator.Database?.DatabaseName, currentVersion, newVersion);
+            Info(" Migrating {databaseName} from version {currentVersion} to {newVersion}.", dbMigrator.Database?.DatabaseName, currentVersion, newVersion);
             var versionId = await dbMigrator.VersionTheDatabase(newVersion);
 
             return (versionId, newVersion);
@@ -251,7 +257,7 @@ namespace grate.Migration
                     }
                 }
             }
-            
+
         }
 
         private void CopyToChangeDropFolder(FileSystemInfo file, MigrationsFolder folder, string changeDropFolder)
@@ -259,15 +265,15 @@ namespace grate.Migration
             var cfg = _migrator.Configuration;
 
             var relativePath = Path.GetRelativePath(cfg.SqlFilesDirectory.ToString(), file.FullName);
-            
+
             string destinationFile = Path.Combine(changeDropFolder, "itemsRan", relativePath);
 
             var parent = Path.GetDirectoryName(destinationFile)!;
             var parentDir = new DirectoryInfo(parent);
             parentDir.Create();
-            
+
             _logger.LogDebug("Copying file {0} to {1}.", file.FullName, destinationFile);
-            
+
             File.Copy(file.FullName, destinationFile);
         }
 
@@ -282,11 +288,12 @@ namespace grate.Migration
             return folderPath
                 .EnumerateFileSystemInfos(pattern, SearchOption.AllDirectories).ToList()
                 .OrderBy(f => f.Name, StringComparer.CurrentCultureIgnoreCase);
-                //.OrderBy(f => f.FullName, StringComparer.CurrentCultureIgnoreCase);
+            //.OrderBy(f => f.FullName, StringComparer.CurrentCultureIgnoreCase);
         }
 
         private void Info(string format, params object?[] args) => _logger.LogInformation(format, args);
         private void Debug(string format, params object?[] args) => _logger.LogDebug(format, args);
+        private void Warn(string format, params object?[] args) => _logger.LogWarning(format, args);
 
         private void Separator(char c) => _logger.LogInformation(new string(c, 80));
 
