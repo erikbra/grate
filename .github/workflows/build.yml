@@ -8,6 +8,8 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+  
 jobs:
   build-netcore-tool:
     name: Build .NET Core (global) tool
