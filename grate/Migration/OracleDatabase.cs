@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using grate.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -94,6 +94,11 @@ namespace grate.Migration
         }
 
         public Task InsertScriptRunError(string scriptName, string sql, string errorSql, string errorMessage, long versionId)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void Dispose()
         {
             throw new System.NotImplementedException();
         }
