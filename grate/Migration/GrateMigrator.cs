@@ -18,6 +18,8 @@ namespace grate.Migration
         private readonly ILogger<GrateMigrator> _logger;
         private readonly IDbMigrator _migrator;
 
+        public IDbMigrator DbMigrator => _migrator;
+
         public GrateMigrator(ILogger<GrateMigrator> logger, IDbMigrator migrator)
         {
             _logger = logger;

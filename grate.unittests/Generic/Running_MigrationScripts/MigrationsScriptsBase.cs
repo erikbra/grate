@@ -9,7 +9,11 @@ namespace grate.unittests.Generic.Running_MigrationScripts
     {
         protected static DirectoryInfo CreateRandomTempDirectory()
         {
-            var dummyFile = Path.GetTempFileName();
+
+            // I keep seeing the same temp di name in repeat test runs, and the dir has leftover scripts sitting in it.
+            // Trying to get a clean folder each time we ask for it
+
+            var dummyFile = Path.GetRandomFileName();
             File.Delete(dummyFile);
 
             var scriptsDir = Directory.CreateDirectory(dummyFile);
@@ -32,6 +36,10 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
         protected static void WriteSql(DirectoryInfo path, string filename, string? sql)
         {
+            if (!path.Exists)
+            {
+                path.Create();
+            }
             File.WriteAllText(Path.Combine(path.ToString(), filename), sql);
         }
 

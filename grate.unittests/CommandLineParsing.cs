@@ -92,7 +92,16 @@ namespace grate.unittests
 
             cfg?.CommandTimeout.Should().Be(timeout);
         }
-        
+
+        [TestCase("", false)] // by default we want token replacement
+        [TestCase("--disabletokens", true)]
+        [TestCase("--disabletokenreplacement", true)]
+        public async Task DisableTokenReplacement(string commandline, bool expected)
+        {
+            var cfg = await ParseGrateConfiguration(commandline);
+            cfg?.DisableTokenReplacement.Should().Be(expected);
+        }
+
         [TestCase("-cta ")]
         [TestCase("--admincommandtimeout=")]
         public async Task AdminCommandTimeout(string argName)
