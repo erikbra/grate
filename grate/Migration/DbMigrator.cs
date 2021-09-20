@@ -36,6 +36,8 @@ namespace grate.Migration
             StatementSplitter = new StatementSplitter(Database.StatementSeparatorRegex);
         }
 
+        public async Task<bool> DatabaseExists() => await Database.DatabaseExists();
+
         public async Task<bool> CreateDatabase()
         {
             if (Configuration.CreateDatabase)

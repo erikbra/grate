@@ -52,6 +52,11 @@ namespace grate.Migration
         {
             throw new System.NotImplementedException();
         }
+        
+        public Task<bool> DatabaseExists()
+        {
+            throw new System.NotImplementedException();
+        }
 
         public Task RunSupportTasks()
         {

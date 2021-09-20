@@ -69,12 +69,7 @@ namespace grate.Migration
 
         public async Task CreateDatabase()
         {
-            string? sql = _syntax.ListDatabases;
-
-            await OpenAdminConnection();
-            var databases = await AdminConnection.QueryAsync<string>(sql);
-
-            if (!databases.Contains(DatabaseName))
+            if (!await DatabaseExists())
             {
                 using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
                 var cmd = AdminConnection.CreateCommand();
@@ -85,6 +80,32 @@ namespace grate.Migration
 
             await CloseAdminConnection();
             await WaitUntilDatabaseIsReady();
+        }
+
+
+        /// <summary>
+        /// Gets whether the Database currently exists on the server or not.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> DatabaseExists()
+        {
+            var sql = _syntax.ListDatabases;
+
+            try
+            {
+                await OpenConnection();
+                var databases = await Connection.QueryAsync<string>(sql);
+
+                return databases.Contains(DatabaseName);
+            }
+            catch (DbException)
+            {
+                return false;
+            }
+            finally
+            {
+                await CloseConnection();
+            }
         }
 
         private async Task WaitUntilDatabaseIsReady()
