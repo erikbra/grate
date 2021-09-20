@@ -61,38 +61,11 @@ namespace grate.Migration
         protected DbConnection AdminConnection => _adminConnection ??= GetSqlConnection(AdminConnectionString);
         protected DbConnection Connection => _connection ??= GetSqlConnection(ConnectionString);
 
-        public async Task OpenConnection()
-        {
-            if (Connection.State != ConnectionState.Open)
-            {
-                await Connection.OpenAsync();
-                await Connection.QueryAsync<string>(_syntax.CurrentDatabase);
-            }
-        }
+        public async Task OpenConnection() => await Open(Connection);
+        public async Task CloseConnection() => await Close(Connection);
 
-        public async Task CloseConnection()
-        {
-            if (Connection.State == ConnectionState.Open)
-            {
-                await Connection.CloseAsync();
-            }
-        }
-
-        public async Task OpenAdminConnection()
-        {
-            if (AdminConnection.State != ConnectionState.Open)
-            {
-                await AdminConnection.OpenAsync();
-            }
-        }
-
-        public async Task CloseAdminConnection()
-        {
-            if (AdminConnection.State == ConnectionState.Open)
-            {
-                await AdminConnection.CloseAsync();
-            }
-        }
+        public async Task OpenAdminConnection() => await Open(AdminConnection);
+        public async Task CloseAdminConnection() => await Close(AdminConnection);
 
         public async Task CreateDatabase()
         {
@@ -435,21 +408,29 @@ VALUES ((SELECT version FROM {VersionTable} WHERE id = @versionId), @scriptName,
             s.Complete();
         }
 
-        public void Dispose()
+        private static async Task Close(DbConnection? conn)
+        {
+            if (conn?.State == ConnectionState.Open)
+            {
+                await conn.CloseAsync();
+            }
+        }
+        
+        private async Task Open(DbConnection? conn)
+        {
+            if (conn != null && conn.State != ConnectionState.Open)
+            {
+                await conn.OpenAsync();
+                await conn.QueryAsync<string>(_syntax.CurrentDatabase);
+            }
+        }
+
+        public async ValueTask DisposeAsync()
         {
             // Don't use the properties, they can open a connection just to dispose it!
-            if (_connection != null)
-            {
-                _connection.Dispose();
-                _connection = null;
-            }
-
-            if (_adminConnection != null)
-            {
-                _adminConnection.Dispose();
-                _adminConnection = null;
-            }
-
+            await Close(_connection);
+            await Close(_adminConnection);
+            
             GC.SuppressFinalize(this);
         }
     }
