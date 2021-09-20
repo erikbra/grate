@@ -7,12 +7,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using grate.Configuration;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
-using Npgsql;
 
 namespace grate.Migration
 {
+
     public class GrateMigrator : IAsyncDisposable
     {
         private readonly ILogger<GrateMigrator> _logger;
@@ -37,14 +36,13 @@ namespace grate.Migration
             KnownFolders knownFolders = config.KnownFolders ?? throw new ArgumentException(nameof(config.KnownFolders));
 
 
-            _logger.LogInformation("Running {0} v{1} against {2} - {3}.",
-                ApplicationInfo.Name,
+            _logger.LogInformation("Running grate v{version} against {serverName} - {databaseName}.",
                 ApplicationInfo.Version,
                 database?.ServerName,
                 database?.DatabaseName
                 );
 
-            Info("Looking in {upPath} for scripts to run.", knownFolders?.Up?.Path);
+            _logger.LogInformation("Looking in {upFolder} for scripts to run.", knownFolders?.Up?.Path);
 
             PressEnterWhenReady(silent);
 
@@ -53,16 +51,16 @@ namespace grate.Migration
             var changeDropFolder = ChangeDropFolder(config, database?.ServerName, database?.DatabaseName);
             CreateChangeDropFolder(changeDropFolder);
 
-            Debug("The change_drop (output) folder is: {changeDropFolder}", changeDropFolder);
+            _logger.LogDebug("The change_drop (output) folder is: {changeDropFolder}", changeDropFolder);
             Separator('=');
 
-            Info("Setup, Backup, Create/Restore/Drop");
+            _logger.LogInformation("Setup, Backup, Create/Restore/Drop");
             Separator('=');
 
             if (config.Drop)
             {
                 await dbMigrator.DropDatabase();
-                Info("{appName} has removed database ({databaseName}) if it existed.", ApplicationInfo.Name, database?.DatabaseName);
+                _logger.LogInformation("{appName} has removed database ({databaseName}) if it existed.", ApplicationInfo.Name, database?.DatabaseName);
             }
 
             var databaseCreated = false;
@@ -88,45 +86,44 @@ namespace grate.Migration
                 var (versionId, newVersion) = await VersionTheDatabase(dbMigrator);
 
                 Separator('=');
-                Info("Migration Scripts");
+                _logger.LogInformation("Migration Scripts");
                 Separator('=');
 
                 // This one should not be necessary, we throw on assignment if null
                 System.Diagnostics.Debug.Assert(knownFolders != null, nameof(knownFolders) + " != null");
 
-                await BeforeMigration(knownFolders, changeDropFolder, versionId, newVersion);
+                await BeforeMigration(knownFolders, changeDropFolder, versionId);
 
                 if (config.AlterDatabase)
                 {
-                    await AlterDatabase(dbMigrator, knownFolders, changeDropFolder, versionId, newVersion);
+                    await AlterDatabase(dbMigrator, knownFolders, changeDropFolder, versionId);
                 }
 
                 if (databaseCreated)
                 {
-                    await LogAndProcess(knownFolders.RunAfterCreateDatabase!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
+                    await LogAndProcess(knownFolders.RunAfterCreateDatabase!, changeDropFolder, versionId, ConnectionType.Default);
                 }
 
-                await LogAndProcess(knownFolders.RunBeforeUp!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
-                await LogAndProcess(knownFolders.Up!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
-                await LogAndProcess(knownFolders.RunFirstAfterUp!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
-                await LogAndProcess(knownFolders.Functions!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
-                await LogAndProcess(knownFolders.Views!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
-                await LogAndProcess(knownFolders.Sprocs!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
-                await LogAndProcess(knownFolders.Triggers!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
-                await LogAndProcess(knownFolders.Indexes!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
-                await LogAndProcess(knownFolders.RunAfterOtherAnyTimeScripts!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
+                await LogAndProcess(knownFolders.RunBeforeUp!, changeDropFolder, versionId, ConnectionType.Default);
+                await LogAndProcess(knownFolders.Up!, changeDropFolder, versionId, ConnectionType.Default);
+                await LogAndProcess(knownFolders.RunFirstAfterUp!, changeDropFolder, versionId, ConnectionType.Default);
+                await LogAndProcess(knownFolders.Functions!, changeDropFolder, versionId, ConnectionType.Default);
+                await LogAndProcess(knownFolders.Views!, changeDropFolder, versionId, ConnectionType.Default);
+                await LogAndProcess(knownFolders.Sprocs!, changeDropFolder, versionId, ConnectionType.Default);
+                await LogAndProcess(knownFolders.Triggers!, changeDropFolder, versionId, ConnectionType.Default);
+                await LogAndProcess(knownFolders.Indexes!, changeDropFolder, versionId, ConnectionType.Default);
+                await LogAndProcess(knownFolders.RunAfterOtherAnyTimeScripts!, changeDropFolder, versionId, ConnectionType.Default);
 
                 scope?.Complete();
 
                 using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    await LogAndProcess(knownFolders.Permissions!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
-                    await LogAndProcess(knownFolders.AfterMigration!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
+                    await LogAndProcess(knownFolders.Permissions!, changeDropFolder, versionId, ConnectionType.Default);
+                    await LogAndProcess(knownFolders.AfterMigration!, changeDropFolder, versionId, ConnectionType.Default);
                 }
 
-                Info(
-                    "\n\n{1} v{2} has grated your database ({3})! You are now at version {4}. All changes and backups can be found at \"{5}\".",
-                    ApplicationInfo.Name,
+                _logger.LogInformation(
+                    "\n\ngrate v{version} has grated your database ({databaseName})! You are now at version {newVersion}. All changes and backups can be found at \"{changeDropFolder}\".",
                     ApplicationInfo.Version,
                     dbMigrator?.Database?.DatabaseName,
                     newVersion,
@@ -143,22 +140,22 @@ namespace grate.Migration
         }
 
         private async Task AlterDatabase(IDbMigrator dbMigrator, KnownFolders knownFolders, string changeDropFolder,
-            long versionId, string newVersion)
+            long versionId)
         {
             using (new TransactionScope(TransactionScopeOption.Suppress,
                 TransactionScopeAsyncFlowOption.Enabled))
             {
                 await dbMigrator.OpenAdminConnection();
-                await LogAndProcess(knownFolders!.AlterDatabase!, changeDropFolder, versionId, newVersion, ConnectionType.Admin);
+                await LogAndProcess(knownFolders!.AlterDatabase!, changeDropFolder, versionId, ConnectionType.Admin);
                 await dbMigrator.CloseAdminConnection();
             }
         }
 
-        private async Task BeforeMigration(KnownFolders knownFolders, string changeDropFolder, long versionId, string newVersion)
+        private async Task BeforeMigration(KnownFolders knownFolders, string changeDropFolder, long versionId)
         {
             using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
-                await LogAndProcess(knownFolders!.BeforeMigration!, changeDropFolder, versionId, newVersion, ConnectionType.Default);
+                await LogAndProcess(knownFolders!.BeforeMigration!, changeDropFolder, versionId, ConnectionType.Default);
             }
         }
 
@@ -167,7 +164,7 @@ namespace grate.Migration
             await dbMigrator.OpenConnection();
 
             Separator('=');
-            Info("Grate Structure");
+            _logger.LogInformation("Grate Structure");
             Separator('=');
 
             await dbMigrator.RunSupportTasks();
@@ -177,12 +174,12 @@ namespace grate.Migration
         private async Task<(long, string)> VersionTheDatabase(IDbMigrator dbMigrator)
         {
             Separator('=');
-            Info("Versioning");
+            _logger.LogInformation("Versioning");
             Separator('=');
 
             var currentVersion = await dbMigrator.GetCurrentVersion();
             var newVersion = dbMigrator.Configuration.Version;
-            Info(" Migrating {databaseName} from version {currentVersion} to {newVersion}.", dbMigrator.Database?.DatabaseName, currentVersion, newVersion);
+            _logger.LogInformation(" Migrating {databaseName} from version {currentVersion} to {newVersion}.", dbMigrator.Database?.DatabaseName, currentVersion, newVersion);
             var versionId = await dbMigrator.VersionTheDatabase(newVersion);
 
             return (versionId, newVersion);
@@ -204,7 +201,7 @@ namespace grate.Migration
             return databaseCreated;
         }
 
-        private async Task LogAndProcess(MigrationsFolder folder, string changeDropFolder, long versionId, string newVersion, ConnectionType connectionType)
+        private async Task LogAndProcess(MigrationsFolder folder, string changeDropFolder, long versionId, ConnectionType connectionType)
         {
             Separator(' ');
 
@@ -213,25 +210,25 @@ namespace grate.Migration
                 MigrationType.Once => " These should be one time only scripts.",
                 MigrationType.EveryTime => " These scripts will run every time.",
                 MigrationType.AnyTime => "",
-                _ => throw new ArgumentOutOfRangeException(nameof(folder.Type))
+                _ => throw new ArgumentOutOfRangeException(nameof(folder), $"Unexpected MigrationsFolder: {folder.Type}")
             };
 
-            Info("Looking for {0} scripts in \"{1}\".{2}",
+            _logger.LogInformation("Looking for {folderName} scripts in \"{path}\".{message}",
                 folder.Name,
                 folder.Path,
                 msg);
 
             Separator('-');
-            await Process(folder, changeDropFolder, versionId, newVersion, connectionType);
+            await Process(folder, changeDropFolder, versionId, connectionType);
             Separator('-');
             Separator(' ');
         }
 
-        private async Task Process(MigrationsFolder folder, string changeDropFolder, long versionId, string newVersion, ConnectionType connectionType)
+        private async Task Process(MigrationsFolder folder, string changeDropFolder, long versionId, ConnectionType connectionType)
         {
             if (!folder.Path.Exists)
             {
-                Info("{0} does not exist. Skipping.", folder.Path);
+                _logger.LogInformation("{path} does not exist. Skipping.", folder.Path);
                 return;
             }
 
@@ -240,8 +237,7 @@ namespace grate.Migration
 
             foreach (var file in files)
             {
-                var txt = await File.ReadAllTextAsync(file.FullName);
-                var sql = ReplaceTokens(txt);
+                var sql = await File.ReadAllTextAsync(file.FullName);
 
                 bool theSqlRan = await _migrator.RunSql(sql, file.Name, folder.Type, versionId, _migrator.Configuration.Environment,
                     connectionType);
@@ -249,18 +245,18 @@ namespace grate.Migration
                 {
                     try
                     {
-                        CopyToChangeDropFolder(file, folder, changeDropFolder);
+                        CopyToChangeDropFolder(file, changeDropFolder);
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogWarning(ex, "Unable to copy {0} to {1}. \n{2}", file, changeDropFolder, ex.Message);
+                        _logger.LogWarning(ex, "Unable to copy {file} to {changeDropFolder}. \n{exception}", file, changeDropFolder, ex.Message);
                     }
                 }
             }
 
         }
 
-        private void CopyToChangeDropFolder(FileSystemInfo file, MigrationsFolder folder, string changeDropFolder)
+        private void CopyToChangeDropFolder(FileSystemInfo file, string changeDropFolder)
         {
             var cfg = _migrator.Configuration;
 
@@ -272,15 +268,9 @@ namespace grate.Migration
             var parentDir = new DirectoryInfo(parent);
             parentDir.Create();
 
-            _logger.LogDebug("Copying file {0} to {1}.", file.FullName, destinationFile);
+            _logger.LogDebug("Copying file {filename} to {destination}.", file.FullName, destinationFile);
 
             File.Copy(file.FullName, destinationFile);
-        }
-
-        private string ReplaceTokens(string txt)
-        {
-            // TODO: Find out what this should really do 
-            return txt;
         }
 
         private static IEnumerable<FileSystemInfo> GetFiles(DirectoryInfo folderPath, string pattern)
@@ -288,14 +278,11 @@ namespace grate.Migration
             return folderPath
                 .EnumerateFileSystemInfos(pattern, SearchOption.AllDirectories).ToList()
                 .OrderBy(f => f.Name, StringComparer.CurrentCultureIgnoreCase);
-            //.OrderBy(f => f.FullName, StringComparer.CurrentCultureIgnoreCase);
         }
 
-        private void Info(string format, params object?[] args) => _logger.LogInformation(format, args);
-        private void Debug(string format, params object?[] args) => _logger.LogDebug(format, args);
-        private void Warn(string format, params object?[] args) => _logger.LogWarning(format, args);
-
+#pragma warning disable CA2254 // Template should be a static expression.  Bug in pre-release .net 6: https://github.com/dotnet/roslyn-analyzers/issues/5415
         private void Separator(char c) => _logger.LogInformation(new string(c, 80));
+#pragma warning restore CA2254 // Template should be a static expression
 
         private static void CreateChangeDropFolder(string folder)
         {
@@ -358,6 +345,7 @@ namespace grate.Migration
         public async ValueTask DisposeAsync()
         {
             await _migrator.DisposeAsync();
+            GC.SuppressFinalize(this);
         }
     }
 }

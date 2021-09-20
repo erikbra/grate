@@ -23,7 +23,7 @@ namespace grate.unittests.Generic
         private const string ServerNameAllowedChars = "abcdefghijklmnopqrstuvwxyz";
 
         private string GetServerName() =>
-            $"grate-{Context.DatabaseType.ToString()}-{_random.GetString(10, ServerNameAllowedChars)}";
+            $"grate-{Context.DatabaseType}-{_random.GetString(10, ServerNameAllowedChars)}";
 
         [OneTimeSetUp]
         public async Task RunBeforeAnyTests()

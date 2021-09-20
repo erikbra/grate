@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
 using grate.Configuration;
@@ -108,7 +107,7 @@ namespace grate.Migration
                 }
                 else
                 {
-                    _logger.LogInformation(" Skipped {0} - {1}.", scriptName, "No changes were found to run");
+                    _logger.LogInformation(" Skipped {scriptName} - {reason}.", scriptName, "No changes were found to run");
                 }
             }
             else
@@ -207,8 +206,8 @@ namespace grate.Migration
         private Task RecordScriptInScriptsRunTable(string scriptName, string sql, MigrationType migrationType, long versionId)
         {
             var hash = _hashGenerator.Hash(sql);
-
-            _logger.LogDebug("Recording {0} script ran on {1} - {2}.", scriptName, Database.ServerName, Database.DatabaseName);
+            
+            _logger.LogDebug("Recording {scriptName} script ran on {serverName} - {databaseName}.", scriptName, Database.ServerName, Database.DatabaseName);
             return Database.InsertScriptRun(scriptName, sql, hash, migrationType == MigrationType.Once, versionId);
         }
 
