@@ -13,7 +13,7 @@ namespace grate.unittests.TestInfrastructure
         int? Port { get; set; }
 
         string DockerCommand(string serverName, string adminPassword);
-        
+
         string AdminConnectionString { get; }
         string ConnectionString(string database);
 
@@ -21,18 +21,18 @@ namespace grate.unittests.TestInfrastructure
 
         DbConnection CreateAdminDbConnection() => GetDbConnection(AdminConnectionString);
         DbConnection CreateDbConnection(string database) => GetDbConnection(ConnectionString(database));
-        
+
         ISyntax Syntax { get; }
-        
-        Type DbExceptionType { get;  }
+
+        Type DbExceptionType { get; }
         ILogger Logger { get; }
         DatabaseType DatabaseType { get; }
         IDatabase DatabaseMigrator { get; }
-        
+
         SqlStatements Sql { get; }
         string DatabaseTypeName { get; }
         string MasterDatabase { get; }
-        
+
         string ExpectedVersionPrefix { get; }
 
         GrateMigrator GetMigrator(GrateConfiguration config);

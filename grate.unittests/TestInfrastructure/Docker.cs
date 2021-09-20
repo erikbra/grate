@@ -14,12 +14,12 @@ namespace grate.unittests.TestInfrastructure
             var findPortArgs = "inspect --format=\"{{range $p, $conf := .NetworkSettings.Ports}} {{(index $conf 0).HostPort}} {{end}}\" " + containerId;
 
             //TestContext.Progress.WriteLine("find port: " + findPortArgs);
-            
+
             var hostPortList = await RunDockerCommand(findPortArgs);
             var hostPort = hostPortList.Split(" ", StringSplitOptions.RemoveEmptyEntries).First();
             return (serverName, int.Parse(hostPort));
         }
-        
+
         public static async Task<(string containerId, int port)> StartSqlServer(string serverName, string adminPassword)
         {
             var startArgs =
@@ -30,21 +30,21 @@ namespace grate.unittests.TestInfrastructure
 
         public static async Task<(string containerId, int port)> StartOracle(string serverName, string adminPassword)
         {
-            var startArgs = 
+            var startArgs =
                 $"run -d --name {serverName} -e ORACLE_PWD={adminPassword} -e ORACLE_ALLOW_REMOTE=true -P store/oracle/database-enterprise:12.2.0.1";
-            
+
             return await StartDockerContainer(serverName, adminPassword, (_, _) => startArgs);
         }
-        
+
         public static async Task<(string containerId, int port)> StartPostgreSQL(string serverName, string adminPassword)
         {
             var startArgs =
                 $"run -d --name {serverName} -e POSTGRES_PASSWORD={adminPassword} -P postgres:latest";
-            
+
             return await StartDockerContainer(serverName, adminPassword, (_, _) => startArgs);
         }
-        
-        
+
+
         public static async Task<string> Delete(string container)
         {
             await RunDockerCommand($"stop {container}");
@@ -55,31 +55,31 @@ namespace grate.unittests.TestInfrastructure
         private static async Task<string> RunDockerCommand(string args)
         {
             //TestContext.Progress.WriteLine("args: " + args);
-            
+
             var proc = new Process
             {
                 StartInfo = new ProcessStartInfo("docker", args)
                 {
-                    RedirectStandardError = true, 
+                    RedirectStandardError = true,
                     RedirectStandardOutput = true
                 }
             };
-            
+
             proc.Start();
-            
+
             string errors = await proc.StandardError.ReadToEndAsync();
             if (!string.IsNullOrWhiteSpace(errors))
             {
                 await TestContext.Error.WriteLineAsync("Error: " + errors);
             }
-            
+
             string output = (await proc.StandardOutput.ReadToEndAsync()).Trim();
             //await TestContext.Progress.WriteLineAsync("Output: " + output);
-            
+
             await proc.WaitForExitAsync();
 
             return output;
         }
-        
+
     }
 }

@@ -2,8 +2,6 @@
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using grate.Commands;
@@ -25,7 +23,7 @@ namespace grate
         {
             var rootCommand = Create<MigrateCommand>();
             rootCommand.Add(Verbose());
-            
+
             rootCommand.Description = "The new grate - sql for the 20s";
 
             var parser = new CommandLineBuilder(rootCommand)
@@ -41,10 +39,10 @@ namespace grate
                 .UseParseErrorReporting()
                 .UseExceptionHandler()
                 .CancelOnProcessTermination()
-                .Build(); 
-            
+                .Build();
+
             var result = await parser.InvokeAsync(args);
-            
+
             await WaitForLoggerToFinish();
 
             return result;
@@ -69,18 +67,18 @@ namespace grate
         }
 
         private static void SetVerbose(bool verbose) => _verbose = verbose;
-        
+
         private static ServiceProvider BuildServiceProvider()
         {
             var services = new ServiceCollection();
-            
+
             services.AddCliCommands();
-            
+
             services.AddLogging(logging => logging.AddConsole(
                     options =>
                     {
                         options.FormatterName = GrateConsoleFormatter.FormatterName;
-                    }).SetMinimumLevel(_verbose ? LogLevel.Trace: LogLevel.Information)
+                    }).SetMinimumLevel(_verbose ? LogLevel.Trace : LogLevel.Information)
                 .AddConsoleFormatter<GrateConsoleFormatter, SimpleConsoleFormatterOptions>());
          
             services.AddTransient<IDbMigrator, DbMigrator>();
@@ -97,13 +95,13 @@ namespace grate
 
                 return fac;
             });
-             
-          
+
+
             return services.BuildServiceProvider();
         }
-        
-        private static Option<bool> Verbose() => new(new[] {"-v", "--verbose"}, "Verbose output");
-        
-        private static T Create<T>() where T: notnull => ServiceProvider.GetRequiredService<T>();
+
+        private static Option<bool> Verbose() => new(new[] { "-v", "--verbose" }, "Verbose output");
+
+        private static T Create<T>() where T : notnull => ServiceProvider.GetRequiredService<T>();
     }
 }

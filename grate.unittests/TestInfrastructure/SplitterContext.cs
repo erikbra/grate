@@ -1,8 +1,8 @@
-using grate.Infrastructure;
+﻿using grate.Infrastructure;
 
 namespace grate.unittests.TestInfrastructure
 {
-	public static class SplitterContext
+    public static class SplitterContext
     {
 
         public static class FullSplitter
@@ -98,7 +98,7 @@ INSERT [dbo].[Foo] ([Bar]) VALUES (N'Go speed racer, go speed racer, go speed ra
 
 GO";
 
-			public static string tsql_statement_scrubbed = @"
+            public static string tsql_statement_scrubbed = @"
 BOB1
 " + StatementSplitter.BatchTerminatorReplacementString + @"
 
@@ -187,10 +187,10 @@ INSERT [dbo].[Foo] ([Bar]) VALUES (N'hello--world.
 Thanks!')
 INSERT [dbo].[Foo] ([Bar]) VALUES (N'Go speed racer, go speed racer, go speed racer go!!!!! ')
 
-"+ StatementSplitter.BatchTerminatorReplacementString + @"";
+" + StatementSplitter.BatchTerminatorReplacementString + @"";
 
-        	public static string plsql_statement =
-				@"
+            public static string plsql_statement =
+                @"
 SQL1;
 ;
 SQL2;
@@ -203,7 +203,7 @@ INSERT into Table (columnname) values ("";"");
 UPDATE Table set columnname="";"";
 END;
 ";
-			public static string plsql_statement_scrubbed = @"
+            public static string plsql_statement_scrubbed = @"
 SQL1;
 " + StatementSplitter.BatchTerminatorReplacementString + @"
 SQL2;

@@ -18,7 +18,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             var db = TestConfig.RandomDatabase();
 
             GrateMigrator? migrator;
-            
+
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateDummySql(knownFolders.Permissions);
 
@@ -32,7 +32,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
             string[] scripts;
             string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
-            
+
             await using (var conn = Context.CreateDbConnection(Context.ConnectionString(db)))
             {
                 scripts = (await conn.QueryAsync<string>(sql)).ToArray();
@@ -40,21 +40,21 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
             scripts.Should().HaveCount(3);
         }
-        
+
         [Test]
         public async Task Are_recognized_by_script_name()
         {
             var db = TestConfig.RandomDatabase();
 
             GrateMigrator? migrator;
-            
+
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
 
             var folder = knownFolders.Up;// not an everytime folder
-            
-            CreateDummySql(folder); 
-            CreateEveryTimeScriptFile(folder); 
-            CreateOtherEveryTimeScriptFile(folder); 
+
+            CreateDummySql(folder);
+            CreateEveryTimeScriptFile(folder);
+            CreateOtherEveryTimeScriptFile(folder);
 
             for (var i = 0; i < 3; i++)
             {
@@ -66,7 +66,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
             string[] scripts;
             string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
-            
+
             await using (var conn = Context.CreateDbConnection(Context.ConnectionString(db)))
             {
                 scripts = (await conn.QueryAsync<string>(sql)).ToArray();
@@ -81,7 +81,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             var path = MakeSurePathExists(folder);
             WriteSql(path, "everytime.1_jalla.sql", dummySql);
         }
-        
+
         private void CreateOtherEveryTimeScriptFile(MigrationsFolder? folder)
         {
             var dummySql = Context.Sql.SelectCurrentDatabase;

@@ -62,7 +62,7 @@ namespace grate.unittests.Infrastructure
                 KnownFolders = KnownFolders.In(new DirectoryInfo(Path.GetTempPath()))
             };
 
-            
+
             var db = new SqlServerDatabase(NullLogger<SqlServerDatabase>.Instance);
             db.InitializeConnections(config);
 

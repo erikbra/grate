@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data.Common;
-using System.Linq;
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
@@ -15,18 +14,18 @@ namespace grate.unittests.TestInfrastructure
     {
         public string AdminPassword { get; set; } = default!;
         public int? Port { get; set; }
-        
+
         public string DockerCommand(string serverName, string adminPassword) =>
             $"run -d --name {serverName} -e ACCEPT_EULA=Y -e SA_PASSWORD={adminPassword} -e MSSQL_PID=Developer -e MSSQL_COLLATION=Danish_Norwegian_CI_AS -P mcr.microsoft.com/mssql/server:2017-latest";
-        
-        public string AdminConnectionString  => $"Data Source=localhost,{Port};Initial Catalog=master;User Id=sa;Password={AdminPassword}";
+
+        public string AdminConnectionString => $"Data Source=localhost,{Port};Initial Catalog=master;User Id=sa;Password={AdminPassword}";
         public string ConnectionString(string database) => $"Data Source=localhost,{Port};Initial Catalog={database};User Id=sa;Password={AdminPassword}";
 
         public DbConnection GetDbConnection(string connectionString) => new SqlConnection(connectionString);
 
         public ISyntax Syntax => new SqlServerSyntax();
         public Type DbExceptionType => typeof(SqlException);
-        
+
         public ILogger Logger => NullLogger();
         private static NullLogger<SqlServerDatabase> NullLogger() => new();
 
@@ -52,7 +51,7 @@ namespace grate.unittests.TestInfrastructure
 
             var dbMigrator = new DbMigrator(factory, new NullLogger<DbMigrator>(), new HashGenerator());
             var migrator = new GrateMigrator(new NullLogger<GrateMigrator>(), dbMigrator);
-            
+
             dbMigrator.ApplyConfig(config);
             return migrator;
         }
@@ -66,7 +65,7 @@ namespace grate.unittests.TestInfrastructure
         {
             var config = new GrateConfiguration()
             {
-                CreateDatabase = createDatabase, 
+                CreateDatabase = createDatabase,
                 ConnectionString = ConnectionString(databaseName),
                 AdminConnectionString = AdminConnectionString,
                 Version = "a.b.c.d",
@@ -80,7 +79,7 @@ namespace grate.unittests.TestInfrastructure
 
             return GetMigrator(config);
         }
-        
+
 
         public string ExpectedVersionPrefix => "Microsoft SQL Server 2017";
     }

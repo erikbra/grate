@@ -1,4 +1,4 @@
-namespace grate.unittests.TestInfrastructure
+﻿namespace grate.unittests.TestInfrastructure
 {
     public record SqlStatements
     {

@@ -19,14 +19,14 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             var scriptsDir = Directory.CreateDirectory(dummyFile);
             return scriptsDir;
         }
-        
+
         protected void CreateDummySql(MigrationsFolder? folder, string filename = "1_jalla.sql")
         {
             var dummySql = Context.Sql.SelectVersion;
             var path = MakeSurePathExists(folder);
             WriteSql(path, filename, dummySql);
         }
-        
+
         protected void WriteSomeOtherSql(MigrationsFolder? folder, string filename = "1_jalla.sql")
         {
             var dummySql = Context.Sql.SelectCurrentDatabase;

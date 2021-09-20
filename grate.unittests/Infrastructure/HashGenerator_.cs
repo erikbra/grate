@@ -1,4 +1,4 @@
-using grate.Infrastructure;
+﻿using grate.Infrastructure;
 using NUnit.Framework;
 
 namespace grate.unittests.Infrastructure

@@ -11,7 +11,7 @@ namespace grate.unittests.Generic
     public abstract class GenericSetupTestEnvironment
     {
         protected abstract IGrateTestContext Context { get; }
-        
+
         private string? _serverName;
         private string? _containerId;
         private readonly Random _random = new();
@@ -23,30 +23,30 @@ namespace grate.unittests.Generic
         private const string ServerNameAllowedChars = "abcdefghijklmnopqrstuvwxyz";
 
         private string GetServerName() =>
-            $"grate-{Context.DatabaseType.ToString()}-{_random.GetString(10, ServerNameAllowedChars)}";
+            $"grate-{Context.DatabaseType}-{_random.GetString(10, ServerNameAllowedChars)}";
 
         [OneTimeSetUp]
         public async Task RunBeforeAnyTests()
         {
             _serverName = GetServerName();
-            var password = 
-                _random.GetString(10, UpperCase) + 
+            var password =
+                _random.GetString(10, UpperCase) +
                 _random.GetString(10, LowerCase) +
                 _random.GetString(10, Digits);
-            
+
             //await TestContext.Out.WriteAsync($"Starting {Context.DatabaseTypeName} docker container: ");
             int port;
             (_containerId, port) = await Docker.StartDockerContainer(_serverName, password, Context.DockerCommand);
 
             Context.AdminPassword = password;
             Context.Port = port;
-            
+
             await TestContext.Progress.WriteLineAsync($"Started {Context.DatabaseTypeName} docker container: " + _containerId);
             await TestContext.Progress.WriteLineAsync("Listening on port: " + port);
-            
+
             await TestContext.Progress.WriteAsync("Waiting until server is ready");
-            var ready =  await WaitUntilServerIsReady();
-            
+            var ready = await WaitUntilServerIsReady();
+
             await TestContext.Progress.WriteLineAsync(ready ? "...ready." : "...gave up.");
         }
 
@@ -84,7 +84,7 @@ namespace grate.unittests.Generic
 
         private async Task<bool> ServerIsReady(bool swallowException)
         {
-            var sql = Context.Sql.SelectVersion;  
+            var sql = Context.Sql.SelectVersion;
 
             string? res;
 
@@ -99,12 +99,12 @@ namespace grate.unittests.Generic
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = sql;
 
-                res = (string?) await cmd.ExecuteScalarAsync();
+                res = (string?)await cmd.ExecuteScalarAsync();
                 ready = res?.StartsWith(Context.ExpectedVersionPrefix) ?? false;
             }
             catch (DbException) when (swallowException)
             {
-                
+
             }
 
             return ready;

@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Threading.Tasks;
 using FluentAssertions;
 using grate.unittests.TestInfrastructure;

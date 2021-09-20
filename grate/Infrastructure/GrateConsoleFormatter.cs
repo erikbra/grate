@@ -7,11 +7,11 @@ using Microsoft.Extensions.Options;
 
 namespace grate.Infrastructure
 {
-    public class GrateConsoleFormatter: ConsoleFormatter, IDisposable
+    public class GrateConsoleFormatter : ConsoleFormatter, IDisposable
     {
         public const string FormatterName = "grate-output";
         private readonly IDisposable? _optionsReloadToken;
-        
+
         public GrateConsoleFormatter(IOptionsMonitor<SimpleConsoleFormatterOptions>? options) : base(FormatterName)
         {
             if (options != null)
@@ -28,10 +28,10 @@ namespace grate.Infrastructure
             {
                 return;
             }
-        
+
             CreateDefaultLogMessage(textWriter, logEntry, message);
         }
-        
+
         private void ReloadLoggerOptions(SimpleConsoleFormatterOptions options)
         {
             FormatterOptions = options;
@@ -42,17 +42,18 @@ namespace grate.Infrastructure
         public void Dispose()
         {
             _optionsReloadToken?.Dispose();
+            GC.SuppressFinalize(this);
         }
-        
-        private void CreateDefaultLogMessage<TState>(TextWriter textWriter, in LogEntry<TState> logEntry, string? message)
+
+        private static void CreateDefaultLogMessage<TState>(TextWriter textWriter, in LogEntry<TState> logEntry, string? message)
         {
             Exception? exception = logEntry.Exception;
-            
+
             LogLevel logLevel = logEntry.LogLevel;
             ConsoleColors logLevelColors = GetLogLevelConsoleColors(logLevel);
-        
+
             textWriter.WriteColoredMessageLine(message, logLevelColors.Background, logLevelColors.Foreground);
-        
+
             if (exception != null)
             {
                 textWriter.WriteColoredMessageLine(exception.ToString(), logLevelColors.Background, logLevelColors.Foreground);
@@ -60,15 +61,15 @@ namespace grate.Infrastructure
             textWriter.Flush();
         }
 
-        private ConsoleColors GetLogLevelConsoleColors(LogLevel logLevel)
+        private static ConsoleColors GetLogLevelConsoleColors(LogLevel logLevel)
         {
             bool disableColors = Console.IsOutputRedirected;
-            
+
             if (disableColors)
             {
                 return ConsoleColors.None;
             }
-            
+
             // We must explicitly set the background color if we are setting the foreground color,
             // since just setting one can look bad on the users console.
             return logLevel switch
@@ -82,8 +83,8 @@ namespace grate.Infrastructure
                 _ => ConsoleColors.None
             };
         }
-        
-        
+
+
         private readonly struct ConsoleColors
         {
             public ConsoleColors(GrateConsoleColor foreground, GrateConsoleColor background)
@@ -91,11 +92,11 @@ namespace grate.Infrastructure
                 Foreground = foreground;
                 Background = background;
             }
-        
+
             public GrateConsoleColor Foreground { get; }
             public GrateConsoleColor Background { get; }
 
-            public static ConsoleColors None => new ConsoleColors();
+            public static ConsoleColors None => new();
         }
     }
 }
