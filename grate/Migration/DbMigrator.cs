@@ -182,14 +182,11 @@ namespace grate.Migration
             return Database.InsertScriptRunError(scriptName, sql, errorSql, errorMessage, versionId);
         }
 
-        public ValueTask DisposeAsync()
+        public async ValueTask DisposeAsync()
         {
             // Allow the dbase to clean itself up
-            Database.Dispose();
-            
+            await Database.DisposeAsync();
             GC.SuppressFinalize(this);
-
-            return ValueTask.CompletedTask;
         }
     }
 }

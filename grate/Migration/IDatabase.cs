@@ -4,7 +4,7 @@ using grate.Configuration;
 
 namespace grate.Migration
 {
-    public interface IDatabase : IDisposable
+    public interface IDatabase : IAsyncDisposable
     {
         string? ServerName { get; }
         string? DatabaseName { get; }

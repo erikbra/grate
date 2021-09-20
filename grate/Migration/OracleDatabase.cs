@@ -98,7 +98,7 @@ namespace grate.Migration
             throw new System.NotImplementedException();
         }
 
-        public void Dispose()
+        public ValueTask DisposeAsync()
         {
             throw new System.NotImplementedException();
         }
