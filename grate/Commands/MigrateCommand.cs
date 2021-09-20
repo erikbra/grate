@@ -31,6 +31,7 @@ namespace grate.Commands
             Add(Silent());
             Add(Version());
             Add(Drop());
+            Add(Tokens());
 
             Handler = CommandHandler.Create(
                 async (GrateConfiguration config) =>
@@ -146,10 +147,17 @@ namespace grate.Commands
             new(
                 new[] { "--version" }, // we can't use --version as it conflicts with the standard option
                 "Database Version - specify the version of the current migration directly on the command line."
-            );
-
+             );
+             
         private static Option<bool> Drop() =>
             new(new[] { "--drop" },
-                "Drop - This instructs grate to remove the target database.  Unlike RoundhousE grate will continue to run the migration scripts after the drop.");
+                "Drop - This instructs grate to remove the target database.  Unlike RoundhousE grate will continue to run the migration scripts after the drop."
+            );
+
+        private static Option<bool> Tokens() =>
+            new(
+                new[] { "--disabletokenreplacement", "--disabletokens" },
+                "Tokens - This instructs grate to not perform token replacement ({{somename}}). Defaults to false."
+            );
     }
 }

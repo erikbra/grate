@@ -1,0 +1,45 @@
+# This is alight weight build and test, suitable for rapid checks of commits on feature branches etc.
+name: CI
+
+on: 
+  push: # Trigger on pushes to feature branches for safety before a PR
+    branches-ignore:
+      - main # don't run on main (build.yml handles that)
+
+jobs:
+  build-netcore-tool:
+    name: Build .NET Core (global) tool
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+        include-prerelease: true
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      #run: dotnet pack ./grate/grate.csproj -c release -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
+      run: dotnet pack ./grate/grate.csproj -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
+
+  test:
+    name: Run tests
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB" ]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+        include-prerelease: true
+    - name: Test
+      run: dotnet test --filter Category=${{ matrix.category }} -c Release --logger:"junit;LogFilePath=test-results-${{ matrix.category }}.xml"
+#      run:  dotnet test --verbosity Normal -c Release --logger "trx;LogFileName=/tmp/test-results/grate.unittests.trx"

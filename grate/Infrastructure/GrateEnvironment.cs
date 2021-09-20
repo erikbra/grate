@@ -5,6 +5,9 @@ namespace grate.Infrastructure
 {
     public class GrateEnvironment
     {
+        /// <summary>
+        /// The name of the Environment
+        /// </summary>
         public string Current { get; }
         private const string EnvironmentMarker = ".ENV.";
 

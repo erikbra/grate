@@ -37,6 +37,8 @@ namespace grate.Migration
             StatementSplitter = new StatementSplitter(Database.StatementSeparatorRegex);
         }
 
+        public async Task<bool> DatabaseExists() => await Database.DatabaseExists();
+
         public async Task<bool> CreateDatabase()
         {
             if (Configuration.CreateDatabase)
@@ -72,7 +74,7 @@ namespace grate.Migration
 
             async Task LogAndRunSql()
             {
-                _logger.LogInformation(" {3} {0} on {1} - {2}.", scriptName, Database.ServerName, Database.DatabaseName, "Running");
+                _logger.LogInformation(" Running {scriptName} on {serverName} - {databaseName}.", scriptName, Database.ServerName, Database.DatabaseName);
                 await RunTheActualSql(sql, scriptName, migrationType, versionId, connectionType);
                 theSqlRun = true;
             }
@@ -82,8 +84,15 @@ namespace grate.Migration
                 return false;
             }
 
+            // the scripts are stored in the databse with tokens replaced. This means we need to do any token work _before_ we start checking hashes etc
+            if (TokenReplacementEnabled)
+            {
+                sql = ReplaceTokensIn(sql);
+            }
+
             if (await ThisScriptIsAlreadyRun(scriptName) && !IsEverytimeScript(scriptName, migrationType))
             {
+
                 if (await ScriptChanged(scriptName, sql))
                 {
                     switch (migrationType)
@@ -134,6 +143,25 @@ namespace grate.Migration
         }
 
         private Task<bool> ThisScriptIsAlreadyRun(string scriptName) => Database.HasRun(scriptName);
+
+
+        /// <summary>
+        /// Lazily initialised only if needed.
+        /// </summary>
+        private Dictionary<string, string?>? _tokens;
+        private string ReplaceTokensIn(string sql)
+        {
+            if (_tokens == null)
+            {
+                _tokens = new TokenProvider(Configuration, Database).GetTokens();
+            }
+            
+            return TokenReplacer.ReplaceTokens(_tokens, sql);
+        }
+
+        private bool TokenReplacementEnabled => !Configuration.DisableTokenReplacement;
+
+
 
         private async Task RunTheActualSql(
             string sql,
@@ -189,14 +217,11 @@ namespace grate.Migration
             return Database.InsertScriptRunError(scriptName, sql, errorSql, errorMessage, versionId);
         }
 
-        public ValueTask DisposeAsync()
+        public async ValueTask DisposeAsync()
         {
             // Allow the dbase to clean itself up
-            Database.Dispose();
-            
+            await Database.DisposeAsync();
             GC.SuppressFinalize(this);
-
-            return ValueTask.CompletedTask;
         }
     }
 }

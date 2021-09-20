@@ -1,12 +1,15 @@
+# Heavyweight build and test
 name: Build
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
-
+  
 jobs:
   build-netcore-tool:
     name: Build .NET Core (global) tool

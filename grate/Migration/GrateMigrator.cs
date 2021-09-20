@@ -18,6 +18,8 @@ namespace grate.Migration
         private readonly ILogger<GrateMigrator> _logger;
         private readonly IDbMigrator _migrator;
 
+        public IDbMigrator DbMigrator => _migrator;
+
         public GrateMigrator(ILogger<GrateMigrator> logger, IDbMigrator migrator)
         {
             _logger = logger;
@@ -189,8 +191,7 @@ namespace grate.Migration
         private static async Task<bool> CreateDatabaseIfItDoesNotExist(IDbMigrator dbMigrator)
         {
             bool databaseCreated;
-            // Try to connect to database. If it exists already, don't bother trying to open an admin connection
-            if (await DatabaseAlreadyExists(dbMigrator))
+            if (await dbMigrator.DatabaseExists())
             {
                 databaseCreated = false;
             }
@@ -201,23 +202,6 @@ namespace grate.Migration
                 await dbMigrator.CloseAdminConnection();
             }
             return databaseCreated;
-        }
-
-        private static async Task<bool> DatabaseAlreadyExists(IDbMigrator dbMigrator)
-        {
-            try
-            {
-                await dbMigrator.OpenConnection();
-                return true;
-            }
-            catch (DbException)
-            {
-                return false;
-            }
-            finally
-            {
-                await dbMigrator.CloseConnection();
-            }
         }
 
         private async Task LogAndProcess(MigrationsFolder folder, string changeDropFolder, long versionId, string newVersion, ConnectionType connectionType)

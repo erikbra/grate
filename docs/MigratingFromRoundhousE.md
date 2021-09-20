@@ -4,14 +4,15 @@
 
 # Changes compared to RoundhousE
 
-There's a number of general changes in grate as a result of moving to the latest .Net bits that will apply to all users
+There's a number of general changes in grate as a result of moving to the latest .Net bits that will apply to all users.
 
 grate is built using the new [`System.CommandLine`](https://github.com/dotnet/command-line-api) API's, so:
 - Command line arguments are now **case-sensitive** on all operating systems (including windows)
 - Support for `/argument` on windows has been removed, and you'll have to use `-a` or `--argument` instead.  See `grate --help` for the full set of allowed options.
 
 - By default grate stores version information in the `grate` database schema.  To continue using your existing version information pass `--schema=RoundhousE`
-- grate has a single mandatory `-cs`/`--connstring` argument for simplicity.  RH's `--database`, `--server`, `--accesstoken` etc arguments are now longer supported.
+- grate has a single mandatory `-cs`/`--connstring` argument for simplicity.  RH's `--database`, `--server`, `--accesstoken` etc arguments are now longer allowed.
+- Not all previously supported tokens are available yet.  For the current set of supported tokens please see [the `TokenProvider` class](../grate/infrastructure/TokenProvider.cs).
 - The `DropCreate` mode and the `--drop` option have been merged.  grate uses the `--drop` option only, but **it operates like `DropCreate`**! If you have a scenario for dropping a database but _not_ then running a migration, please open an issue!
 
 
@@ -33,7 +34,7 @@ Expect this list to shrink over time.
 - `--runallanytimescripts`
 - Recovery Modes (`--simple`, `--recoverymode` etc)
 - Restore Options (`--restorefrompath`, `--restoreoptions`, `--restoretimeout` etc)
-- Token Replacement (`--disabletokens`, `--usertokens` etc)
+- User Token Replacement (`--usertokens`)
 - Version info sourced from a file.  `--version=<VALUE>` support is available on the command line
 - `--warnononetimescriptchanges`, `--warnandignoreonetimescriptchanges`
 

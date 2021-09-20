@@ -52,14 +52,17 @@ namespace grate.Migration
         {
             throw new System.NotImplementedException();
         }
+        
         public Task DropDatabase()
         {
             throw new System.NotImplementedException();
         }
+        
         public Task<bool> DatabaseExists()
         {
             throw new System.NotImplementedException();
         }
+        
         public Task RunSupportTasks()
         {
             throw new System.NotImplementedException();
@@ -105,7 +108,7 @@ namespace grate.Migration
             throw new System.NotImplementedException();
         }
 
-        public void Dispose()
+        public ValueTask DisposeAsync()
         {
             throw new System.NotImplementedException();
         }
