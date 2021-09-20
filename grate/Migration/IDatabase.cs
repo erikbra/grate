@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using grate.Configuration;
 
 namespace grate.Migration
 {
-    public interface IDatabase
+    public interface IDatabase : IDisposable
     {
         string? ServerName { get; }
         string? DatabaseName { get; }

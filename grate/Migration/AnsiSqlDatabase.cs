@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 
 namespace grate.Migration
 {
-    public abstract class AnsiSqlDatabase : IDatabase, IDisposable
+    public abstract class AnsiSqlDatabase : IDatabase
     {
         private string SchemaName { get; set; } = "";
         private readonly ILogger _logger;
@@ -320,7 +320,7 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
                     enteredBy = ClaimsPrincipal.Current?.Identity?.Name ?? Environment.UserName
                 });
 
-            _logger.LogInformation(" Versioning {0} database with version {1}.", DatabaseName, newVersion);
+            _logger.LogInformation(" Versioning {dbName} database with version {version}.", DatabaseName, newVersion);
 
             return res;
         }
@@ -333,7 +333,7 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
 
         public async Task RunSql(string sql, ConnectionType connectionType)
         {
-            _logger.LogDebug("[SQL] Running (on connection '{0}'): {1}{2}", connectionType.ToString(), Environment.NewLine, sql);
+            _logger.LogDebug("[SQL] Running (on connection '{connType}'): " + Environment.NewLine + "{sql}", connectionType.ToString(), sql);
 
             var conn = connectionType switch
             {
@@ -458,7 +458,20 @@ VALUES ((SELECT version FROM {VersionTable} WHERE id = @versionId), @scriptName,
 
         public void Dispose()
         {
-            Connection.Dispose();
+            // Don't use the properties, they can open a connection just to dispose it!
+            if (_connection != null)
+            {
+                _connection.Dispose();
+                _connection = null;
+            }
+
+            if (_adminConnection != null)
+            {
+                _adminConnection.Dispose();
+                _adminConnection = null;
+            }
+
+            GC.SuppressFinalize(this);
         }
     }
 }
