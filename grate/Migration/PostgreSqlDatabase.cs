@@ -1,4 +1,4 @@
-using System.Data.Common;
+﻿using System.Data.Common;
 using grate.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Npgsql;

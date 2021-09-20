@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data.Common;
-using System.Linq;
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
@@ -15,18 +14,18 @@ namespace grate.unittests.TestInfrastructure
     {
         public string AdminPassword { get; set; } = default!;
         public int? Port { get; set; }
-        
+
         public string DockerCommand(string serverName, string adminPassword) =>
             $"run -d --name {serverName} -e POSTGRES_PASSWORD={adminPassword} -P postgres:latest";
-        
-        public string AdminConnectionString  => $"Host=localhost;Port={Port};Database=postgres;Username=postgres;Password={AdminPassword};Include Error Detail=true";
-        public string ConnectionString(string database) => $"Host=localhost;Port={Port};Database={database};Username=postgres;Password={AdminPassword};Include Error Detail=true";
+
+        public string AdminConnectionString => $"Host=localhost;Port={Port};Database=postgres;Username=postgres;Password={AdminPassword}";
+        public string ConnectionString(string database) => $"Host=localhost;Port={Port};Database={database};Username=postgres;Password={AdminPassword}";
 
         public DbConnection GetDbConnection(string connectionString) => new NpgsqlConnection(connectionString);
 
         public ISyntax Syntax => new PostgreSqlSyntax();
         public Type DbExceptionType => typeof(PostgresException);
-        
+
         public ILogger Logger => NullLogger();
         private static NullLogger<PostgreSqlDatabase> NullLogger() => new();
 
@@ -52,7 +51,7 @@ namespace grate.unittests.TestInfrastructure
 
             var dbMigrator = new DbMigrator(factory, new NullLogger<DbMigrator>(), new HashGenerator());
             var migrator = new GrateMigrator(new NullLogger<GrateMigrator>(), dbMigrator);
-            
+
             dbMigrator.ApplyConfig(config);
             return migrator;
         }
@@ -66,7 +65,7 @@ namespace grate.unittests.TestInfrastructure
         {
             var config = new GrateConfiguration()
             {
-                CreateDatabase = createDatabase, 
+                CreateDatabase = createDatabase,
                 ConnectionString = ConnectionString(databaseName),
                 AdminConnectionString = AdminConnectionString,
                 Version = "a.b.c.d",
@@ -80,7 +79,7 @@ namespace grate.unittests.TestInfrastructure
 
             return GetMigrator(config);
         }
-        
+
 
         public string ExpectedVersionPrefix => "PostgreSQL 13.";
     }

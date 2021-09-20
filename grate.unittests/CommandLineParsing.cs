@@ -28,7 +28,7 @@ namespace grate.unittests
 
             cfg?.ConnectionString.Should().Be(database);
         }
-        
+
         [TestCase("-a ")]
         [TestCase("-acs ")]
         [TestCase("-csa ")]
@@ -44,7 +44,7 @@ namespace grate.unittests
 
             cfg?.AdminConnectionString.Should().Be(database);
         }
-        
+
         [TestCase("-f ")]
         [TestCase("--files=")]
         [TestCase("--sqlfilesdirectory=")]
@@ -56,7 +56,7 @@ namespace grate.unittests
 
             cfg?.SqlFilesDirectory?.ToString().Should().Be(database);
         }
-        
+
         [TestCase("-o ")]
         [TestCase("--output ")]
         [TestCase("--output=")]
@@ -70,7 +70,7 @@ namespace grate.unittests
 
             cfg?.OutputPath?.ToString().Should().Be(database);
         }
-        
+
         [TestCase("--version=")]
         [TestCase("--version ")]
         public async Task Version(string argName)
@@ -81,7 +81,7 @@ namespace grate.unittests
 
             cfg?.Version.Should().Be(version);
         }
-        
+
         [TestCase("-ct ")]
         [TestCase("--commandtimeout=")]
         public async Task CommandTimeout(string argName)
@@ -112,7 +112,7 @@ namespace grate.unittests
 
             cfg?.AdminCommandTimeout.Should().Be(timeout);
         }
-        
+
         [TestCase("-t")]
         [TestCase("--trx")]
         [TestCase("--transaction")]
@@ -123,7 +123,7 @@ namespace grate.unittests
 
             cfg?.Transaction.Should().Be(true);
         }
-        
+
         [TestCase("-t 0")]
         [TestCase("--trx false")]
         [TestCase("--transaction false")]
@@ -135,7 +135,7 @@ namespace grate.unittests
 
             cfg?.Transaction.Should().Be(false);
         }
-        
+
         [TestCase("--env KASHMIR", "KASHMIR")]
         [TestCase("--environment JALLA", "JALLA")]
         public async Task Environment(string argName, string expected)
@@ -144,10 +144,10 @@ namespace grate.unittests
             var cfg = await ParseGrateConfiguration(commandline);
 
             var expectedEnvironment = new GrateEnvironment(expected);
-            
+
             cfg?.Environment.Should().BeEquivalentTo(expectedEnvironment);
         }
-        
+
         [TestCase("", "grate")]
         [TestCase("--sc RoundhousE", "RoundhousE")]
         [TestCase("--schema SquareHouse", "SquareHouse")]
@@ -159,7 +159,7 @@ namespace grate.unittests
 
             cfg?.SchemaName.Should().Be(expected);
         }
-        
+
         [TestCase("", false)]
         [TestCase("--silent true", true)]
         [TestCase("--silent", true)]
@@ -177,14 +177,14 @@ namespace grate.unittests
 
             cfg?.Silent.Should().Be(expected);
         }
-        
+
         [Test]
         public async Task WithoutTransaction_Default()
         {
             var cfg = await ParseGrateConfiguration("");
             cfg?.Transaction.Should().Be(false);
         }
-        
+
 
         private static async Task<GrateConfiguration?> ParseGrateConfiguration(string commandline)
         {

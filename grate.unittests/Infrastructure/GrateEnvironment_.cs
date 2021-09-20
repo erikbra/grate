@@ -17,7 +17,7 @@ namespace grate.unittests.Infrastructure
 
             env.ShouldRun(file).Should().BeTrue();
         }
-        
+
         [Test]
         public void Detects_environment_marker_in_start_of_filename()
         {
@@ -26,7 +26,7 @@ namespace grate.unittests.Infrastructure
 
             env.ShouldRun(file).Should().BeTrue();
         }
-        
+
         [Test]
         public void Detects_environment_marker_in_middle_of_filename()
         {
@@ -35,7 +35,7 @@ namespace grate.unittests.Infrastructure
 
             env.ShouldRun(file).Should().BeTrue();
         }
-        
+
         [Test]
         public void Detects_environment_marker_in_end_of_filename()
         {
@@ -44,7 +44,7 @@ namespace grate.unittests.Infrastructure
 
             env.ShouldRun(file).Should().BeTrue();
         }
-        
+
         [Test]
         public void Does_not_run_for_other_environments()
         {
@@ -53,10 +53,11 @@ namespace grate.unittests.Infrastructure
 
             env.ShouldRun(file).Should().BeFalse();
         }
-        
-        private static string FullPath(string fileName) {
+
+        private static string FullPath(string fileName)
+        {
             return Path.Combine(Path.GetTempPath(), fileName);
         }
-        
+
     }
 }

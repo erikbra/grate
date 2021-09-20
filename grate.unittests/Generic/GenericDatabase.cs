@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.Threading.Tasks;
@@ -30,10 +30,8 @@ namespace grate.unittests.Generic
             
             using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
-                await using (var conn = Context.CreateAdminDbConnection()) 
-                {
-                    databases = await conn.QueryAsync<string>(sql);
-                }
+                await using var conn = Context.CreateAdminDbConnection();
+                databases = await conn.QueryAsync<string>(sql);
             }
             databases.Should().Contain(db);
         }
@@ -54,10 +52,8 @@ namespace grate.unittests.Generic
             string? sql = Context.Sql.SelectAllDatabases;
             using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
-                await using (var conn = Context.CreateAdminDbConnection())
-                {
-                    databases = await conn.QueryAsync<string>(sql);
-                }
+                await using var conn = Context.CreateAdminDbConnection();
+                databases = await conn.QueryAsync<string>(sql);
             }
             databases.Should().NotContain(db);
         }
@@ -72,13 +68,11 @@ namespace grate.unittests.Generic
             // Create the database manually before running the migration
             using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
-                await using (var conn = Context.CreateAdminDbConnection())
-                {
-                    conn.Open();
-                    await using var cmd = conn.CreateCommand();
-                    cmd.CommandText = $"CREATE DATABASE {db}";
-                    await cmd.ExecuteNonQueryAsync();
-                }
+                await using var conn = Context.CreateAdminDbConnection();
+                conn.Open();
+                await using var cmd = conn.CreateCommand();
+                cmd.CommandText = $"CREATE DATABASE {db}";
+                await cmd.ExecuteNonQueryAsync();
             }
             
             // Check that the database has been created
@@ -89,10 +83,8 @@ namespace grate.unittests.Generic
                 {
                     try
                     {
-                        await using (var conn =  Context.CreateAdminDbConnection())
-                        {
-                            databasesBeforeMigration = await conn.QueryAsync<string>(selectDatabasesSql);
-                        }
+                        await using var conn = Context.CreateAdminDbConnection();
+                        databasesBeforeMigration = await conn.QueryAsync<string>(selectDatabasesSql);
                         break;
                     }
                     catch (DbException) { }
@@ -120,13 +112,11 @@ namespace grate.unittests.Generic
                 {
                     try
                     {
-                        await using (var conn = Context.CreateAdminDbConnection())  
-                        {
-                            conn.Open();
-                            await using var cmd = conn.CreateCommand();
-                            cmd.CommandText = $"CREATE DATABASE {db}";
-                            await cmd.ExecuteNonQueryAsync();
-                        }
+                        await using var conn = Context.CreateAdminDbConnection();
+                        conn.Open();
+                        await using var cmd = conn.CreateCommand();
+                        cmd.CommandText = $"CREATE DATABASE {db}";
+                        await cmd.ExecuteNonQueryAsync();
                         break;
                     }
                     catch (DbException) { }
@@ -137,10 +127,8 @@ namespace grate.unittests.Generic
             IEnumerable<string> databasesBeforeMigration;
             using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
-                await using (var conn = Context.CreateAdminDbConnection()) 
-                {
-                    databasesBeforeMigration = await conn.QueryAsync<string>(selectDatabasesSql);
-                }
+                await using var conn = Context.CreateAdminDbConnection();
+                databasesBeforeMigration = await conn.QueryAsync<string>(selectDatabasesSql);
             }
             databasesBeforeMigration.Should().Contain(db);
             

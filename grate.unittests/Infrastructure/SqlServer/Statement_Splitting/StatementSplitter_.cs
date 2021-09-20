@@ -28,6 +28,6 @@ SELECT 1
 
             batches.Should().HaveCount(2);
         }
-        
+
     }
 }

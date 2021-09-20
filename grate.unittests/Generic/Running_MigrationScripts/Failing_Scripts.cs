@@ -1,4 +1,4 @@
-using System.Data.Common;
+﻿using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -12,20 +12,20 @@ using NUnit.Framework;
 namespace grate.unittests.Generic.Running_MigrationScripts
 {
     [TestFixture]
-    public abstract class Failing_Scripts: MigrationsScriptsBase
+    public abstract class Failing_Scripts : MigrationsScriptsBase
     {
         protected abstract string ExpextedErrorMessageForInvalidSql { get; }
-        
+
         [Test]
         public async Task Aborts_the_run_giving_an_error_message()
         {
             var db = TestConfig.RandomDatabase();
 
             GrateMigrator? migrator;
-            
+
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateInvalidSql(knownFolders.Up);
-            
+
             await using (migrator = Context.GetMigrator(db, true, knownFolders))
             {
                 var ex = Assert.ThrowsAsync(Context.DbExceptionType, migrator.Migrate);
@@ -39,10 +39,10 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             var db = TestConfig.RandomDatabase();
 
             GrateMigrator? migrator;
-            
+
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateInvalidSql(knownFolders.Up);
-            
+
             await using (migrator = Context.GetMigrator(db, true, knownFolders))
             {
                 try
@@ -59,15 +59,13 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
             using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
-                await using (var conn = Context.CreateDbConnection(Context.ConnectionString(db)))
-                {
-                    scripts = (await conn.QueryAsync<string>(sql)).ToArray();
-                }
+                await using var conn = Context.CreateDbConnection(Context.ConnectionString(db));
+                scripts = (await conn.QueryAsync<string>(sql)).ToArray();
             }
 
             scripts.Should().HaveCount(1);
         }
-        
+
         // This does not work for MySql/MariaDB, as it does not support DDL transactions
         // [Test]
         // public async Task Makes_Whole_Transaction_Rollback()
@@ -101,7 +99,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
         //
         //     scripts.Should().BeEmpty();
         // }
-        
+
         private static void CreateInvalidSql(MigrationsFolder? folder)
         {
             var dummySql = "SELECT TOP";
