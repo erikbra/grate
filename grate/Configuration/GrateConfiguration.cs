@@ -64,7 +64,7 @@ namespace grate.Configuration
         public int AdminCommandTimeout { get; init; }
         public bool Silent => NonInteractive;
         public bool NonInteractive { get; init; }
-      
+
         /// <summary>
         /// This instructs grate to not perform token replacement {{somename}}. Defaults to false.
         /// </summary>
@@ -74,8 +74,12 @@ namespace grate.Configuration
         /// Whether to drop the database prior to migration or not.
         /// </summary>
         public bool Drop { get; init; }
-      
-        //private static KnownFolders InCurrentDirectory() => KnownFolders.In(CurrentDirectory);
+
+        /// <summary>
+        /// The set of user-provided "key=value" pairs for use in token replacement.
+        /// </summary>
+        public IEnumerable<string>? UserTokens { get; init; }
+
         private static DirectoryInfo CurrentDirectory => new(Directory.GetCurrentDirectory());
     }
 }

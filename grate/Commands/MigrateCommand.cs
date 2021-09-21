@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
@@ -32,6 +33,7 @@ namespace grate.Commands
             Add(Version());
             Add(Drop());
             Add(Tokens());
+            Add(UserTokens());
 
             Handler = CommandHandler.Create(
                 async (GrateConfiguration config) =>
@@ -158,6 +160,12 @@ namespace grate.Commands
             new(
                 new[] { "--disabletokenreplacement", "--disabletokens" },
                 "Tokens - This instructs grate to not perform token replacement ({{somename}}). Defaults to false."
+            );
+
+        private static Option<IEnumerable<string>> UserTokens() =>
+            new(
+                new[] { "--ut", "--usertoken" },
+                "User Tokens - Allows grate to perform token replacement on custom tokens ({{my_token}}). Set as a key=value pair, eg '--ut=my_token=myvalue'. Can be specified multiple times."
             );
     }
 }
