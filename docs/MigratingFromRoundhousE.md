@@ -36,7 +36,7 @@ Expect this list to shrink over time.
 - Restore Options (`--restorefrompath`, `--restoreoptions`, `--restoretimeout` etc)
 - User Token Replacement (`--usertokens`)
 - Version info sourced from a file.  `--version=<VALUE>` support is available on the command line
-- `--warnononetimescriptchanges`, `--warnandignoreonetimescriptchanges`
+- `--warnandignoreonetimescriptchanges`
 
 
 
