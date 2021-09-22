@@ -83,7 +83,7 @@ namespace grate.Migration
                 return false;
             }
 
-            // the scripts are stored in the databse with tokens replaced. This means we need to do any token work _before_ we start checking hashes etc
+            // the scripts are stored in the database with tokens replaced. This means we need to do any token work _before_ we start checking hashes etc
             if (TokenReplacementEnabled)
             {
                 sql = ReplaceTokensIn(sql);
@@ -97,7 +97,13 @@ namespace grate.Migration
                     switch (migrationType)
                     {
                         case MigrationType.Once:
-                            await OneTimeScriptChanged(sql, scriptName, versionId);
+                            // A few scenarios here: error, warn and run, warn and ignore but update hash
+                            
+                            if (await OnOneTimeScriptChanged(sql, scriptName, versionId))
+                            {
+                                await LogAndRunSql();
+                            } // else {update hash}
+
                             break;
                         case MigrationType.AnyTime:
                         case MigrationType.EveryTime:
@@ -191,16 +197,34 @@ namespace grate.Migration
 
         private IEnumerable<string> GetStatements(string sql) => StatementSplitter.Split(sql);
 
-        private async Task OneTimeScriptChanged(string sql, string scriptName, long versionId)
+        /// <summary>
+        /// Returns whether to execute the script even though it has changed.  
+        /// Throws an exception if this script change is a failure scenario.
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="scriptName"></param>
+        /// <param name="versionId"></param>
+        /// <returns></returns>
+        /// <exception cref="OneTimeScriptChanged"></exception>
+        private async Task<bool> OnOneTimeScriptChanged(string sql, string scriptName, long versionId)
         {
-            Database.Rollback();
-            Transaction.Current?.Dispose();
+            if (Configuration.WarnOnOneTimeScriptChanges)
+            {
+                _logger.LogWarning("{scriptName} is a one time script that has changed since it was run.", scriptName);
+                _logger.LogDebug("Running script anyway due to WarnOnOneTimeScriptChanges option being set.");
+                return true;
+            } // TODO: WarnAndIGnoreOnChange - return false
+            else
+            {
+                Database.Rollback();
+                Transaction.Current?.Dispose();
 
-            string errorMessage =
-                $"{scriptName} has changed since the last time it was run. By default this is not allowed - scripts that run once should never change. To change this behavior to a warning, please set warnOnOneTimeScriptChanges to true and run again. Stopping execution.";
-            await RecordScriptInScriptsRunErrorsTable(scriptName, sql, sql, errorMessage, versionId);
-            await Database.CloseConnection();
-            throw new OneTimeScriptChanged(errorMessage);
+                string errorMessage =
+                    $"{scriptName} has changed since the last time it was run. By default this is not allowed - scripts that run once should never change. To change this behavior to a warning, please set warnOnOneTimeScriptChanges to true and run again. Stopping execution.";
+                await RecordScriptInScriptsRunErrorsTable(scriptName, sql, sql, errorMessage, versionId);
+                await Database.CloseConnection();
+                throw new OneTimeScriptChanged(errorMessage);
+            }
         }
 
         private Task RecordScriptInScriptsRunTable(string scriptName, string sql, MigrationType migrationType, long versionId)

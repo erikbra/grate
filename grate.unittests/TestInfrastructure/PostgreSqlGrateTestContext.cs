@@ -4,13 +4,12 @@ using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Npgsql;
 using NSubstitute;
 
 namespace grate.unittests.TestInfrastructure
 {
-    class PostgreSqlGrateTestContext : IGrateTestContext
+    class PostgreSqlGrateTestContext : TestContextBase, IGrateTestContext
     {
         public string AdminPassword { get; set; } = default!;
         public int? Port { get; set; }
@@ -26,14 +25,11 @@ namespace grate.unittests.TestInfrastructure
         public ISyntax Syntax => new PostgreSqlSyntax();
         public Type DbExceptionType => typeof(PostgresException);
 
-        public ILogger Logger => NullLogger();
-        private static NullLogger<PostgreSqlDatabase> NullLogger() => new();
-
         public DatabaseType DatabaseType => DatabaseType.postgresql;
         public string DatabaseTypeName => "PostgreSQL";
         public string MasterDatabase => "postgres";
 
-        public IDatabase DatabaseMigrator => new PostgreSqlDatabase(NullLogger());
+        public IDatabase DatabaseMigrator => new PostgreSqlDatabase(LogFactory.CreateLogger<PostgreSqlDatabase>());
 
         public SqlStatements Sql => new()
         {
@@ -47,10 +43,10 @@ namespace grate.unittests.TestInfrastructure
         {
             var factory = Substitute.For<IFactory>();
             factory.GetService<DatabaseType, IDatabase>(DatabaseType)
-                .Returns(new PostgreSqlDatabase(NullLogger()));
+                .Returns(new PostgreSqlDatabase(LogFactory.CreateLogger<PostgreSqlDatabase>()));
 
-            var dbMigrator = new DbMigrator(factory, new NullLogger<DbMigrator>(), new HashGenerator());
-            var migrator = new GrateMigrator(new NullLogger<GrateMigrator>(), dbMigrator);
+            var dbMigrator = new DbMigrator(factory, LogFactory.CreateLogger<DbMigrator>(), new HashGenerator());
+            var migrator = new GrateMigrator(LogFactory.CreateLogger<GrateMigrator>(), dbMigrator);
 
             dbMigrator.ApplyConfig(config);
             return migrator;
@@ -79,7 +75,6 @@ namespace grate.unittests.TestInfrastructure
 
             return GetMigrator(config);
         }
-
 
         public string ExpectedVersionPrefix => "PostgreSQL 13.";
     }

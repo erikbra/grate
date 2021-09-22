@@ -74,7 +74,12 @@ namespace grate.Configuration
         /// Whether to drop the database prior to migration or not.
         /// </summary>
         public bool Drop { get; init; }
-      
+
+        /// <summary>
+        /// If true grate will issue a warning and RUN any one time scripts that have changed.
+        /// </summary>
+        public bool WarnOnOneTimeScriptChanges { get; init; }
+
         //private static KnownFolders InCurrentDirectory() => KnownFolders.In(CurrentDirectory);
         private static DirectoryInfo CurrentDirectory => new(Directory.GetCurrentDirectory());
     }

@@ -32,6 +32,7 @@ namespace grate.Commands
             Add(Version());
             Add(Drop());
             Add(Tokens());
+            Add(WarnOnScriptChange());
 
             Handler = CommandHandler.Create(
                 async (GrateConfiguration config) =>
@@ -159,5 +160,11 @@ namespace grate.Commands
                 new[] { "--disabletokenreplacement", "--disabletokens" },
                 "Tokens - This instructs grate to not perform token replacement ({{somename}}). Defaults to false."
             );
+
+        private static Option<bool> WarnOnScriptChange() =>
+            new (
+                new[] { "-w", "--warnononetimescriptchanges" },
+                "WarnOnOneTimeScriptChanges - Instructs grate to execute changed one time scripts(DDL / DML in Upfolder) that have previously been run against the database instead of failing.  A warning is logged for each one time script that is rerun. Defaults to false."
+                );
     }
 }

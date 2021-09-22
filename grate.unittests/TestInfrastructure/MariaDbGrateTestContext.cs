@@ -10,7 +10,7 @@ using NSubstitute;
 
 namespace grate.unittests.TestInfrastructure
 {
-    class MariaDbGrateTestContext : IGrateTestContext
+    class MariaDbGrateTestContext : TestContextBase, IGrateTestContext
     {
         public string AdminPassword { get; set; } = default!;
         public int? Port { get; set; }
@@ -26,14 +26,11 @@ namespace grate.unittests.TestInfrastructure
         public ISyntax Syntax => new MariaDbSyntax();
         public Type DbExceptionType => typeof(MySqlException);
 
-        public ILogger Logger => NullLogger();
-        private static NullLogger<MariaDbDatabase> NullLogger() => new();
-
         public DatabaseType DatabaseType => DatabaseType.mariadb;
         public string DatabaseTypeName => "MariaDB Server";
         public string MasterDatabase => "mysql";
 
-        public IDatabase DatabaseMigrator => new MariaDbDatabase(NullLogger());
+        public IDatabase DatabaseMigrator => new MariaDbDatabase(LogFactory.CreateLogger<MariaDbDatabase>());
 
         public SqlStatements Sql => new()
         {
@@ -47,10 +44,10 @@ namespace grate.unittests.TestInfrastructure
         {
             var factory = Substitute.For<IFactory>();
             factory.GetService<DatabaseType, IDatabase>(DatabaseType)
-                .Returns(new MariaDbDatabase(NullLogger()));
+                .Returns(new MariaDbDatabase(LogFactory.CreateLogger<MariaDbDatabase>()));
 
-            var dbMigrator = new DbMigrator(factory, new NullLogger<DbMigrator>(), new HashGenerator());
-            var migrator = new GrateMigrator(new NullLogger<GrateMigrator>(), dbMigrator);
+            var dbMigrator = new DbMigrator(factory, LogFactory.CreateLogger<DbMigrator>(), new HashGenerator());
+            var migrator = new GrateMigrator(LogFactory.CreateLogger<GrateMigrator>(), dbMigrator);
 
             dbMigrator.ApplyConfig(config);
             return migrator;

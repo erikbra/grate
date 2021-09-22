@@ -25,7 +25,6 @@ namespace grate.unittests.TestInfrastructure
         ISyntax Syntax { get; }
 
         Type DbExceptionType { get; }
-        ILogger Logger { get; }
         DatabaseType DatabaseType { get; }
         IDatabase DatabaseMigrator { get; }
 

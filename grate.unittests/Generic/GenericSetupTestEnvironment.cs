@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
@@ -28,6 +29,8 @@ namespace grate.unittests.Generic
         [OneTimeSetUp]
         public async Task RunBeforeAnyTests()
         {
+            Trace.Listeners.Add(new ConsoleTraceListener());
+            
             _serverName = GetServerName();
             var password =
                 _random.GetString(10, UpperCase) +
@@ -55,6 +58,7 @@ namespace grate.unittests.Generic
         {
             var containerId = await Docker.Delete(_containerId!);
             await TestContext.Progress.WriteLineAsync($"Removed {Context.DatabaseTypeName} docker container: " + containerId);
+            Trace.Flush();
         }
 
         private async Task<bool> WaitUntilServerIsReady()
