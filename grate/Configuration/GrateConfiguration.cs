@@ -76,6 +76,11 @@ namespace grate.Configuration
         public bool Drop { get; init; }
 
         /// <summary>
+        /// If true grate will issue a warning and RUN any one time scripts that have changed.
+        /// </summary>
+        public bool WarnOnOneTimeScriptChanges { get; init; }
+
+        //private static KnownFolders InCurrentDirectory() => KnownFolders.In(CurrentDirectory);
         /// The set of user-provided "key=value" pairs for use in token replacement.
         /// </summary>
         public IEnumerable<string>? UserTokens { get; init; }

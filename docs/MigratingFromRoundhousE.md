@@ -37,7 +37,7 @@ Expect this list to shrink over time.
 - Recovery Modes (`--simple`, `--recoverymode` etc)
 - Restore Options (`--restorefrompath`, `--restoreoptions`, `--restoretimeout` etc)
 - Version info sourced from a file.  `--version=<VALUE>` support is available on the command line
-- `--warnononetimescriptchanges`, `--warnandignoreonetimescriptchanges`
+- `--warnandignoreonetimescriptchanges`
 
 
 

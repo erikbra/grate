@@ -10,7 +10,7 @@ using NSubstitute;
 
 namespace grate.unittests.TestInfrastructure
 {
-    class SqlServerGrateTestContext : IGrateTestContext
+    class SqlServerGrateTestContext : TestContextBase, IGrateTestContext
     {
         public string AdminPassword { get; set; } = default!;
         public int? Port { get; set; }
@@ -26,14 +26,11 @@ namespace grate.unittests.TestInfrastructure
         public ISyntax Syntax => new SqlServerSyntax();
         public Type DbExceptionType => typeof(SqlException);
 
-        public ILogger Logger => NullLogger();
-        private static NullLogger<SqlServerDatabase> NullLogger() => new();
-
         public DatabaseType DatabaseType => DatabaseType.sqlserver;
         public string DatabaseTypeName => "SQL server";
         public string MasterDatabase => "master";
 
-        public IDatabase DatabaseMigrator => new SqlServerDatabase(NullLogger());
+        public IDatabase DatabaseMigrator => new SqlServerDatabase(LogFactory.CreateLogger<SqlServerDatabase>());
 
         public SqlStatements Sql => new()
         {
@@ -47,10 +44,10 @@ namespace grate.unittests.TestInfrastructure
         {
             var factory = Substitute.For<IFactory>();
             factory.GetService<DatabaseType, IDatabase>(DatabaseType)
-                .Returns(new SqlServerDatabase(NullLogger()));
+                .Returns(new SqlServerDatabase(LogFactory.CreateLogger<SqlServerDatabase>()));
 
-            var dbMigrator = new DbMigrator(factory, new NullLogger<DbMigrator>(), new HashGenerator());
-            var migrator = new GrateMigrator(new NullLogger<GrateMigrator>(), dbMigrator);
+            var dbMigrator = new DbMigrator(factory, LogFactory.CreateLogger<DbMigrator>(), new HashGenerator());
+            var migrator = new GrateMigrator(LogFactory.CreateLogger<GrateMigrator>(), dbMigrator);
 
             dbMigrator.ApplyConfig(config);
             return migrator;
