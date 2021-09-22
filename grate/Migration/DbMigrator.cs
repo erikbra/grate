@@ -12,29 +12,22 @@ namespace grate.Migration
 {
     public class DbMigrator : IDbMigrator
     {
-        private readonly IFactory _factory;
         private readonly ILogger<DbMigrator> _logger;
         private readonly IHashGenerator _hashGenerator;
 
-        public DbMigrator(IFactory factory, ILogger<DbMigrator> logger, IHashGenerator hashGenerator)
+        public DbMigrator(IFactory factory, ILogger<DbMigrator> logger, IHashGenerator hashGenerator, GrateConfiguration? configuration = null)
         {
-            _factory = factory;
             _logger = logger;
             _hashGenerator = hashGenerator;
-            Configuration = GrateConfiguration.Default;
+            Configuration = configuration ?? GrateConfiguration.Default;
+            Database = factory.GetService<DatabaseType, IDatabase>(Configuration.DatabaseType);
+            StatementSplitter = new StatementSplitter(Database.StatementSeparatorRegex);
         }
 
         public Task InitializeConnections() => Database?.InitializeConnections(Configuration)!;
 
-        public IDatabase Database { get; set; } = null!;
-        public StatementSplitter StatementSplitter { get; set; } = null!;
-
-        public void ApplyConfig(GrateConfiguration config)
-        {
-            this.Configuration = config;
-            Database = _factory.GetService<DatabaseType, IDatabase>(config.DatabaseType);
-            StatementSplitter = new StatementSplitter(Database.StatementSeparatorRegex);
-        }
+        public IDatabase Database { get; set; }
+        public StatementSplitter StatementSplitter { get; }
 
         public async Task<bool> DatabaseExists() => await Database.DatabaseExists();
 

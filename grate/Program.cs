@@ -1,6 +1,7 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,13 +17,16 @@ namespace grate
 {
     public static class Program
     {
-        private static readonly ServiceProvider ServiceProvider = BuildServiceProvider();
-        private static bool _verbose = true;
+        private static ServiceProvider _serviceProvider = default!;
 
         public static async Task<int> Main(string[] args)
         {
+            // Temporarily parse the configuration, to get the verbosity level
+            var cfg = await ParseGrateConfiguration(args);
+            _serviceProvider = BuildServiceProvider(cfg.Verbosity);
+            
             var rootCommand = Create<MigrateCommand>();
-            rootCommand.Add(Verbose());
+            rootCommand.Add(Verbosity());
 
             rootCommand.Description = "The new grate - sql for the 20s";
 
@@ -40,13 +44,27 @@ namespace grate
                 .UseExceptionHandler()
                 .CancelOnProcessTermination()
                 .Build();
-
+            
             var result = await parser.InvokeAsync(args);
 
             await WaitForLoggerToFinish();
 
             return result;
         }
+
+        private static async Task<GrateConfiguration> ParseGrateConfiguration(IReadOnlyList<string> commandline)
+        {
+            GrateConfiguration cfg = GrateConfiguration.Default;
+            var handler = CommandHandler.Create((GrateConfiguration config) => cfg = config);
+
+            var cmd = new MigrateCommand(null!) { Verbosity() };
+
+            ParseResult p =
+                new Parser(cmd).Parse(commandline);
+            await handler.InvokeAsync(new InvocationContext(p));
+            return cfg;
+        }
+
 
         /// <summary>
         /// Wait for logger to be finished - it logs on a different thread, and we
@@ -66,23 +84,24 @@ namespace grate
             }
         }
 
-        private static void SetVerbose(bool verbose) => _verbose = verbose;
-
-        private static ServiceProvider BuildServiceProvider()
+        private static ServiceProvider BuildServiceProvider(LogLevel logLevel)
         {
             var services = new ServiceCollection();
 
             services.AddCliCommands();
 
-            services.AddLogging(logging => logging.AddConsole(
-                    options =>
-                    {
-                        options.FormatterName = GrateConsoleFormatter.FormatterName;
-                    }).SetMinimumLevel(_verbose ? LogLevel.Trace : LogLevel.Information)
+            services.AddLogging(logging => logging.AddConsole(options =>
+                {
+                    options.FormatterName = GrateConsoleFormatter.FormatterName;
+                    options.LogToStandardErrorThreshold = LogLevel.Warning;
+                })
+                .SetMinimumLevel(logLevel)
                 .AddConsoleFormatter<GrateConsoleFormatter, SimpleConsoleFormatterOptions>());
          
             services.AddTransient<IDbMigrator, DbMigrator>();
             services.AddTransient<IHashGenerator, HashGenerator>();
+            
+            services.AddTransient<GrateMigrator, GrateMigrator>();
 
             services.AddTransient<SqlServerDatabase>();
             services.AddTransient<OracleDatabase>();
@@ -100,8 +119,10 @@ namespace grate
             return services.BuildServiceProvider();
         }
 
-        private static Option<bool> Verbose() => new(new[] { "-v", "--verbose" }, "Verbose output");
+        private static Option<LogLevel> Verbosity() => new(
+            new[] { "-v", "--verbosity" }, 
+            "Verbosity level (as defined here: https://docs.microsoft.com/dotnet/api/Microsoft.Extensions.Logging.LogLevel)");
 
-        private static T Create<T>() where T : notnull => ServiceProvider.GetRequiredService<T>();
+        private static T Create<T>() where T : notnull => _serviceProvider.GetRequiredService<T>();
     }
 }
