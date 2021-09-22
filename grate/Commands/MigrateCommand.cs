@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
@@ -33,6 +34,7 @@ namespace grate.Commands
             Add(Drop());
             Add(Tokens());
             Add(WarnOnScriptChange());
+            Add(UserTokens());
 
             Handler = CommandHandler.Create(
                 async (GrateConfiguration config) =>
@@ -166,5 +168,10 @@ namespace grate.Commands
                 new[] { "-w", "--warnononetimescriptchanges" },
                 "WarnOnOneTimeScriptChanges - Instructs grate to execute changed one time scripts(DDL / DML in Upfolder) that have previously been run against the database instead of failing.  A warning is logged for each one time script that is rerun. Defaults to false."
                 );
+        private static Option<IEnumerable<string>> UserTokens() =>
+            new(
+                new[] { "--ut", "--usertoken" },
+                "User Tokens - Allows grate to perform token replacement on custom tokens ({{my_token}}). Set as a key=value pair, eg '--ut=my_token=myvalue'. Can be specified multiple times."
+            );
     }
 }

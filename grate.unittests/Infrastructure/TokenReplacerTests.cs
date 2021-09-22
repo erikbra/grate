@@ -73,5 +73,16 @@ namespace grate.unittests.Infrastructure
             tokens["ServerName"].Should().Be("(LocalDb)\\mssqllocaldb");
         }
 
+        [Test]
+        public void EnsureUserTokenParserWorks()
+        {
+            // TestCase attribute didn't seem to like tuples...
+
+            TokenProvider.ParseUserToken("token=value   ").Should().Be(("token", "value"));
+            Assert.Throws<ArgumentOutOfRangeException>(() => TokenProvider.ParseUserToken("token"));
+
+            // ensure a back-compat scenario throws rather than quietly do the wrong thing.
+            Assert.Throws<ArgumentOutOfRangeException>(() => TokenProvider.ParseUserToken("token1=value1;token2=value2"));
+        }
     }
 }
