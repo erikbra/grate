@@ -31,5 +31,41 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             actual.Should().Be(db);
 
         }
+
+        [Test]
+        public async Task EnsureUserTokensAreReplaced()
+        {
+            var db = TestConfig.RandomDatabase();
+
+            var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
+            var path = knownFolders?.Views?.Path ?? throw new Exception("Config Fail");
+            WriteSql(path, "token.sql", "create view grate as select '{{MyCustomToken}}' as dbase;");
+
+            var config = new GrateConfiguration()
+            {
+                UserTokens = new[] {"mycustomtoken=token1"}, // This is important!
+
+                CreateDatabase = true,
+                ConnectionString = Context.ConnectionString(db),
+                AdminConnectionString = Context.AdminConnectionString,
+                Version = "a.b.c.d",
+                KnownFolders = knownFolders,
+                AlterDatabase = true,
+                NonInteractive = true,
+                Transaction = true,
+                DatabaseType = Context.DatabaseType
+            };
+
+            await using (var migrator = Context.GetMigrator(config))
+            {
+                await migrator.Migrate();
+            }
+
+            string sql = $"SELECT dbase FROM grate";
+            await using var conn = Context.CreateDbConnection(Context.ConnectionString(db));
+            var actual = await conn.QuerySingleAsync<string>(sql);
+            actual.Should().Be("token1");
+
+        }
     }
 }

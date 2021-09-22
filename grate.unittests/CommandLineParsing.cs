@@ -185,6 +185,15 @@ namespace grate.unittests
             cfg?.Transaction.Should().Be(false);
         }
 
+        [TestCase("--silent", 0)]
+        [TestCase("--ut=token=value", 1)]
+        [TestCase("--ut=token=value --usertoken=abc=123", 2)]
+        public async Task UserTokens(string args, int expectedCount)
+        {
+            var cfg = await ParseGrateConfiguration(args);
+            cfg?.UserTokens?.Should().HaveCount(expectedCount);
+        }
+
 
         private static async Task<GrateConfiguration?> ParseGrateConfiguration(string commandline)
         {
