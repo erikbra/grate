@@ -11,6 +11,8 @@ jobs:
   set-version-number:
     name: Set version number
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
     
     steps:
     - name: Setup .NET 5
@@ -31,9 +33,11 @@ jobs:
       with:
         versionSpec: '5.x'
     - name: Determine Version
+      id: gitversion
       uses: gittools/actions/gitversion/execute@v0.9.10
 
   build-netcore-tool:
+    needs: set-version-number
     name: Build .NET Core (global) tool
 
     runs-on: ubuntu-latest
@@ -49,7 +53,7 @@ jobs:
       run: dotnet restore
     - name: Build
       #run: dotnet pack ./grate/grate.csproj -c release -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
-      run: dotnet pack ./grate/grate.csproj -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
+      run: dotnet pack ./grate/grate.csproj -p:Version="${{ needs.calculate-version.outputs.version }}" -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
       
     - name: Upload published tool artifact
       uses: actions/upload-artifact@v2
@@ -59,6 +63,7 @@ jobs:
 
   build-standalone:
     name: Build stand-alone
+    needs: set-version-number
 
     runs-on: ubuntu-latest
     strategy:
@@ -77,10 +82,10 @@ jobs:
         include-prerelease: true
 
     - name: Publish self-contained ${{ matrix.arch }}
-      run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
+      run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -p:Version="${{ needs.calculate-version.outputs.version }}" -o ./publish/${{ matrix.arch }}/self-contained
 
     - name: Publish .NET 6 dependent ${{ matrix.arch }}
-      run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --no-self-contained -o ./publish/${{ matrix.arch }}/dependent
+      run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --no-self-contained -p:Version="${{ needs.calculate-version.outputs.version }}" -o ./publish/${{ matrix.arch }}/dependent
 
     - name: Upload self-contained ${{ matrix.arch }}
       uses: actions/upload-artifact@v2
