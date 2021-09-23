@@ -186,6 +186,14 @@ namespace grate.unittests
             cfg?.WarnOnOneTimeScriptChanges.Should().Be(expected);
         }
 
+        [TestCase("", false)]
+        [TestCase("--warnandignoreononetimescriptchanges", true)]
+        public async Task WarnAndIgnoreOnOneTimeScriptChanges(string args, bool expected)
+        {
+            var cfg = await ParseGrateConfiguration(args);
+            cfg?.WarnAndIgnoreOnOneTimeScriptChanges.Should().Be(expected);
+        }
+
         [Test]
         public async Task WithoutTransaction_Default()
         {
