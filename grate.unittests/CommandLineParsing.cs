@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using Microsoft.Extensions.DependencyInjection;
 using grate.Commands;
 using grate.Configuration;
 using grate.Infrastructure;
@@ -210,7 +209,7 @@ namespace grate.unittests
             var cmd = CommandHandler.Create((GrateConfiguration config) => cfg = config);
 
             ParseResult p =
-                new Parser(new MigrateCommand(new ServiceCollection().BuildServiceProvider())).Parse(commandline);
+                new Parser(new MigrateCommand(null)).Parse(commandline);
             await cmd.InvokeAsync(new InvocationContext(p));
             return cfg;
         }

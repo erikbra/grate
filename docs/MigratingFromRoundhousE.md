@@ -18,6 +18,8 @@ grate is built using the new [`System.CommandLine`](https://github.com/dotnet/co
 
 - The `DropCreate` 'mode' has been merged with the `--drop` option. RH used a single-run workflow for `Normal` and `RestoreRun` modes, but needed two executions for the `DropCreate` mode.  grate uses the `--drop` option like RH but **it continues with the creation and migration afterwards**! If you have a scenario for dropping a database but _not_ then running a migration, please open an issue!
 
+- The `--verbose` flag has been changed to a `--verbosity` flag, accepting the values of `<Critical|Debug|Error|Information|None|Trace|Warning>` (see https://docs.microsoft.com/dotnet/api/Microsoft.Extensions.Logging.LogLevel for details)
+
 
 ## RH Features that aren't yet in grate
 

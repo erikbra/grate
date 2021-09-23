@@ -1,20 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using static grate.Configuration.DefaultConfiguration;
 
 namespace grate.Commands
 {
     public sealed class MigrateCommand : RootCommand
     {
-        public MigrateCommand(IServiceProvider services) : base("Migrates the database")
+        public MigrateCommand(GrateMigrator mi) : base("Migrates the database")
         {
             Add(Database());
             Add(ConnectionString());
@@ -37,18 +34,9 @@ namespace grate.Commands
             Add(UserTokens());
 
             Handler = CommandHandler.Create(
-                async (GrateConfiguration config) =>
+                async () =>
                 {
-                    config.KnownFolders = KnownFolders.In(config.SqlFilesDirectory);
-
-                    var dbMigrator = services.GetRequiredService<IDbMigrator>();
-                    dbMigrator.ApplyConfig(config);
-
-                    var migrator = new GrateMigrator(
-                        services.GetRequiredService<ILogger<GrateMigrator>>(),
-                        dbMigrator
-                        );
-                    await migrator.Migrate();
+                    await mi.Migrate();
                 });
         }
 

@@ -45,10 +45,9 @@ namespace grate.unittests.TestInfrastructure
             factory.GetService<DatabaseType, IDatabase>(DatabaseType)
                 .Returns(new PostgreSqlDatabase(LogFactory.CreateLogger<PostgreSqlDatabase>()));
 
-            var dbMigrator = new DbMigrator(factory, LogFactory.CreateLogger<DbMigrator>(), new HashGenerator());
+            var dbMigrator = new DbMigrator(factory, LogFactory.CreateLogger<DbMigrator>(), new HashGenerator(), config);
             var migrator = new GrateMigrator(LogFactory.CreateLogger<GrateMigrator>(), dbMigrator);
 
-            dbMigrator.ApplyConfig(config);
             return migrator;
         }
 

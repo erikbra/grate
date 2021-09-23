@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using grate.Configuration;
 using grate.Infrastructure;
@@ -11,7 +10,6 @@ namespace grate.Migration
         GrateConfiguration Configuration { get; set; }
         IDatabase Database { get; set; }
         Task InitializeConnections();
-        void ApplyConfig(GrateConfiguration config);
         Task<bool> CreateDatabase();
         
         /// <summary>

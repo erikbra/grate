@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using grate.Infrastructure;
+using Microsoft.Extensions.Logging;
 
 namespace grate.Configuration
 {
@@ -14,9 +15,13 @@ namespace grate.Configuration
     public class GrateConfiguration
     {
         private readonly string? _adminConnectionString = null;
+        private KnownFolders? _knownFolders;
 
-        //public KnownFolders KnownFolders { get; set; } = InCurrentDirectory();
-        public KnownFolders? KnownFolders { get; set; }
+        public KnownFolders? KnownFolders
+        {
+            get => _knownFolders ?? KnownFolders.In(SqlFilesDirectory);
+            init => _knownFolders = value;
+        }
 
         public DatabaseType DatabaseType { get; init; } // = DatabaseType.sqlserver;
 
@@ -81,10 +86,14 @@ namespace grate.Configuration
         public bool WarnOnOneTimeScriptChanges { get; init; }
 
         //private static KnownFolders InCurrentDirectory() => KnownFolders.In(CurrentDirectory);
+        
+        /// <summary>
         /// The set of user-provided "key=value" pairs for use in token replacement.
         /// </summary>
         public IEnumerable<string>? UserTokens { get; init; }
 
         private static DirectoryInfo CurrentDirectory => new(Directory.GetCurrentDirectory());
+
+        public LogLevel Verbosity { get; init; } = LogLevel.Information;
     }
 }
