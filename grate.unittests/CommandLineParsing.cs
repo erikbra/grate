@@ -217,7 +217,7 @@ namespace grate.unittests
             var cmd = CommandHandler.Create((GrateConfiguration config) => cfg = config);
 
             ParseResult p =
-                new Parser(new MigrateCommand(null)).Parse(commandline);
+                new Parser(new MigrateCommand(null!)).Parse(commandline);
             await cmd.InvokeAsync(new InvocationContext(p));
             return cfg;
         }
