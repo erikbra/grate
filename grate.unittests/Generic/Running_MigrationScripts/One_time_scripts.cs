@@ -77,7 +77,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
         }
 
         [Test]
-        public async Task Runs_and_Warns_if_changed_between_runs_and_flag_set()
+        public async Task Runs_and_warns_if_changed_between_runs_and_flag_set()
         {
             var db = TestConfig.RandomDatabase();
 
