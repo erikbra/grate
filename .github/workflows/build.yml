@@ -58,7 +58,7 @@ jobs:
     - name: Upload published tool artifact
       uses: actions/upload-artifact@v2
       with:
-        name: grate-dotnet-tool
+        name: grate-dotnet-tool-${{ needs.set-version-number.outputs.version }}
         path: /tmp/grate/nupkg/*   
 
   build-standalone:
@@ -90,13 +90,13 @@ jobs:
     - name: Upload self-contained ${{ matrix.arch }}
       uses: actions/upload-artifact@v2
       with:
-        name: grate-${{ matrix.arch }}-self-contained
+        name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.version }}
         path: ./publish/${{ matrix.arch }}/self-contained/*
     
     - name: Upload .net dependent ${{ matrix.arch }}
       uses: actions/upload-artifact@v2
       with:
-        name: grate-${{ matrix.arch }}-framework-dependent
+        name: grate-${{ matrix.arch }}-framework-dependent-${{ needs.set-version-number.outputs.version }}
         path: ./publish/${{ matrix.arch }}/dependent/*
 
 
