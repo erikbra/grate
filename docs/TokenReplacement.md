@@ -1,3 +1,7 @@
+---
+title: "Token replacement"
+permalink: /token-replacement/
+---
 # Token Replacement
 Any value that is in the configuration can be tokenized in the scripts.
 

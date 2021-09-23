@@ -1,3 +1,8 @@
+---
+title: "Migrating from RoundhousE"
+permalink: /migrating-from-roundhouse/
+---
+
 # Migrating to grate from RoundhousE
 
 [RoundhousE](https://github.com/chucknorris/roundhouse) is an amazing tool, and grate is trying to be backwards compatible with RH to make upgrading easy.
