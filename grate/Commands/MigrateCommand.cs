@@ -32,6 +32,7 @@ namespace grate.Commands
             Add(Tokens());
             Add(WarnOnScriptChange());
             Add(UserTokens());
+            Add(DoNotStoreScriptText());
 
             Handler = CommandHandler.Create(
                 async () =>
@@ -139,7 +140,7 @@ namespace grate.Commands
                 new[] { "--version" }, // we can't use --version as it conflicts with the standard option
                 "Database Version - specify the version of the current migration directly on the command line."
              );
-             
+
         private static Option<bool> Drop() =>
             new(new[] { "--drop" },
                 "Drop - This instructs grate to remove the target database.  Unlike RoundhousE grate will continue to run the migration scripts after the drop."
@@ -152,14 +153,21 @@ namespace grate.Commands
             );
 
         private static Option<bool> WarnOnScriptChange() =>
-            new (
+            new(
                 new[] { "-w", "--warnononetimescriptchanges" },
                 "WarnOnOneTimeScriptChanges - Instructs grate to execute changed one time scripts(DDL / DML in Upfolder) that have previously been run against the database instead of failing.  A warning is logged for each one time script that is rerun. Defaults to false."
                 );
+
         private static Option<IEnumerable<string>> UserTokens() =>
             new(
                 new[] { "--ut", "--usertoken" },
                 "User Tokens - Allows grate to perform token replacement on custom tokens ({{my_token}}). Set as a key=value pair, eg '--ut=my_token=myvalue'. Can be specified multiple times."
             );
+
+        private static Option<bool> DoNotStoreScriptText() =>
+            new(
+                new[] { "--donotstorescriptsruntext" },
+                "DoNotStoreScriptsRunText - This instructs grate to not store the full script text in the database. Defaults to false."
+                );
     }
 }

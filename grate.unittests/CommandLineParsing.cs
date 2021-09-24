@@ -186,6 +186,14 @@ namespace grate.unittests
             cfg?.WarnOnOneTimeScriptChanges.Should().Be(expected);
         }
 
+        [TestCase("", false)]
+        [TestCase("--donotstorescriptsruntext", true)]
+        public async Task DoNotStoreScriptsRunText(string args, bool expected)
+        {
+            var cfg = await ParseGrateConfiguration(args);
+            cfg?.DoNotStoreScriptsRunText.Should().Be(expected);
+        }
+
         [Test]
         public async Task WithoutTransaction_Default()
         {
@@ -209,7 +217,7 @@ namespace grate.unittests
             var cmd = CommandHandler.Create((GrateConfiguration config) => cfg = config);
 
             ParseResult p =
-                new Parser(new MigrateCommand(null)).Parse(commandline);
+                new Parser(new MigrateCommand(null!)).Parse(commandline);
             await cmd.InvokeAsync(new InvocationContext(p));
             return cfg;
         }

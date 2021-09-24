@@ -98,12 +98,12 @@ namespace grate.Migration
             throw new System.NotImplementedException();
         }
 
-        public Task InsertScriptRun(string scriptName, string sql, string hash, bool runOnce, object versionId)
+        public Task InsertScriptRun(string scriptName, string? sql, string hash, bool runOnce, object versionId)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task InsertScriptRunError(string scriptName, string sql, string errorSql, string errorMessage, long versionId)
+        public Task InsertScriptRunError(string scriptName, string? sql, string errorSql, string errorMessage, long versionId)
         {
             throw new System.NotImplementedException();
         }

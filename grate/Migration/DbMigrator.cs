@@ -228,14 +228,16 @@ namespace grate.Migration
         private Task RecordScriptInScriptsRunTable(string scriptName, string sql, MigrationType migrationType, long versionId)
         {
             var hash = _hashGenerator.Hash(sql);
-
+            var sqlToStore = Configuration.DoNotStoreScriptsRunText ? null : sql;
+            
             _logger.LogDebug("Recording {scriptName} script ran on {serverName} - {databaseName}.", scriptName, Database.ServerName, Database.DatabaseName);
-            return Database.InsertScriptRun(scriptName, sql, hash, migrationType == MigrationType.Once, versionId);
+            return Database.InsertScriptRun(scriptName, sqlToStore, hash, migrationType == MigrationType.Once, versionId);
         }
 
         private Task RecordScriptInScriptsRunErrorsTable(string scriptName, string sql, string errorSql, string errorMessage, long versionId)
         {
-            return Database.InsertScriptRunError(scriptName, sql, errorSql, errorMessage, versionId);
+            var sqlToStore = Configuration.DoNotStoreScriptsRunText ? null : sql;
+            return Database.InsertScriptRunError(scriptName, sqlToStore, errorSql, errorMessage, versionId);
         }
 
         public async ValueTask DisposeAsync()

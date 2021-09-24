@@ -95,5 +95,10 @@ namespace grate.Configuration
         private static DirectoryInfo CurrentDirectory => new(Directory.GetCurrentDirectory());
 
         public LogLevel Verbosity { get; init; } = LogLevel.Information;
+
+        /// <summary>
+        /// If true grate will not store script text in the database to save space in small/embedded databases.
+        /// </summary>
+        public bool DoNotStoreScriptsRunText {  get; init; }
     }
 }

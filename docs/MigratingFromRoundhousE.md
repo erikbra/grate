@@ -29,7 +29,6 @@ Expect this list to shrink over time.
 
 - `--baseline`
 - `--defaultencoding`
-- `--donotstorescriptsruntext`
 - `--dryrun`
 - `--isuptodate`
 - MSBuild Task.
@@ -40,7 +39,3 @@ Expect this list to shrink over time.
 - Restore Options (`--restorefrompath`, `--restoreoptions`, `--restoretimeout` etc)
 - Version info sourced from a file.  `--version=<VALUE>` support is available on the command line
 - `--warnandignoreonetimescriptchanges`
-
-
-
-
