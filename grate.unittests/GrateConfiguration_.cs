@@ -1,5 +1,7 @@
 ﻿using FluentAssertions;
 using grate.Configuration;
+using grate.Migration;
+using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 
 namespace grate.unittests
@@ -24,6 +26,20 @@ namespace grate.unittests
             { ConnectionString = "Data source=Monomonojono;Database=Øyenbryn;Lotsastuff" };
 
             cfg.AdminConnectionString.Should().Be("Data source=Monomonojono;Database=master;Lotsastuff");
+        }
+
+        [Test]
+        public void Doesnt_include_comma_in_drop_folder()
+        {
+            // For bug #40
+            var cfg = new GrateConfiguration()
+            { ConnectionString = "Data source=localhost,1433;Initial Catalog=Øyenbryn;" };
+
+            var db = new SqlServerDatabase(NullLogger<SqlServerDatabase>.Instance);
+            db.InitializeConnections(cfg);
+            var dropFolder = GrateMigrator.ChangeDropFolder(cfg, db.ServerName, db.DatabaseName);
+
+            dropFolder.Should().NotContain(",");
         }
 
     }

@@ -293,7 +293,7 @@ namespace grate.Migration
             Directory.CreateDirectory(folder);
         }
 
-        private static string ChangeDropFolder(GrateConfiguration config, string? server, string? database)
+        public static string ChangeDropFolder(GrateConfiguration config, string? server, string? database)
         {
             var folder = Path.Combine(
                 config.OutputPath!.ToString(),
@@ -305,7 +305,10 @@ namespace grate.Migration
             return folder;
         }
 
-        private static readonly char[] InvalidPathCharacters = Path.GetInvalidPathChars().Append(':').ToArray();
+        private static readonly char[] InvalidPathCharacters = Path.GetInvalidPathChars()
+                                                                    .Append(':')
+                                                                    .Append(',')
+                                                                    .ToArray();
 
         private static string RemoveInvalidPathChars(string? path)
         {
