@@ -1,0 +1,13 @@
+services:
+  grate:
+    build: .
+    image: mygrateimage
+    environment:
+      # don't configure passwords here for real.  This is just a sample!
+      - GRATE_CONNSTRING=host=database;database=grate_test;Username=postgres;Password=gs8j4AS7h87jHg
+    depends_on:
+      - database
+  database:
+    image: postgres
+    environment: 
+      - POSTGRES_PASSWORD=gs8j4AS7h87jHg # again, plain text passwords are bad mmkay!
