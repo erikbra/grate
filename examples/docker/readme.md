@@ -14,4 +14,3 @@ Simply `docker-compose up` to:
 
 - You wouldn't normally do db migrations using compose, this is just an example.
 
-You may obviously need to change he above commands depending on your circumstances (eg configure the `--network` option when run)

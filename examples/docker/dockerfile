@@ -10,11 +10,6 @@ ENV VERSION=$APP_VERSION
 
 WORKDIR /app
 
-# Build arguments we configure at image build time.
-# Use the uniqur build number as the database version in this case
-ARG BUILD_BUILDNUMBER
-ENV VERSION=$BUILD_BUILDNUMBER
-
 # Get the sql scripts into the image
 COPY ./db ./db
 RUN mkdir /app/migration-output
