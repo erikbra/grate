@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
+      is-release: ${{ steps.gitversion.outputs.CommitsSinceVersionSource == 0 }}
     
     steps:
     - name: Setup .NET 5
@@ -49,6 +50,8 @@ jobs:
       with:
         dotnet-version: 6.0.x
         include-prerelease: true
+    - name: Echo echo
+      run: echo "is-release: ${{ needs.set-version-number.outputs.is-release }}."
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
@@ -57,6 +60,7 @@ jobs:
       
     - name: Upload published tool artifact
       uses: actions/upload-artifact@v2
+      if: ${{ needs.set-version-number.outputs.is-release }}
       with:
         name: grate-dotnet-tool-${{ needs.set-version-number.outputs.version }}
         path: /tmp/grate/nupkg/*   
