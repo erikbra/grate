@@ -195,6 +195,7 @@ namespace grate.unittests
 
         [TestCase("--silent", 0)]
         [TestCase("--ut=token=value", 1)]
+        [TestCase("--ut=token=value;abe=123", 2)]
         [TestCase("--ut=token=value --usertoken=abc=123", 2)]
         public async Task UserTokens(string args, int expectedCount)
         {
