@@ -13,7 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
-      is-release: ${{ steps.gitversion.outputs.CommitsSinceVersionSource == 0 }}
+      isrelease: ${{ steps.gitversion.outputs.CommitsSinceVersionSource == 0 }}
+      commits: ${{ steps.gitversion.outputs.CommitsSinceVersionSource }}
     
     steps:
     - name: Setup .NET 5
@@ -50,8 +51,9 @@ jobs:
       with:
         dotnet-version: 6.0.x
         include-prerelease: true
-    - name: Echoecho
-      run: /bin/sh -c echo 'is-release: ${{ needs.set-version-number.outputs.is-release }}.'
+    - name: echoecho
+      run: echo "isrelease: ${{ needs.set-version-number.outputs.isrelease }} ."
+      run: echo "commits: ${{ needs.set-version-number.outputs.commits }} ."
       #run: /bin/sh -c echo "is-release"
     - name: Restore dependencies
       run: dotnet restore
