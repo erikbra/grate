@@ -209,6 +209,14 @@ namespace grate.unittests
             cfg?.WarnAndIgnoreOnOneTimeScriptChanges.Should().Be(expected);
         }
 
+        [TestCase("", false)]
+        [TestCase("--baseline", true)]
+        public async Task Baseline(string args, bool expected)
+        {
+            var cfg = await ParseGrateConfiguration(args);
+            cfg?.Baseline.Should().Be(expected);
+        }
+
         [Test]
         public async Task WithoutTransaction_Default()
         {
@@ -218,12 +226,13 @@ namespace grate.unittests
 
         [TestCase("--silent", 0)]
         [TestCase("--ut=token=value", 1)]
-        [TestCase("--ut=token=value;abe=123", 2)]
-        [TestCase("--ut=token=value --usertoken=abc=123", 2)]
+        [TestCase("--ut=token=value --usertokens=abc=123", 2)]
+        //[TestCase("--usertokens=token=value;abe=123", 2)] This is a back-compat scenario we may want o add support for.
         public async Task UserTokens(string args, int expectedCount)
         {
             var cfg = await ParseGrateConfiguration(args);
-            cfg?.UserTokens?.Should().HaveCount(expectedCount);
+            var t = cfg?.UserTokens.Safe().ToList();
+            t.Should().HaveCount(expectedCount);
         }
 
         [TestCase("", DatabaseType.sqlserver)] // default

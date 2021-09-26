@@ -91,7 +91,7 @@ namespace grate.Configuration
         public bool WarnAndIgnoreOnOneTimeScriptChanges { get; init; }
 
         //private static KnownFolders InCurrentDirectory() => KnownFolders.In(CurrentDirectory);
-        
+
         /// <summary>
         /// The set of user-provided "key=value" pairs for use in token replacement.
         /// </summary>
@@ -104,7 +104,12 @@ namespace grate.Configuration
         /// <summary>
         /// If true grate will not store script text in the database to save space in small/embedded databases.
         /// </summary>
-        public bool DoNotStoreScriptsRunText {  get; init; }
+        public bool DoNotStoreScriptsRunText { get; init; }
+
+        /// <summary>
+        /// If true we mark scripts as run but don't actually run them.
+        /// </summary>
+        public bool Baseline { get; init; }
 
         /// <summary>
         /// If true runs all AnyTime scripts even if they haven't changed.
