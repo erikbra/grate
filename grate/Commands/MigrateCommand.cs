@@ -33,6 +33,7 @@ namespace grate.Commands
             Add(WarnAndRunOnScriptChange());
             Add(WarnAndIgnoreOnScriptChange());
             Add(UserTokens());
+            Add(DoNotStoreScriptText());
 
             Handler = CommandHandler.Create(
                 async () =>
@@ -169,5 +170,11 @@ namespace grate.Commands
                 new[] { "--ut", "--usertoken" },
                 "User Tokens - Allows grate to perform token replacement on custom tokens ({{my_token}}). Set as a key=value pair, eg '--ut=my_token=myvalue'. Can be specified multiple times."
             );
+
+        private static Option<bool> DoNotStoreScriptText() =>
+            new(
+                new[] { "--donotstorescriptsruntext" },
+                "DoNotStoreScriptsRunText - This instructs grate to not store the full script text in the database. Defaults to false."
+                );
     }
 }

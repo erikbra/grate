@@ -392,7 +392,7 @@ WHERE script_name = @scriptName";
             return run ?? false;
         }
 
-        public async Task InsertScriptRun(string scriptName, string sql, string hash, bool runOnce, object versionId)
+        public async Task InsertScriptRun(string scriptName, string? sql, string hash, bool runOnce, object versionId)
         {
             var cache = await GetScriptsRunCache();
             cache.Remove(scriptName);
@@ -416,7 +416,7 @@ VALUES (@versionId, @scriptName, @sql, @hash, @runOnce, @now, @now, @user)";
             await Connection.ExecuteAsync(insertSql, scriptRun);
         }
 
-        public async Task InsertScriptRunError(string scriptName, string sql, string errorSql, string errorMessage, long versionId)
+        public async Task InsertScriptRunError(string scriptName, string? sql, string errorSql, string errorMessage, long versionId)
         {
             var insertSql = $@"
 INSERT INTO {ScriptsRunErrorsTable}

@@ -34,7 +34,6 @@ Expect this list to shrink over time.
 
 - `--baseline`
 - `--defaultencoding`
-- `--donotstorescriptsruntext`
 - `--dryrun`
 - `--isuptodate`
 - MSBuild Task.
