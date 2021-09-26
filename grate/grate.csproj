@@ -5,6 +5,17 @@
     <TargetFramework>net6.0</TargetFramework>
     <DebugType>Embedded</DebugType>
     <Nullable>enable</Nullable>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Authors>Erik A. Brandstadmoen</Authors>
+    <Description>
+      grate - sql for the 20s
+    
+      grate is a no-code, low-fi database migration tool, inspired heavily by RoundhousE. It's written from the ground
+      up using modern .NET 6. 
+    </Description>
+    <PackageProjectUrl>https://erikbra.github.io/grate/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/erikbra/grate</RepositoryUrl>
+    <PackageTags>sql migration no-code</PackageTags>
   </PropertyGroup>
   
   <ItemGroup>
