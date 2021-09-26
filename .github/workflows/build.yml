@@ -1,5 +1,5 @@
 # Heavyweight build and test
-name: Build
+name: Build and Publish
 
 on:
   push:
