@@ -15,7 +15,7 @@
     </Description>
     <PackageProjectUrl>https://erikbra.github.io/grate/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/erikbra/grate</RepositoryUrl>
-    <PackageTags>sql migration no-code</PackageTags>
+    <PackageTags>sql migration roundhouse</PackageTags>
   </PropertyGroup>
   
   <ItemGroup>
