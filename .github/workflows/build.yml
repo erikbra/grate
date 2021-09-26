@@ -13,8 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
-      isrelease: ${{ steps.gitversion.outputs.CommitsSinceVersionSource == 0 }}
-      commits: ${{ steps.gitversion.outputs.CommitsSinceVersionSource }}
+      is-release: ${{ steps.gitversion.outputs.CommitsSinceVersionSource == 0 }}
     
     steps:
     - name: Setup .NET 5
@@ -52,9 +51,7 @@ jobs:
         dotnet-version: 6.0.x
         include-prerelease: true
     - name: echoecho
-      run: echo "isrelease ${{ needs.set-version-number.outputs.isrelease }} ."
-      #run: echo "commits ${{ needs.set-version-number.outputs.commits }} ."
-      #run: /bin/sh -c echo "is-release"
+      run: echo "isrelease ${{ needs.set-version-number.outputs.is-release }} ."
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
@@ -77,7 +74,7 @@ jobs:
       matrix:
         arch: [ "win-x64", "win-x86", "win-arm", "win-arm64", 
                 "alpine-x64", "linux-x64", "linux-arm", "linux-arm64",
-                 "osx.11.0-x64", "osx.10.12-x64", "osx-x64"
+                 "osx-x64"
               ]
 
     steps:
@@ -95,12 +92,14 @@ jobs:
       run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --no-self-contained -p:Version="${{ needs.set-version-number.outputs.version }}" -o ./publish/${{ matrix.arch }}/dependent
 
     - name: Upload self-contained ${{ matrix.arch }}
+      if: ${{ needs.set-version-number.outputs.is-release }}
       uses: actions/upload-artifact@v2
       with:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.version }}
         path: ./publish/${{ matrix.arch }}/self-contained/*
     
     - name: Upload .net dependent ${{ matrix.arch }}
+      if: ${{ needs.set-version-number.outputs.is-release }}
       uses: actions/upload-artifact@v2
       with:
         name: grate-${{ matrix.arch }}-framework-dependent-${{ needs.set-version-number.outputs.version }}
