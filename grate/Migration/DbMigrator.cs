@@ -82,6 +82,12 @@ namespace grate.Migration
                 sql = ReplaceTokensIn(sql);
             }
 
+            if (Configuration.Baseline)
+            {
+                await RecordScriptInScriptsRunTable(scriptName, sql, migrationType, versionId);
+                return false;
+            }
+
             if (await ThisScriptIsAlreadyRun(scriptName) && !IsEverytimeScript(scriptName, migrationType))
             {
 
@@ -217,6 +223,7 @@ namespace grate.Migration
                     throw;
                 }
             }
+
             await RecordScriptInScriptsRunTable(scriptName, sql, migrationType, versionId);
         }
 

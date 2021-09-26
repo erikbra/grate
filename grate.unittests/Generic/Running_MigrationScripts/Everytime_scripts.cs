@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using FluentAssertions;
@@ -73,6 +74,48 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             }
 
             scripts.Should().HaveCount(7); // one time script ran once, the two everytime scripts ran every time.
+        }
+
+        [Test]
+        public async Task Are_not_run_in_baseline()
+        {
+            var db = TestConfig.RandomDatabase();
+
+            var knownFolders = KnownFolders.In(CreateRandomTempDirectory()); 
+            var config = new GrateConfiguration
+            {
+                Baseline = true, // this is important!
+                CreateDatabase = true,
+                ConnectionString = Context.ConnectionString(db),
+                AdminConnectionString = Context.AdminConnectionString,
+                Version = "a.b.c.e",
+                KnownFolders = knownFolders,
+                AlterDatabase = true,
+                NonInteractive = true,
+                Transaction = true,
+                DatabaseType = Context.DatabaseType
+            };
+
+            var path = knownFolders?.Views?.Path ?? throw new Exception("Config Fail");
+
+            WriteSql(path, "view.sql", "create view grate as select '1' as col;");
+
+            await using (var migrator = Context.GetMigrator(config))
+            {
+                await migrator.Migrate();
+            }
+
+            string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
+
+            await using var conn = Context.CreateDbConnection(Context.ConnectionString(db));
+            var scripts = (await conn.QueryAsync<string>(sql)).ToArray();
+            scripts.Should().HaveCount(1); //marked as run
+
+            // but doesn't exist
+            Assert.ThrowsAsync(Context.DbExceptionType, async () => await conn.QueryAsync<string>("select * from grate"));
+
+
+
         }
 
         private void CreateEveryTimeScriptFile(MigrationsFolder? folder)
