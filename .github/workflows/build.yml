@@ -1,5 +1,5 @@
 # Heavyweight build and test
-name: Build
+name: Build and Publish
 
 on:
   push:
@@ -10,7 +10,37 @@ on:
   workflow_dispatch:
   
 jobs:
+  set-version-number:
+    name: Set version number
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
+      is-release: ${{ steps.gitversion.outputs.CommitsSinceVersionSource == 0 }}
+    
+    steps:
+    - name: Setup .NET 5
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Setup .NET 6
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+        include-prerelease: true
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0.9.10
+      with:
+        versionSpec: '5.x'
+    - name: Determine Version
+      id: gitversion
+      uses: gittools/actions/gitversion/execute@v0.9.10
+
   build-netcore-tool:
+    needs: set-version-number
     name: Build .NET Core (global) tool
 
     runs-on: ubuntu-latest
@@ -26,23 +56,25 @@ jobs:
       run: dotnet restore
     - name: Build
       #run: dotnet pack ./grate/grate.csproj -c release -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
-      run: dotnet pack ./grate/grate.csproj -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
+      run: dotnet pack ./grate/grate.csproj -p:Version="${{ needs.set-version-number.outputs.version }}" -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
       
     - name: Upload published tool artifact
       uses: actions/upload-artifact@v2
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       with:
-        name: grate-dotnet-tool
+        name: grate-dotnet-tool-${{ needs.set-version-number.outputs.version }}
         path: /tmp/grate/nupkg/*   
 
   build-standalone:
-    name: Build stand-alone
+    name: Build
+    needs: set-version-number
 
     runs-on: ubuntu-latest
     strategy:
       matrix:
         arch: [ "win-x64", "win-x86", "win-arm", "win-arm64", 
                 "alpine-x64", "linux-x64", "linux-arm", "linux-arm64",
-                 "osx.11.0-x64", "osx.10.12-x64", "osx-x64"
+                 "osx-x64"
               ]
 
     steps:
@@ -54,21 +86,23 @@ jobs:
         include-prerelease: true
 
     - name: Publish self-contained ${{ matrix.arch }}
-      run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
+      run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -p:Version="${{ needs.set-version-number.outputs.version }}" -o ./publish/${{ matrix.arch }}/self-contained
 
     - name: Publish .NET 6 dependent ${{ matrix.arch }}
-      run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --no-self-contained -o ./publish/${{ matrix.arch }}/dependent
+      run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --no-self-contained -p:Version="${{ needs.set-version-number.outputs.version }}" -o ./publish/${{ matrix.arch }}/dependent
 
     - name: Upload self-contained ${{ matrix.arch }}
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       uses: actions/upload-artifact@v2
       with:
-        name: grate-${{ matrix.arch }}-self-contained
+        name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.version }}
         path: ./publish/${{ matrix.arch }}/self-contained/*
     
     - name: Upload .net dependent ${{ matrix.arch }}
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       uses: actions/upload-artifact@v2
       with:
-        name: grate-${{ matrix.arch }}-framework-dependent
+        name: grate-${{ matrix.arch }}-framework-dependent-${{ needs.set-version-number.outputs.version }}
         path: ./publish/${{ matrix.arch }}/dependent/*
 
 
@@ -98,20 +132,3 @@ jobs:
         name: Unit Test Results (${{ matrix.category }})
         path: grate.unittests/test-results-${{ matrix.category }}.xml
 
-#  publish-test-results:
-#    name: "Publish Unit Tests Results"
-#    needs: test
-#    runs-on: ubuntu-latest
-#    # the build-and-test job might be skipped, we don't need to run this job then
-#    if: success() || failure()
-#
-#    steps:
-#      - name: Download Artifacts
-#        uses: actions/download-artifact@v2
-#        with:
-#          path: artifacts
-#
-#      - name: Publish Unit Test Results
-#        uses: EnricoMi/publish-unit-test-result-action@v1
-#        with:
-#          files: artifacts/**/*.xml
