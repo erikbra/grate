@@ -51,7 +51,7 @@ jobs:
         dotnet-version: 6.0.x
         include-prerelease: true
     - name: echoecho
-      run: echo "isrelease ${{ needs.set-version-number.outputs.is-release }} ."
+      run: echo "isrelease ${{ needs.set-version-number.outputs.is-release }}."
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
@@ -60,13 +60,13 @@ jobs:
       
     - name: Upload published tool artifact
       uses: actions/upload-artifact@v2
-      if: ${{ needs.set-version-number.outputs.is-release }}
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       with:
         name: grate-dotnet-tool-${{ needs.set-version-number.outputs.version }}
         path: /tmp/grate/nupkg/*   
 
   build-standalone:
-    name: Build stand-alone
+    name: Build
     needs: set-version-number
 
     runs-on: ubuntu-latest
@@ -92,14 +92,14 @@ jobs:
       run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --no-self-contained -p:Version="${{ needs.set-version-number.outputs.version }}" -o ./publish/${{ matrix.arch }}/dependent
 
     - name: Upload self-contained ${{ matrix.arch }}
-      if: ${{ needs.set-version-number.outputs.is-release }}
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       uses: actions/upload-artifact@v2
       with:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.version }}
         path: ./publish/${{ matrix.arch }}/self-contained/*
     
     - name: Upload .net dependent ${{ matrix.arch }}
-      if: ${{ needs.set-version-number.outputs.is-release }}
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       uses: actions/upload-artifact@v2
       with:
         name: grate-${{ matrix.arch }}-framework-dependent-${{ needs.set-version-number.outputs.version }}
@@ -132,20 +132,3 @@ jobs:
         name: Unit Test Results (${{ matrix.category }})
         path: grate.unittests/test-results-${{ matrix.category }}.xml
 
-#  publish-test-results:
-#    name: "Publish Unit Tests Results"
-#    needs: test
-#    runs-on: ubuntu-latest
-#    # the build-and-test job might be skipped, we don't need to run this job then
-#    if: success() || failure()
-#
-#    steps:
-#      - name: Download Artifacts
-#        uses: actions/download-artifact@v2
-#        with:
-#          path: artifacts
-#
-#      - name: Publish Unit Test Results
-#        uses: EnricoMi/publish-unit-test-result-action@v1
-#        with:
-#          files: artifacts/**/*.xml
