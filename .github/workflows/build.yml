@@ -50,7 +50,7 @@ jobs:
       with:
         dotnet-version: 6.0.x
         include-prerelease: true
-    - name: Echo echo
+    - name: Echoecho
       run: echo "is-release: ${{ needs.set-version-number.outputs.is-release }}."
     - name: Restore dependencies
       run: dotnet restore
