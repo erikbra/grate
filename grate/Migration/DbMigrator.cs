@@ -87,18 +87,24 @@ namespace grate.Migration
 
                 if (await ScriptChanged(scriptName, sql))
                 {
-                    // TODO: Add more options
-                    var changeHandling = Configuration.WarnOnOneTimeScriptChanges ? ChangedScriptHandling.WarnAndRun : ChangedScriptHandling.Error;
+                    var changeHandling = DetermineChangeHandling(Configuration);
 
                     switch (migrationType)
                     {
                         case MigrationType.Once when changeHandling == ChangedScriptHandling.Error:
-                            await OneTimeScriptChangedInError(sql, scriptName, versionId);
+                            await OneTimeScriptChanged(sql, scriptName, versionId);
                             break;
 
                         case MigrationType.Once when changeHandling == ChangedScriptHandling.WarnAndRun:
                             LogScriptChangedWarning(scriptName);
+                            _logger.LogDebug("Running script anyway due to WarnOnOneTimeScriptChanges option being set.");
                             await LogAndRunSql();
+                            break;
+
+                        case MigrationType.Once when changeHandling == ChangedScriptHandling.WarnAndIgnore:
+                            LogScriptChangedWarning(scriptName);
+                            _logger.LogDebug("Ignoring script but marking as run due to WarnAndIgnoreOnOneTimeScriptChanges option being set.");
+                            await RecordScriptInScriptsRunTable(scriptName, sql, migrationType, versionId);
                             break;
 
                         case MigrationType.AnyTime:
@@ -120,7 +126,14 @@ namespace grate.Migration
             return theSqlRun;
         }
 
-        enum ChangedScriptHandling
+        internal static ChangedScriptHandling DetermineChangeHandling(GrateConfiguration configuration)
+        {
+            if (configuration.WarnOnOneTimeScriptChanges) return ChangedScriptHandling.WarnAndRun;
+            if (configuration.WarnAndIgnoreOnOneTimeScriptChanges) return ChangedScriptHandling.WarnAndIgnore;
+            return ChangedScriptHandling.Error;
+        }
+
+        internal enum ChangedScriptHandling
         {
             Error,
             WarnAndRun,
@@ -203,17 +216,18 @@ namespace grate.Migration
         private void LogScriptChangedWarning(string scriptName)
         {
             _logger.LogWarning("{scriptName} is a one time script that has changed since it was run.", scriptName);
-            _logger.LogDebug("Running script anyway due to WarnOnOneTimeScriptChanges option being set.");
         }
 
         /// <summary>
-        /// Throws an exception about this script having changed, and rolls back transactions.
+        /// Returns whether to execute the script even though it has changed.  
+        /// Throws an exception if this script change is a failure scenario.
         /// </summary>
         /// <param name="sql"></param>
         /// <param name="scriptName"></param>
         /// <param name="versionId"></param>
+        /// <returns></returns>
         /// <exception cref="Migration.OneTimeScriptChanged"></exception>
-        private async Task OneTimeScriptChangedInError(string sql, string scriptName, long versionId)
+        private async Task OneTimeScriptChanged(string sql, string scriptName, long versionId)
         {
             Database.Rollback();
             Transaction.Current?.Dispose();

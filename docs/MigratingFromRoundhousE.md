@@ -41,11 +41,6 @@ Expect this list to shrink over time.
 - Multiple Environments per run. Scripts can target multiple environments (`blah.env.test.uat.sql`), but each migration can only target a single environment.  If this is a limiting factor for please raise an issue to discuss.
 - Oracle Database support.  We know this is a big one for some people, but none of the current maintainers are Oracle devs.  If you'd like this support please raise an issue!
 - `--runallanytimescripts`
-- Recovery Modes (`--simple`, `--recoverymode` etc)
+- Recovery Modes (`--simple`, `--recoverymode` etc).  An `up` script using `alter {{DatabaseName}} ...` may work for you in the meantime.
 - Restore Options (`--restorefrompath`, `--restoreoptions`, `--restoretimeout` etc)
 - Version info sourced from a file.  `--version=<VALUE>` support is available on the command line
-- `--warnandignoreonetimescriptchanges`
-
-
-
-

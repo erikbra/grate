@@ -30,7 +30,8 @@ namespace grate.Commands
             Add(Version());
             Add(Drop());
             Add(Tokens());
-            Add(WarnOnScriptChange());
+            Add(WarnAndRunOnScriptChange());
+            Add(WarnAndIgnoreOnScriptChange());
             Add(UserTokens());
 
             Handler = CommandHandler.Create(
@@ -139,7 +140,7 @@ namespace grate.Commands
                 new[] { "--version" }, // we can't use --version as it conflicts with the standard option
                 "Database Version - specify the version of the current migration directly on the command line."
              );
-             
+
         private static Option<bool> Drop() =>
             new(new[] { "--drop" },
                 "Drop - This instructs grate to remove the target database.  Unlike RoundhousE grate will continue to run the migration scripts after the drop."
@@ -151,11 +152,18 @@ namespace grate.Commands
                 "Tokens - This instructs grate to not perform token replacement ({{somename}}). Defaults to false."
             );
 
-        private static Option<bool> WarnOnScriptChange() =>
-            new (
+        private static Option<bool> WarnAndRunOnScriptChange() =>
+            new(
                 new[] { "-w", "--warnononetimescriptchanges" },
                 "WarnOnOneTimeScriptChanges - Instructs grate to execute changed one time scripts(DDL / DML in Upfolder) that have previously been run against the database instead of failing.  A warning is logged for each one time script that is rerun. Defaults to false."
                 );
+
+        private static Option<bool> WarnAndIgnoreOnScriptChange() =>
+            new(
+                new[] { "--warnandignoreononetimescriptchanges" },
+                "WarnAndIgnoreOnOneTimeScriptChanges - Instructs grate to ignore and update the hash of changed one time scripts (DDL/DML in Up folder) that have previously been run against the database instead of failing. A warning is logged for each one time scripts that is rerun. Defaults to false."
+                );
+
         private static Option<IEnumerable<string>> UserTokens() =>
             new(
                 new[] { "--ut", "--usertoken" },
