@@ -30,7 +30,8 @@ namespace grate.Commands
             Add(Version());
             Add(Drop());
             Add(Tokens());
-            Add(WarnOnScriptChange());
+            Add(WarnAndRunOnScriptChange());
+            Add(WarnAndIgnoreOnScriptChange());
             Add(UserTokens());
             Add(DoNotStoreScriptText());
 
@@ -152,10 +153,16 @@ namespace grate.Commands
                 "Tokens - This instructs grate to not perform token replacement ({{somename}}). Defaults to false."
             );
 
-        private static Option<bool> WarnOnScriptChange() =>
+        private static Option<bool> WarnAndRunOnScriptChange() =>
             new(
                 new[] { "-w", "--warnononetimescriptchanges" },
                 "WarnOnOneTimeScriptChanges - Instructs grate to execute changed one time scripts(DDL / DML in Upfolder) that have previously been run against the database instead of failing.  A warning is logged for each one time script that is rerun. Defaults to false."
+                );
+
+        private static Option<bool> WarnAndIgnoreOnScriptChange() =>
+            new(
+                new[] { "--warnandignoreononetimescriptchanges" },
+                "WarnAndIgnoreOnOneTimeScriptChanges - Instructs grate to ignore and update the hash of changed one time scripts (DDL/DML in Up folder) that have previously been run against the database instead of failing. A warning is logged for each one time scripts that is rerun. Defaults to false."
                 );
 
         private static Option<IEnumerable<string>> UserTokens() =>

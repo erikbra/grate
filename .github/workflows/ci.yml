@@ -5,9 +5,13 @@ on:
   push: # Trigger on pushes to feature branches for safety before a PR
     branches-ignore:
       - main # don't run on main (build.yml handles that)
+    paths-ignore:
+      - docs/
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - docs/
 
 jobs:
   build-netcore-tool:

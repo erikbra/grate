@@ -192,6 +192,12 @@ namespace grate.unittests
         {
             var cfg = await ParseGrateConfiguration(args);
             cfg?.DoNotStoreScriptsRunText.Should().Be(expected);
+
+        [TestCase("--warnandignoreononetimescriptchanges", true)]
+        public async Task WarnAndIgnoreOnOneTimeScriptChanges(string args, bool expected)
+        {
+            var cfg = await ParseGrateConfiguration(args);
+            cfg?.WarnAndIgnoreOnOneTimeScriptChanges.Should().Be(expected);
         }
 
         [Test]
@@ -203,6 +209,7 @@ namespace grate.unittests
 
         [TestCase("--silent", 0)]
         [TestCase("--ut=token=value", 1)]
+        [TestCase("--ut=token=value;abe=123", 2)]
         [TestCase("--ut=token=value --usertoken=abc=123", 2)]
         public async Task UserTokens(string args, int expectedCount)
         {

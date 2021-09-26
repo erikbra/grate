@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using FluentAssertions;
@@ -120,8 +121,58 @@ namespace grate.unittests.Generic.Running_MigrationScripts
                 scripts = (await conn.QueryAsync<string>(sql)).ToArray();
             }
 
-            scripts.Should().HaveCount(2); //scrpit run twice
+            scripts.Should().HaveCount(2); //script run twice
             scripts.Last().Should().Be(Context.Sql.SelectCurrentDatabase); // the script was re-run
+        }
+
+        [Test]
+        public async Task Ignores_and_warns_if_changed_between_runs_and_flag_set()
+        {
+            var db = TestConfig.RandomDatabase();
+
+            GrateMigrator? migrator;
+
+            var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
+            var path = knownFolders?.Up?.Path ?? throw new Exception("Config Fail");
+
+            WriteSql(path, "token.sql", "create view grate as select '1' as col;");
+
+            var config = new GrateConfiguration
+            {
+                WarnAndIgnoreOnOneTimeScriptChanges = true, // this is important!
+                CreateDatabase = true,
+                ConnectionString = Context.ConnectionString(db),
+                AdminConnectionString = Context.AdminConnectionString,
+                Version = "a.b.c.e",
+                KnownFolders = knownFolders,
+                AlterDatabase = true,
+                NonInteractive = true,
+                Transaction = true,
+                DatabaseType = Context.DatabaseType
+            };
+
+            await using (migrator = Context.GetMigrator(config))
+            {
+                await migrator.Migrate();
+            }
+
+            WriteSql(path, "token.sql", "create view grate as select '2' as col;");
+
+            await using (migrator = Context.GetMigrator(config))
+            {
+                await migrator.Migrate(); // no exceptions this time
+            }
+
+            string[] scripts;
+            string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")} order by id";
+
+            await using var conn = Context.CreateDbConnection(Context.ConnectionString(db));
+            scripts = (await conn.QueryAsync<string>(sql)).ToArray();
+            var result = (await conn.QueryAsync<string>("select col from grate")).Single();
+
+
+            scripts.Should().HaveCount(2); //script marked as run twice
+            result.Should().Be("1"); // but still the first version of the view
         }
     }
 }

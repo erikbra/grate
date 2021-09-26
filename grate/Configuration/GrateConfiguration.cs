@@ -85,6 +85,11 @@ namespace grate.Configuration
         /// </summary>
         public bool WarnOnOneTimeScriptChanges { get; init; }
 
+        /// <summary>
+        /// If true grate will issue a warning, update the dbase hash but NOT RUN any one time scripts that have changed.
+        /// </summary>
+        public bool WarnAndIgnoreOnOneTimeScriptChanges { get; init; }
+
         //private static KnownFolders InCurrentDirectory() => KnownFolders.In(CurrentDirectory);
         
         /// <summary>
