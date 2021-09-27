@@ -19,7 +19,7 @@ namespace grate.Migration
         {
             _logger = logger;
             _hashGenerator = hashGenerator;
-            Configuration = configuration ?? GrateConfiguration.Default;
+            Configuration = configuration ?? throw new ArgumentException(nameof(configuration), "No configuration passed to DbMigrator.  Container setup error?");
             Database = factory.GetService<DatabaseType, IDatabase>(Configuration.DatabaseType);
             StatementSplitter = new StatementSplitter(Database.StatementSeparatorRegex);
         }

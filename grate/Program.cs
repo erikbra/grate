@@ -23,7 +23,7 @@ namespace grate
         {
             // Temporarily parse the configuration, to get the verbosity level
             var cfg = await ParseGrateConfiguration(args);
-            _serviceProvider = BuildServiceProvider(cfg.Verbosity);
+            _serviceProvider = BuildServiceProvider(cfg);
             
             var rootCommand = Create<MigrateCommand>();
             rootCommand.Add(Verbosity());
@@ -84,33 +84,40 @@ namespace grate
             }
         }
 
-        private static ServiceProvider BuildServiceProvider(LogLevel logLevel)
+        private static ServiceProvider BuildServiceProvider(GrateConfiguration config)
         {
             var services = new ServiceCollection();
 
             services.AddCliCommands();
+
 
             services.AddLogging(logging => logging.AddConsole(options =>
                 {
                     options.FormatterName = GrateConsoleFormatter.FormatterName;
                     options.LogToStandardErrorThreshold = LogLevel.Warning;
                 })
-                .SetMinimumLevel(logLevel)
+                .SetMinimumLevel(config.Verbosity)
                 .AddConsoleFormatter<GrateConsoleFormatter, SimpleConsoleFormatterOptions>());
-         
+
+            services.AddSingleton(config);
             services.AddTransient<IDbMigrator, DbMigrator>();
             services.AddTransient<IHashGenerator, HashGenerator>();
             
             services.AddTransient<GrateMigrator, GrateMigrator>();
 
-            services.AddTransient<SqlServerDatabase>();
+            services.AddTransient<MariaDbDatabase>();
             services.AddTransient<OracleDatabase>();
+            services.AddTransient<PostgreSqlDatabase>();
+            services.AddTransient<SqlServerDatabase>();
 
             services.AddTransient<IFactory>(serviceProvider =>
             {
                 var fac = new Factory(serviceProvider);
-                fac.AddService(DatabaseType.sqlserver, typeof(SqlServerDatabase));
+
+                fac.AddService(DatabaseType.mariadb, typeof(MariaDbDatabase));
                 fac.AddService(DatabaseType.oracle, typeof(OracleDatabase));
+                fac.AddService(DatabaseType.postgresql, typeof(PostgreSqlDatabase));
+                fac.AddService(DatabaseType.sqlserver, typeof(SqlServerDatabase));
 
                 return fac;
             });
