@@ -1,6 +1,5 @@
 ﻿using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
-using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using grate.Commands;
@@ -242,6 +241,15 @@ namespace grate.unittests
             var cfg = await ParseGrateConfiguration(args);
             var t = cfg?.UserTokens.Safe().ToList();
             t.Should().HaveCount(expectedCount);
+        }
+
+        [TestCase("", DatabaseType.sqlserver)] // default
+        [TestCase("--dbt=postgresql", DatabaseType.postgresql)]
+        [TestCase("--dbt=mariadb", DatabaseType.mariadb)]
+        public async Task TestDatabaseType(string args, DatabaseType expected)
+        {
+            var cfg = await ParseGrateConfiguration(args);
+            cfg?.DatabaseType.Should().Equals(expected);
         }
 
         [TestCase("", DatabaseType.sqlserver)] // default
