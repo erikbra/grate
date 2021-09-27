@@ -14,4 +14,4 @@ RUN dotnet tool install -g grate --version 0.9.3
 
 
 ENTRYPOINT dotnet /root/.dotnet/tools/.store/grate/0.9.3/grate/0.9.3/tools/net6.0/any/grate.dll \
--f=db --version=1.0.0.0 -cs=$GRATE_CONNSTRING -silent --dbt=postgresql --verbosity=Debug
+-f=db --version=1.0.0.0 --connstring="$GRATE_CONNSTRING" -silent --dbt=postgresql --verbosity=Debug

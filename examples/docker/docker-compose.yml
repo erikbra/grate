@@ -4,7 +4,7 @@ services:
     image: mygrateimage
     environment:
       # don't configure passwords here for real.  This is just a sample!
-      - GRATE_CONNSTRING=Host=db;Database=grate_test;Username=postgres;Password=gs8j4AS7h87jHg
+      - GRATE_CONNSTRING="Host=db;Database=grate_test;Username=postgres;Password=gs8j4AS7h87jHg;Include Error Detail=true"
     depends_on:
       - db
   db:
