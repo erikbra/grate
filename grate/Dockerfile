@@ -7,7 +7,10 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:6.0.100-rc.1-alpine3.14 AS build
 
 ARG GRATE_VERSION
+ENV VERSION=$GRATE_VERSION
 
+
+FROM mcr.microsoft.com/dotnet/sdk:6.0.100-rc.1-alpine3.14 AS build
 WORKDIR /src
 COPY ["../nuget.config", "."]
 COPY ["grate/grate.csproj", "grate/"]
