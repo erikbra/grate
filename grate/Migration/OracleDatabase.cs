@@ -18,7 +18,9 @@ namespace grate.Migration
         public string? ServerName { get; set; }
         public string? DatabaseName { get; set; }
         public bool SupportsDdlTransactions => false;
-        
+        public string ScriptsRunTable => throw new System.NotImplementedException();
+        public string ScriptsRunErrorsTable => throw new System.NotImplementedException();
+        public string VersionTable => throw new System.NotImplementedException();
         public bool SplitBatchStatements => true;
         
         public string StatementSeparatorRegex =>  @"(?<KEEP1>^(?:.)*(?:-{2}).*$)|(?<KEEP1>/{1}\*{1}[\S\s]*?\*{1}/{1})|(?<KEEP1>^|\s)(?<BATCHSPLITTER>;)(?<KEEP2>\s|$)";
