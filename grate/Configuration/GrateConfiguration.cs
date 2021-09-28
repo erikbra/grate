@@ -105,5 +105,10 @@ namespace grate.Configuration
         /// If true grate will not store script text in the database to save space in small/embedded databases.
         /// </summary>
         public bool DoNotStoreScriptsRunText {  get; init; }
+
+        /// <summary>
+        /// If true runs all AnyTime scripts even if they haven't changed.
+        /// </summary>
+        public bool RunAllAnyTimeScripts { get; init; }
     }
 }

@@ -34,6 +34,7 @@ namespace grate.Commands
             Add(WarnAndIgnoreOnScriptChange());
             Add(UserTokens());
             Add(DoNotStoreScriptText());
+            Add(RunAllAnyTimeScripts());
 
             Handler = CommandHandler.Create(
                 async () =>
@@ -156,7 +157,7 @@ namespace grate.Commands
         private static Option<bool> WarnAndRunOnScriptChange() =>
             new(
                 new[] { "-w", "--warnononetimescriptchanges" },
-                "WarnOnOneTimeScriptChanges - Instructs grate to execute changed one time scripts(DDL / DML in Upfolder) that have previously been run against the database instead of failing.  A warning is logged for each one time script that is rerun. Defaults to false."
+                "WarnOnOneTimeScriptChanges - Instructs grate to execute changed one time scripts (DDL/DML in Upfolder) that have previously been run against the database instead of failing.  A warning is logged for each one time script that is rerun. Defaults to false."
                 );
 
         private static Option<bool> WarnAndIgnoreOnScriptChange() =>
@@ -176,5 +177,11 @@ namespace grate.Commands
                 new[] { "--donotstorescriptsruntext" },
                 "DoNotStoreScriptsRunText - This instructs grate to not store the full script text in the database. Defaults to false."
                 );
+
+        private static Option<bool> RunAllAnyTimeScripts() =>
+            new(
+                new[] { "--runallanytimescripts", "--forceanytimescripts" },
+                "RunAllAnyTimeScripts - This instructs grate to run any time scripts every time it is run even if they haven't changed. Defaults to false."
+            );
     }
 }

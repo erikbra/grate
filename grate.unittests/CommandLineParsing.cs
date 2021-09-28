@@ -194,6 +194,16 @@ namespace grate.unittests
             cfg?.DoNotStoreScriptsRunText.Should().Be(expected);
         }
 
+        [TestCase("", false)]
+        [TestCase("--runallanytimescripts", true)]
+        [TestCase("--forceanytimescripts", true)]
+        public async Task RunAllAnyTimeScripts(string args, bool expected)
+        {
+            var cfg = await ParseGrateConfiguration(args);
+            cfg?.RunAllAnyTimeScripts.Should().Be(expected);
+        }
+
+        [TestCase("", false)]
         [TestCase("--warnandignoreononetimescriptchanges", true)]
         public async Task WarnAndIgnoreOnOneTimeScriptChanges(string args, bool expected)
         {
