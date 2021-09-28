@@ -32,7 +32,6 @@ Rebuilding a decade old product from scratch takes time, and features have to be
 
 Expect this list to shrink over time.
 
-- `--baseline`
 - `--defaultencoding`
 - `--dryrun`
 - `--isuptodate`

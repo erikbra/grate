@@ -32,7 +32,7 @@ public class TokenProvider
 
             ["AfterMigrationFolderName"] = _config.KnownFolders?.AfterMigration.ToToken(),
             ["AlterDatabaseFolderName"] = _config.KnownFolders?.AlterDatabase.ToToken(),
-            //["Baseline"] = _config.Baseline.ToString(),
+            ["Baseline"] = _config.Baseline.ToString(),
             ["BeforeMigrationFolderName"] = _config.KnownFolders?.BeforeMigration.ToToken(),
             ["CommandTimeout"] = _config.CommandTimeout.ToString(),
             ["CommandTimeoutAdmin"] = _config.AdminCommandTimeout.ToString(),
