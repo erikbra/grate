@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "grate.unittests", "grate.un
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8A726E46-C613-42CB-BC6F-B7FE80F487D9}"
 	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
 		.editorconfig = .editorconfig
+		build-local-docker-container.ps1 = build-local-docker-container.ps1
 	EndProjectSection
 EndProject
 Global
