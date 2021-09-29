@@ -163,5 +163,50 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             scripts.Should().HaveCount(1);
             scripts.Single().Should().Be(Context.Sql.SelectVersion);
         }
+
+        [Test]
+        public async Task Are_run_more_than_once_when_unchanged_but_flag_set()
+        {
+            var db = TestConfig.RandomDatabase();
+
+            GrateMigrator? migrator;
+
+            var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
+            CreateDummySql(knownFolders.Sprocs);
+
+            var config = new GrateConfiguration
+            {
+                RunAllAnyTimeScripts = true, // important
+                CreateDatabase = true,
+                ConnectionString = Context.ConnectionString(db),
+                AdminConnectionString = Context.AdminConnectionString,
+                Version = "a.b.c.d",
+                KnownFolders = knownFolders,
+                AlterDatabase = true,
+                NonInteractive = true,
+                Transaction = true,
+                DatabaseType = Context.DatabaseType
+            };
+
+
+            await using (migrator = Context.GetMigrator(config))
+            {
+                await migrator.Migrate();
+            }
+            await using (migrator = Context.GetMigrator(config))
+            {
+                await migrator.Migrate();
+            }
+
+            string[] scripts;
+            string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
+
+            await using (var conn = Context.CreateDbConnection(Context.ConnectionString(db)))
+            {
+                scripts = (await conn.QueryAsync<string>(sql)).ToArray();
+            }
+
+            scripts.Should().HaveCount(2);
+        }
     }
 }

@@ -38,9 +38,9 @@ namespace grate.Migration
 
         public string StatementSeparatorRegex => _syntax.StatementSeparatorRegex;
 
-        private string ScriptsRunTable => _syntax.TableWithSchema(SchemaName, "ScriptsRun");
-        private string ScriptsRunErrorsTable => _syntax.TableWithSchema(SchemaName, "ScriptsRunErrors");
-        private string VersionTable => _syntax.TableWithSchema(SchemaName, "Version");
+        public string ScriptsRunTable => _syntax.TableWithSchema(SchemaName, "ScriptsRun");
+        public string ScriptsRunErrorsTable => _syntax.TableWithSchema(SchemaName, "ScriptsRunErrors");
+        public string VersionTable => _syntax.TableWithSchema(SchemaName, "Version");
 
         public Task InitializeConnections(GrateConfiguration configuration)
         {

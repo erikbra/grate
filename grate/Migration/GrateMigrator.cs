@@ -241,6 +241,7 @@ namespace grate.Migration
 
                 bool theSqlRan = await _migrator.RunSql(sql, file.Name, folder.Type, versionId, _migrator.Configuration.Environment,
                     connectionType);
+
                 if (theSqlRan)
                 {
                     try

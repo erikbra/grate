@@ -5,11 +5,9 @@ namespace grate.Configuration
 {
     public static class DefaultConfiguration
     {
-        public static string name = "grate";
-        
         public static readonly string DefaultAlterDatabaseFolderName = "alterDatabase";
         public static readonly string DefaultRunAfterCreateDatabaseFolderName = "runAfterCreateDatabase";
-		public static readonly string DefaultRunBeforeUpFolderName = "runBeforeUp";
+        public static readonly string DefaultRunBeforeUpFolderName = "runBeforeUp";
         public static readonly string DefaultUpFolderName = "up";
         public static readonly string DefaultDownFolderName = "down";
         public static readonly string DefaultRunFirstAfterUpFolderName = "runFirstAfterUp";
@@ -31,13 +29,13 @@ namespace grate.Configuration
         public static readonly string DefaultVersionXPath = @"//buildInfo/version";
         public static readonly string DefaultFilesDirectory = @".";
         public static readonly string DefaultServerName = "(local)";
-        public static readonly string DefaultOutputPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), name);
+        public static readonly string DefaultOutputPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "grate");
         public static readonly string LoggingFile = @"C:\Temp\grate\grate.changes.log";
         public static readonly int DefaultCommandTimeout = 60;
         public static readonly int DefaultAdminCommandTimeout = 300;
         public static readonly int DefaultRestoreTimeout = 900;
-        
+
         public static readonly bool DefaultDisableOutput = false;
-        
+
     }
 }

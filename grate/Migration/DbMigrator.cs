@@ -85,7 +85,8 @@ namespace grate.Migration
             if (await ThisScriptIsAlreadyRun(scriptName) && !IsEverytimeScript(scriptName, migrationType))
             {
 
-                if (await ScriptChanged(scriptName, sql))
+
+                if (AnyTimeScriptForcedToRun(migrationType, Configuration) || await ScriptHasChanged(scriptName, sql))
                 {
                     var changeHandling = DetermineChangeHandling(Configuration);
 
@@ -126,6 +127,14 @@ namespace grate.Migration
             return theSqlRun;
         }
 
+        /// <summary>
+        /// Returns true if we're looking at an AnyTime folder, but the RunAllAnyTimeScripts flag is forced on
+        /// </summary>
+        internal static bool AnyTimeScriptForcedToRun(MigrationType migrationType, GrateConfiguration configuration)
+        {
+            return migrationType == MigrationType.AnyTime && configuration.RunAllAnyTimeScripts;
+        }
+
         internal static ChangedScriptHandling DetermineChangeHandling(GrateConfiguration configuration)
         {
             if (configuration.WarnOnOneTimeScriptChanges) return ChangedScriptHandling.WarnAndRun;
@@ -148,7 +157,7 @@ namespace grate.Migration
             FileName(scriptName).Contains(".everytime.", StringComparison.InvariantCultureIgnoreCase);
 
 
-        private async Task<bool> ScriptChanged(string scriptName, string sql)
+        private async Task<bool> ScriptHasChanged(string scriptName, string sql)
         {
             var currentHash = await Database.GetCurrentHash(scriptName);
             var newHash = GetHash(sql);
