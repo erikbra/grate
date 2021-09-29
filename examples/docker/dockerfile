@@ -1,17 +1,18 @@
-# We need an SDK image for `dotnet tool` support
-FROM mcr.microsoft.com/dotnet/sdk:6.0.100-rc.1-alpine3.14 AS base
+# TODO: Point at publish grate image once it exists
+FROM grate:dev AS base 
 
 # Env Vars we need set at image runtime in order to control grate
-ENV GRATE_CONNSTRING=""
+ENV APP_CONNSTRING=""
+
+# We set the app-version at build time, as it's the same regardless of environment
+ARG APP_VERSION
+ENV VERSION=$APP_VERSION
 
 WORKDIR /app
 
 # Get the sql scripts into the image
 COPY ./db ./db
+RUN mkdir /app/migration-output
 
-# grate is self-contained, but we need dotnet to install the tool this way
-RUN dotnet tool install -g grate --version 0.9.3
-
-
-ENTRYPOINT dotnet /root/.dotnet/tools/.store/grate/0.9.3/grate/0.9.3/tools/net6.0/any/grate.dll \
--f=db --version=1.0.0.0 --connstring="$GRATE_CONNSTRING" -silent --dbt=postgresql --verbosity=Debug
+ENTRYPOINT ./grate \
+-f=db --version=$VERSION --connstring="$APP_CONNSTRING" -silent --outputPath=./migration-output

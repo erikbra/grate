@@ -1,13 +1,16 @@
 services:
-  grate:
+  db-migration:
     build: .
-    image: mygrateimage
+    image: myapp-dbmigration
     environment:
       # don't configure passwords here for real.  This is just a sample!
-      - GRATE_CONNSTRING="Host=db;Database=grate_test;Username=postgres;Password=gs8j4AS7h87jHg;Include Error Detail=true"
+      - APP_CONNSTRING="Server=db;Database=grate_test;User Id=sa;Password=gs8j4AS7h87jHg"
+    
     depends_on:
       - db
   db:
-    image: postgres
+    image: mcr.microsoft.com/mssql/server:2019-latest
     environment: 
-      - POSTGRES_PASSWORD=gs8j4AS7h87jHg # again, plain text passwords are bad mmkay!
+      - SA_PASSWORD=gs8j4AS7h87jHg # again, plain text passwords are bad mmkay!
+      - ACCEPT_EULA=Y
+      - MSSQL_PID=Express

@@ -1,2 +1,2 @@
-create or replace view test as
+create or alter view test as
 select 1 as test;

@@ -19,4 +19,9 @@ RUN dotnet publish "grate.csproj" -c Release -o /app/publish -p:NugetVersion=$VE
 FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
+
+# Add globalization support to the OS sp .Net can use cultures
+RUN apk add icu-libs
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+
 ENTRYPOINT ["./grate"]
