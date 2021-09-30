@@ -1,5 +1,6 @@
 ﻿using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using grate.Commands;
@@ -227,7 +228,7 @@ namespace grate.unittests
         [TestCase("--silent", 0)]
         [TestCase("--ut=token=value", 1)]
         [TestCase("--ut=token=value --usertokens=abc=123", 2)]
-        //[TestCase("--usertokens=token=value;abe=123", 2)] This is a back-compat scenario we may want o add support for.
+        //[TestCase("--usertokens=token=value;abe=123", 2)] This is a back-compat scenario we may want to add support for.
         public async Task UserTokens(string args, int expectedCount)
         {
             var cfg = await ParseGrateConfiguration(args);
