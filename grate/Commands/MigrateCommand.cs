@@ -34,6 +34,7 @@ namespace grate.Commands
             Add(WarnAndIgnoreOnScriptChange());
             Add(UserTokens());
             Add(DoNotStoreScriptText());
+            Add(Baseline());
             Add(RunAllAnyTimeScripts());
             Add(DryRun());
 
@@ -158,18 +159,18 @@ namespace grate.Commands
         private static Option<bool> WarnAndRunOnScriptChange() =>
             new(
                 new[] { "-w", "--warnononetimescriptchanges" },
-                "WarnOnOneTimeScriptChanges - Instructs grate to execute changed one time scripts (DDL/DML in Upfolder) that have previously been run against the database instead of failing.  A warning is logged for each one time script that is rerun. Defaults to false."
-                );
+                "WarnOnOneTimeScriptChanges - Instructs grate to execute changed one time scripts(DDL / DML in Upfolder) that have previously been run against the database instead of failing.  A warning is logged for each one time script that is rerun. Defaults to false."
+            );
 
         private static Option<bool> WarnAndIgnoreOnScriptChange() =>
             new(
                 new[] { "--warnandignoreononetimescriptchanges" },
                 "WarnAndIgnoreOnOneTimeScriptChanges - Instructs grate to ignore and update the hash of changed one time scripts (DDL/DML in Up folder) that have previously been run against the database instead of failing. A warning is logged for each one time scripts that is rerun. Defaults to false."
-                );
+            );
 
         private static Option<IEnumerable<string>> UserTokens() =>
             new(
-                new[] { "--ut", "--usertoken" },
+                new[] { "--ut", "--usertokens" },
                 "User Tokens - Allows grate to perform token replacement on custom tokens ({{my_token}}). Set as a key=value pair, eg '--ut=my_token=myvalue'. Can be specified multiple times."
             );
 
@@ -184,8 +185,13 @@ namespace grate.Commands
                 new[] { "--runallanytimescripts", "--forceanytimescripts" },
                 "RunAllAnyTimeScripts - This instructs grate to run any time scripts every time it is run even if they haven't changed. Defaults to false."
             );
-            
 
+        private static Option<bool> Baseline() =>
+            new(
+                new[] { "--baseline" },
+                "Baseline - This instructs grate to mark the scripts as run, but not to actually run anything against the database. Use this option if you already have scripts that have been run through other means (and BEFORE you start the new ones)."
+            );
+            
         private static Option<bool> DryRun() =>
             new(
                 new[] { "--dryrun" },
