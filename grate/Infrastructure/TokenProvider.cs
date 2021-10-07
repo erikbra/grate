@@ -50,7 +50,7 @@ public class TokenProvider
             ["DoNotStoreScriptsRunText"] = _config.DoNotStoreScriptsRunText.ToString(),
             ["DownFolderName"] = _config.KnownFolders?.Down.ToToken(),
             ["Drop"] = _config.Drop.ToString(),
-            //["DryRun"] = DryRun.to_string(),
+            ["DryRun"] = _config.DryRun.ToString(),
             ["EnvironmentName"] = _config.Environment?.Current,
             ["EnvironmentNames"] = _config.Environment?.Current,  //string.Join(",", EnvironmentNames),
             ["FunctionsFolderName"] = _config.KnownFolders?.Functions.ToToken(),

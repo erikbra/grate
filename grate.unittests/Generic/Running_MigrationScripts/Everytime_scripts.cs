@@ -18,28 +18,56 @@ namespace grate.unittests.Generic.Running_MigrationScripts
         {
             var db = TestConfig.RandomDatabase();
 
-            GrateMigrator? migrator;
-
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateDummySql(knownFolders.Permissions);
 
             for (var i = 0; i < 3; i++)
             {
-                await using (migrator = Context.GetMigrator(db, true, knownFolders))
-                {
-                    await migrator.Migrate();
-                }
+                await using var migrator = Context.GetMigrator(db, true, knownFolders);
+                await migrator.Migrate();
             }
 
-            string[] scripts;
             string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-            await using (var conn = Context.CreateDbConnection(Context.ConnectionString(db)))
+            await using var conn = Context.CreateDbConnection(Context.ConnectionString(db));
+            var scripts = (await conn.QueryAsync<string>(sql)).ToArray();
+            scripts.Should().HaveCount(3);
+        }
+
+        [Test]
+        public async Task Are_not_run_in_dryrun()
+        {
+            var db = TestConfig.RandomDatabase();
+
+            var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
+            CreateDummySql(knownFolders.Permissions);
+
+            var config = new GrateConfiguration
             {
-                scripts = (await conn.QueryAsync<string>(sql)).ToArray();
+                DryRun = true, // this is important!
+                CreateDatabase = true,
+                ConnectionString = Context.ConnectionString(db),
+                AdminConnectionString = Context.AdminConnectionString,
+                Version = "a.b.c.e",
+                KnownFolders = knownFolders,
+                AlterDatabase = true,
+                NonInteractive = true,
+                Transaction = true,
+                DatabaseType = Context.DatabaseType
+            };
+
+
+            await using (var migrator = Context.GetMigrator(config))
+            {
+                await migrator.Migrate();
             }
 
-            scripts.Should().HaveCount(3);
+            string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
+
+            await using var conn = Context.CreateDbConnection(Context.ConnectionString(db));
+            var scripts = (await conn.QueryAsync<string>(sql)).ToArray();
+            scripts.Should().BeEmpty();
+
         }
 
         [Test]

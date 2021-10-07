@@ -112,6 +112,11 @@ namespace grate.Configuration
         public bool Baseline { get; init; }
 
         /// <summary>
+        /// If true we need to log what we would have done, but NOT run any SQL
+        /// </summary>
+        public bool DryRun { get; init; }
+
+        /// <summary>
         /// If true runs all AnyTime scripts even if they haven't changed.
         /// </summary>
         public bool RunAllAnyTimeScripts { get; init; }

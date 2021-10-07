@@ -203,6 +203,14 @@ namespace grate.unittests
         }
 
         [TestCase("", false)]
+        [TestCase("--dryrun", true)]
+        public async Task DryRun(string args, bool expected)
+        {
+            var cfg = await ParseGrateConfiguration(args);
+            cfg?.DryRun.Should().Be(expected);
+        }
+
+        [TestCase("", false)]
         [TestCase("--warnandignoreononetimescriptchanges", true)]
         public async Task WarnAndIgnoreOnOneTimeScriptChanges(string args, bool expected)
         {
