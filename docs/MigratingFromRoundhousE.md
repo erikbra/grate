@@ -34,7 +34,6 @@ Expect this list to shrink over time.
 
 - `--baseline`
 - `--defaultencoding`
-- `--dryrun`
 - `--isuptodate`
 - MSBuild Task.
 - Multiple Environments per run. Scripts can target multiple environments (`blah.env.test.uat.sql`), but each migration can only target a single environment.  If this is a limiting factor for please raise an issue to discuss.

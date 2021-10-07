@@ -35,6 +35,7 @@ namespace grate.Commands
             Add(UserTokens());
             Add(DoNotStoreScriptText());
             Add(RunAllAnyTimeScripts());
+            Add(DryRun());
 
             Handler = CommandHandler.Create(
                 async () =>
@@ -176,12 +177,19 @@ namespace grate.Commands
             new(
                 new[] { "--donotstorescriptsruntext" },
                 "DoNotStoreScriptsRunText - This instructs grate to not store the full script text in the database. Defaults to false."
-                );
+            );
 
         private static Option<bool> RunAllAnyTimeScripts() =>
             new(
                 new[] { "--runallanytimescripts", "--forceanytimescripts" },
                 "RunAllAnyTimeScripts - This instructs grate to run any time scripts every time it is run even if they haven't changed. Defaults to false."
+            );
+            
+
+        private static Option<bool> DryRun() =>
+            new(
+                new[] { "--dryrun" },
+                " DryRun - This instructs grate to log what would have run, but not to actually run anything against the database.  Use this option if you are trying to figure out what grate is going to do."
             );
     }
 }

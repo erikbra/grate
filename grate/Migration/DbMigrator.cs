@@ -62,13 +62,21 @@ namespace grate.Migration
             GrateEnvironment? environment,
             ConnectionType connectionType)
         {
-            var theSqlRun = false;
+            var theSqlWasRun = false;
 
-            async Task LogAndRunSql()
+            async Task<bool> LogAndRunSql()
             {
                 _logger.LogInformation(" Running {scriptName} on {serverName} - {databaseName}.", scriptName, Database.ServerName, Database.DatabaseName);
-                await RunTheActualSql(sql, scriptName, migrationType, versionId, connectionType);
-                theSqlRun = true;
+
+                if (Configuration.DryRun)
+                {
+                    return false;
+                }
+                else
+                {
+                    await RunTheActualSql(sql, scriptName, migrationType, versionId, connectionType);
+                    return true;
+                }
             }
 
             if (!InCorrectEnvironment(scriptName, environment))
@@ -99,7 +107,7 @@ namespace grate.Migration
                         case MigrationType.Once when changeHandling == ChangedScriptHandling.WarnAndRun:
                             LogScriptChangedWarning(scriptName);
                             _logger.LogDebug("Running script anyway due to WarnOnOneTimeScriptChanges option being set.");
-                            await LogAndRunSql();
+                            theSqlWasRun = await LogAndRunSql();
                             break;
 
                         case MigrationType.Once when changeHandling == ChangedScriptHandling.WarnAndIgnore:
@@ -110,7 +118,7 @@ namespace grate.Migration
 
                         case MigrationType.AnyTime:
                         case MigrationType.EveryTime:
-                            await LogAndRunSql();
+                            theSqlWasRun = await LogAndRunSql();
                             break;
                     };
                 }
@@ -121,10 +129,10 @@ namespace grate.Migration
             }
             else
             {
-                await LogAndRunSql();
+                theSqlWasRun = await LogAndRunSql();
             }
 
-            return theSqlRun;
+            return theSqlWasRun;
         }
 
         /// <summary>
@@ -192,7 +200,15 @@ namespace grate.Migration
         private bool TokenReplacementEnabled => !Configuration.DisableTokenReplacement;
 
 
-
+        /// <summary>
+        /// Actually, for real, executes the sql against the database
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="scriptName"></param>
+        /// <param name="migrationType"></param>
+        /// <param name="versionId"></param>
+        /// <param name="connectionType"></param>
+        /// <returns></returns>
         private async Task RunTheActualSql(
             string sql,
             string scriptName,
@@ -252,7 +268,7 @@ namespace grate.Migration
         {
             var hash = _hashGenerator.Hash(sql);
             var sqlToStore = Configuration.DoNotStoreScriptsRunText ? null : sql;
-            
+
             _logger.LogDebug("Recording {scriptName} script ran on {serverName} - {databaseName}.", scriptName, Database.ServerName, Database.DatabaseName);
             return Database.InsertScriptRun(scriptName, sqlToStore, hash, migrationType == MigrationType.Once, versionId);
         }
