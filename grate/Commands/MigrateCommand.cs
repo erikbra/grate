@@ -190,6 +190,7 @@ namespace grate.Commands
             new(
                 new[] { "--baseline" },
                 "Baseline - This instructs grate to mark the scripts as run, but not to actually run anything against the database. Use this option if you already have scripts that have been run through other means (and BEFORE you start the new ones)."
+            );
             
         private static Option<bool> DryRun() =>
             new(
