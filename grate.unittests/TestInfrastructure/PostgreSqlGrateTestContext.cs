@@ -75,6 +75,6 @@ namespace grate.unittests.TestInfrastructure
             return GetMigrator(config);
         }
 
-        public string ExpectedVersionPrefix => "PostgreSQL 13.";
+        public string ExpectedVersionPrefix => "PostgreSQL 14.";
     }
 }
