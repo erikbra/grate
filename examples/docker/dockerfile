@@ -1,4 +1,4 @@
-# TODO: Point at publish grate image once it exists
+# TODO: Point at published grate image once it exists
 FROM grate:dev AS base 
 
 # Env Vars we need set at image runtime in order to control grate
