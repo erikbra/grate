@@ -59,6 +59,6 @@ $originalWxs = Join-Path $Root "grate.wxs"
 
 #$null = & $candle -nologo -arch x64 $wxs -o $wixobj
 & $candle -nologo -arch x64 $wxs -o $wixobj
-& $light -nologo $wixobj -o $msi
+& $light -nologo -wx0204 -wx1076 $wixobj -o $msi
 
 
