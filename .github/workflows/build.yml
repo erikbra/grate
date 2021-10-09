@@ -15,7 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
-      is-release: ${{ steps.gitversion.outputs.CommitsSinceVersionSource == 0 }}
+      #is-release: ${{ steps.gitversion.outputs.CommitsSinceVersionSource == 0 }}
+      is-release: 'true'
     
     steps:
     - name: Setup .NET 5
@@ -116,7 +117,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        arch: [ "x64" ]
+        arch: [ "win-x64" ]
 
     steps:
     - uses: actions/checkout@v2
