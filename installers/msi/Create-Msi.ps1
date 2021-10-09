@@ -57,7 +57,8 @@ $originalWxs = Join-Path $Root "grate.wxs"
 	-replace '%%%GRATEEXE%%%',$grateExe `
 	) | Set-Content -Path $wxs
 
-$null = & $candle -nologo -arch x64 $wxs -o $wixobj
+#$null = & $candle -nologo -arch x64 $wxs -o $wixobj
+& $candle -nologo -arch x64 $wxs -o $wixobj
 & $light -nologo $wixobj -o $msi
 
 
