@@ -14,7 +14,8 @@ jobs:
     name: Set version number
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
+      #version: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
+      version: "0.0.0.8"
       #is-release: ${{ steps.gitversion.outputs.CommitsSinceVersionSource == 0 }}
       is-release: 'true'
     
@@ -65,9 +66,9 @@ jobs:
       with:
         name: grate-dotnet-tool-${{ needs.set-version-number.outputs.version }}
         path: /tmp/grate/nupkg/*   
-    - name: Push to Nuget.org
-      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
-      run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_ORG_KEY}} --skip-duplicate
+    # - name: Push to Nuget.org
+    #   if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+    #   run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_ORG_KEY}} --skip-duplicate
 
   build-standalone:
     name: Build
