@@ -49,13 +49,15 @@ $wxs = Join-Path $tmpDir "grate-$version.wxs"
 $wixobj = Join-Path $tmpDir "grate-$version.wixobj"
 $msi = Join-Path $tmpDir "grate-$version.msi"
 
-((Get-Content -path ./grate.wxs -Raw) `
+$originalWxs = Join-Path $Root "grate.wxs"
+
+((Get-Content -path $originalWxs -Raw) `
 	-replace '%%%VERSION%%%',$version `
 	-replace '%%%UPGRADECODE%%%',$upgradeCode `
 	-replace '%%%GRATEEXE%%%',$grateExe `
 	) | Set-Content -Path $wxs
 
-$null = & $candle -nologo $wxs -o $wixobj
+$null = & $candle -nologo -arch x64 $wxs -o $wixobj
 & $light -nologo $wixobj -o $msi
 
 

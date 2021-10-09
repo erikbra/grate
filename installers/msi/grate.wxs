@@ -7,7 +7,7 @@
 
 		<Directory Id='TARGETDIR' Name='SourceDir'>
 
-			<Directory Id='ProgramFilesFolder' Name='PFiles'>
+			<Directory Id='ProgramFiles64Folder' Name='PFiles'>
 				<Directory Id='erikbra' Name='erikbra'>
 					<Directory Id='INSTALLDIR' Name='grate'>
 						<Component Id='MainExecutable' Guid='ED167D39-AF0F-4209-AA73-2A65021D583D'>
