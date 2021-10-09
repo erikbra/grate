@@ -107,6 +107,25 @@ jobs:
       with:
         name: grate-${{ matrix.arch }}-framework-dependent-${{ needs.set-version-number.outputs.version }}
         path: ./publish/${{ matrix.arch }}/dependent/*
+  
+  build-msi:
+    name: Build MSI
+    needs: 
+     - set-version-number
+     - build-standalone
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [ "x64" ]
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/download-artifact@v2
+      with:
+        name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.version }}
+        
+    - name: Display structure of downloaded files
+      run: ls -R
 
 
   test:
