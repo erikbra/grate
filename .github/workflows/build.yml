@@ -120,7 +120,6 @@ jobs:
         arch: [ "win-x64" ]
 
     steps:
-    - uses: actions/checkout@v2
     - uses: actions/download-artifact@v2
       with:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.version }}
@@ -128,6 +127,15 @@ jobs:
     - name: Display structure of downloaded files
       run: ls -R
 
+    - name: Create msi
+      run: ./installers/msi/Create-Msi.ps1 -grateExe ./grate.exe -Version "${{ needs.set-version-number.outputs.version }}"
+
+    - name: Upload MSI ${{ matrix.arch }}
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: grate-msi-${{ matrix.arch }}-${{ needs.set-version-number.outputs.version }}
+        path: ./installers/msi/tmp/*.msi
 
   test:
     name: Run tests
