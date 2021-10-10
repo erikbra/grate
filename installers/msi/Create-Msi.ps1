@@ -58,7 +58,16 @@ $originalWxs = Join-Path $Root "grate.wxs"
 	) | Set-Content -Path $wxs
 
 #$null = & $candle -nologo -arch x64 $wxs -o $wixobj
-$null = & $candle -nologo -arch x64 $wxs -o $wixobj 
-$null = & $light -nologo -wx0204 -wx1076 $wixobj -o $msi
 
+$candleRes = ""
+$lightRes = ""
+
+try {
+  $candleRes = & $candle -nologo -arch x64 $wxs -o $wixobj 
+  $lightRes = & $light -nologo -wx0204 -wx1076 $wixobj -o $msi
+}
+catch {}
+
+#echo "lightRes: $lightRes"
+#echo "candleRes: $candleRes"
 
