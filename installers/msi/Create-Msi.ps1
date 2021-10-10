@@ -68,6 +68,8 @@ try {
 }
 catch {}
 
+Exit 0;
+
 #echo "lightRes: $lightRes"
 #echo "candleRes: $candleRes"
 
