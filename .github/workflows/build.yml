@@ -16,7 +16,7 @@ jobs:
     outputs:
       version: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
       #version: "0.0.0.9"
-      #is-release: ${{ steps.gitversion.outputs.CommitsSinceVersionSource == 0 }}
+      is-release: ${{ steps.gitversion.outputs.CommitsSinceVersionSource == 0 }}
       #is-release: 'true'
     
     steps:
