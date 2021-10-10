@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       #version: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
-      version: "0.0.0.8"
+      version: "0.0.0.9"
       #is-release: ${{ steps.gitversion.outputs.CommitsSinceVersionSource == 0 }}
       is-release: 'true'
     
@@ -127,8 +127,8 @@ jobs:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.version }}
         path: ${{ matrix.arch }}/
         
-    - name: Display structure of downloaded files
-      run: ls -R
+    # - name: Display structure of downloaded files
+    #   run: ls -R
 
     - name: Create msi
       run: ./installers/msi/Create-Msi.ps1 -grateExe ./${{ matrix.arch }}/grate.exe -Version "${{ needs.set-version-number.outputs.version }}"

@@ -10,7 +10,7 @@
       <Directory Id='LocalAppDataFolder' Name='PFiles'>
         <Directory Id='ROOTDIRECTORY' Name='erikbra'>
           <Directory Id='INSTALLFOLDER' Name='grate'>
-            <Component Id='MainExecutable' Guid='c544280e-4f9b-443d-be6d-4a82cfee3723'>
+            <Component Id='MainExecutable' Guid='C544280E-4F9B-443D-BE6D-4A82CFEE3723'>
               <File Id='grateEXE' Name='grate.exe' DiskId='1' Source='%%%GRATEEXE%%%'/>
 
               <!-- Remove all files from the INSTALLFOLDER on uninstall -->
@@ -25,7 +25,7 @@
         </Directory>
       </Directory>
 
-      <Component Id='PathVariable' Guid='e7507a5d-d78e-4082-bd75-986a11f54e68'>
+      <Component Id='PathVariable' Guid='E7507A5D-D78E-4082-BD75-986A11F54E68'>
         <Environment Id='UpdatePath' Name='PATH' Action='set' Permanent='yes' System='no' Part='last' Value='[INSTALLFOLDER]' />
       </Component>
     </Directory>
