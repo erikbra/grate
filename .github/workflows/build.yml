@@ -14,10 +14,10 @@ jobs:
     name: Set version number
     runs-on: ubuntu-latest
     outputs:
-      #version: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
-      version: "0.0.0.9"
+      version: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
+      #version: "0.0.0.9"
       #is-release: ${{ steps.gitversion.outputs.CommitsSinceVersionSource == 0 }}
-      is-release: 'true'
+      #is-release: 'true'
     
     steps:
     - name: Setup .NET 5
@@ -59,6 +59,8 @@ jobs:
     - name: Build
       #run: dotnet pack ./grate/grate.csproj -c release -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
       run: dotnet pack ./grate/grate.csproj -p:Version="${{ needs.set-version-number.outputs.version }}" -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
+      env:
+        VERSION: ${{ needs.set-version-number.outputs.version }}
       
     - name: Upload published tool artifact
       uses: actions/upload-artifact@v2
@@ -66,9 +68,9 @@ jobs:
       with:
         name: grate-dotnet-tool-${{ needs.set-version-number.outputs.version }}
         path: /tmp/grate/nupkg/*   
-    # - name: Push to Nuget.org
-    #   if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
-    #   run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_ORG_KEY}} --skip-duplicate
+    - name: Push to Nuget.org
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+      run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_ORG_KEY}} --skip-duplicate
 
   build-standalone:
     name: Build
@@ -92,9 +94,13 @@ jobs:
 
     - name: Publish self-contained ${{ matrix.arch }}
       run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -p:Version="${{ needs.set-version-number.outputs.version }}" -o ./publish/${{ matrix.arch }}/self-contained
+      env:
+        VERSION: ${{ needs.set-version-number.outputs.version }}
 
     - name: Publish .NET 6 dependent ${{ matrix.arch }}
       run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --no-self-contained -p:Version="${{ needs.set-version-number.outputs.version }}" -o ./publish/${{ matrix.arch }}/dependent
+      env:
+        VERSION: ${{ needs.set-version-number.outputs.version }}
 
     - name: Upload self-contained ${{ matrix.arch }}
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
@@ -133,6 +139,8 @@ jobs:
     - name: Create msi
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       run: ./installers/msi/Create-Msi.ps1 -grateExe ./${{ matrix.arch }}/grate.exe -Version "${{ needs.set-version-number.outputs.version }}"
+      env:
+        VERSION: ${{ needs.set-version-number.outputs.version }}
 
     - name: Upload MSI ${{ matrix.arch }}
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
