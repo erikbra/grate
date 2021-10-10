@@ -15,7 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
+      #version: "0.0.0.9"
       is-release: ${{ steps.gitversion.outputs.CommitsSinceVersionSource == 0 }}
+      #is-release: 'true'
     
     steps:
     - name: Setup .NET 5
@@ -57,6 +59,8 @@ jobs:
     - name: Build
       #run: dotnet pack ./grate/grate.csproj -c release -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
       run: dotnet pack ./grate/grate.csproj -p:Version="${{ needs.set-version-number.outputs.version }}" -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
+      env:
+        VERSION: ${{ needs.set-version-number.outputs.version }}
       
     - name: Upload published tool artifact
       uses: actions/upload-artifact@v2
@@ -90,9 +94,13 @@ jobs:
 
     - name: Publish self-contained ${{ matrix.arch }}
       run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -p:Version="${{ needs.set-version-number.outputs.version }}" -o ./publish/${{ matrix.arch }}/self-contained
+      env:
+        VERSION: ${{ needs.set-version-number.outputs.version }}
 
     - name: Publish .NET 6 dependent ${{ matrix.arch }}
       run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --no-self-contained -p:Version="${{ needs.set-version-number.outputs.version }}" -o ./publish/${{ matrix.arch }}/dependent
+      env:
+        VERSION: ${{ needs.set-version-number.outputs.version }}
 
     - name: Upload self-contained ${{ matrix.arch }}
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
@@ -107,7 +115,39 @@ jobs:
       with:
         name: grate-${{ matrix.arch }}-framework-dependent-${{ needs.set-version-number.outputs.version }}
         path: ./publish/${{ matrix.arch }}/dependent/*
+  
+  build-msi:
+    name: Build MSI
+    needs: 
+     - set-version-number
+     - build-standalone
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [ "win-x64" ]
 
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/download-artifact@v2
+      with:
+        name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.version }}
+        path: ${{ matrix.arch }}/
+        
+    # - name: Display structure of downloaded files
+    #   run: ls -R
+
+    - name: Create msi
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+      run: ./installers/msi/Create-Msi.ps1 -grateExe ./${{ matrix.arch }}/grate.exe -Version "${{ needs.set-version-number.outputs.version }}"
+      env:
+        VERSION: ${{ needs.set-version-number.outputs.version }}
+
+    - name: Upload MSI ${{ matrix.arch }}
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: grate-msi-${{ matrix.arch }}-${{ needs.set-version-number.outputs.version }}
+        path: ./installers/msi/tmp/*.msi
 
   test:
     name: Run tests
