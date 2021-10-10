@@ -136,7 +136,8 @@ jobs:
         path: ${{ matrix.arch }}/
 
     - name: Create msi
-      run: ./installers/msi/Create-Msi.ps1 -grateExe ./${{ matrix.arch }}/grate.exe -Version "${{ needs.set-version-number.outputs.nuGetVersion }}"
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+      run: ./installers/msi/Create-Installer.ps1 -grateExe ./${{ matrix.arch }}/grate.exe -Version "${{ needs.set-version-number.outputs.nuGetVersion }}"
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
 
