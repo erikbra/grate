@@ -14,8 +14,8 @@ jobs:
     name: Set version number
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
-      #version: "0.0.0.9"
+      nuGetVersion: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
+      semVer: ${{ steps.gitversion.outputs.fullSemVer }}
       is-release: ${{ steps.gitversion.outputs.CommitsSinceVersionSource == 0 }}
       #is-release: 'true'
     
@@ -58,16 +58,17 @@ jobs:
       run: dotnet restore
     - name: Build
       #run: dotnet pack ./grate/grate.csproj -c release -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
-      run: dotnet pack ./grate/grate.csproj -p:Version="${{ needs.set-version-number.outputs.version }}" -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
+      run: dotnet pack ./grate/grate.csproj -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
       env:
-        VERSION: ${{ needs.set-version-number.outputs.version }}
+        VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
       
     - name: Upload published tool artifact
       uses: actions/upload-artifact@v2
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       with:
-        name: grate-dotnet-tool-${{ needs.set-version-number.outputs.version }}
+        name: grate-dotnet-tool-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: /tmp/grate/nupkg/*   
+
     - name: Push to Nuget.org
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_ORG_KEY}} --skip-duplicate
@@ -93,27 +94,27 @@ jobs:
         include-prerelease: true
 
     - name: Publish self-contained ${{ matrix.arch }}
-      run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -p:Version="${{ needs.set-version-number.outputs.version }}" -o ./publish/${{ matrix.arch }}/self-contained
+      run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
       env:
-        VERSION: ${{ needs.set-version-number.outputs.version }}
+        VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
 
     - name: Publish .NET 6 dependent ${{ matrix.arch }}
-      run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --no-self-contained -p:Version="${{ needs.set-version-number.outputs.version }}" -o ./publish/${{ matrix.arch }}/dependent
+      run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --no-self-contained  -o ./publish/${{ matrix.arch }}/dependent
       env:
-        VERSION: ${{ needs.set-version-number.outputs.version }}
+        VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
 
     - name: Upload self-contained ${{ matrix.arch }}
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       uses: actions/upload-artifact@v2
       with:
-        name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.version }}
+        name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: ./publish/${{ matrix.arch }}/self-contained/*
     
     - name: Upload .net dependent ${{ matrix.arch }}
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       uses: actions/upload-artifact@v2
       with:
-        name: grate-${{ matrix.arch }}-framework-dependent-${{ needs.set-version-number.outputs.version }}
+        name: grate-${{ matrix.arch }}-framework-dependent-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: ./publish/${{ matrix.arch }}/dependent/*
   
   build-msi:
@@ -129,28 +130,70 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
     - uses: actions/download-artifact@v2
-      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       with:
-        name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.version }}
+        name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: ${{ matrix.arch }}/
-        
-    # - name: Display structure of downloaded files
-    #   run: ls -R
 
     - name: Create msi
-      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
-      run: ./installers/msi/Create-Msi.ps1 -grateExe ./${{ matrix.arch }}/grate.exe -Version "${{ needs.set-version-number.outputs.version }}"
+      run: ./installers/msi/Create-Msi.ps1 -grateExe ./${{ matrix.arch }}/grate.exe -Version "${{ needs.set-version-number.outputs.nuGetVersion }}"
       env:
-        VERSION: ${{ needs.set-version-number.outputs.version }}
+        VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
 
     - name: Upload MSI ${{ matrix.arch }}
-      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       uses: actions/upload-artifact@v2
       with:
-        name: grate-msi-${{ matrix.arch }}-${{ needs.set-version-number.outputs.version }}
+        name: grate-msi-${{ matrix.arch }}-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: ./installers/msi/tmp/*.msi
+
+  build-docker-image:
+    name: Build and push docker image
+    needs: 
+     - set-version-number
+     - build-standalone
+    runs-on: ubuntu-latest
+    if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+    env:
+      #REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ github.repository }}
+      FULL_IMAGE_NAME: ${{ github.repository }}
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/download-artifact@v2
+      with:
+        name: grate-alpine-x64-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
+        path: installers/docker/
+        
+
+    - name: Log in to the Container registry
+      uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      with:
+        #registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+      with:
+        tags: |
+          type=semver,pattern={{version}}
+          type=semver,pattern={{version}},value=${{ needs.set-version-number.outputs.semVer }}
+          type=ref,event=tag
+
+        #images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        images: ${{ env.IMAGE_NAME }}
+
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+      with:
+        context: ./installers/docker/
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+
 
   test:
     name: Run tests
