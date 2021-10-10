@@ -122,13 +122,16 @@ jobs:
      - set-version-number
      - build-standalone
     runs-on: windows-latest
+    if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
     strategy:
       matrix:
         arch: [ "win-x64" ]
 
     steps:
     - uses: actions/checkout@v2
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
     - uses: actions/download-artifact@v2
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       with:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.version }}
         path: ${{ matrix.arch }}/
