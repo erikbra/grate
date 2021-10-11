@@ -1,5 +1,4 @@
-# TODO: Point at published grate image once it exists
-FROM grate:dev AS base 
+FROM erikbra/grate:latest
 
 # Env Vars we need set at image runtime in order to control grate
 ENV APP_CONNSTRING=""
