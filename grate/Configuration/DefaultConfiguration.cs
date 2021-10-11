@@ -29,7 +29,7 @@ namespace grate.Configuration
         public static readonly string DefaultVersionXPath = @"//buildInfo/version";
         public static readonly string DefaultFilesDirectory = @".";
         public static readonly string DefaultServerName = "(local)";
-        public static readonly string DefaultOutputPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "grate");
+        public static readonly string DefaultOutputPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.Create), "grate");
         public static readonly string LoggingFile = @"C:\Temp\grate\grate.changes.log";
         public static readonly int DefaultCommandTimeout = 60;
         public static readonly int DefaultAdminCommandTimeout = 300;
