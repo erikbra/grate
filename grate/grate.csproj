@@ -23,7 +23,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0-rc.1.21451.13" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0-rc.1.21451.13" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-*" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="3.0.0-*" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="3.0.1" />
     <PackageReference Include="Dapper" Version="2.0.*" />
     <PackageReference Include="Npgsql" Version="5.0.*" />
     <PackageReference Include="MySqlConnector" Version="1.3.*" />
