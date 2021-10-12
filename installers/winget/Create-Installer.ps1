@@ -40,6 +40,6 @@ $winget = $localFile
 
 # Update the winget release
 
-& $winget update erikbra.grate -u $packageUrl -v $version -o grate
+& $winget update erikbra.grate -u $packageUrl -v $version -o $(Join-Path $Root grate)
 
 
