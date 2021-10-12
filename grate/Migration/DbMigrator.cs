@@ -98,8 +98,6 @@ namespace grate.Migration
 
             if (await ThisScriptIsAlreadyRun(scriptName) && !IsEverytimeScript(scriptName, migrationType))
             {
-
-
                 if (AnyTimeScriptForcedToRun(migrationType, Configuration) || await ScriptHasChanged(scriptName, sql))
                 {
                     var changeHandling = DetermineChangeHandling(Configuration);
@@ -130,7 +128,7 @@ namespace grate.Migration
                 }
                 else
                 {
-                    _logger.LogInformation(" Skipped {scriptName} - {reason}.", scriptName, "No changes were found to run");
+                    _logger.LogDebug(" Skipped {scriptName} - {reason}.", scriptName, "No changes were found to run");
                 }
             }
             else
@@ -276,7 +274,7 @@ namespace grate.Migration
             var hash = _hashGenerator.Hash(sql);
             var sqlToStore = Configuration.DoNotStoreScriptsRunText ? null : sql;
 
-            _logger.LogDebug("Recording {scriptName} script ran on {serverName} - {databaseName}.", scriptName, Database.ServerName, Database.DatabaseName);
+            _logger.LogTrace("Recording {ScriptName} script ran on {ServerName} - {DatabaseName}.", scriptName, Database.ServerName, Database.DatabaseName);
             return Database.InsertScriptRun(scriptName, sqlToStore, hash, migrationType == MigrationType.Once, versionId);
         }
 
