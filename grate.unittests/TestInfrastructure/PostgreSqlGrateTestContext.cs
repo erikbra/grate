@@ -9,7 +9,7 @@ using NSubstitute;
 
 namespace grate.unittests.TestInfrastructure
 {
-    class PostgreSqlGrateTestContext : TestContextBase, IGrateTestContext
+    internal class PostgreSqlGrateTestContext : TestContextBase, IGrateTestContext, IDockerTestContext
     {
         public string AdminPassword { get; set; } = default!;
         public int? Port { get; set; }

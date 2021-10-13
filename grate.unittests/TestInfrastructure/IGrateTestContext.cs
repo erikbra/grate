@@ -12,8 +12,6 @@ namespace grate.unittests.TestInfrastructure
         string AdminPassword { get; set; }
         int? Port { get; set; }
 
-        string DockerCommand(string serverName, string adminPassword);
-
         string AdminConnectionString { get; }
         string ConnectionString(string database);
 

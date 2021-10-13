@@ -19,7 +19,7 @@
         public string VarcharType => "nvarchar";
         public string TextType => "ntext";
         public string BooleanType => "bit";
-        public string Identity(string columnDefinition, string nullability) => $"{columnDefinition} IDENTITY(1,1) {nullability}";
+        public string PrimaryKeyColumn(string columnName) => $"{columnName} bigint IDENTITY(1,1) NOT NULL";
         public string CreateSchema(string schemaName) => @$"CREATE SCHEMA ""{schemaName}"";";
         public string CreateDatabase(string databaseName) => @$"CREATE DATABASE ""{databaseName}""";
         public string DropDatabase(string databaseName) => @$"USE master; 
@@ -32,7 +32,7 @@
         public string ReturnId => ";SELECT @@IDENTITY";
         public string TimestampType => "datetime";
         public string Quote(string text) => $"\"{text}\"";
-        public string PrimaryKey(string column) => $"PRIMARY KEY CLUSTERED ({column})";
+        public string PrimaryKeyConstraint(string tableName, string column) => $",\nCONSTRAINT PK_{tableName}_{column} PRIMARY KEY CLUSTERED ({column})";
         public string LimitN(string sql, int n) => $"TOP {n}\n" + sql;
     }
 }

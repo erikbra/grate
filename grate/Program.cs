@@ -112,6 +112,7 @@ namespace grate
             services.AddTransient<OracleDatabase>();
             services.AddTransient<PostgreSqlDatabase>();
             services.AddTransient<SqlServerDatabase>();
+            services.AddTransient<SqliteDatabase>();
 
             services.AddTransient<IFactory>(serviceProvider =>
             {
@@ -121,6 +122,7 @@ namespace grate
                 fac.AddService(DatabaseType.oracle, typeof(OracleDatabase));
                 fac.AddService(DatabaseType.postgresql, typeof(PostgreSqlDatabase));
                 fac.AddService(DatabaseType.sqlserver, typeof(SqlServerDatabase));
+                fac.AddService(DatabaseType.sqlite, typeof(SqliteDatabase));
 
                 return fac;
             });

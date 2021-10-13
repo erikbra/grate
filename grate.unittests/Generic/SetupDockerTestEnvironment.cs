@@ -9,9 +9,10 @@ using NUnit.Framework;
 namespace grate.unittests.Generic
 {
     [SetUpFixture]
-    public abstract class GenericSetupTestEnvironment
+    public abstract class SetupDockerTestEnvironment
     {
-        protected abstract IGrateTestContext Context { get; }
+        protected abstract IGrateTestContext GrateTestContext { get; }
+        protected abstract IDockerTestContext DockerTestContext { get; }
 
         private string? _serverName;
         private string? _containerId;
@@ -24,7 +25,7 @@ namespace grate.unittests.Generic
         private const string ServerNameAllowedChars = "abcdefghijklmnopqrstuvwxyz";
 
         private string GetServerName() =>
-            $"grate-{Context.DatabaseType}-{_random.GetString(10, ServerNameAllowedChars)}";
+            $"grate-{GrateTestContext.DatabaseType}-{_random.GetString(10, ServerNameAllowedChars)}";
 
         [OneTimeSetUp]
         public async Task RunBeforeAnyTests()
@@ -37,14 +38,14 @@ namespace grate.unittests.Generic
                 _random.GetString(10, LowerCase) +
                 _random.GetString(10, Digits);
 
-            //await TestContext.Out.WriteAsync($"Starting {Context.DatabaseTypeName} docker container: ");
+            //await TestContext.Out.WriteAsync($"Starting {GrateTestContext.DatabaseTypeName} docker container: ");
             int port;
-            (_containerId, port) = await Docker.StartDockerContainer(_serverName, password, Context.DockerCommand);
+            (_containerId, port) = await Docker.StartDockerContainer(_serverName, password, DockerTestContext.DockerCommand);
 
-            Context.AdminPassword = password;
-            Context.Port = port;
+            GrateTestContext.AdminPassword = password;
+            GrateTestContext.Port = port;
 
-            await TestContext.Progress.WriteLineAsync($"Started {Context.DatabaseTypeName} docker container: " + _containerId);
+            await TestContext.Progress.WriteLineAsync($"Started {GrateTestContext.DatabaseTypeName} docker container: " + _containerId);
             await TestContext.Progress.WriteLineAsync("Listening on port: " + port);
 
             await TestContext.Progress.WriteAsync("Waiting until server is ready");
@@ -57,7 +58,7 @@ namespace grate.unittests.Generic
         public async Task RunAfterAnyTests()
         {
             var containerId = await Docker.Delete(_containerId!);
-            await TestContext.Progress.WriteLineAsync($"Removed {Context.DatabaseTypeName} docker container: " + containerId);
+            await TestContext.Progress.WriteLineAsync($"Removed {GrateTestContext.DatabaseTypeName} docker container: " + containerId);
             Trace.Flush();
         }
 
@@ -88,7 +89,7 @@ namespace grate.unittests.Generic
 
         private async Task<bool> ServerIsReady(bool swallowException)
         {
-            var sql = Context.Sql.SelectVersion;
+            var sql = GrateTestContext.Sql.SelectVersion;
 
             string? res;
 
@@ -96,7 +97,7 @@ namespace grate.unittests.Generic
 
             try
             {
-                await using var conn = Context.CreateAdminDbConnection();
+                await using var conn = GrateTestContext.CreateAdminDbConnection();
                 await conn.OpenAsync();
 
                 var cmd = conn.CreateCommand();
@@ -104,7 +105,7 @@ namespace grate.unittests.Generic
                 cmd.CommandText = sql;
 
                 res = (string?)await cmd.ExecuteScalarAsync();
-                ready = res?.StartsWith(Context.ExpectedVersionPrefix) ?? false;
+                ready = res?.StartsWith(GrateTestContext.ExpectedVersionPrefix) ?? false;
             }
             catch (DbException) when (swallowException)
             {

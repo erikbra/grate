@@ -4,10 +4,11 @@ namespace grate.unittests
 {
     public static class GrateTestContext
     {
-        public static readonly IGrateTestContext SqlServer = new SqlServerGrateTestContext();
-        public static readonly SqlTestContext Oracle = new();
-        public static readonly IGrateTestContext PostgreSql = new PostgreSqlGrateTestContext();
-        public static readonly IGrateTestContext MariaDB = new MariaDbGrateTestContext();
+        internal static readonly SqlServerGrateTestContext SqlServer = new SqlServerGrateTestContext();
+        internal static readonly SqlTestContext Oracle = new();
+        internal static readonly PostgreSqlGrateTestContext PostgreSql = new PostgreSqlGrateTestContext();
+        internal static readonly MariaDbGrateTestContext MariaDB = new MariaDbGrateTestContext();
+        internal static readonly SqliteGrateTestContext Sqlite = new SqliteGrateTestContext();
 
         // public static IGrateTestContext GetTestContext(DatabaseType databaseType) => databaseType switch
         // {

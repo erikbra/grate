@@ -3,40 +3,36 @@ using System.Data.Common;
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
+using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using MySqlConnector;
 using NSubstitute;
 
 namespace grate.unittests.TestInfrastructure
 {
-    class MariaDbGrateTestContext : TestContextBase, IGrateTestContext, IDockerTestContext
+    class SqliteGrateTestContext : TestContextBase, IGrateTestContext
     {
         public string AdminPassword { get; set; } = default!;
         public int? Port { get; set; }
 
-        public string DockerCommand(string serverName, string adminPassword) =>
-            $"run -d --name {serverName} -e MYSQL_ROOT_PASSWORD={adminPassword} -P mariadb:10.5.9";
+        public string AdminConnectionString => $"Data Source=grate-sqlite.db";
+        public string ConnectionString(string database)  => $"Data Source={database}.db";
 
-        public string AdminConnectionString => $"Server=localhost;Port={Port};Database=mysql;Uid=root;Pwd={AdminPassword}";
-        public string ConnectionString(string database) => $"Server=localhost;Port={Port};Database={database};Uid=root;Pwd={AdminPassword}";
+        public DbConnection GetDbConnection(string connectionString) => new SqliteConnection(connectionString);
 
-        public DbConnection GetDbConnection(string connectionString) => new MySqlConnection(connectionString);
+        public ISyntax Syntax => new SqliteSyntax();
+        public Type DbExceptionType => typeof(SqliteException);
 
-        public ISyntax Syntax => new MariaDbSyntax();
-        public Type DbExceptionType => typeof(MySqlException);
+        public DatabaseType DatabaseType => DatabaseType.sqlite;
+        public string DatabaseTypeName => "Sqlite";
+        public string MasterDatabase => "master";
 
-        public DatabaseType DatabaseType => DatabaseType.mariadb;
-        public string DatabaseTypeName => "MariaDB Server";
-        public string MasterDatabase => "mysql";
-
-        public IDatabase DatabaseMigrator => new MariaDbDatabase(LogFactory.CreateLogger<MariaDbDatabase>());
+        public IDatabase DatabaseMigrator => new SqliteDatabase(LogFactory.CreateLogger<SqliteDatabase>());
 
         public SqlStatements Sql => new()
         {
-            SelectAllDatabases = "SHOW DATABASES",
-            SelectVersion = "SELECT VERSION()",
-            SelectCurrentDatabase = "SELECT DATABASE()"
+            SelectAllDatabases = "select name from pragma_database_list",
+            SelectVersion = "SELECT sqlite_version();",
+            SelectCurrentDatabase = "SELECT \"main\""
         };
 
 
@@ -44,7 +40,7 @@ namespace grate.unittests.TestInfrastructure
         {
             var factory = Substitute.For<IFactory>();
             factory.GetService<DatabaseType, IDatabase>(DatabaseType)
-                .Returns(new MariaDbDatabase(LogFactory.CreateLogger<MariaDbDatabase>()));
+                .Returns(new SqliteDatabase(LogFactory.CreateLogger<SqliteDatabase>()));
 
             var dbMigrator = new DbMigrator(factory, LogFactory.CreateLogger<DbMigrator>(), new HashGenerator(), config);
             var migrator = new GrateMigrator(LogFactory.CreateLogger<GrateMigrator>(), dbMigrator);
@@ -68,7 +64,7 @@ namespace grate.unittests.TestInfrastructure
                 KnownFolders = knownFolders,
                 AlterDatabase = true,
                 NonInteractive = true,
-                Transaction = false,
+                Transaction = true,
                 Environment = env != null ? new GrateEnvironment(env) : null,
                 DatabaseType = DatabaseType
             };
@@ -77,6 +73,6 @@ namespace grate.unittests.TestInfrastructure
         }
 
 
-        public string ExpectedVersionPrefix => "10.5.9-MariaDB";
+        public string ExpectedVersionPrefix => "Microsoft SQL Server 2017";
     }
 }

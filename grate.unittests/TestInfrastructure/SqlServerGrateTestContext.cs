@@ -10,7 +10,7 @@ using NSubstitute;
 
 namespace grate.unittests.TestInfrastructure
 {
-    class SqlServerGrateTestContext : TestContextBase, IGrateTestContext
+    class SqlServerGrateTestContext : TestContextBase, IGrateTestContext, IDockerTestContext
     {
         public string AdminPassword { get; set; } = default!;
         public int? Port { get; set; }
