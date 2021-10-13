@@ -16,8 +16,8 @@ jobs:
     outputs:
       nuGetVersion: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
       semVer: ${{ steps.gitversion.outputs.fullSemVer }}
-      is-release: ${{ steps.gitversion.outputs.CommitsSinceVersionSource == 0 }}
-      #is-release: 'true'
+      #is-release: ${{ steps.gitversion.outputs.CommitsSinceVersionSource == 0 }}
+      is-release: 'true'
     
     steps:
     - name: Setup .NET 5
@@ -194,6 +194,42 @@ jobs:
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+
+  build-deb:
+    name: Build Debian package
+    needs: 
+     - set-version-number
+     - build-standalone
+    runs-on: ubuntu-latest
+    if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+    strategy:
+      matrix:
+        arch: [ "linux-arm", "linux-arm64", "linux-x64" ]
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/download-artifact@v2
+      with:
+        name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
+        path: ${{ matrix.arch }}/
+
+    - id: get-arch
+      name: Get architecture
+      run: |
+        arch=$(echo ${{ matrix.arch }} | cut -d- -f2 | sed 's/x64/amd64/')
+        echo "::set-output name=arch::$arch"
+
+    - name: Create dpkg
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+      run: ./installers/deb/Create-Package.ps1 -grateExe ./${{ matrix.arch }}/grate -Version "${{ needs.set-version-number.outputs.nuGetVersion }}" -arch ${{ steps.get-arch.outputs.arch}}
+      env:
+        VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
+
+    - name: Upload .dpkg ${{ steps.get-arch.outputs.arch }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch}}.deb
+        path: ./installers/deb/grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch }}.deb
 
 
   test:

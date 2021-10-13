@@ -1,0 +1,125 @@
+.\" Process this file with
+.\" groff -man -Tascii foo.1
+.\"
+
+.TH grate 1 "OCTOBER 2021" erikbra "Database"
+.SH NAME
+grate \- sql for the 20s
+
+.SH SYNOPSIS
+.B grate [options]
+
+.SH DESCRIPTION
+.B grate 
+is a SQL scripts migration runner.
+
+The goal of grate is to be largely backwards compatible with RoundhousE, which is an amazing tool. 
+It is initiated by the main maintainer of RoundhousE for the last three years.
+
+While early versions of grate may not support every last RoundhousE feature, those features that are implemented should work identically, 
+or with only very small changes. For detailed information see the migration docco.
+
+.SH OPTIONS
+
+.IP "--database <database>"
+OBSOLETE: Please specify the connection string instead
+
+.IP "-c, -cs, --connectionstring, --connstring <connectionstring> (REQUIRED)"
+You now provide an entire connection string. ServerName and Database are obsolete.
+
+.IP "-f, --files, --sqlfilesdirectory <sqlfilesdirectory>"
+The directory where your SQL scripts are [default: .]
+
+.IP "-o, --output, --outputPath <outputPath>" 
+This is where everything related to the migration is stored. 
+
+This includes any backups, 
+all items that ran, permission dumps, logs, etc. [default: Local app data folder]
+
+.IP "-s, --instance, --server, --servername <servername>"
+OBSOLETE: Please specify the connection string instead.
+ 
+.IP "-a, -acs, -csa, --adminconnectionstring, --adminconnstring <adminconnectionstring>"
+The connection string for connecting to master, if you want to create the database.  
+Defaults to the same as --connstring.
+
+.IP "--accesstoken <accesstoken>"
+OBSOLETE: Please specify the connection string instead.
+
+.IP "-ct, --commandtimeout <commandtimeout>"
+This is the timeout when commands are run. 
+This is not for admin commands or restore. [default: 60]
+
+.IP "-cta, --admincommandtimeout <admincommandtimeout>"
+This is the timeout when administration commands are run (except for restore, which has its own). 
+[default: 300]
+
+.IP "--databasetype, --dbt, --dt <mariadb|oracle|postgresql|sqlserver>"
+Tells grate what type of database it is running on. [default: sqlserver]
+
+.IP "-t, --transaction, --trx <transaction>"
+Run the migration in a transaction
+
+.IP "--env, --environment <environment>"
+Environment Name - This allows grate to be environment aware and only run scripts 
+that are in a particular environment based on the name
+of the script.  
+
+\'something.ENV.LOCAL.sql\' would only be run if --env=LOCAL was set.
+
+.IP "--sc, --schema, --schemaname <schemaname>"
+The schema to use for the migration tables [default: grate]
+
+.IP "-ni, --noninteractive, --silent"
+Silent - tells grate not to ask for any input when it runs.
+
+.IP "--version <version>"
+Database Version - specify the version of the current migration directly on the command line.
+
+.IP "--drop"
+Drop - This instructs grate to remove the target database. 
+Unlike RoundhousE grate will continue to run the migration scripts after the drop.
+
+.IP "--disabletokenreplacement, --disabletokens"
+Tokens - This instructs grate to not perform token replacement ({{somename}}). 
+Defaults to false.
+
+.IP "-w, --warnononetimescriptchanges"
+WarnOnOneTimeScriptChanges - Instructs grate to execute changed one time scripts 
+(DDL / DML in Upfolder) that have previously been run against the database instead of failing. 
+A warning is logged for each one time script that is rerun. Defaults to false.
+
+.IP "--usertokens, --ut <usertokens>"
+User Tokens - Allows grate to perform token replacement on custom tokens ({{my_token}}). 
+
+Set as a key=value pair, eg
+
+\'--ut=my_token=myvalue\'. 
+
+Can be specified multiple times.
+
+.IP "--donotstorescriptsruntext"
+DoNotStoreScriptsRunText - This instructs grate to not store the full script text in the 
+database. Defaults to false.
+
+.IP "--baseline"
+Baseline - This instructs grate to mark the scripts as run, but not to actually run 
+anything against the database. Use this option if you already have scripts that have been run 
+through other means (and BEFORE you start the new ones).
+
+.IP " --forceanytimescripts, --runallanytimescripts"
+RunAllAnyTimeScripts - This instructs grate to run any time scripts every time it is 
+run even if they haven't changed. Defaults to false.
+
+.IP "--dryrun"
+This instructs grate to log what would have run, but not to actually run anything 
+against the database.  Use this option if you are trying to figure out what grate is going to do.
+
+.IP "-v, --verbosity <Critical|Debug|Error|Information|None|Trace|Warning>"
+Verbosity level (as defined here: https://docs.microsoft.com/dotnet/api/Microsoft.Extensions.Logging.LogLevel)
+
+.IP "-?, -h, --help"
+Show help and usage information
+
+.SH AUTHOR
+Erik A. Brandstadmoen <erik@brandstadmoen.net>
