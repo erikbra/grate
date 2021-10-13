@@ -1,7 +1,7 @@
 Package: grate
 Version: %%%VERSION%%%
 Section: database
-Depends:  libicu-dev (>= 67.1)
+Depends:  libicu-dev (>= 66)
 Priority: optional
 Architecture: %%%ARCH%%%
 Maintainer: Erik A. Brandstadmoen <erik@brandstadmoen.net>
