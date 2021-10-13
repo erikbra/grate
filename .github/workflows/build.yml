@@ -16,8 +16,8 @@ jobs:
     outputs:
       nuGetVersion: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
       semVer: ${{ steps.gitversion.outputs.fullSemVer }}
-      #is-release: ${{ steps.gitversion.outputs.CommitsSinceVersionSource == 0 }}
-      is-release: 'true'
+      is-release: ${{ steps.gitversion.outputs.CommitsSinceVersionSource == 0 }}
+      #is-release: 'true'
     
     steps:
     - name: Setup .NET 5
