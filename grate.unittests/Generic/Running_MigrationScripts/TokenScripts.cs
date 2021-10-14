@@ -26,7 +26,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             }
 
             string sql = $"SELECT dbase FROM grate";
-            await using var conn = Context.CreateDbConnection(Context.ConnectionString(db));
+            await using var conn = Context.CreateDbConnection(db);
             var actual = await conn.QuerySingleAsync<string>(sql);
             actual.Should().Be(db);
 
@@ -62,7 +62,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             }
 
             string sql = $"SELECT dbase FROM grate";
-            await using var conn = Context.CreateDbConnection(Context.ConnectionString(db));
+            await using var conn = Context.CreateDbConnection(db);
             var actual = await conn.QuerySingleAsync<string>(sql);
             actual.Should().Be("token1");
 
