@@ -11,6 +11,10 @@ maintainer of RoundhousE for the last three years, please see this issue in the 
 
 While early versions of grate may not support every last RoundhousE feature, those features that are implemented should work identically, or with only very small changes.  For detailed information see the [migration](docs/MigratingFromRoundhousE.md) docco.
 
+## Docs
+
+Full documentation is available [on the grate site](https://erikbra.github.io/grate/).
+
 ## Why the name grate?
 
 grate is short for migrate. And it's also pronounced the same way as _great_, so, there you go. 
