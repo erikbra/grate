@@ -92,20 +92,11 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateDummySql(knownFolders.Sprocs);
 
-            var config = new GrateConfiguration
+            var config = Context.GetConfiguration(db, knownFolders) with
             {
                 DoNotStoreScriptsRunText = true, // important
-                CreateDatabase = true,
-                ConnectionString = Context.ConnectionString(db),
-                AdminConnectionString = Context.AdminConnectionString,
-                Version = "a.b.c.d",
-                KnownFolders = knownFolders,
-                AlterDatabase = true,
-                NonInteractive = true,
-                Transaction = true,
-                DatabaseType = Context.DatabaseType
             };
-
+           
             await using (migrator = Context.GetMigrator(config))
             {
                 await migrator.Migrate();
@@ -132,21 +123,12 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateDummySql(knownFolders.Sprocs);
-
-            var config = new GrateConfiguration
+            
+            var config = Context.GetConfiguration(db, knownFolders) with
             {
                 DoNotStoreScriptsRunText = false, // important
-                CreateDatabase = true,
-                ConnectionString = Context.ConnectionString(db),
-                AdminConnectionString = Context.AdminConnectionString,
-                Version = "a.b.c.d",
-                KnownFolders = knownFolders,
-                AlterDatabase = true,
-                NonInteractive = true,
-                Transaction = true,
-                DatabaseType = Context.DatabaseType
             };
-
+           
             await using (migrator = Context.GetMigrator(config))
             {
                 await migrator.Migrate();
@@ -173,21 +155,11 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateDummySql(knownFolders.Sprocs);
-
-            var config = new GrateConfiguration
+            
+            var config = Context.GetConfiguration(db, knownFolders) with
             {
                 RunAllAnyTimeScripts = true, // important
-                CreateDatabase = true,
-                ConnectionString = Context.ConnectionString(db),
-                AdminConnectionString = Context.AdminConnectionString,
-                Version = "a.b.c.d",
-                KnownFolders = knownFolders,
-                AlterDatabase = true,
-                NonInteractive = true,
-                Transaction = true,
-                DatabaseType = Context.DatabaseType
             };
-
 
             await using (migrator = Context.GetMigrator(config))
             {

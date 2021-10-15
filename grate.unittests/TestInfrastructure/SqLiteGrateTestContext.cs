@@ -23,10 +23,11 @@ namespace grate.unittests.TestInfrastructure
         public Type DbExceptionType => typeof(SqliteException);
 
         public DatabaseType DatabaseType => DatabaseType.sqlite;
+        public bool SupportsTransaction => false;
         public string DatabaseTypeName => "Sqlite";
         public string MasterDatabase => "master";
 
-        public IDatabase DatabaseMigrator => new SqliteDatabase(LogFactory.CreateLogger<SqliteDatabase>());
+        public IDatabase DatabaseMigrator => new SqliteDatabase(TestConfig.LogFactory.CreateLogger<SqliteDatabase>());
 
         public SqlStatements Sql => new()
         {
@@ -36,43 +37,6 @@ namespace grate.unittests.TestInfrastructure
         };
 
 
-        public GrateMigrator GetMigrator(GrateConfiguration config)
-        {
-            var factory = Substitute.For<IFactory>();
-            factory.GetService<DatabaseType, IDatabase>(DatabaseType)
-                .Returns(new SqliteDatabase(LogFactory.CreateLogger<SqliteDatabase>()));
-
-            var dbMigrator = new DbMigrator(factory, LogFactory.CreateLogger<DbMigrator>(), new HashGenerator(), config);
-            var migrator = new GrateMigrator(LogFactory.CreateLogger<GrateMigrator>(), dbMigrator);
-
-            return migrator;
-        }
-
-        public GrateMigrator GetMigrator(string databaseName, bool createDatabase, KnownFolders knownFolders)
-        {
-            return GetMigrator(databaseName, createDatabase, knownFolders, null);
-        }
-
-        public GrateMigrator GetMigrator(string databaseName, bool createDatabase, KnownFolders knownFolders, string? env)
-        {
-            var config = new GrateConfiguration()
-            {
-                CreateDatabase = createDatabase,
-                ConnectionString = ConnectionString(databaseName),
-                AdminConnectionString = AdminConnectionString,
-                Version = "a.b.c.d",
-                KnownFolders = knownFolders,
-                AlterDatabase = true,
-                NonInteractive = true,
-                Transaction = true,
-                Environment = env != null ? new GrateEnvironment(env) : null,
-                DatabaseType = DatabaseType
-            };
-
-            return GetMigrator(config);
-        }
-
-
-        public string ExpectedVersionPrefix => "Microsoft SQL Server 2017";
+        public string ExpectedVersionPrefix => "3.32.3";
     }
 }

@@ -70,17 +70,12 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             File.Delete(dummyFile);
 
             var scriptsDir = Directory.CreateDirectory(dummyFile);
-
-            var config = new GrateConfiguration()
+            
+            var config = Context.DefaultConfiguration with
             {
                 CreateDatabase = createDatabase, 
                 ConnectionString = Context.ConnectionString(databaseName),
-                AdminConnectionString = Context.AdminConnectionString,
-                Version = "a.b.c.d",
-                KnownFolders = KnownFolders.In(scriptsDir),
-                AlterDatabase = true,
-                NonInteractive = true,
-                DatabaseType = Context.DatabaseType
+                KnownFolders = KnownFolders.In(scriptsDir)
             };
 
             CreateDummySql(config.KnownFolders.AfterMigration, "1_aftermigration.sql");

@@ -112,7 +112,7 @@ namespace grate.Migration
             }
             catch (DbException e)
             {
-                Logger.LogError(e, "Got error: " + e.Message);
+                Logger.LogDebug(e, "Got error: " + e.Message);
                 return false;
             }
             finally

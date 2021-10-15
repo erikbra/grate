@@ -41,21 +41,11 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateDummySql(knownFolders.Permissions);
-
-            var config = new GrateConfiguration
+            
+            var config = Context.GetConfiguration(db, knownFolders) with
             {
                 DryRun = true, // this is important!
-                CreateDatabase = true,
-                ConnectionString = Context.ConnectionString(db),
-                AdminConnectionString = Context.AdminConnectionString,
-                Version = "a.b.c.e",
-                KnownFolders = knownFolders,
-                AlterDatabase = true,
-                NonInteractive = true,
-                Transaction = true,
-                DatabaseType = Context.DatabaseType
             };
-
 
             await using (var migrator = Context.GetMigrator(config))
             {
@@ -110,20 +100,12 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             var db = TestConfig.RandomDatabase();
 
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory()); 
-            var config = new GrateConfiguration
+            
+            var config = Context.GetConfiguration(db, knownFolders) with
             {
                 Baseline = true, // this is important!
-                CreateDatabase = true,
-                ConnectionString = Context.ConnectionString(db),
-                AdminConnectionString = Context.AdminConnectionString,
-                Version = "a.b.c.e",
-                KnownFolders = knownFolders,
-                AlterDatabase = true,
-                NonInteractive = true,
-                Transaction = true,
-                DatabaseType = Context.DatabaseType
             };
-
+           
             var path = knownFolders?.Views?.Path ?? throw new Exception("Config Fail");
 
             WriteSql(path, "view.sql", "create view grate as select '1' as col;");

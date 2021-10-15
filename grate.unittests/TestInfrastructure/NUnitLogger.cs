@@ -5,9 +5,7 @@ using NUnit.Framework;
 
 namespace grate.unittests.TestInfrastructure;
 
-
 #pragma warning disable CS8603 // Possible null reference return.
-
 /// <summary>
 /// Helper logger to push all ILogger output to the NUnit TestContext so it's avail in the test logs
 /// </summary>
@@ -34,7 +32,6 @@ public class NUnitLogger : ILogger
         }
 
         TestContext.Progress.WriteLine($"     {_name} - {formatter(state, exception)}");
-
     }
 }
 #pragma warning restore CS8603 // Possible null reference return.

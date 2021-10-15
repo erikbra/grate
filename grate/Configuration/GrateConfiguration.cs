@@ -12,7 +12,7 @@ namespace grate.Configuration
     /// This is the 'schema' that System.CommandLine parses into for the MigrateCommand.
     /// This means that this object's properties should align with the options and arguments in `MigrateCommand` by convention.
     /// </summary>
-    public class GrateConfiguration
+    public record GrateConfiguration
     {
         private readonly string? _adminConnectionString = null;
         private KnownFolders? _knownFolders;

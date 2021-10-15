@@ -26,10 +26,11 @@ namespace grate.unittests.TestInfrastructure
         public Type DbExceptionType => typeof(PostgresException);
 
         public DatabaseType DatabaseType => DatabaseType.postgresql;
+        public bool SupportsTransaction => true;
         public string DatabaseTypeName => "PostgreSQL";
         public string MasterDatabase => "postgres";
 
-        public IDatabase DatabaseMigrator => new PostgreSqlDatabase(LogFactory.CreateLogger<PostgreSqlDatabase>());
+        public IDatabase DatabaseMigrator => new PostgreSqlDatabase(TestConfig.LogFactory.CreateLogger<PostgreSqlDatabase>());
 
         public SqlStatements Sql => new()
         {
@@ -38,42 +39,6 @@ namespace grate.unittests.TestInfrastructure
             SelectCurrentDatabase = "SELECT current_database()"
         };
 
-
-        public GrateMigrator GetMigrator(GrateConfiguration config)
-        {
-            var factory = Substitute.For<IFactory>();
-            factory.GetService<DatabaseType, IDatabase>(DatabaseType)
-                .Returns(new PostgreSqlDatabase(LogFactory.CreateLogger<PostgreSqlDatabase>()));
-
-            var dbMigrator = new DbMigrator(factory, LogFactory.CreateLogger<DbMigrator>(), new HashGenerator(), config);
-            var migrator = new GrateMigrator(LogFactory.CreateLogger<GrateMigrator>(), dbMigrator);
-
-            return migrator;
-        }
-
-        public GrateMigrator GetMigrator(string databaseName, bool createDatabase, KnownFolders knownFolders)
-        {
-            return GetMigrator(databaseName, createDatabase, knownFolders, null);
-        }
-
-        public GrateMigrator GetMigrator(string databaseName, bool createDatabase, KnownFolders knownFolders, string? env)
-        {
-            var config = new GrateConfiguration()
-            {
-                CreateDatabase = createDatabase,
-                ConnectionString = ConnectionString(databaseName),
-                AdminConnectionString = AdminConnectionString,
-                Version = "a.b.c.d",
-                KnownFolders = knownFolders,
-                AlterDatabase = true,
-                NonInteractive = true,
-                Transaction = true,
-                Environment = env != null ? new GrateEnvironment(env) : null,
-                DatabaseType = DatabaseType
-            };
-
-            return GetMigrator(config);
-        }
 
         public string ExpectedVersionPrefix => "PostgreSQL 14.";
     }

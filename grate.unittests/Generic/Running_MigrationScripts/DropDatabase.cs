@@ -17,20 +17,10 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateDummySql(knownFolders.Sprocs);
-
-            var dropConfig = new GrateConfiguration()
+            
+            var dropConfig = Context.GetConfiguration(db, knownFolders) with
             {
                 Drop = true, // This is important!
-
-                CreateDatabase = true,
-                ConnectionString = Context.ConnectionString(db),
-                AdminConnectionString = Context.AdminConnectionString,
-                Version = "a.b.c.d",
-                KnownFolders = knownFolders,
-                AlterDatabase = true,
-                NonInteractive = true,
-                Transaction = true,
-                DatabaseType = Context.DatabaseType
             };
 
             await using (var migrator = Context.GetMigrator(dropConfig))
@@ -55,8 +45,6 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             }
 
             scripts.Should().HaveCount(1); // only one script because the databse was dropped after the first migration...
-
-
         }
     }
 }
