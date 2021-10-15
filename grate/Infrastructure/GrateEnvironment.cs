@@ -19,7 +19,7 @@ namespace grate.Infrastructure
             FileName(path).StartsWith($"{Current}.", InvariantCultureIgnoreCase) ||
             FileName(path).Contains($".{Current}.", InvariantCultureIgnoreCase);
         
-        private static bool IsEnvironmentFile(string fileName) => fileName.Contains(EnvironmentMarker, InvariantCultureIgnoreCase);
+        public static bool IsEnvironmentFile(string fileName) => fileName.Contains(EnvironmentMarker, InvariantCultureIgnoreCase);
         private static string FileName(string path) => new FileInfo(path).Name;
     }
 }
