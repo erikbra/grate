@@ -15,7 +15,7 @@ namespace grate.unittests.TestInfrastructure
         public int? Port { get; set; }
 
         public string DockerCommand(string serverName, string adminPassword) =>
-            $"run -d --name {serverName} -e POSTGRES_PASSWORD={adminPassword} -P postgres:14";
+            $"run -d --name {serverName} -e POSTGRES_PASSWORD={adminPassword} -P postgres:latest";
 
         public string AdminConnectionString => $"Host=localhost;Port={Port};Database=postgres;Username=postgres;Password={AdminPassword};Include Error Detail=true";
         public string ConnectionString(string database) => $"Host=localhost;Port={Port};Database={database};Username=postgres;Password={AdminPassword};Include Error Detail=true";
