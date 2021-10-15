@@ -9,7 +9,7 @@ public abstract class TestContextBase : IDisposable
     public ILoggerFactory LogFactory = LoggerFactory.Create(builder =>
     {
         builder.AddProvider(new NUnitLoggerProvider())
-               .SetMinimumLevel(LogLevel.Trace); // TODO: Make this level configurable somehow...
+               .SetMinimumLevel(LogLevel.None); // TODO: Make this level configurable somehow...
     });
 
     public void Dispose()

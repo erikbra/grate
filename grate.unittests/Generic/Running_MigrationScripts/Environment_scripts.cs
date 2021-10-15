@@ -61,7 +61,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
                 scripts = (await conn.QueryAsync<string>(sql)).ToArray();
             }
 
-            scripts.Should().BeEmpty();
+            scripts.Should().HaveCount(1);
         }
 
         [Test]

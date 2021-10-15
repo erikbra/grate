@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace grate.unittests.Sqlite
 {
     [TestFixture]
-    [Category("SqlLite")]
+    [Category("Sqlite")]
     public class Database: Generic.GenericDatabase
     {
         protected override IGrateTestContext Context => GrateTestContext.Sqlite;

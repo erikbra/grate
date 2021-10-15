@@ -1,8 +1,5 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
-using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
 
 namespace grate.unittests.Sqlite
@@ -14,8 +11,6 @@ namespace grate.unittests.Sqlite
         [OneTimeSetUp]
         public async Task RunBeforeAnyTests()
         {
-            Trace.Listeners.Add(new ConsoleTraceListener());
-            
             var currentDirectory = Directory.GetCurrentDirectory();
             var dbFiles = Directory.GetFiles(currentDirectory, "*.db");
             
