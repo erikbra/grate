@@ -161,7 +161,11 @@ namespace grate.Migration
             WarnAndIgnore
         }
 
-        private static bool InCorrectEnvironment(string scriptName, GrateEnvironment? env) => env?.ShouldRun(scriptName) ?? true;
+        private static bool InCorrectEnvironment(string scriptName, GrateEnvironment? env)
+        {
+            return !GrateEnvironment.IsEnvironmentFile(scriptName) || // run non-env files all the time
+                   (env?.ShouldRun(scriptName) ?? false); // #101 - don't run .env scripts if no env specified.
+        }
 
         private static bool IsEverytimeScript(string scriptName, MigrationType migrationType) =>
             migrationType == MigrationType.EveryTime ||
