@@ -49,4 +49,6 @@ jobs:
         include-prerelease: true
     - name: Test
       run: dotnet test --filter Category=${{ matrix.category }} -c Release --logger:"junit;LogFilePath=test-results-${{ matrix.category }}.xml"
+      env:
+        LogLevel: Warning
 #      run:  dotnet test --verbosity Normal -c Release --logger "trx;LogFileName=/tmp/test-results/grate.unittests.trx"
