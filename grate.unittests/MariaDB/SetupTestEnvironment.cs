@@ -5,8 +5,9 @@ namespace grate.unittests.MariaDB
 {
     [SetUpFixture]
     [Category("MariaDB")]
-    public class SetupTestEnvironment : Generic.GenericSetupTestEnvironment
+    public class SetupTestEnvironment : Generic.SetupDockerTestEnvironment
     {
-        protected override IGrateTestContext Context => GrateTestContext.MariaDB;
+        protected override IGrateTestContext GrateTestContext => unittests.GrateTestContext.MariaDB;
+        protected override IDockerTestContext DockerTestContext => unittests.GrateTestContext.MariaDB;
     }
 }

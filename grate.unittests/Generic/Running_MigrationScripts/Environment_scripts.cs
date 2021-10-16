@@ -56,7 +56,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             string[] scripts;
             string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-            await using (var conn = Context.CreateDbConnection(Context.ConnectionString(db)))
+            await using (var conn = Context.CreateDbConnection(db))
             {
                 scripts = (await conn.QueryAsync<string>(sql)).ToArray();
             }

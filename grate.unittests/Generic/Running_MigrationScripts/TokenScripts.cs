@@ -40,20 +40,10 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             var path = knownFolders?.Views?.Path ?? throw new Exception("Config Fail");
             WriteSql(path, "token.sql", "create view grate as select '{{MyCustomToken}}' as dbase;");
-
-            var config = new GrateConfiguration()
+            
+            var config = Context.GetConfiguration(db, knownFolders) with
             {
                 UserTokens = new[] {"mycustomtoken=token1"}, // This is important!
-
-                CreateDatabase = true,
-                ConnectionString = Context.ConnectionString(db),
-                AdminConnectionString = Context.AdminConnectionString,
-                Version = "a.b.c.d",
-                KnownFolders = knownFolders,
-                AlterDatabase = true,
-                NonInteractive = true,
-                Transaction = true,
-                DatabaseType = Context.DatabaseType
             };
 
             await using (var migrator = Context.GetMigrator(config))

@@ -5,8 +5,9 @@ namespace grate.unittests.PostgreSQL
 {
     [SetUpFixture]
     [Category("PostgreSQL")]
-    public class SetupTestEnvironment : Generic.GenericSetupTestEnvironment
+    public class SetupTestEnvironment : Generic.SetupDockerTestEnvironment
     {
-        protected override IGrateTestContext Context => GrateTestContext.PostgreSql;
+        protected override IGrateTestContext GrateTestContext => unittests.GrateTestContext.PostgreSql;
+        protected override IDockerTestContext DockerTestContext => unittests.GrateTestContext.PostgreSql;
     }
 }

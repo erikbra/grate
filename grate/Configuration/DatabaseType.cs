@@ -6,6 +6,7 @@ namespace grate.Configuration
         sqlserver,
         oracle,
         postgresql,
-        mariadb
+        mariadb,
+        sqlite
     }
 }

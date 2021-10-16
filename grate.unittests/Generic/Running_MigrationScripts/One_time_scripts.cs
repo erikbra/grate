@@ -86,19 +86,10 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateDummySql(knownFolders.Up);
-
-            var config = new GrateConfiguration
+            
+            var config = Context.GetConfiguration(db, knownFolders) with
             {
                 WarnOnOneTimeScriptChanges = true, // this is important!
-                CreateDatabase = true,
-                ConnectionString = Context.ConnectionString(db),
-                AdminConnectionString = Context.AdminConnectionString,
-                Version = "a.b.c.e",
-                KnownFolders = knownFolders,
-                AlterDatabase = true,
-                NonInteractive = true,
-                Transaction = true,
-                DatabaseType = Context.DatabaseType
             };
 
             await using (migrator = Context.GetMigrator(config))
@@ -137,18 +128,9 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
             WriteSql(path, "token.sql", "create view grate as select '1' as col;");
 
-            var config = new GrateConfiguration
+            var config = Context.GetConfiguration(db, knownFolders) with
             {
                 WarnAndIgnoreOnOneTimeScriptChanges = true, // this is important!
-                CreateDatabase = true,
-                ConnectionString = Context.ConnectionString(db),
-                AdminConnectionString = Context.AdminConnectionString,
-                Version = "a.b.c.e",
-                KnownFolders = knownFolders,
-                AlterDatabase = true,
-                NonInteractive = true,
-                Transaction = true,
-                DatabaseType = Context.DatabaseType
             };
 
             await using (migrator = Context.GetMigrator(config))
