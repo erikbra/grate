@@ -14,8 +14,8 @@ namespace grate.unittests.TestInfrastructure
         public string AdminPassword { get; set; } = default!;
         public int? Port { get; set; }
 
-        public string AdminConnectionString => $"Data Source=grate-sqlite.db";
-        public string ConnectionString(string database)  => $"Data Source={database}.db";
+        public string AdminConnectionString => $"Data Source=grate-sqlite.db;Pooling=false";
+        public string ConnectionString(string database) => $"Data Source={database}.db;Pooling=false";
 
         public DbConnection GetDbConnection(string connectionString) => new SqliteConnection(connectionString);
 

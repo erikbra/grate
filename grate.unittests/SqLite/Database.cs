@@ -16,7 +16,7 @@ namespace grate.unittests.Sqlite
 
         protected override async Task CreateDatabase(string db)
         {
-            await using var conn = new SqliteConnection($"Data Source={db}.db");
+            await using var conn = new SqliteConnection(Context.ConnectionString(db));
             conn.Open();
             await using var cmd = conn.CreateCommand();
             var sql = "CREATE TABLE dummy(name VARCHAR(1))";

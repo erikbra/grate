@@ -8,6 +8,7 @@ using Dapper;
 using grate.Infrastructure;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
+using SQLitePCL;
 
 namespace grate.Migration
 {
@@ -40,7 +41,7 @@ name = '{fullTableName}';
         public override Task DropDatabase()
         {
             var db = _connection?.DataSource;
-            
+
             if (File.Exists(db))
             {
                 File.Delete(db);
