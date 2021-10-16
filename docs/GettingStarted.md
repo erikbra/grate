@@ -30,7 +30,7 @@ These scripts are run (you guessed it) **every time** :)  More info [here](/scri
 grate processes the files in a standard set of directories in a fixed order for deterministic processing.  Folders are run in the following order:
 
 ### 1. BeforeMigration (Everytime scripts)
-If you have particular tasks you want to perform prior to any database migrations (custom logging? database backups?) you can do it here.
+If you have particular tasks you want to perform prior to any database migrations (custom logging? database backups? disable replication?) you can do it here.
 
 ### 2. AlterDatabase (Anytime scripts)
 If you have scripts that need to alter the database config itself (rather than the _contents_ of the database) thjis is the place to do it.  For example setting recovery modes, enabling query stores, etc etc
