@@ -8,7 +8,7 @@ using grate.Configuration;
 using grate.Infrastructure;
 using NUnit.Framework;
 
-namespace grate.unittests
+namespace grate.unittests.Basic
 {
     [TestFixture]
     [Category("Basic")]

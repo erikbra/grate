@@ -1,11 +1,12 @@
-﻿using Microsoft.Extensions.Logging.Abstractions;
-using grate.Infrastructure;
+﻿using grate.Infrastructure;
 using grate.Migration;
 using grate.unittests.TestInfrastructure;
+using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
+
 // ReSharper disable InconsistentNaming
 
-namespace grate.unittests.Infrastructure.SqlServer.Statement_Splitting
+namespace grate.unittests.Basic.Infrastructure.SqlServer.Statement_Splitting
 {
     [TestFixture]
     [Category("Basic")]

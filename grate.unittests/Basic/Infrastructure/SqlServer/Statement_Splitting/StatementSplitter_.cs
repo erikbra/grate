@@ -1,10 +1,10 @@
 ﻿using FluentAssertions;
-using Microsoft.Extensions.Logging.Abstractions;
 using grate.Infrastructure;
 using grate.Migration;
+using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 
-namespace grate.unittests.Infrastructure.SqlServer.Statement_Splitting
+namespace grate.unittests.Basic.Infrastructure.SqlServer.Statement_Splitting
 {
     [TestFixture]
     [Category("Basic")]

@@ -8,7 +8,7 @@ using grate.Migration;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 
-namespace grate.unittests.Infrastructure
+namespace grate.unittests.Basic.Infrastructure
 {
     [TestFixture]
     [Category("Basic")]
