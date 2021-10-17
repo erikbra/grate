@@ -1,6 +1,6 @@
 ---
 title: "Anytime Scripts"
-permalink: /script-types/anytime/
+permalink: script-types/anytime/
 ---
 # Anytime Scripts
 

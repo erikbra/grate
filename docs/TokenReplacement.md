@@ -13,7 +13,7 @@ This is not case sensitive.
 ⚠ Using token replacement in your scripts locks those scripts into grate. I would use something like this VERY sparingly.
 
 ## Supported Tokens
-The curently supported tokens are defined in the [`TokenProvider`](../grate/Infrastructure/TokenProvider.cs) class.  While not all the RoundhousE tokens are supported yet, this set of allowed tokens should improve over time (PR's welcome!).
+The curently supported tokens are defined in the [`TokenProvider`]({{ site.github.repository_url }}/blob/main/grate/Infrastructure/TokenProvider.cs) class.  While not all the RoundhousE tokens are supported yet, this set of allowed tokens should improve over time (PR's welcome!).
  
 ## User defined tokens
 User defined tokens are supported for token replacement. You can add user defined tokens using the `--ut` or `--usertoken` switch. The user defined token is defined as a `key=value` pair. You can define multiple user defined tokens by adding the switch multiple times.

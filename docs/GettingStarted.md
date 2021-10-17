@@ -21,24 +21,24 @@ grate is based on a simple premise: you create a directory structure on disk wit
 
 But don't be fooled, there's power in this simplicity due to a couple of key factors:
 - Different folders are treated differently depending on the scripts they contain, eg Sproc's are re-run whenver the definition has changed from that in the target database, while `up` scripts are run once only... See the `Script Types` section below.
-- grate allows you to specify an Environment for each run, and [Environment Specific](/environment-scripts) scripts will only be run if appropriate.  This allows for the loading of test-data into non-prod environments while keeping production clean, or catering for systems where environments markedly diverge (maybe you have different versions of Sql or something?).
+- grate allows you to specify an Environment for each run, and [Environment Specific](EnvironmentScripts.md) scripts will only be run if appropriate.  This allows for the loading of test-data into non-prod environments while keeping production clean, or catering for systems where environments markedly diverge (maybe you have different versions of Sql or something?).
 
 ## Examples
 
-There are samples included in source control in the [`/examples/`](https://github.com/erikbra/grate/tree/main/examples) directory, have a look and a play in there for some more info.
+There are samples included in source control in the [`/examples/`]({{ site.github.repository.html_url }}/examples) directory, have a look and a play in there for some more info.
 
 ## Script Types
 
 Scripts in grate are considered to be one of three types:
 
 **One-time scripts**
-These are scripts that are run **exactly once** per database, and never again.  More info [here](/script-types/one-time).
+These are scripts that are run **exactly once** per database, and never again.  More info [here](ScriptTypes/OneTimeScripts.md).
 
 **Anytime Scripts**
-These scripts are run **any time they're changed**.  More info [here](/script-types/anytime).
+These scripts are run **any time they're changed**.  More info [here](ScriptTypes/AnytimeScripts.md).
 
 **Everytime Scripts**
-These scripts are run (you guessed it) **every time** grate executes :)  More info [here](/script-types/everytime)
+These scripts are run (you guessed it) **every time** grate executes :)  More info [here](ScriptTypes/EverytimeScripts.md)
 
 ## Directory run order
 

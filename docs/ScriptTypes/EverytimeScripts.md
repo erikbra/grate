@@ -1,6 +1,6 @@
 ---
 title: "Everytime Scripts"
-permalink: /script-types/everytime/
+permalink: script-types/everytime/
 ---
 # Everytime Scripts
 Everytime scripts are scripts that are run everytime grate runs, regardless of changes.  

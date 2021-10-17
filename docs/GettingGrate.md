@@ -9,11 +9,11 @@ There's a variety of ways to access grate depending on your needs:
 
 ## Source Code/raw binaries
 
-The [github site](https://github.com/erikbra/grate) has both the raw source code for local compilation, and also has binaries for a variety of OS's published at [each release](https://github.com/erikbra/grate/releases).
+The [github site]({{ site.github.repository.html_url }}) has both the raw source code for local compilation, and also has binaries for a variety of OS's published at [each release]({{ site.github.repository.html_url }}/releases).
 
 ## Docker
 
-There's a `erikbra/grate` docker image published to [dockerhub](https://hub.docker.com/r/erikbra/grate) on every release.  See the Examples folder for a demo using this to a migration.
+There's a `{{ site.github.repository_nwo }}` docker image published to [dockerhub](https://hub.docker.com/r/{{ site.github.repository_nwo }}) on every release.  See the Examples folder for a demo using this to a migration.
 
 ## Dotnet Tool
 

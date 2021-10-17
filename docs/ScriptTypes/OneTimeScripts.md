@@ -1,6 +1,6 @@
 ---
 title: "One-Time Scripts"
-permalink: /script-types/one-time/
+permalink: script-types/one-time/
 ---
 ## One Time Scripts
 

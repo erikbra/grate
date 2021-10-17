@@ -22,4 +22,4 @@ Files can target multiple environments just fine, eg `AddTestData.Env.TEST.UAT.s
 Roundhouse supported a single _migration_ targeting multiple environments, however grate currently does not allow this, i.e. at most one `--env` argument is allowed.  If this causes you pain please raise an issue to discuss!
 
 ## Does this lock me into grate?
-Only a little, but not really (not like scripts with [tokens](/token-replacement) in them). If you find yourself in a situation where you needed to manually run scripts, only run the scripts for the particular environment.
+Only a little, but not really (not like scripts with [tokens](TokenReplacement.md) in them). If you find yourself in a situation where you needed to manually run scripts, only run the scripts for the particular environment.
