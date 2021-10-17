@@ -27,3 +27,8 @@ RoundhousE with grate in a 5-year-in-development folder of SQL scripts, without 
 ## Contributing
 
 Head over to the [github page](https://github.com/erikbra/grate), and please see [CONTRIBUTING.md](https://github.com/erikbra/grate/blob/main/CONTRIBUTING.md)
+
+
+## Just testing some links
+
+Test links: [Test links](TestLinks.md)
