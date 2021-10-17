@@ -21,10 +21,13 @@
         public string BooleanType => "bit";
         public string PrimaryKeyColumn(string columnName) => $"{columnName} INTEGER PRIMARY KEY NOT NULL";
         public string CreateSchema(string schemaName) => @$"CREATE SCHEMA ""{schemaName}"";";
-        public string CreateDatabase(string databaseName) => AttachDatabase(databaseName);
-        public string AttachDatabase(string databaseName) => @$"ATTACH DATABASE ""{databaseName}"" as ""{databaseName}""";
-        public string DropDatabase(string databaseName) => DetachDatabase(databaseName);
-        public string DetachDatabase(string databaseName) => @$"DETACH DATABASE ""{databaseName}""";
+        
+        // The "Create database" is a no-op with Sqlite, so we just provide a dummy SQL that just selects current DB
+        public string CreateDatabase(string databaseName) => CurrentDatabase; 
+        
+        // The "Drop database" is done via file deletion in Sqlite, so this isn't used.
+        public string DropDatabase(string databaseName) => CurrentDatabase;
+        
         public string TableWithSchema(string schemaName, string tableName) => $"{schemaName}_{tableName}";
         public string ReturnId => "returning id;";
         public string TimestampType => "datetime";

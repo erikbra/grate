@@ -31,6 +31,8 @@ namespace grate.unittests.Sqlite
         [OneTimeTearDown]
         public void RunAfterAnyTests()
         {
+            SqliteConnection.ClearAllPools();
+            
             var currentDirectory = Directory.GetCurrentDirectory();
             var dbFiles = Directory.GetFiles(currentDirectory, "*.db");
             

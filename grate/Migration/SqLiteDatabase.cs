@@ -1,14 +1,9 @@
-﻿using System;
-using System.Data;
-using System.Data.Common;
+﻿using System.Data.Common;
 using System.IO;
 using System.Threading.Tasks;
-using System.Transactions;
-using Dapper;
 using grate.Infrastructure;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
-using SQLitePCL;
 
 namespace grate.Migration
 {
@@ -42,6 +37,8 @@ name = '{fullTableName}';
         {
             var db = _connection?.DataSource;
 
+            SqliteConnection.ClearAllPools();
+
             if (File.Exists(db))
             {
                 File.Delete(db);
@@ -49,21 +46,6 @@ name = '{fullTableName}';
             
             return Task.CompletedTask;
         }
-
-        // protected override async Task Open(DbConnection? conn)
-        // {
-        //     await base.Open(conn);
-        //     if (conn != null)
-        //     {
-        //         var db = GetDatabaseName(conn);
-        //         try
-        //         {
-        //             await conn.QueryAsync<string>(Syntax.AttachDatabase(db));
-        //         }
-        //         catch (SqliteException e) when(e.Message.Equals($"SQLite Error 1: 'database {db} is already in use'."))
-        //         { }
-        //     }
-        // }
 
         public override Task<bool> DatabaseExists()
         {
