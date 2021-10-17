@@ -1,5 +1,8 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
 using Microsoft.Extensions.Logging;
+using static System.StringSplitOptions;
 
 namespace grate.unittests.TestInfrastructure
 {
@@ -14,6 +17,19 @@ namespace grate.unittests.TestInfrastructure
             builder.AddProvider(new NUnitLoggerProvider())
                 .SetMinimumLevel(GetLogLevel());
         });
+        
+        public static DirectoryInfo CreateRandomTempDirectory()
+        {
+            var dummyFile = Path.GetTempFileName();
+            File.Delete(dummyFile);
+
+            var scriptsDir = Directory.CreateDirectory(dummyFile);
+            return scriptsDir;
+        }
+        
+        public static string? Password(string connectionString) => connectionString.Split(";", TrimEntries | RemoveEmptyEntries)
+            .SingleOrDefault(entry => entry.StartsWith("Password"))?
+            .Split("=", TrimEntries | RemoveEmptyEntries).Last();
     
         private static LogLevel GetLogLevel()
         {
@@ -23,5 +39,6 @@ namespace grate.unittests.TestInfrastructure
             }
             return logLevel;
         }
+        
     }
 }

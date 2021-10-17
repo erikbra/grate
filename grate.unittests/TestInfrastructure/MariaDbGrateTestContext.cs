@@ -35,12 +35,11 @@ namespace grate.unittests.TestInfrastructure
 
         public SqlStatements Sql => new()
         {
-            SelectAllDatabases = "SHOW DATABASES",
             SelectVersion = "SELECT VERSION()",
-            SelectCurrentDatabase = "SELECT DATABASE()"
         };
 
 
         public string ExpectedVersionPrefix => "10.5.9-MariaDB";
+        public bool SupportsCreateDatabase => true;
     }
 }

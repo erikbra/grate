@@ -28,14 +28,4 @@
     <ProjectReference Include="..\grate\grate.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Remove="Oracle\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Remove="Oracle\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="Oracle\**" />
-  </ItemGroup>
-
 </Project>

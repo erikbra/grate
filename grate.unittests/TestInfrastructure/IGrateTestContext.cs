@@ -36,7 +36,7 @@ namespace grate.unittests.TestInfrastructure
         
         public GrateConfiguration DefaultConfiguration => new()
         {
-            CreateDatabase = true,
+            CreateDatabase = SupportsCreateDatabase,
             AdminConnectionString = AdminConnectionString,
             Version = "a.b.c.d",
             AlterDatabase = true,
@@ -65,16 +65,15 @@ namespace grate.unittests.TestInfrastructure
             return migrator;
         }
 
-        public GrateMigrator GetMigrator(string databaseName, bool createDatabase, KnownFolders knownFolders)
+        public GrateMigrator GetMigrator(string databaseName, KnownFolders knownFolders)
         {
-            return GetMigrator(databaseName, createDatabase, knownFolders, null);
+            return GetMigrator(databaseName, knownFolders, null);
         }
 
-        public GrateMigrator GetMigrator(string databaseName, bool createDatabase, KnownFolders knownFolders, string? env)
+        public GrateMigrator GetMigrator(string databaseName, KnownFolders knownFolders, string? env)
         {
             var config = DefaultConfiguration with
             {
-                CreateDatabase = createDatabase,
                 ConnectionString = ConnectionString(databaseName),
                 KnownFolders = knownFolders,
                 Environment = env != null ? new GrateEnvironment(env) : null,
@@ -82,5 +81,7 @@ namespace grate.unittests.TestInfrastructure
 
             return GetMigrator(config);
         }
+
+        bool SupportsCreateDatabase { get; }
     }
 }

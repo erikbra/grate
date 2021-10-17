@@ -23,7 +23,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
             for (var i = 0; i < 3; i++)
             {
-                await using var migrator = Context.GetMigrator(db, true, knownFolders);
+                await using var migrator = Context.GetMigrator(db, knownFolders);
                 await migrator.Migrate();
             }
 
@@ -77,7 +77,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
             for (var i = 0; i < 3; i++)
             {
-                await using (migrator = Context.GetMigrator(db, true, knownFolders))
+                await using (migrator = Context.GetMigrator(db, knownFolders))
                 {
                     await migrator.Migrate();
                 }
@@ -108,7 +108,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
            
             var path = knownFolders?.Views?.Path ?? throw new Exception("Config Fail");
 
-            WriteSql(path, "view.sql", "create view grate as select '1' as col;");
+            WriteSql(path, "view.sql", "create view grate as select '1' as col");
 
             await using (var migrator = Context.GetMigrator(config))
             {
@@ -130,14 +130,14 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
         private void CreateEveryTimeScriptFile(MigrationsFolder? folder)
         {
-            var dummySql = Context.Sql.SelectCurrentDatabase;
+            var dummySql = Context.Syntax.CurrentDatabase;
             var path = MakeSurePathExists(folder);
             WriteSql(path, "everytime.1_jalla.sql", dummySql);
         }
 
         private void CreateOtherEveryTimeScriptFile(MigrationsFolder? folder)
         {
-            var dummySql = Context.Sql.SelectCurrentDatabase;
+            var dummySql = Context.Syntax.CurrentDatabase;
             var path = MakeSurePathExists(folder);
             WriteSql(path, "1_jalla.everytime.and.always.sql", dummySql);
         }

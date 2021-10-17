@@ -31,12 +31,11 @@ namespace grate.unittests.TestInfrastructure
 
         public SqlStatements Sql => new()
         {
-            SelectAllDatabases = "select name from pragma_database_list",
             SelectVersion = "SELECT sqlite_version();",
-            SelectCurrentDatabase = "SELECT \"main\""
         };
 
 
         public string ExpectedVersionPrefix => "3.32.3";
+        public bool SupportsCreateDatabase => false;
     }
 }

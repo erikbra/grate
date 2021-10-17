@@ -21,7 +21,7 @@ namespace grate.unittests.Generic
         [Test]
         public async Task Is_created_if_confed_and_it_does_not_exist()
         {
-            var db = "NewDatabase";
+            var db = "NEWDATABASE";
             
             await using var migrator = GetMigrator(GetConfiguration(db, true));
             await migrator.Migrate();
@@ -33,7 +33,7 @@ namespace grate.unittests.Generic
         [Test]
         public async Task Is_not_created_if_not_confed()
         {
-            var db = "SomeOtherdatabase";
+            var db = "SOMEOTHERDATABASE";
             
             IEnumerable<string> databasesBeforeMigration = await GetDatabases();
             databasesBeforeMigration.Should().NotContain(db);
@@ -54,7 +54,7 @@ namespace grate.unittests.Generic
         [Test]
         public async Task Does_not_error_if_confed_to_create_but_already_exists()
         {
-            var db = "daataa";
+            var db = "DAATAA";
             
             // Create the database manually before running the migration
             await CreateDatabase(db);
@@ -72,7 +72,7 @@ namespace grate.unittests.Generic
         [Test]
         public async Task Does_not_need_admin_connection_if_database_already_exists()
         {
-            var db = "datadatadatabase";
+            var db = "DATADATADATABASE";
             
             // Create the database manually before running the migration
             await CreateDatabase(db);
@@ -99,7 +99,7 @@ namespace grate.unittests.Generic
                         await using var conn = Context.CreateAdminDbConnection();
                         conn.Open();
                         await using var cmd = conn.CreateCommand();
-                        cmd.CommandText = Context.Syntax.CreateDatabase(db);
+                        cmd.CommandText = Context.Syntax.CreateDatabase(db, TestConfig.Password(Context.ConnectionString(db)));
                         await cmd.ExecuteNonQueryAsync();
                         break;
                     }
@@ -111,7 +111,7 @@ namespace grate.unittests.Generic
         protected virtual async Task<IEnumerable<string>> GetDatabases()
         {
             IEnumerable<string> databases =Enumerable.Empty<string>();
-            string sql = Context.Sql.SelectAllDatabases;
+            string sql = Context.Syntax.ListDatabases;
 
             using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -142,7 +142,7 @@ namespace grate.unittests.Generic
                 CreateDatabase = createDatabase, 
                 ConnectionString = Context.ConnectionString(databaseName),
                 AdminConnectionString = adminConnectionString ?? Context.AdminConnectionString,
-                KnownFolders = KnownFolders.In(new DirectoryInfo(@"C:\tmp\sql")),
+                KnownFolders = KnownFolders.In(TestConfig.CreateRandomTempDirectory()),
                 NonInteractive = true,
                 DatabaseType = Context.DatabaseType
             };
