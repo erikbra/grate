@@ -1,6 +1,6 @@
 ---
 title: "Testing links"
-permalink: :slug
+permalink: testing-links/main-page
 ---
 
 # Testing links to other pages
