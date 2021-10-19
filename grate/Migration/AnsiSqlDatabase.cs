@@ -301,7 +301,7 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
 
 {_syntax.ReturnId}
 ";
-            var res = (long)await Connection.ExecuteAsync(
+            var res = (long)await Connection.ExecuteScalarAsync<int>(
                 sql,
                 new
                 {
