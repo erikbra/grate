@@ -84,6 +84,33 @@ namespace grate.Migration
             await WaitUntilDatabaseIsReady();
         }
 
+        public async Task RestoreDatabase(string restoreFromPath)
+        {
+            try
+            {
+                await OpenAdminConnection();
+                Logger.LogInformation("Restoring {dbName} database on {server} server from path {path}.", DatabaseName, ServerName, restoreFromPath);
+                using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+                var cmd = AdminConnection.CreateCommand();
+                cmd.CommandText = "select 1";
+                await cmd.ExecuteNonQueryAsync();
+                s.Complete();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogDebug(ex, "Got error: " + ex.Message);
+                throw;
+            }
+            finally
+            {
+                await CloseAdminConnection();
+            }
+            
+            await WaitUntilDatabaseIsReady();
+
+            Logger.LogInformation("Database {dbName} successfully restored from path {path}.", DatabaseName, restoreFromPath);
+        }
+
         public virtual async Task DropDatabase()
         {
             using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);

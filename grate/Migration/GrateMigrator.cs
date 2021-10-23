@@ -70,6 +70,11 @@ namespace grate.Migration
                 databaseCreated = await CreateDatabaseIfItDoesNotExist(dbMigrator);
             }
 
+            if (config.Restore && !string.IsNullOrEmpty(config.RestoreFromPath))
+            {
+                await RestoreDatabseFromPath(config.RestoreFromPath, dbMigrator);
+            }
+
             TransactionScope? scope = null;
             try
             {
@@ -199,6 +204,11 @@ namespace grate.Migration
                 await dbMigrator.CloseAdminConnection();
             }
             return databaseCreated;
+        }
+
+        private static async Task RestoreDatabseFromPath(string restoreFromPath, IDbMigrator dbMigrator)
+        {
+            await dbMigrator.RestoreDatabase(restoreFromPath);
         }
 
         private async Task LogAndProcess(MigrationsFolder folder, string changeDropFolder, long versionId, ConnectionType connectionType)

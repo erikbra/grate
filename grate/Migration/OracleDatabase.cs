@@ -54,7 +54,12 @@ namespace grate.Migration
         {
             throw new System.NotImplementedException();
         }
-        
+
+        public Task RestoreDatabase(string restoreFromPath)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public Task DropDatabase()
         {
             throw new System.NotImplementedException();
