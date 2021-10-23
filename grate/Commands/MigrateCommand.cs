@@ -37,6 +37,8 @@ namespace grate.Commands
             Add(Baseline());
             Add(RunAllAnyTimeScripts());
             Add(DryRun());
+            Add(Restore());
+            Add(RestoreFromPath());
 
             Handler = CommandHandler.Create(
                 async () =>
@@ -196,6 +198,18 @@ namespace grate.Commands
             new(
                 new[] { "--dryrun" },
                 " DryRun - This instructs grate to log what would have run, but not to actually run anything against the database.  Use this option if you are trying to figure out what grate is going to do."
+            );
+
+        private static Option<bool> Restore() =>
+            new(
+                new[] { "--restore" },
+                " Restore - This instructs grate to do a restore, with the --restorefrompath parameter, of a database before migrating it. Defaults to false."
+            );
+
+        private static Option<string> RestoreFromPath() =>
+            new(
+                new[] { "--restorefrompath" },
+                " RestoreFromPath - This instructs grate where to get the backed up database file. Defaults to NULL. Required if --restore has been set."
             );
     }
 }
