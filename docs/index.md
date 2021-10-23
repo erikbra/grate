@@ -16,6 +16,7 @@ grate is short for migrate. And it's also pronounced the same way as _great_, so
 * [Getting started](GettingStarted.md)
 * [Getting grate](GettingGrate.md)
 * [Migrating from RoundhousE](MigratingFromRoundhousE.md)
+* [Configuration Options](ConfigurationOptions.md)
 * [Environment scripts](EnvironmentScripts.md)
 * [Token replacement](TokenReplacement.md)
 * [Response files](ResponseFiles.md)
