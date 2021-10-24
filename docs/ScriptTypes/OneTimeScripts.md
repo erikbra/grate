@@ -1,6 +1,7 @@
 ---
 title: "One-Time Scripts"
 permalink: script-types/one-time/
+parent: Script types
 ---
 ## One Time Scripts
 

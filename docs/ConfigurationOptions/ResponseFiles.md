@@ -1,6 +1,7 @@
 ---
 title: "Response (.rsp) Files"
 permalink: /response-files/
+parent: Configuration options
 ---
 # Response (.rsp) Files
 
