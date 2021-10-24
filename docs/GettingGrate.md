@@ -10,7 +10,7 @@ There's a variety of ways to access grate depending on your needs:
 
 ## Source Code/raw binaries
 
-The [github site](https://github.com/erikbra/grate/) has both the raw source code for local compilation, and also has binaries for a variety of OS's published at [each release](https://github.com/erikbra/grate/releases).
+The [github site](https://github.com/erikbra/grate/) has both the raw source code for local compilation, and also has binaries for a variety of OS's published at [each release](https://github.com/erikbra/grate/releases/latest).
 
 ## Docker
 
