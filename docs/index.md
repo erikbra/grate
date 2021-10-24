@@ -1,5 +1,32 @@
+---
+title: "Home"
+nav_order: 1
+---
+
 # grate
 SQL scripts migration runner 
+
+## What is grate?
+
+grate is a SQL scripts migration runner, using plan, old SQL for migrations. No meta-language, no code, no config,
+no EF migrations. If gives you full flexibility, and full control of your migrations, and lets you use
+all the fancy features of you particular database system. You are not constrained to any lowest common 
+feature set of all supported databases.
+
+### grate supports the following DMBS's
+
+* Microsoft SQL server
+* PostgreSQL
+* MariaDB/MySQL
+* Sqlite
+* _(Oracle support is in the works)_
+
+
+## Prerequisites
+
+grate is built with .NET, but is compiled as a self-contained executable, which means there are no big
+prerequisites for running grate. ICU is required (e.g. libicu on Debian Linux)
+
 
 ## Goal
 
@@ -16,10 +43,10 @@ grate is short for migrate. And it's also pronounced the same way as _great_, so
 * [Getting started](GettingStarted.md)
 * [Getting grate](GettingGrate.md)
 * [Migrating from RoundhousE](MigratingFromRoundhousE.md)
-* [Configuration Options](ConfigurationOptions.md)
+* [Configuration Options](ConfigurationOptions)
 * [Environment scripts](EnvironmentScripts.md)
 * [Token replacement](TokenReplacement.md)
-* [Response files](ResponseFiles.md)
+* [Response files](ConfigurationOptions/ResponseFiles.md)
 
 ## Status
 

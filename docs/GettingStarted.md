@@ -1,6 +1,7 @@
 ---
 title: "Getting Started"
 permalink: /getting-started/
+nav_order: 2
 ---
 
 # Getting Started
@@ -25,7 +26,7 @@ But don't be fooled, there's power in this simplicity due to a couple of key fac
 
 ## Examples
 
-There are samples included in source control in the [`/examples/`]({{ site.github.repository.html_url }}/examples) directory, have a look and a play in there for some more info.
+There are samples included in source control in the [`/examples/`](https://github.com/erikbra/grates/examples) directory, have a look and a play in there for some more info.
 
 ## Script Types
 

@@ -1,6 +1,7 @@
 ---
 title: "Everytime Scripts"
 permalink: script-types/everytime/
+parent: Script types
 ---
 # Everytime Scripts
 Everytime scripts are scripts that are run everytime grate runs, regardless of changes.  

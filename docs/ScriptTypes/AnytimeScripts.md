@@ -1,6 +1,7 @@
 ---
 title: "Anytime Scripts"
 permalink: script-types/anytime/
+parent: Script types
 ---
 # Anytime Scripts
 
