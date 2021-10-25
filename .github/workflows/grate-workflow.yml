@@ -25,18 +25,15 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       # - uses: actions/checkout@v2
 
-      - name: Verify grate
-        run: |
-          ls -l /tmp/grate_0.10.1-1_amd64.deb  
-          file /tmp/grate_0.10.1-1_amd64.deb  
-          head -10 /tmp/grate_0.10.1-1_amd64.deb  
 
       - name: Install grate
         run: sudo dpkg -i /tmp/grate_0.10.1-1_amd64.deb
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: Verify grate installation
+        run: grate --help
+
+      - name: Dryrun
+        run: grate --dryrun --databasetype sqlite --connectionstring "Data Source=devops-db.db" --files .
 
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
