@@ -1,0 +1,1 @@
+.print "This is run before everything else"
