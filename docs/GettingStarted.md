@@ -45,46 +45,46 @@ These scripts are run (you guessed it) **every time** grate executes :)  More in
 
 grate processes the files in a standard set of directories in a fixed order for deterministic processing.  Folders are run in the following order:
 
-### 1. BeforeMigration (Everytime scripts)
+### 1. beforeMigration (Everytime scripts)
 If you have particular tasks you want to perform prior to any database migrations (custom logging? database backups? disable replication?) you can do it here.
 
-### 2. AlterDatabase (Anytime scripts)
+### 2. alterDatabase (Anytime scripts)
 If you have scripts that need to alter the database config itself (rather than the _contents_ of the database) thjis is the place to do it.  For example setting recovery modes, enabling query stores, etc etc
 
-### 3. RunAfterCreateDatabase (Anytime scripts).
+### 3. runAfterCreateDatabase (Anytime scripts).
 This directory is only processed if the database was created from scratch by grate.  Maybe you need to add user accounts or similar?
 
-### 4. RunBeforeUp (Anytime scripts)
+### 4. runBeforeUp (Anytime scripts)
 
-### 5. Up (One-time scripts).  
+### 5. up (One-time scripts).  
 This is where the bulk of your 'migration' scripts end up, eg adding tables, removing columns, adding reference data etc
 
 Note that there's no `down`!  If you've dropped a column in your `up` scripts, how do you possibly script an undo for that operation?  grate has support for running the migration inside a transaction, and will rollback on script failure.
 
-### 6. RunFirstAfterUp (One-time scripts)
+### 6. runFirstAfterUp (One-time scripts)
 Scripts run prior to other anytime folders are found here. This folder exists to allow you to put sql files in when you need to run out of order, say a stored procecure prior to a function. It is not a normal occurrence to have many files in here or any for that matter.
 
-### 7. Functions (Anytime scripts)
+### 7. functions (Anytime scripts)
 If you have any functions that need to run prior to others, make sure they are alphabetically first before the dependent scripts.
 
-### 8. Views (Anytime scripts)
+### 8. views (Anytime scripts)
 If you have views any that need to run prior to others, make sure they are alphabetically first before the dependent scripts.
 
-### 9. Sprocs (Anytime scripts)
+### 9. sprocs (Anytime scripts)
 Stored procedures are found in a `sprocs` folder. If you have any that need to run prior to others, make sure they are alphabetically first before the dependent scripts.
 
-### 10. Triggers (Anytime scripts)
+### 10. triggers (Anytime scripts)
 
-### 11. Indexes (Anytime scripts)
+### 11. indexes (Anytime scripts)
 
-### 12. RunAfterOtherAnyTimeScripts (Anytime scripts)
+### 12. runAfterOtherAnyTimeScripts (Anytime scripts)
 This folder exists to allow you to run scripts after you have set up your anytime scripts. It's pretty open what you put in here, but remember that it is still an anytime folder.
 
-### 13. Permissions (Everytime scripts)
+### 13. permissions (Everytime scripts)
 If you have any that need to run prior to others, make sure they are alphabetically first before the dependent scripts.
 Permissions may contain auto-wiring of permissions, so they are run every time regardless of changes in the files.
 
-### 14. AfterMigration (Everytime scripts)
+### 14. afterMigration (Everytime scripts)
 If you have particular tasks you want to perform prior to any database migrations (custom logging? database backups?) you can do it here.
 
 ### Notes
