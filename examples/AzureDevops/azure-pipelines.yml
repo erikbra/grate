@@ -1,0 +1,48 @@
+trigger: none
+
+variables:
+- name: packageUrl
+  value: "https://github.com/erikbra/grate/releases/download/0.10.1/grate_0.10.1-1_amd64.deb"
+- name: localFile
+  value: /tmp/grate_0.10.1-1_amd64.deb
+- name: dbRoot
+  value: $(Build.SourcesDirectory)/examples/AzureDevops/scripts
+
+jobs:
+- job: dryrun
+
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - script: echo Hello, world!
+    displayName: 'Run a one-line script'
+
+  - pwsh: Invoke-WebRequest -Uri $(packageUrl) -OutFile $(localFile)
+    displayName: Download grate
+  - pwsh: dpkg -i $(localFile)
+    displayName: Install grate
+  - pwsh: grate --help
+    displayName: Make sure grate is successfully installed
+  - pwsh: grate --dryrun --databasetype sqlite --connectionstring "Data Source=devops-db.db" --files $(dbRoot)
+    displayName: Run migration in dryRun mode
+
+- job: validate_migration
+  displayName: Wait for approval
+  dependsOn: dryrun
+  pool: server
+  timeoutInMinutes: 10
+  steps:
+  - task: ManualValidation@0
+    inputs:
+      notifyUsers: 
+      instructions: 'Please verify that the grate dryrun migration looks OK'
+
+- job: run_actual_migration
+  displayName: Run actual migration
+  dependsOn: dryrun
+  pool: 
+    vmImage: ubuntu-latest
+  steps:
+  - pwsh: grate --dryrun --databasetype sqlite --connectionstring "Data Source=devops-db.db" --files $(dbRoot)
+    displayName: Run migration for real
+  
