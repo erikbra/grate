@@ -21,7 +21,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Download grate
-        run: Invoke-WebRequest -Uri https://github.com/erikbra/grate/releases/download/0.10.1/grate_0.10.1-1_amd64.deb -OutFile /tmp/grate_0.10.1-1_amd64.deb
+        run: curl https://github.com/erikbra/grate/releases/download/0.10.1/grate_0.10.1-1_amd64.deb -o /tmp/grate_0.10.1-1_amd64.deb
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       # - uses: actions/checkout@v2
 
