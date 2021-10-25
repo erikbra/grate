@@ -1,1 +1,1 @@
-.print Hello
+SELECT sqlite_version();
