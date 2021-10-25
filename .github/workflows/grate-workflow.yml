@@ -24,7 +24,13 @@ jobs:
         run: curl -s https://github.com/erikbra/grate/releases/download/0.10.1/grate_0.10.1-1_amd64.deb -o /tmp/grate_0.10.1-1_amd64.deb
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       # - uses: actions/checkout@v2
-  
+
+      - name: Verify grate
+        run: |
+          ls -l /tmp/grate_0.10.1-1_amd64.deb  
+          file /tmp/grate_0.10.1-1_amd64.deb  
+          head -10 /tmp/grate_0.10.1-1_amd64.deb  
+
       - name: Install grate
         run: sudo dpkg -i /tmp/grate_0.10.1-1_amd64.deb
 
