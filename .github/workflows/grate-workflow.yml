@@ -1,0 +1,56 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Example grate workflow
+
+# Controls when the workflow will run
+on: 
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  dryrun:
+    name: Dry run
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      
+      - name: Download grate
+        run: curl -sL https://github.com/erikbra/grate/releases/download/0.10.1/grate_0.10.1-1_amd64.deb -o /tmp/grate_0.10.1-1_amd64.deb
+
+      - name: Install grate
+        run: sudo dpkg -i /tmp/grate_0.10.1-1_amd64.deb
+
+      - name: Verify grate installation
+        run: grate --help
+
+      - name: Dryrun
+        run: grate --dryrun --databasetype sqlite --connectionstring "Data Source=devops-db.db" --files $GITHUB_WORKSPACE/examples/scripts/sqlite
+
+
+  perform-deploy:
+    name: Perform the actual deploy
+    # This is the way manual approvals are handled in Github actions - see on your 'Settings' tab
+    environment: 'example-environment'
+    runs-on: ubuntu-latest
+    # Makes it not run parallel to the dryrun step
+    needs: dryrun
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Download grate
+        run: curl -sL https://github.com/erikbra/grate/releases/download/0.10.1/grate_0.10.1-1_amd64.deb -o /tmp/grate_0.10.1-1_amd64.deb
+
+      - name: Install grate
+        run: sudo dpkg -i /tmp/grate_0.10.1-1_amd64.deb
+
+      - name: Verify grate installation
+        run: grate --help
+
+      - name: Deploy
+        run: grate --databasetype sqlite --connectionstring "Data Source=devops-db.db" --files $GITHUB_WORKSPACE/examples/scripts/sqlite
+
