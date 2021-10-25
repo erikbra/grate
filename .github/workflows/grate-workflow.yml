@@ -57,5 +57,5 @@ jobs:
         run: grate --help
 
       - name: Deploy
-        run: grate --databasetype sqlite --connectionstring "Data Source=devops-db.db" --files .
+        run: grate --databasetype sqlite --connectionstring "Data Source=devops-db.db" --files $GITHUB_WORKSPACE/examples/scripts/sqlite
 
