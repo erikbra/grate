@@ -1,3 +1,20 @@
+grate (0.10.1-1) stable unstable; urgency=medium
+
+  [Erik A. Brandstadmoen]
+  * Bug #108: Version Id is not correctly set by @erikbra in #109
+  * Simplified Sqlite handling of CREATE/DROP database by @erikbra in #105
+
+grate (0.10.0-1) stable unstable; urgency=medium
+
+  [Tim Thompson]
+  * Fix #101: Environment scripts were being run when no environment specified by @wokket in #102
+
+  [Erik A. Brandstadmoen]
+  * Add Sqlite database support by @erikbra in #103
+  * Lowered severity of "skipped" lines to "Debug" by @erikbra in #95
+
+ -- Erik A. Brandstadmoen <erik@brandstadmoen.net>  Tue, 26 Oct 2021 21:00:00 +0200
+
 grate (0.9.6-1) stable unstable; urgency=medium
 
   [Erik A. Brandstadmoen]
