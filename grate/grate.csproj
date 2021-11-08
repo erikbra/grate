@@ -50,7 +50,8 @@
     <PublishReadyToRun>false</PublishReadyToRun>
     <TrimMode>link</TrimMode>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
-    <NoWarn>IL2026;IL2104</NoWarn>
+    <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
   </PropertyGroup>
 
 </Project>
