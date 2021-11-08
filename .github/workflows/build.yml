@@ -28,7 +28,7 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
-        include-prerelease: true
+        include-prerelease: false
     - name: Checkout
       uses: actions/checkout@v2
       with:
@@ -53,7 +53,7 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
-        include-prerelease: true
+        include-prerelease: false
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
@@ -91,7 +91,7 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
-        include-prerelease: true
+        include-prerelease: false
 
     - name: Publish self-contained ${{ matrix.arch }}
       run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
@@ -246,7 +246,7 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
-        include-prerelease: true
+        include-prerelease: false
     - name: Test
       run: dotnet test --filter FullyQualifiedName~grate.unittests.${{ matrix.category }} -c Release --logger:"junit;LogFilePath=test-results-${{ matrix.category }}.xml"
 #      run:  dotnet test --verbosity Normal -c Release --logger "trx;LogFileName=/tmp/test-results/grate.unittests.trx"
