@@ -48,6 +48,7 @@
     <PublishSingleFile>true</PublishSingleFile>
     <PublishTrimmed>true</PublishTrimmed>
     <PublishReadyToRun>false</PublishReadyToRun>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <TrimMode>link</TrimMode>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
     <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
