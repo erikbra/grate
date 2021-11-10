@@ -7,14 +7,16 @@
     <Nullable>enable</Nullable>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Erik A. Brandstadmoen</Authors>
+    <PackageReadmeFile>NuGet.md</PackageReadmeFile>
     <Description>
-      grate - sql for the 20s
+grate - sql for the 20s
     
-      grate is a no-code, low-fi database migration tool, inspired heavily by RoundhousE. It's written from the ground
-      up using modern .NET 6. 
+grate is a no-code, low-fi database migration tool, inspired heavily by RoundhousE. It's written from the ground
+up using modern .NET 6. 
     </Description>
     <PackageProjectUrl>https://erikbra.github.io/grate/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/erikbra/grate</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageTags>sql migration roundhouse</PackageTags>
   </PropertyGroup>
   
@@ -34,15 +36,12 @@
     <DebugType>None</DebugType>
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
     <RuntimeIdentifiers>win-x64;win-x86;win-arm;win-arm64;alpine-x64;linux-x64;linux-arm;linux-arm64;osx.11.0-x64;osx.10.12-x64;osx-x64</RuntimeIdentifiers>
-
-    <!-- <PublishSingleFile>true</PublishSingleFile>
-    <PublishTrimmed>true</PublishTrimmed>
-    <PublishReadyToRun>false</PublishReadyToRun>
-    <TrimMode>link</TrimMode>
-    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract> -->
-
     <ToolCommandName>grate</ToolCommandName>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="NuGet.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
 
   <PropertyGroup Condition="'$(SelfContained)' == 'true'">
     <PublishSingleFile>true</PublishSingleFile>
