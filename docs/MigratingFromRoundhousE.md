@@ -18,7 +18,7 @@ grate is built using the new [`System.CommandLine`](https://github.com/dotnet/co
 - We have gained support for [Response (`.rsp`) files](ConfigurationOption/ResponseFiles.md)
 
 - By default grate stores version information in the `grate` database schema.  To continue using your existing version information pass `--schema=RoundhousE`
-- grate has a single mandatory `-cs`/`--connstring` argument for simplicity.  RH's `--database`, `--server`, `--accesstoken` etc arguments are now longer allowed.
+- grate has a single mandatory `-cs`/`--connstring` argument for simplicity.  RH's `--database`, `--server`, `--accesstoken` etc arguments are no longer allowed.
 
 - Not all previously supported tokens are available yet.  For more information see the [Token Replacement docs](TokenReplacement.md).
 - UserTokens have had two small changes.  In keeping with the `System.CommandLine` standards the `--ut` option is now passed multiple times for multiple tokens, rather than parsing a single ';' delimited string. Support for `;` delimited lists of tokens may be re-added in the future.
