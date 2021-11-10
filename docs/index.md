@@ -8,7 +8,7 @@ SQL scripts migration runner
 
 ## What is grate?
 
-grate is a SQL scripts migration runner, using plan, old SQL for migrations. No meta-language, no code, no config,
+grate is a SQL scripts migration runner, using plain, old SQL for migrations. No meta-language, no code, no config,
 no EF migrations. If gives you full flexibility, and full control of your migrations, and lets you use
 all the fancy features of you particular database system. You are not constrained to any lowest common 
 feature set of all supported databases.
@@ -43,7 +43,7 @@ grate is short for migrate. And it's also pronounced the same way as _great_, so
 * [Getting started](GettingStarted.md)
 * [Getting grate](GettingGrate.md)
 * [Migrating from RoundhousE](MigratingFromRoundhousE.md)
-* [Configuration Options](ConfigurationOptions)
+* [Configuration Options](ConfigurationOptions/index.md)
 * [Environment scripts](EnvironmentScripts.md)
 * [Token replacement](TokenReplacement.md)
 * [Response files](ConfigurationOptions/ResponseFiles.md)
