@@ -92,7 +92,17 @@ namespace grate.Migration
                 Logger.LogInformation("Restoring {dbName} database on {server} server from path {path}.", DatabaseName, ServerName, restoreFromPath);
                 using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
                 var cmd = AdminConnection.CreateCommand();
-                cmd.CommandText = "select 1";
+                cmd.CommandText =
+                        $@"USE master
+                        ALTER DATABASE [{DatabaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+                        RESTORE DATABASE [{DatabaseName}]
+                        FROM DISK = N'{restoreFromPath}'
+                        WITH NOUNLOAD
+                        , STATS = 10
+                        , RECOVERY
+                        , REPLACE;
+
+                        ALTER DATABASE [{DatabaseName}] SET MULTI_USER;";
                 await cmd.ExecuteNonQueryAsync();
                 s.Complete();
             }
