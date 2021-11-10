@@ -70,7 +70,7 @@ namespace grate.Migration
                 databaseCreated = await CreateDatabaseIfItDoesNotExist(dbMigrator);
             }
 
-            if (config.Restore && !string.IsNullOrEmpty(config.RestoreFromPath))
+            if (!string.IsNullOrEmpty(config.RestoreFromPath))
             {
                 await RestoreDatabseFromPath(config.RestoreFromPath, dbMigrator);
             }

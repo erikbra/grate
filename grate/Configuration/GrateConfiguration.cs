@@ -122,12 +122,7 @@ namespace grate.Configuration
         public bool RunAllAnyTimeScripts { get; init; }
 
         /// <summary>
-        /// If true grate will restore from a backup file
-        /// </summary>
-        public bool Restore { get; init; }
-
-        /// <summary>
-        /// If location of the backup file to use when restoring
+        /// If specified, location of the backup file to use when restoring
         /// </summary>
         public string? RestoreFromPath { get; init; }
     }
