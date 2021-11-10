@@ -20,7 +20,7 @@
     <PackageReference Include="NSubstitute" Version="4.2.*" />
     <PackageReference Include="Dapper" Version="2.0.*" />
     <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="3.21.*" />
-    <PackageReference Include="Npgsql" Version="5.0.*" />
+    <PackageReference Include="Npgsql" Version="6.0.*" />
     <PackageReference Include="MySqlConnector" Version="2.0.*" />
   </ItemGroup>
 

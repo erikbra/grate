@@ -10,6 +10,8 @@ namespace grate.unittests.PostgreSQL.Running_MigrationScripts
         protected override IGrateTestContext Context => GrateTestContext.PostgreSql;
 
         protected override string ExpextedErrorMessageForInvalidSql =>
-@"42703: column ""top"" does not exist";
+@"42703: column ""top"" does not exist
+
+POSITION: 8";
     }
 }
