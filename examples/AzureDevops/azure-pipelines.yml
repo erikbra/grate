@@ -14,9 +14,6 @@ jobs:
   pool:
     vmImage: ubuntu-latest
   steps:
-  - script: echo Hello, world!
-    displayName: 'Run a one-line script'
-
   - pwsh: Invoke-WebRequest -Uri $(packageUrl) -OutFile $(localFile)
     displayName: Download grate
   - pwsh: sudo dpkg -i $(localFile)
@@ -43,6 +40,12 @@ jobs:
   pool: 
     vmImage: ubuntu-latest
   steps:
+  - pwsh: Invoke-WebRequest -Uri $(packageUrl) -OutFile $(localFile)
+    displayName: Download grate
+  - pwsh: sudo dpkg -i $(localFile)
+    displayName: Install grate
+  - pwsh: grate --help
+    displayName: Make sure grate is successfully installed
   - pwsh: grate --silent --databasetype sqlite --connectionstring "Data Source=devops-db.db" --files $(dbRoot)
     displayName: Run migration for real
   
