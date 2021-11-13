@@ -23,7 +23,7 @@ jobs:
     displayName: Install grate
   - pwsh: grate --help
     displayName: Make sure grate is successfully installed
-  - pwsh: grate --dryrun --databasetype sqlite --connectionstring "Data Source=devops-db.db" --files $(dbRoot)
+  - pwsh: grate --silent --dryrun --databasetype sqlite --connectionstring "Data Source=devops-db.db" --files $(dbRoot)
     displayName: Run migration in dryRun mode
 
 - job: validate_migration
@@ -43,6 +43,6 @@ jobs:
   pool: 
     vmImage: ubuntu-latest
   steps:
-  - pwsh: grate --dryrun --databasetype sqlite --connectionstring "Data Source=devops-db.db" --files $(dbRoot)
+  - pwsh: grate --silent --databasetype sqlite --connectionstring "Data Source=devops-db.db" --files $(dbRoot)
     displayName: Run migration for real
   
