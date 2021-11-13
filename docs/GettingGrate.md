@@ -20,7 +20,13 @@ There's a `{{ site.github.repository_nwo }}` docker image published to [dockerhu
 
 grate is available as a [dotnet global tool](https://docs.microsoft.com/en-us/dotnet/core/tools/global-tools).  Simply `dotnet tool install -g grate` to get the [package](https://www.nuget.org/packages/grate/).
 
-Note, pre-requisite is dotnet 6. If the above command gives you: ```error NU1202: Package grate *.*.* is not compatible with net5.0 (.NETCoreApp,Version=v5.0) / any. Package grate 0.10.0 supports: net6.0 (.NETCoreApp,Version=v6.0) / any``` please install dotnet 6 (download [here](https://dotnet.microsoft.com/download/dotnet/6.0)).
+Note, pre-requisite is dotnet 6. If the above command gives you: 
+
+```
+error NU1202: Package grate *.*.* is not compatible with net5.0 (.NETCoreApp,Version=v5.0) / any. 
+Package grate 0.10.0 supports: net6.0 (.NETCoreApp,Version=v6.0) / any
+
+please install dotnet 6 (download [here](https://dotnet.microsoft.com/download/dotnet/6.0)).
 
 * You are attempting to install a preview release and did not use the --version option to specify the version.
 * A package by this name was found, but it was not a .NET tool.
@@ -29,6 +35,7 @@ Note, pre-requisite is dotnet 6. If the above command gives you: ```error NU1202
 
 For more reasons, including package naming enforcement, visit https://aka.ms/failure-installing-tool
 ```
+please install [dotnet 6](https://dotnet.microsoft.com/download/dotnet/6.0)
 
 ## Winget
 
