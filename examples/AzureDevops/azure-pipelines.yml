@@ -10,7 +10,7 @@ variables:
 
 jobs:
 - job: dryrun
-
+  displayName: Dry run - see what will change
   pool:
     vmImage: ubuntu-latest
   steps:
