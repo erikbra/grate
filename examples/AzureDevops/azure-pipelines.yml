@@ -6,7 +6,7 @@ variables:
 - name: localFile
   value: /tmp/grate_0.11.0-1_amd64.deb
 - name: dbRoot
-  value: $(Build.SourcesDirectory)/examples/AzureDevops/scripts
+  value: $(Build.SourcesDirectory)/examples/scripts/sqlite
 
 jobs:
 - job: dryrun
