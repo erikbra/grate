@@ -8,9 +8,10 @@ SQL scripts migration runner
 
 Below are examples on how to integrate grate in your workflow in different CI systems.
 
-Github actions: [![Example grate workflow](https://github.com/erikbra/grate/actions/workflows/grate-workflow.yml/badge.svg)](https://github.com/erikbra/grate/actions/workflows/grate-workflow.yml)
-
-Azure DevOps: [![Build Status](https://dev.azure.com/my-grate/grate/_apis/build/status/erikbra.grate?branchName=main)](https://dev.azure.com/my-grate/grate/_build/latest?definitionId=1&branchName=main)
+| Build pipeline | Last run | Build definition |
+|---|---|---|
+| Github actions | [![Example grate workflow](https://github.com/erikbra/grate/actions/workflows/grate-workflow.yml/badge.svg)](https://github.com/erikbra/grate/actions/workflows/grate-workflow.yml) | [/examples/github-actions/grate-workflow.yml](https://github.com/erikbra/grate/blob/main/examples/github-actions/grate-workflow.yml)  |
+| Azure DevOps  | [![Build Status](https://dev.azure.com/my-grate/grate/_apis/build/status/erikbra.grate?branchName=main)](https://dev.azure.com/my-grate/grate/_build/latest?definitionId=1&branchName=main)  | [/examples/AzureDevops/azure-pipelines.yml](https://github.com/erikbra/grate/blob/main/examples/AzureDevops/azure-pipelines.yml)  |
 
 ## Goal
 
