@@ -36,7 +36,7 @@ jobs:
 
 - job: run_actual_migration
   displayName: Run actual migration
-  dependsOn: dryrun
+  dependsOn: validate_migration
   pool: 
     vmImage: ubuntu-latest
   steps:
