@@ -84,43 +84,6 @@ namespace grate.Migration
             await WaitUntilDatabaseIsReady();
         }
 
-        public async Task RestoreDatabase(string restoreFromPath)
-        {
-            try
-            {
-                await OpenAdminConnection();
-                Logger.LogInformation("Restoring {dbName} database on {server} server from path {path}.", DatabaseName, ServerName, restoreFromPath);
-                using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
-                var cmd = AdminConnection.CreateCommand();
-                cmd.CommandText =
-                        $@"USE master
-                        ALTER DATABASE [{DatabaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-                        RESTORE DATABASE [{DatabaseName}]
-                        FROM DISK = N'{restoreFromPath}'
-                        WITH NOUNLOAD
-                        , STATS = 10
-                        , RECOVERY
-                        , REPLACE;
-
-                        ALTER DATABASE [{DatabaseName}] SET MULTI_USER;";
-                await cmd.ExecuteNonQueryAsync();
-                s.Complete();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogDebug(ex, "Got error: " + ex.Message);
-                throw;
-            }
-            finally
-            {
-                await CloseAdminConnection();
-            }
-            
-            await WaitUntilDatabaseIsReady();
-
-            Logger.LogInformation("Database {dbName} successfully restored from path {path}.", DatabaseName, restoreFromPath);
-        }
-
         public virtual async Task DropDatabase()
         {
             using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
@@ -158,7 +121,7 @@ namespace grate.Migration
             }
         }
 
-        private async Task WaitUntilDatabaseIsReady()
+        protected async Task WaitUntilDatabaseIsReady()
         {
             const int maxDelay = 10_000;
             int totalDelay = 0;
@@ -508,5 +471,7 @@ VALUES ((SELECT version FROM {VersionTable} WHERE id = @versionId), @scriptName,
             
             GC.SuppressFinalize(this);
         }
+
+        public abstract Task RestoreDatabase(string restoreFromPath);
     }
 }

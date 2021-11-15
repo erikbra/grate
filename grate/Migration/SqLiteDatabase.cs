@@ -54,5 +54,10 @@ name = '{fullTableName}';
         }
 
         private static string GetDatabaseName(DbConnection conn) => Path.GetFileNameWithoutExtension(conn.DataSource);
+
+        public override Task RestoreDatabase(string restoreFromPath)
+        {
+            throw new System.NotImplementedException("Restoring a database from file is not currently supported for  SqlLite.");
+        }
     }
 }

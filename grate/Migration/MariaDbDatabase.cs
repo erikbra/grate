@@ -1,4 +1,5 @@
 ﻿using System.Data.Common;
+using System.Threading.Tasks;
 using grate.Infrastructure;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
@@ -14,5 +15,10 @@ namespace grate.Migration
         public override bool SupportsDdlTransactions => false;
         public override bool SupportsSchemas => false;
         protected override DbConnection GetSqlConnection(string? connectionString) => new MySqlConnection(connectionString);
+
+        public override Task RestoreDatabase(string restoreFromPath)
+        {
+            throw new System.NotImplementedException("Restoring a database from file is not currently supported for Maria DB.");
+        }
     }
 }
