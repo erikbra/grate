@@ -36,6 +36,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="Oracle\**" />
+    <None Update="SqlServer\test.bak">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
