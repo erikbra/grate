@@ -41,5 +41,6 @@ grate --connectionstring="Server=(localdb)\MSSQLLocalDB;Integrated Security=true
 | --baseline | - | **Baseline** - This instructs grate to mark the scripts as run, but not to actually run anything against the database. Use this option if you already have scripts that have been run through other means (and BEFORE you start the new ones). | 
 | --forceanytimescripts<br>--runallanytimescripts | false | **RunAllAnyTimeScripts** - This instructs grate to run any time scripts every time it is run even if they haven't changed. Defaults to false.
 | --dryrun | false | **DryRun** - This instructs grate to log what would have run, but not to actually run anything against the database.  Use this option if you are trying to figure out what grate is going to do. |
+| --restorefrompath | - | **RestoreFromPath** - This instructs grate where to find the database backup file (.bak) to restore from. If this option is not specified, no restore will be done.
 | -v<br>--verbosity &lt;Critical\|<br>Debug\|<br>Error\|<br>Information\|<br>None\|<br>Trace\|Warning&gt; | Information | **Verbosity level** (as defined here: https://docs.microsoft.com/dotnet/api/Microsoft.Extensions.Logging.LogLevel)
 | -?<br>-h<br>--help | - |  Show help and usage information7 
