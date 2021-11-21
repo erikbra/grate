@@ -34,12 +34,11 @@ namespace grate.unittests.TestInfrastructure
 
         public SqlStatements Sql => new()
         {
-            SelectAllDatabases = "SELECT datname FROM pg_database",
             SelectVersion = "SELECT version()",
-            SelectCurrentDatabase = "SELECT current_database()"
         };
 
 
         public string ExpectedVersionPrefix => "PostgreSQL 14.";
+        public bool SupportsCreateDatabase => true;
     }
 }

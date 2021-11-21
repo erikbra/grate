@@ -1,118 +1,143 @@
-﻿using System.Threading.Tasks;
-using grate.Configuration;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Dapper;
+using grate.Infrastructure;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+using Oracle.ManagedDataAccess.Client;
+using static System.StringSplitOptions;
 
 namespace grate.Migration
 {
-    public class OracleDatabase : IDatabase
+    public class OracleDatabase : AnsiSqlDatabase
     {
-        private readonly ILogger<OracleDatabase> _logger;
-
         public OracleDatabase(ILogger<OracleDatabase> logger)
+            : base(logger, new OracleSyntax())
         {
-            _logger = logger;
-            throw new System.NotImplementedException();
-        }
-
-        public string? ServerName { get; set; }
-        public string? DatabaseName { get; set; }
-        public bool SupportsDdlTransactions => false;
-        public string ScriptsRunTable => throw new System.NotImplementedException();
-        public string ScriptsRunErrorsTable => throw new System.NotImplementedException();
-        public string VersionTable => throw new System.NotImplementedException();
-        public bool SplitBatchStatements => true;
-        
-        public string StatementSeparatorRegex =>  @"(?<KEEP1>^(?:.)*(?:-{2}).*$)|(?<KEEP1>/{1}\*{1}[\S\s]*?\*{1}/{1})|(?<KEEP1>^|\s)(?<BATCHSPLITTER>;)(?<KEEP2>\s|$)";
-
-        public Task InitializeConnections(GrateConfiguration? configuration)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task OpenConnection()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task CloseConnection()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task OpenAdminConnection()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task CloseAdminConnection()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task CreateDatabase()
-        {
-            throw new System.NotImplementedException();
         }
         
-        public Task DropDatabase()
+        public override bool SupportsDdlTransactions => false;
+        public override bool SupportsSchemas => false;
+
+        protected override DbConnection GetSqlConnection(string? connectionString) => new OracleConnection(connectionString);
+
+        protected override string ExistsSql(string tableSchema, string fullTableName) =>
+            $@"
+SELECT * FROM user_tables
+WHERE 
+lower(table_name) = '{fullTableName.ToLowerInvariant()}'
+";
+
+        protected override string CurrentVersionSql => $@"
+SELECT version
+FROM 
+    (SELECT version,
+            ROW_NUMBER() OVER (ORDER BY version DESC) AS version_row_number 
+    FROM {VersionTable})
+WHERE  version_row_number <= 1
+"; 
+        
+        protected override async Task CreateScriptsRunTable()
         {
-            throw new System.NotImplementedException();
+            if (!await ScriptsRunTableExists())
+            {
+                await base.CreateScriptsRunTable();
+                await CreateIdSequence(ScriptsRunTable);
+                await CreateIdInsertTrigger(ScriptsRunTable);
+            }
         }
         
-        public Task<bool> DatabaseExists()
+        protected override async Task CreateScriptsRunErrorsTable()
         {
-            throw new System.NotImplementedException();
+            if (!await ScriptsRunErrorsTableExists())
+            {
+                await base.CreateScriptsRunErrorsTable();
+                await CreateIdSequence(ScriptsRunErrorsTable);
+                await CreateIdInsertTrigger(ScriptsRunErrorsTable);
+            }
         }
         
-        public Task RunSupportTasks()
+        protected override async Task CreateVersionTable()
         {
-            throw new System.NotImplementedException();
+            if (!await VersionTableExists())
+            {
+                await base.CreateVersionTable();
+                await CreateIdSequence(VersionTable);
+                await CreateIdInsertTrigger(VersionTable);
+            }
+        }
+        
+        protected override string Parameterize(string sql) => sql.Replace("@", ":");
+        protected override object Bool(bool source) => source ? '1': '0';
+
+        public override async Task<long> VersionTheDatabase(string newVersion)
+        {
+            var sql = (string)$@"
+INSERT INTO {VersionTable}
+(version, entry_date, modified_date, entered_by)
+VALUES(:newVersion, :entryDate, :modifiedDate, :enteredBy)
+RETURNING id into :id
+";
+            var parameters = new
+            {
+                newVersion,
+                entryDate = DateTime.UtcNow,
+                modifiedDate = DateTime.UtcNow,
+                enteredBy = ClaimsPrincipal.Current?.Identity?.Name ?? Environment.UserName,
+            };
+            var dynParams = new DynamicParameters(parameters);
+            dynParams.Add(":id", dbType: DbType.Int64, direction: ParameterDirection.Output);
+            
+            await Connection.ExecuteAsync(
+                sql,
+                dynParams);
+
+            var res = dynParams.Get<long>(":id");
+
+            Logger.LogInformation(" Versioning {dbName} database with version {version}.", DatabaseName, newVersion);
+
+            return res;
         }
 
-        public Task<string> GetCurrentVersion()
+        public override string DatabaseName
         {
-            throw new System.NotImplementedException();
+            get
+            {
+                var tokens = Tokenize(_connection?.ConnectionString);
+                return GetValue(tokens, "Proxy User Id") ?? GetValue(tokens, "User ID") ?? base.DatabaseName;
+            }
         }
 
-        public Task<long> VersionTheDatabase(string newVersion)
+        private static IDictionary<string, string?> Tokenize(string? connectionString)
         {
-            throw new System.NotImplementedException();
+            var tokens = connectionString?.Split(";", RemoveEmptyEntries | TrimEntries) ?? Enumerable.Empty<string>();
+            var keyPairs = tokens.Select(t => t.Split("=", TrimEntries));
+            return keyPairs.ToDictionary(pair => pair[0], pair => (string?) pair[1]);
+        }
+        
+        private static string? GetValue(IDictionary<string, string?> dictionary, string key) => 
+            dictionary.TryGetValue(key, out string? value) ? value : null;
+
+        private async Task CreateIdSequence(string table)
+        {
+            var sql = $"CREATE SEQUENCE {table}_seq";
+            await ExecuteNonQuery(Connection, sql);
         }
 
-        public void Rollback()
+        private async Task CreateIdInsertTrigger(string table)
         {
-            throw new System.NotImplementedException();
-        }
-
-        public Task RunSql(string sql, ConnectionType connectionType)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task<string?> GetCurrentHash(string scriptName)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task<bool> HasRun(string scriptName)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task InsertScriptRun(string scriptName, string? sql, string hash, bool runOnce, object versionId)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task InsertScriptRunError(string scriptName, string? sql, string errorSql, string errorMessage, long versionId)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public ValueTask DisposeAsync()
-        {
-            throw new System.NotImplementedException();
+            var sql = $@"
+CREATE OR REPLACE TRIGGER {table}_ins
+BEFORE INSERT ON {table}
+FOR EACH ROW
+BEGIN
+  SELECT {table}_seq.nextval INTO :new.id FROM dual;
+END;";
+            await ExecuteNonQuery(Connection, sql);
         }
     }
 }
