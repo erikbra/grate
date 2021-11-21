@@ -1,1 +1,6 @@
-theme: jekyll-theme-cayman
+remote_theme: pmarsceill/just-the-docs
+
+# Aux links for the upper right navigation
+aux_links:
+  "grate on GitHub":
+    - "//github.com/erikbra/grate"

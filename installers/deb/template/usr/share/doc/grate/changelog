@@ -1,0 +1,40 @@
+grate (0.10.1-1) stable unstable; urgency=medium
+
+  [Erik A. Brandstadmoen]
+  * Bug #108: Version Id is not correctly set by @erikbra in #109
+  * Simplified Sqlite handling of CREATE/DROP database by @erikbra in #105
+
+grate (0.10.0-1) stable unstable; urgency=medium
+
+  [Tim Thompson]
+  * Fix #101: Environment scripts were being run when no environment specified by @wokket in #102
+
+  [Erik A. Brandstadmoen]
+  * Add Sqlite database support by @erikbra in #103
+  * Lowered severity of "skipped" lines to "Debug" by @erikbra in #95
+
+ -- Erik A. Brandstadmoen <erik@brandstadmoen.net>  Tue, 26 Oct 2021 21:00:00 +0200
+
+grate (0.9.6-1) stable unstable; urgency=medium
+
+  [Erik A. Brandstadmoen]
+  * Bug #89: Create default output folder LocalApplicationData by @erikbra in #91
+
+ -- Erik A. Brandstadmoen <erik@brandstadmoen.net>  Tue, 12 Oct 2021 22:40:00 +0200
+
+grate (0.9.4-2) stable unstable; urgency=medium
+
+  [Erik A. Brandstadmoen]
+  * Close ITP bug for initial Debian package. Closes: #996053
+
+ -- Erik A. Brandstadmoen <erik@brandstadmoen.net>  Sun, 10 Oct 2021 22:30:00 +0200
+
+grate (0.9.4-1) stable unstable; urgency=medium
+
+  [Tim Thompson]
+  * --runallanytimescripts support, feat #32
+  * --dryrun support, feat #33
+  * --baseline support, feat #54
+  * Bugfix, PR #64: Support more than just SqlServer at runtime :)
+
+ -- Erik A. Brandstadmoen <erik@brandstadmoen.net>  Sun, 10 Oct 2021 21:00:00 +0200

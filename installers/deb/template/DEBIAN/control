@@ -1,0 +1,19 @@
+Package: grate
+Version: %%%VERSION%%%
+Section: database
+Depends:  libicu-dev (>= 66)
+Priority: optional
+Architecture: %%%ARCH%%%
+Maintainer: Erik A. Brandstadmoen <erik@brandstadmoen.net>
+Description: SQL for the 20s
+ grate is a SQL scripts migration runner.
+ .
+ The goal of grate is to be largely backwards compatible with RoundhousE, 
+ which is an amazing tool. 
+ It is initiated by the main maintainer of RoundhousE for the 
+ last three years.
+ .
+ While early versions of grate may not support every last RoundhousE feature, 
+ those features that are implemented should work identically, 
+ or with only very small changes. For detailed information see the migration 
+ docco.

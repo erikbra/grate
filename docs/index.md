@@ -1,20 +1,52 @@
+---
+title: "Home"
+nav_order: 1
+---
+
 # grate
 SQL scripts migration runner 
+
+## What is grate?
+
+grate is a SQL scripts migration runner, using plain, old SQL for migrations. No meta-language, no code, no config,
+no EF migrations. If gives you full flexibility, and full control of your migrations, and lets you use
+all the fancy features of you particular database system. You are not constrained to any lowest common 
+feature set of all supported databases.
+
+### grate supports the following DMBS's
+
+* Microsoft SQL server
+* PostgreSQL
+* MariaDB/MySQL
+* Sqlite
+* _(Oracle support is in the works)_
+
+
+## Prerequisites
+
+grate is built with .NET, but is compiled as a self-contained executable, which means there are no big
+prerequisites for running grate. ICU is required (e.g. libicu on Debian Linux)
+
 
 ## Goal
 
 The goal of grate is to be largely backwards compatible with RoundhousE, which is an amazing tool. It is initiated by the main
 maintainer of RoundhousE for the last three years, please see this issue in the RoundhousE repo for details: https://github.com/chucknorris/roundhouse/issues/438.
 
-While early versions of grate may not support every last RoundhousE feature, those features that are implemented should work identically, or with only very small changes.  For detailed information see the [migration](MigratingFromRoundhousE) docco.
+While early versions of grate may not support every last RoundhousE feature, those features that are implemented should work identically, or with only very small changes.  For detailed information see the [migration](MigratingFromRoundhousE.md) docco.
 
 ## Why the name grate?
 
 grate is short for migrate. And it's also pronounced the same way as _great_, so, there you go. 
 
 ## Documentation
-* [Migrating from RoundhousE](migrating-from-roundhouse) 
-* [Token replacement](token-replacement) 
+* [Getting started](GettingStarted.md)
+* [Getting grate](GettingGrate.md)
+* [Migrating from RoundhousE](MigratingFromRoundhousE.md)
+* [Configuration Options](ConfigurationOptions/index.md)
+* [Environment scripts](EnvironmentScripts.md)
+* [Token replacement](TokenReplacement.md)
+* [Response files](ConfigurationOptions/ResponseFiles.md)
 
 ## Status
 
@@ -23,4 +55,4 @@ RoundhousE with grate in a 5-year-in-development folder of SQL scripts, without 
 
 ## Contributing
 
-Head over to the [github page](https://github.com/erikbra/grate), and please see [CONTRIBUTING.md](https://github.com/erikbra/grate/blob/main/CONTRIBUTING.md)
+Head over to the [github page]({{ site.github.repository_url }}), and please see [CONTRIBUTING.md]({{ site.github.repository_url }}/blob/main/CONTRIBUTING.md)

@@ -25,7 +25,7 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
-        include-prerelease: true
+        include-prerelease: false
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
@@ -82,7 +82,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB" ]
+        category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite" ]
 
     steps:
     - uses: actions/checkout@v2
@@ -90,7 +90,8 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
-        include-prerelease: true
+        include-prerelease: false
     - name: Test
-      run: dotnet test --filter Category=${{ matrix.category }} -c Release --logger:"junit;LogFilePath=test-results-${{ matrix.category }}.xml"
-#      run:  dotnet test --verbosity Normal -c Release --logger "trx;LogFileName=/tmp/test-results/grate.unittests.trx"
+      run: dotnet test --filter FullyQualifiedName~grate.unittests.${{ matrix.category }}  -c Release --logger:"junit;LogFilePath=test-results-${{ matrix.category }}.xml"
+      env:
+        LogLevel: Warning

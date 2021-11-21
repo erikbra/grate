@@ -5,7 +5,7 @@ I'll try to jot down a few notes on how to get started developing grate.
 
 ## Get .NET 6
 
-Grate is built with .NET 6, which ships properly in ca October 2021. But you can get the release candidate [here](https://dotnet.microsoft.com/download/dotnet/6.0)
+Grate is built with .NET 6, which just shipped in early November 2021. You can get it [here](https://dotnet.microsoft.com/download/dotnet/6.0)
 and start building right away.
 
 ## Get (buy, borrow, rent, or whatever) a computer with an operating system on it

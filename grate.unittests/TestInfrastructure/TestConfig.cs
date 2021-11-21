@@ -1,4 +1,8 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
+using Microsoft.Extensions.Logging;
+using static System.StringSplitOptions;
 
 namespace grate.unittests.TestInfrastructure
 {
@@ -7,5 +11,34 @@ namespace grate.unittests.TestInfrastructure
         private static readonly Random Random = new();
 
         public static string RandomDatabase() => Random.GetString(15);
+        
+        public static readonly ILoggerFactory LogFactory = LoggerFactory.Create(builder =>
+        {
+            builder.AddProvider(new NUnitLoggerProvider())
+                .SetMinimumLevel(GetLogLevel());
+        });
+        
+        public static DirectoryInfo CreateRandomTempDirectory()
+        {
+            var dummyFile = Path.GetTempFileName();
+            File.Delete(dummyFile);
+
+            var scriptsDir = Directory.CreateDirectory(dummyFile);
+            return scriptsDir;
+        }
+        
+        public static string? Password(string connectionString) => connectionString.Split(";", TrimEntries | RemoveEmptyEntries)
+            .SingleOrDefault(entry => entry.StartsWith("Password"))?
+            .Split("=", TrimEntries | RemoveEmptyEntries).Last();
+    
+        private static LogLevel GetLogLevel()
+        {
+            if (!Enum.TryParse(Environment.GetEnvironmentVariable("LogLevel"), out LogLevel logLevel))
+            {
+                logLevel = LogLevel.Trace;
+            }
+            return logLevel;
+        }
+        
     }
 }

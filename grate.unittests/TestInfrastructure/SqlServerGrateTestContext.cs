@@ -10,7 +10,7 @@ using NSubstitute;
 
 namespace grate.unittests.TestInfrastructure
 {
-    class SqlServerGrateTestContext : TestContextBase, IGrateTestContext
+    class SqlServerGrateTestContext : TestContextBase, IGrateTestContext, IDockerTestContext
     {
         public string AdminPassword { get; set; } = default!;
         public int? Port { get; set; }
@@ -18,8 +18,8 @@ namespace grate.unittests.TestInfrastructure
         public string DockerCommand(string serverName, string adminPassword) =>
             $"run -d --name {serverName} -e ACCEPT_EULA=Y -e SA_PASSWORD={adminPassword} -e MSSQL_PID=Developer -e MSSQL_COLLATION=Danish_Norwegian_CI_AS -P mcr.microsoft.com/mssql/server:2017-latest";
 
-        public string AdminConnectionString => $"Data Source=localhost,{Port};Initial Catalog=master;User Id=sa;Password={AdminPassword}";
-        public string ConnectionString(string database) => $"Data Source=localhost,{Port};Initial Catalog={database};User Id=sa;Password={AdminPassword}";
+        public string AdminConnectionString => $"Data Source=localhost,{Port};Initial Catalog=master;User Id=sa;Password={AdminPassword};Encrypt=false";
+        public string ConnectionString(string database) => $"Data Source=localhost,{Port};Initial Catalog={database};User Id=sa;Password={AdminPassword};Encrypt=false";
 
         public DbConnection GetDbConnection(string connectionString) => new SqlConnection(connectionString);
 
@@ -27,56 +27,18 @@ namespace grate.unittests.TestInfrastructure
         public Type DbExceptionType => typeof(SqlException);
 
         public DatabaseType DatabaseType => DatabaseType.sqlserver;
+        public bool SupportsTransaction => true;
         public string DatabaseTypeName => "SQL server";
         public string MasterDatabase => "master";
 
-        public IDatabase DatabaseMigrator => new SqlServerDatabase(LogFactory.CreateLogger<SqlServerDatabase>());
+        public IDatabase DatabaseMigrator => new SqlServerDatabase(TestConfig.LogFactory.CreateLogger<SqlServerDatabase>());
 
         public SqlStatements Sql => new()
         {
-            SelectAllDatabases = "SELECT name FROM sys.databases",
             SelectVersion = "SELECT @@VERSION",
-            SelectCurrentDatabase = "SELECT DB_NAME()"
         };
 
-
-        public GrateMigrator GetMigrator(GrateConfiguration config)
-        {
-            var factory = Substitute.For<IFactory>();
-            factory.GetService<DatabaseType, IDatabase>(DatabaseType)
-                .Returns(new SqlServerDatabase(LogFactory.CreateLogger<SqlServerDatabase>()));
-
-            var dbMigrator = new DbMigrator(factory, LogFactory.CreateLogger<DbMigrator>(), new HashGenerator(), config);
-            var migrator = new GrateMigrator(LogFactory.CreateLogger<GrateMigrator>(), dbMigrator);
-
-            return migrator;
-        }
-
-        public GrateMigrator GetMigrator(string databaseName, bool createDatabase, KnownFolders knownFolders)
-        {
-            return GetMigrator(databaseName, createDatabase, knownFolders, null);
-        }
-
-        public GrateMigrator GetMigrator(string databaseName, bool createDatabase, KnownFolders knownFolders, string? env)
-        {
-            var config = new GrateConfiguration()
-            {
-                CreateDatabase = createDatabase,
-                ConnectionString = ConnectionString(databaseName),
-                AdminConnectionString = AdminConnectionString,
-                Version = "a.b.c.d",
-                KnownFolders = knownFolders,
-                AlterDatabase = true,
-                NonInteractive = true,
-                Transaction = true,
-                Environment = env != null ? new GrateEnvironment(env) : null,
-                DatabaseType = DatabaseType
-            };
-
-            return GetMigrator(config);
-        }
-
-
         public string ExpectedVersionPrefix => "Microsoft SQL Server 2017";
+        public bool SupportsCreateDatabase => true;
     }
 }

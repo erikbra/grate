@@ -3,6 +3,7 @@ using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using grate.Commands;
@@ -28,7 +29,7 @@ namespace grate
             var rootCommand = Create<MigrateCommand>();
             rootCommand.Add(Verbosity());
 
-            rootCommand.Description = "The new grate - sql for the 20s";
+            rootCommand.Description = $"grate v{GetVersion()} - sql for the 20s";
 
             var parser = new CommandLineBuilder(rootCommand)
                 // These are all the CommandLine features enabled by default
@@ -51,6 +52,8 @@ namespace grate
 
             return result;
         }
+
+        private static string GetVersion() => Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "1.0.0.1";
 
         private static async Task<GrateConfiguration> ParseGrateConfiguration(IReadOnlyList<string> commandline)
         {
@@ -109,6 +112,7 @@ namespace grate
             services.AddTransient<OracleDatabase>();
             services.AddTransient<PostgreSqlDatabase>();
             services.AddTransient<SqlServerDatabase>();
+            services.AddTransient<SqliteDatabase>();
 
             services.AddTransient<IFactory>(serviceProvider =>
             {
@@ -118,6 +122,7 @@ namespace grate
                 fac.AddService(DatabaseType.oracle, typeof(OracleDatabase));
                 fac.AddService(DatabaseType.postgresql, typeof(PostgreSqlDatabase));
                 fac.AddService(DatabaseType.sqlserver, typeof(SqlServerDatabase));
+                fac.AddService(DatabaseType.sqlite, typeof(SqliteDatabase));
 
                 return fac;
             });

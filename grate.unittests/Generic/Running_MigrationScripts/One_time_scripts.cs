@@ -23,11 +23,11 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateDummySql(knownFolders.Up);
             
-            await using (migrator = Context.GetMigrator(db, true, knownFolders))
+            await using (migrator = Context.GetMigrator(db, knownFolders))
             {
                 await migrator.Migrate();
             }
-            await using (migrator = Context.GetMigrator(db, true, knownFolders))
+            await using (migrator = Context.GetMigrator(db, knownFolders))
             {
                 await migrator.Migrate();
             }
@@ -35,7 +35,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             string[] scripts;
             string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
             
-            await using (var conn = Context.CreateDbConnection(Context.ConnectionString(db)))
+            await using (var conn = Context.CreateDbConnection(db))
             {
                 scripts = (await conn.QueryAsync<string>(sql)).ToArray();
             }
@@ -53,14 +53,14 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateDummySql(knownFolders.Up);
             
-            await using (migrator = Context.GetMigrator(db, true, knownFolders))
+            await using (migrator = Context.GetMigrator(db, knownFolders))
             {
                 await migrator.Migrate();
             }
             
             WriteSomeOtherSql(knownFolders.Up);
             
-            await using (migrator = Context.GetMigrator(db, true, knownFolders))
+            await using (migrator = Context.GetMigrator(db, knownFolders))
             {
                 Assert.ThrowsAsync<OneTimeScriptChanged>(() => migrator.Migrate());
             }
@@ -68,7 +68,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             string[] scripts;
             string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
             
-            await using (var conn = Context.CreateDbConnection(Context.ConnectionString(db)))
+            await using (var conn = Context.CreateDbConnection(db))
             {
                 scripts = (await conn.QueryAsync<string>(sql)).ToArray();
             }
@@ -86,19 +86,10 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateDummySql(knownFolders.Up);
-
-            var config = new GrateConfiguration
+            
+            var config = Context.GetConfiguration(db, knownFolders) with
             {
                 WarnOnOneTimeScriptChanges = true, // this is important!
-                CreateDatabase = true,
-                ConnectionString = Context.ConnectionString(db),
-                AdminConnectionString = Context.AdminConnectionString,
-                Version = "a.b.c.e",
-                KnownFolders = knownFolders,
-                AlterDatabase = true,
-                NonInteractive = true,
-                Transaction = true,
-                DatabaseType = Context.DatabaseType
             };
 
             await using (migrator = Context.GetMigrator(config))
@@ -116,14 +107,17 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             string[] scripts;
             string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")} order by id";
 
-            await using (var conn = Context.CreateDbConnection(Context.ConnectionString(db)))
+            await using (var conn = Context.CreateDbConnection(db))
             {
                 scripts = (await conn.QueryAsync<string>(sql)).ToArray();
             }
 
             scripts.Should().HaveCount(2); //script run twice
-            scripts.Last().Should().Be(Context.Sql.SelectCurrentDatabase); // the script was re-run
+            scripts.Last().Should().Be(Context.Syntax.CurrentDatabase); // the script was re-run
         }
+
+        protected virtual string CreateView1 => "create view grate as select '1' as col";
+        protected virtual string CreateView2 => "create view grate as select '2' as col";
 
         [Test]
         public async Task Ignores_and_warns_if_changed_between_runs_and_flag_set()
@@ -135,20 +129,11 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             var path = knownFolders?.Up?.Path ?? throw new Exception("Config Fail");
 
-            WriteSql(path, "token.sql", "create view grate as select '1' as col;");
+            WriteSql(path, "token.sql", CreateView1);
 
-            var config = new GrateConfiguration
+            var config = Context.GetConfiguration(db, knownFolders) with
             {
                 WarnAndIgnoreOnOneTimeScriptChanges = true, // this is important!
-                CreateDatabase = true,
-                ConnectionString = Context.ConnectionString(db),
-                AdminConnectionString = Context.AdminConnectionString,
-                Version = "a.b.c.e",
-                KnownFolders = knownFolders,
-                AlterDatabase = true,
-                NonInteractive = true,
-                Transaction = true,
-                DatabaseType = Context.DatabaseType
             };
 
             await using (migrator = Context.GetMigrator(config))
@@ -156,7 +141,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
                 await migrator.Migrate();
             }
 
-            WriteSql(path, "token.sql", "create view grate as select '2' as col;");
+            WriteSql(path, "token.sql", CreateView2);
 
             await using (migrator = Context.GetMigrator(config))
             {
@@ -166,7 +151,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             string[] scripts;
             string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")} order by id";
 
-            await using var conn = Context.CreateDbConnection(Context.ConnectionString(db));
+            await using var conn = Context.CreateDbConnection(db);
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
             var result = (await conn.QueryAsync<string>("select col from grate")).Single();
 

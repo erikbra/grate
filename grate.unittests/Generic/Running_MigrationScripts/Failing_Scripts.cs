@@ -26,7 +26,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateInvalidSql(knownFolders.Up);
 
-            await using (migrator = Context.GetMigrator(db, true, knownFolders))
+            await using (migrator = Context.GetMigrator(db, knownFolders))
             {
                 var ex = Assert.ThrowsAsync(Context.DbExceptionType, migrator.Migrate);
                 ex?.Message.Should().Be(ExpextedErrorMessageForInvalidSql);
@@ -43,7 +43,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateInvalidSql(knownFolders.Up);
 
-            await using (migrator = Context.GetMigrator(db, true, knownFolders))
+            await using (migrator = Context.GetMigrator(db, knownFolders))
             {
                 try
                 {
@@ -59,7 +59,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
             using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
-                await using var conn = Context.CreateDbConnection(Context.ConnectionString(db));
+                await using var conn = Context.CreateDbConnection(db);
                 scripts = (await conn.QueryAsync<string>(sql)).ToArray();
             }
 
@@ -78,7 +78,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
         //     CreateDummySql(knownFolders.Up);
         //     CreateInvalidSql(knownFolders.Up);
         //     
-        //     await using (migrator = Context.GetMigrator(db, true, knownFolders))
+        //     await using (migrator = GrateTestContext.GetMigrator(db, true, knownFolders))
         //     {
         //         try
         //         {
@@ -90,9 +90,9 @@ namespace grate.unittests.Generic.Running_MigrationScripts
         //     }
         //
         //     string[] scripts;
-        //     string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
+        //     string sql = $"SELECT script_name FROM {GrateTestContext.Syntax.TableWithSchema("grate", "ScriptsRun")}";
         //     
-        //     await using (var conn = Context.CreateDbConnection(Context.ConnectionString(db)))
+        //     await using (var conn = GrateTestContext.CreateDbConnection(db))
         //     {
         //         scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         //     }

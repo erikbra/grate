@@ -28,30 +28,37 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             string[] scripts;
             string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
             
-            await using (var conn = Context.CreateDbConnection(Context.ConnectionString(db)))
+            await using (var conn = Context.CreateDbConnection(db))
             {
                 scripts = (await conn.QueryAsync<string>(sql)).ToArray();
             }
 
+            var expectation = new[]
+            {
+                "1_beforemigration.sql",
+                "1_alterdatabase.sql",
+                "1_aftercreate.sql",
+                "1_beforeup.sql",
+                "1_up.sql",
+                "1_firstafterup.sql",
+                "1_functions.sql",
+                "1_views.sql",
+                "1_sprocs.sql",
+                "1_triggers.sql",
+                "1_indexes.sql",
+                "1_afterotherany.sql",
+                "1_permissions.sql",
+                "1_aftermigration.sql",
+            };
+            
+            scripts.Should().BeEquivalentTo(expectation);
             scripts.Should().HaveCount(14);
 
             using (new AssertionScope())
             {
+                for (int i = 0; i < expectation.Length; i++)
                 {
-                    scripts[0].Should().Be("1_beforemigration.sql");
-                    scripts[1].Should().Be("1_alterdatabase.sql");
-                    scripts[2].Should().Be("1_aftercreate.sql");
-                    scripts[3].Should().Be("1_beforeup.sql");
-                    scripts[4].Should().Be("1_up.sql");
-                    scripts[5].Should().Be("1_firstafterup.sql");
-                    scripts[6].Should().Be("1_functions.sql");
-                    scripts[7].Should().Be("1_views.sql");
-                    scripts[8].Should().Be("1_sprocs.sql");
-                    scripts[9].Should().Be("1_triggers.sql");
-                    scripts[10].Should().Be("1_indexes.sql");
-                    scripts[11].Should().Be("1_afterotherany.sql");
-                    scripts[12].Should().Be("1_permissions.sql");
-                    scripts[13].Should().Be("1_aftermigration.sql");
+                    scripts[i].Should().Be(expectation[i]);
                 }
             }
         }
@@ -63,17 +70,12 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             File.Delete(dummyFile);
 
             var scriptsDir = Directory.CreateDirectory(dummyFile);
-
-            var config = new GrateConfiguration()
+            
+            var config = Context.DefaultConfiguration with
             {
                 CreateDatabase = createDatabase, 
                 ConnectionString = Context.ConnectionString(databaseName),
-                AdminConnectionString = Context.AdminConnectionString,
-                Version = "a.b.c.d",
-                KnownFolders = KnownFolders.In(scriptsDir),
-                AlterDatabase = true,
-                NonInteractive = true,
-                DatabaseType = Context.DatabaseType
+                KnownFolders = KnownFolders.In(scriptsDir)
             };
 
             CreateDummySql(config.KnownFolders.AfterMigration, "1_aftermigration.sql");

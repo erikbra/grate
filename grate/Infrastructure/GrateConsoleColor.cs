@@ -47,6 +47,7 @@ namespace grate.Infrastructure
             public static readonly GrateConsoleColor DarkMagenta = new GrateConsoleColor(AnsiColors.DarkMagenta, ConsoleColor.DarkMagenta);
             public static readonly GrateConsoleColor DarkCyan = new GrateConsoleColor(AnsiColors.DarkCyan, ConsoleColor.DarkCyan);
             public static readonly GrateConsoleColor Gray = new GrateConsoleColor(AnsiColors.Gray, ConsoleColor.Gray);
+            public static readonly GrateConsoleColor DarkGray = Rgb(192,192,192);
             public static readonly GrateConsoleColor Red = new GrateConsoleColor(AnsiColors.Red, ConsoleColor.Red);
             public static readonly GrateConsoleColor Green = new GrateConsoleColor(AnsiColors.Green, ConsoleColor.Green);
             public static readonly GrateConsoleColor Yellow = new GrateConsoleColor(AnsiColors.Yellow, ConsoleColor.Yellow);

@@ -11,22 +11,26 @@ namespace grate.unittests.Generic.Running_MigrationScripts
     [TestFixture]
     public abstract class TokenScripts : MigrationsScriptsBase
     {
+        
+        protected virtual string CreateDatabaseName => "create view grate as select '{{DatabaseName}}' as dbase";
+        protected virtual string CreateViewMyCustomToken => "create view grate as select '{{MyCustomToken}}' as dbase";
+        
         [Test]
         public async Task EnsureTokensAreReplaced()
         {
-            var db = TestConfig.RandomDatabase();
+            var db = TestConfig.RandomDatabase().ToUpper();
 
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             var path = knownFolders?.Views?.Path ?? throw new Exception("Config Fail");
-            WriteSql(path, "token.sql", "create view grate as select '{{DatabaseName}}' as dbase;");
+            WriteSql(path, "token.sql", CreateDatabaseName);
 
-            await using (var migrator = Context.GetMigrator(db, true, knownFolders))
+            await using (var migrator = Context.GetMigrator(db, knownFolders))
             {
                 await migrator.Migrate();
             }
 
             string sql = $"SELECT dbase FROM grate";
-            await using var conn = Context.CreateDbConnection(Context.ConnectionString(db));
+            await using var conn = Context.CreateDbConnection(db);
             var actual = await conn.QuerySingleAsync<string>(sql);
             actual.Should().Be(db);
 
@@ -39,21 +43,11 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             var path = knownFolders?.Views?.Path ?? throw new Exception("Config Fail");
-            WriteSql(path, "token.sql", "create view grate as select '{{MyCustomToken}}' as dbase;");
-
-            var config = new GrateConfiguration()
+            WriteSql(path, "token.sql", CreateViewMyCustomToken);
+            
+            var config = Context.GetConfiguration(db, knownFolders) with
             {
                 UserTokens = new[] {"mycustomtoken=token1"}, // This is important!
-
-                CreateDatabase = true,
-                ConnectionString = Context.ConnectionString(db),
-                AdminConnectionString = Context.AdminConnectionString,
-                Version = "a.b.c.d",
-                KnownFolders = knownFolders,
-                AlterDatabase = true,
-                NonInteractive = true,
-                Transaction = true,
-                DatabaseType = Context.DatabaseType
             };
 
             await using (var migrator = Context.GetMigrator(config))
@@ -62,7 +56,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             }
 
             string sql = $"SELECT dbase FROM grate";
-            await using var conn = Context.CreateDbConnection(Context.ConnectionString(db));
+            await using var conn = Context.CreateDbConnection(db);
             var actual = await conn.QuerySingleAsync<string>(sql);
             actual.Should().Be("token1");
 

@@ -14,8 +14,10 @@ jobs:
     name: Set version number
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
+      nuGetVersion: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
+      semVer: ${{ steps.gitversion.outputs.fullSemVer }}
       is-release: ${{ steps.gitversion.outputs.CommitsSinceVersionSource == 0 }}
+      #is-release: 'true'
     
     steps:
     - name: Setup .NET 5
@@ -26,18 +28,18 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
-        include-prerelease: true
+        include-prerelease: false
     - name: Checkout
       uses: actions/checkout@v2
       with:
         fetch-depth: 0
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0.9.10
+      uses: gittools/actions/gitversion/setup@v0.9.11
       with:
         versionSpec: '5.x'
     - name: Determine Version
       id: gitversion
-      uses: gittools/actions/gitversion/execute@v0.9.10
+      uses: gittools/actions/gitversion/execute@v0.9.11
 
   build-netcore-tool:
     needs: set-version-number
@@ -51,19 +53,22 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
-        include-prerelease: true
+        include-prerelease: false
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
       #run: dotnet pack ./grate/grate.csproj -c release -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
-      run: dotnet pack ./grate/grate.csproj -p:Version="${{ needs.set-version-number.outputs.version }}" -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
+      run: dotnet pack ./grate/grate.csproj -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
+      env:
+        VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
       
     - name: Upload published tool artifact
       uses: actions/upload-artifact@v2
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       with:
-        name: grate-dotnet-tool-${{ needs.set-version-number.outputs.version }}
+        name: grate-dotnet-tool-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: /tmp/grate/nupkg/*   
+
     - name: Push to Nuget.org
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_ORG_KEY}} --skip-duplicate
@@ -86,27 +91,145 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
-        include-prerelease: true
+        include-prerelease: false
 
     - name: Publish self-contained ${{ matrix.arch }}
-      run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -p:Version="${{ needs.set-version-number.outputs.version }}" -o ./publish/${{ matrix.arch }}/self-contained
+      run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
+      env:
+        VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
 
     - name: Publish .NET 6 dependent ${{ matrix.arch }}
-      run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --no-self-contained -p:Version="${{ needs.set-version-number.outputs.version }}" -o ./publish/${{ matrix.arch }}/dependent
+      run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --no-self-contained  -o ./publish/${{ matrix.arch }}/dependent
+      env:
+        VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
 
     - name: Upload self-contained ${{ matrix.arch }}
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       uses: actions/upload-artifact@v2
       with:
-        name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.version }}
+        name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: ./publish/${{ matrix.arch }}/self-contained/*
     
     - name: Upload .net dependent ${{ matrix.arch }}
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       uses: actions/upload-artifact@v2
       with:
-        name: grate-${{ matrix.arch }}-framework-dependent-${{ needs.set-version-number.outputs.version }}
+        name: grate-${{ matrix.arch }}-framework-dependent-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: ./publish/${{ matrix.arch }}/dependent/*
+  
+  build-msi:
+    name: Build MSI
+    needs: 
+     - set-version-number
+     - build-standalone
+    runs-on: windows-latest
+    if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+    strategy:
+      matrix:
+        arch: [ "win-x64" ]
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/download-artifact@v2
+      with:
+        name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
+        path: ${{ matrix.arch }}/
+
+    - name: Create msi
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+      run: ./installers/msi/Create-Installer.ps1 -grateExe ./${{ matrix.arch }}/grate.exe -Version "${{ needs.set-version-number.outputs.nuGetVersion }}"
+      env:
+        VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
+
+    - name: Upload MSI ${{ matrix.arch }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: grate-msi-${{ matrix.arch }}-${{ needs.set-version-number.outputs.nuGetVersion }}
+        path: ./installers/msi/tmp/*.msi
+
+  build-docker-image:
+    name: Build and push docker image
+    needs: 
+     - set-version-number
+     - build-standalone
+    runs-on: ubuntu-latest
+    if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+    env:
+      #REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ github.repository }}
+      FULL_IMAGE_NAME: ${{ github.repository }}
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/download-artifact@v2
+      with:
+        name: grate-alpine-x64-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
+        path: installers/docker/
+        
+
+    - name: Log in to the Container registry
+      uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      with:
+        #registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@548e2346a9987b56d8a4104fe776321ff8e23440
+      with:
+        tags: |
+          type=semver,pattern={{version}}
+          type=semver,pattern={{version}},value=${{ needs.set-version-number.outputs.semVer }}
+          type=ref,event=tag
+
+        #images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        images: ${{ env.IMAGE_NAME }}
+
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@a66e35b9cbcf4ad0ea91ffcaf7bbad63ad9e0229
+      with:
+        context: ./installers/docker/
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+
+  build-deb:
+    name: Build Debian package
+    needs: 
+     - set-version-number
+     - build-standalone
+    runs-on: ubuntu-latest
+    if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+    strategy:
+      matrix:
+        arch: [ "linux-arm", "linux-arm64", "linux-x64" ]
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/download-artifact@v2
+      with:
+        name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
+        path: ${{ matrix.arch }}/
+
+    - id: get-arch
+      name: Get architecture
+      run: |
+        arch=$(echo ${{ matrix.arch }} | cut -d- -f2 | sed 's/x64/amd64/')
+        echo "::set-output name=arch::$arch"
+
+    - name: Create dpkg
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+      run: ./installers/deb/Create-Package.ps1 -grateExe ./${{ matrix.arch }}/grate -Version "${{ needs.set-version-number.outputs.nuGetVersion }}" -arch ${{ steps.get-arch.outputs.arch}}
+      env:
+        VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
+
+    - name: Upload .dpkg ${{ steps.get-arch.outputs.arch }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch}}.deb
+        path: ./installers/deb/grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch }}.deb
 
 
   test:
@@ -115,7 +238,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB" ]
+        category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite" ]
 
     steps:
     - uses: actions/checkout@v2
@@ -123,10 +246,12 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
-        include-prerelease: true
+        include-prerelease: false
     - name: Test
-      run: dotnet test --filter Category=${{ matrix.category }} -c Release --logger:"junit;LogFilePath=test-results-${{ matrix.category }}.xml"
+      run: dotnet test --filter FullyQualifiedName~grate.unittests.${{ matrix.category }} -c Release --logger:"junit;LogFilePath=test-results-${{ matrix.category }}.xml"
 #      run:  dotnet test --verbosity Normal -c Release --logger "trx;LogFileName=/tmp/test-results/grate.unittests.trx"
+      env:
+        LogLevel: Warning
       
     - name: Upload Unit Test Results
       if: always()

@@ -23,13 +23,13 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
             for (var i = 0; i < 3; i++)
             {
-                await using var migrator = Context.GetMigrator(db, true, knownFolders);
+                await using var migrator = Context.GetMigrator(db, knownFolders);
                 await migrator.Migrate();
             }
 
             string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-            await using var conn = Context.CreateDbConnection(Context.ConnectionString(db));
+            await using var conn = Context.CreateDbConnection(db);
             var scripts = (await conn.QueryAsync<string>(sql)).ToArray();
             scripts.Should().HaveCount(3);
         }
@@ -41,21 +41,11 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateDummySql(knownFolders.Permissions);
-
-            var config = new GrateConfiguration
+            
+            var config = Context.GetConfiguration(db, knownFolders) with
             {
                 DryRun = true, // this is important!
-                CreateDatabase = true,
-                ConnectionString = Context.ConnectionString(db),
-                AdminConnectionString = Context.AdminConnectionString,
-                Version = "a.b.c.e",
-                KnownFolders = knownFolders,
-                AlterDatabase = true,
-                NonInteractive = true,
-                Transaction = true,
-                DatabaseType = Context.DatabaseType
             };
-
 
             await using (var migrator = Context.GetMigrator(config))
             {
@@ -64,7 +54,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
             string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-            await using var conn = Context.CreateDbConnection(Context.ConnectionString(db));
+            await using var conn = Context.CreateDbConnection(db);
             var scripts = (await conn.QueryAsync<string>(sql)).ToArray();
             scripts.Should().BeEmpty();
 
@@ -87,7 +77,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
             for (var i = 0; i < 3; i++)
             {
-                await using (migrator = Context.GetMigrator(db, true, knownFolders))
+                await using (migrator = Context.GetMigrator(db, knownFolders))
                 {
                     await migrator.Migrate();
                 }
@@ -96,7 +86,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             string[] scripts;
             string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-            await using (var conn = Context.CreateDbConnection(Context.ConnectionString(db)))
+            await using (var conn = Context.CreateDbConnection(db))
             {
                 scripts = (await conn.QueryAsync<string>(sql)).ToArray();
             }
@@ -110,23 +100,15 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             var db = TestConfig.RandomDatabase();
 
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory()); 
-            var config = new GrateConfiguration
+            
+            var config = Context.GetConfiguration(db, knownFolders) with
             {
                 Baseline = true, // this is important!
-                CreateDatabase = true,
-                ConnectionString = Context.ConnectionString(db),
-                AdminConnectionString = Context.AdminConnectionString,
-                Version = "a.b.c.e",
-                KnownFolders = knownFolders,
-                AlterDatabase = true,
-                NonInteractive = true,
-                Transaction = true,
-                DatabaseType = Context.DatabaseType
             };
-
+           
             var path = knownFolders?.Views?.Path ?? throw new Exception("Config Fail");
 
-            WriteSql(path, "view.sql", "create view grate as select '1' as col;");
+            WriteSql(path, "view.sql", "create view grate as select '1' as col");
 
             await using (var migrator = Context.GetMigrator(config))
             {
@@ -135,7 +117,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
             string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-            await using var conn = Context.CreateDbConnection(Context.ConnectionString(db));
+            await using var conn = Context.CreateDbConnection(db);
             var scripts = (await conn.QueryAsync<string>(sql)).ToArray();
             scripts.Should().HaveCount(1); //marked as run
 
@@ -148,14 +130,14 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
         private void CreateEveryTimeScriptFile(MigrationsFolder? folder)
         {
-            var dummySql = Context.Sql.SelectCurrentDatabase;
+            var dummySql = Context.Syntax.CurrentDatabase;
             var path = MakeSurePathExists(folder);
             WriteSql(path, "everytime.1_jalla.sql", dummySql);
         }
 
         private void CreateOtherEveryTimeScriptFile(MigrationsFolder? folder)
         {
-            var dummySql = Context.Sql.SelectCurrentDatabase;
+            var dummySql = Context.Syntax.CurrentDatabase;
             var path = MakeSurePathExists(folder);
             WriteSql(path, "1_jalla.everytime.and.always.sql", dummySql);
         }

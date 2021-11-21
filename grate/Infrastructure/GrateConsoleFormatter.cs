@@ -74,8 +74,8 @@ namespace grate.Infrastructure
             // since just setting one can look bad on the users console.
             return logLevel switch
             {
-                LogLevel.Trace => new ConsoleColors(GrateConsoleColor.Foreground.Gray, GrateConsoleColor.Background.Black),
-                LogLevel.Debug => new ConsoleColors(GrateConsoleColor.Foreground.Gray, GrateConsoleColor.Background.Black),
+                LogLevel.Trace => new ConsoleColors(GrateConsoleColor.Foreground.DarkYellow, GrateConsoleColor.Background.Black),
+                LogLevel.Debug => new ConsoleColors(GrateConsoleColor.Foreground.DarkGray, GrateConsoleColor.Background.Black),
                 LogLevel.Information => new ConsoleColors(GrateConsoleColor.Foreground.Green, GrateConsoleColor.Background.Black),
                 LogLevel.Warning => new ConsoleColors(GrateConsoleColor.Foreground.Yellow, GrateConsoleColor.Background.Black),
                 LogLevel.Error => new ConsoleColors(GrateConsoleColor.Foreground.Black, GrateConsoleColor.Background.DarkRed),

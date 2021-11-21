@@ -228,7 +228,7 @@ namespace grate.Migration
         {
             if (!folder.Path.Exists)
             {
-                _logger.LogInformation("{path} does not exist. Skipping.", folder.Path);
+                _logger.LogDebug("{Path} does not exist. Skipping.", folder.Path);
                 return;
             }
 
@@ -269,7 +269,7 @@ namespace grate.Migration
             var parentDir = new DirectoryInfo(parent);
             parentDir.Create();
 
-            _logger.LogDebug("Copying file {filename} to {destination}.", file.FullName, destinationFile);
+            _logger.LogTrace("Copying file {Filename} to {Destination}", file.FullName, destinationFile);
 
             File.Copy(file.FullName, destinationFile);
         }
@@ -280,7 +280,7 @@ namespace grate.Migration
                 .EnumerateFileSystemInfos(pattern, SearchOption.AllDirectories).ToList()
                 .OrderBy(f => f.Name, StringComparer.CurrentCultureIgnoreCase);
         }
-
+        
 #pragma warning disable CA2254 // Template should be a static expression.  Bug in pre-release .net 6: https://github.com/dotnet/roslyn-analyzers/issues/5415
         private void Separator(char c) => _logger.LogInformation(new string(c, 80));
 #pragma warning restore CA2254 // Template should be a static expression

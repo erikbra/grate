@@ -4,9 +4,10 @@ using NUnit.Framework;
 namespace grate.unittests.SqlServer
 {
     [SetUpFixture]
-    [Category("SqlServer")]
-    public class SetupTestEnvironment : Generic.GenericSetupTestEnvironment
+    [Category("Sqlite")]
+    public class SetupTestEnvironment : Generic.SetupDockerTestEnvironment
     {
-        protected override IGrateTestContext Context => GrateTestContext.SqlServer;
+        protected override IGrateTestContext GrateTestContext => unittests.GrateTestContext.SqlServer;
+        protected override IDockerTestContext DockerTestContext => unittests.GrateTestContext.SqlServer;
     }
 }
