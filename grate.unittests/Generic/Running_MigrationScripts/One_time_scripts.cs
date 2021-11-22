@@ -23,11 +23,11 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateDummySql(knownFolders.Up);
             
-            await using (migrator = Context.GetMigrator(db, true, knownFolders))
+            await using (migrator = Context.GetMigrator(db, knownFolders))
             {
                 await migrator.Migrate();
             }
-            await using (migrator = Context.GetMigrator(db, true, knownFolders))
+            await using (migrator = Context.GetMigrator(db, knownFolders))
             {
                 await migrator.Migrate();
             }
@@ -53,14 +53,14 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateDummySql(knownFolders.Up);
             
-            await using (migrator = Context.GetMigrator(db, true, knownFolders))
+            await using (migrator = Context.GetMigrator(db, knownFolders))
             {
                 await migrator.Migrate();
             }
             
             WriteSomeOtherSql(knownFolders.Up);
             
-            await using (migrator = Context.GetMigrator(db, true, knownFolders))
+            await using (migrator = Context.GetMigrator(db, knownFolders))
             {
                 Assert.ThrowsAsync<OneTimeScriptChanged>(() => migrator.Migrate());
             }
@@ -113,8 +113,11 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             }
 
             scripts.Should().HaveCount(2); //script run twice
-            scripts.Last().Should().Be(Context.Sql.SelectCurrentDatabase); // the script was re-run
+            scripts.Last().Should().Be(Context.Syntax.CurrentDatabase); // the script was re-run
         }
+
+        protected virtual string CreateView1 => "create view grate as select '1' as col";
+        protected virtual string CreateView2 => "create view grate as select '2' as col";
 
         [Test]
         public async Task Ignores_and_warns_if_changed_between_runs_and_flag_set()
@@ -126,7 +129,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             var path = knownFolders?.Up?.Path ?? throw new Exception("Config Fail");
 
-            WriteSql(path, "token.sql", "create view grate as select '1' as col;");
+            WriteSql(path, "token.sql", CreateView1);
 
             var config = Context.GetConfiguration(db, knownFolders) with
             {
@@ -138,7 +141,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
                 await migrator.Migrate();
             }
 
-            WriteSql(path, "token.sql", "create view grate as select '2' as col;");
+            WriteSql(path, "token.sql", CreateView2);
 
             await using (migrator = Context.GetMigrator(config))
             {

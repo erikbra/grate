@@ -239,7 +239,7 @@ namespace grate.Migration
                 {
                     Database.Rollback();
                     Transaction.Current?.Dispose();
-
+                    
                     await RecordScriptInScriptsRunErrorsTable(scriptName, sql, statement, ex.Message, versionId);
 
                     await Database.CloseConnection();

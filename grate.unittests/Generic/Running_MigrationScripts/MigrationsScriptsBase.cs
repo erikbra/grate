@@ -29,7 +29,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
 
         protected void WriteSomeOtherSql(MigrationsFolder? folder, string filename = "1_jalla.sql")
         {
-            var dummySql = Context.Sql.SelectCurrentDatabase;
+            var dummySql = Context.Syntax.CurrentDatabase;
             var path = MakeSurePathExists(folder);
             WriteSql(path, filename, dummySql);
         }

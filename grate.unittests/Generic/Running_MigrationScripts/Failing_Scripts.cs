@@ -26,7 +26,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateInvalidSql(knownFolders.Up);
 
-            await using (migrator = Context.GetMigrator(db, true, knownFolders))
+            await using (migrator = Context.GetMigrator(db, knownFolders))
             {
                 var ex = Assert.ThrowsAsync(Context.DbExceptionType, migrator.Migrate);
                 ex?.Message.Should().Be(ExpextedErrorMessageForInvalidSql);
@@ -43,7 +43,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateInvalidSql(knownFolders.Up);
 
-            await using (migrator = Context.GetMigrator(db, true, knownFolders))
+            await using (migrator = Context.GetMigrator(db, knownFolders))
             {
                 try
                 {

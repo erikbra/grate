@@ -22,7 +22,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateDummySql(knownFolders.Up, "1_.OTHER.filename.ENV.sql");
 
-            await using (migrator = Context.GetMigrator(db, true, knownFolders, "TEST"))
+            await using (migrator = Context.GetMigrator(db, knownFolders, "TEST"))
             {
                 await migrator.Migrate();
             }
@@ -48,7 +48,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateDummySql(knownFolders.Up, "1_.OTHER.filename.ENV.sql");
 
-            await using (migrator = Context.GetMigrator(db, true, knownFolders))
+            await using (migrator = Context.GetMigrator(db, knownFolders))
             {
                 await migrator.Migrate();
             }
@@ -75,7 +75,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             CreateDummySql(knownFolders.Up, "1_.TEST.filename.ENV.sql");
             CreateDummySql(knownFolders.Up, "2_.TEST.ENV.otherfilename.sql");
 
-            await using (migrator = Context.GetMigrator(db, true, knownFolders, "TEST"))
+            await using (migrator = Context.GetMigrator(db, knownFolders, "TEST"))
             {
                 await migrator.Migrate();
             }
@@ -103,7 +103,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts
             CreateDummySql(knownFolders.Up, "2_.TEST.ENV.otherfilename.sql");
             CreateDummySql(knownFolders.Up, "2_.TEST.ENV.somethingelse.sql");
 
-            await using (migrator = Context.GetMigrator(db, true, knownFolders, "PROD"))
+            await using (migrator = Context.GetMigrator(db, knownFolders, "PROD"))
             {
                 await migrator.Migrate();
             }

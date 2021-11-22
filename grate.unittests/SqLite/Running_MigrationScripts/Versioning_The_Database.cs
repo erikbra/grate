@@ -1,7 +1,7 @@
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
 
-namespace grate.unittests.SqLite.Running_MigrationScripts
+namespace grate.unittests.Sqlite.Running_MigrationScripts
 {
     [TestFixture]
     [Category("Sqlite")]

@@ -38,7 +38,7 @@ namespace grate.Migration
         Task RunSql(string sql, ConnectionType connectionType);
         Task<string?> GetCurrentHash(string scriptName);
         Task<bool> HasRun(string scriptName);
-        Task InsertScriptRun(string scriptName, string? sql, string hash, bool runOnce, object versionId);
+        Task InsertScriptRun(string scriptName, string? sql, string hash, bool runOnce, long versionId);
         Task InsertScriptRunError(string scriptName, string? sql, string errorSql, string errorMessage, long versionId);
     }
 }
