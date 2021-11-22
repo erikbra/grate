@@ -252,6 +252,7 @@ jobs:
 #      run:  dotnet test --verbosity Normal -c Release --logger "trx;LogFileName=/tmp/test-results/grate.unittests.trx"
       env:
         LogLevel: Warning
+        TZ: UTC
       
     - name: Upload Unit Test Results
       if: always()
