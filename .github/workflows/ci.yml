@@ -73,7 +73,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite" ]
+        category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
 
     steps:
     - uses: actions/checkout@v2
