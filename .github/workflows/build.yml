@@ -238,7 +238,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite" ]
+        category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle" ]
 
     steps:
     - uses: actions/checkout@v2
@@ -252,6 +252,7 @@ jobs:
 #      run:  dotnet test --verbosity Normal -c Release --logger "trx;LogFileName=/tmp/test-results/grate.unittests.trx"
       env:
         LogLevel: Warning
+        TZ: UTC
       
     - name: Upload Unit Test Results
       if: always()

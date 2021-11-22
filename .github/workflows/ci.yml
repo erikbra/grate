@@ -73,7 +73,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite" ]
+        category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
 
     steps:
     - uses: actions/checkout@v2
@@ -86,3 +86,4 @@ jobs:
       run: dotnet test --filter FullyQualifiedName~grate.unittests.${{ matrix.category }}  -c Release --logger:"junit;LogFilePath=test-results-${{ matrix.category }}.xml"
       env:
         LogLevel: Warning
+        TZ: UTC

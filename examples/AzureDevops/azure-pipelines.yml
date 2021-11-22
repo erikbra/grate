@@ -3,9 +3,9 @@ pr: none
 
 variables:
 - name: packageUrl
-  value: "https://github.com/erikbra/grate/releases/download/0.11.0/grate_0.11.0-1_amd64.deb"
+  value: "https://github.com/erikbra/grate/releases/download/1.0.0/grate_1.0.0-1_amd64.deb"
 - name: localFile
-  value: /tmp/grate_0.11.0-1_amd64.deb
+  value: /tmp/grate_1.0.0-1_amd64.deb
 - name: dbRoot
   value: $(Build.SourcesDirectory)/examples/scripts/sqlite
 
