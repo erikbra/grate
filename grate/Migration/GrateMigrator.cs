@@ -72,7 +72,7 @@ namespace grate.Migration
 
             if (!string.IsNullOrEmpty(config.RestoreFromPath))
             {
-                await RestoreDatabseFromPath(config.RestoreFromPath, dbMigrator);
+                await RestoreDatabaseFromPath(config.RestoreFromPath, dbMigrator);
             }
 
             TransactionScope? scope = null;
@@ -206,7 +206,7 @@ namespace grate.Migration
             return databaseCreated;
         }
 
-        private static async Task RestoreDatabseFromPath(string restoreFromPath, IDbMigrator dbMigrator)
+        private static async Task RestoreDatabaseFromPath(string restoreFromPath, IDbMigrator dbMigrator)
         {
             await dbMigrator.RestoreDatabase(restoreFromPath);
         }
