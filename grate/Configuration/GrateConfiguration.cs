@@ -124,6 +124,6 @@ namespace grate.Configuration
         /// <summary>
         /// If specified, location of the backup file to use when restoring
         /// </summary>
-        public string? RestoreFromPath { get; init; }
+        public string? Restore { get; init; }
     }
 }

@@ -39,7 +39,7 @@ namespace grate.unittests.SqlServer.Running_MigrationScripts
             
             var restoreConfig = Context.GetConfiguration(db, knownFolders) with
             {
-                RestoreFromPath = _backupPath
+                Restore = _backupPath
             };
 
             await using (var migrator = Context.GetMigrator(restoreConfig))

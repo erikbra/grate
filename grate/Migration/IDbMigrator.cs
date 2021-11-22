@@ -30,6 +30,6 @@ namespace grate.Migration
             GrateEnvironment? environment,
             ConnectionType connectionType);
 
-        Task RestoreDatabase(string restoreFromPath);
+        Task RestoreDatabase(string backupPath);
     }
 }

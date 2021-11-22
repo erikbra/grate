@@ -70,9 +70,9 @@ namespace grate.Migration
                 databaseCreated = await CreateDatabaseIfItDoesNotExist(dbMigrator);
             }
 
-            if (!string.IsNullOrEmpty(config.RestoreFromPath))
+            if (!string.IsNullOrEmpty(config.Restore))
             {
-                await RestoreDatabaseFromPath(config.RestoreFromPath, dbMigrator);
+                await RestoreDatabaseFromPath(config.Restore, dbMigrator);
             }
 
             TransactionScope? scope = null;
@@ -206,9 +206,9 @@ namespace grate.Migration
             return databaseCreated;
         }
 
-        private static async Task RestoreDatabaseFromPath(string restoreFromPath, IDbMigrator dbMigrator)
+        private static async Task RestoreDatabaseFromPath(string backupPath, IDbMigrator dbMigrator)
         {
-            await dbMigrator.RestoreDatabase(restoreFromPath);
+            await dbMigrator.RestoreDatabase(backupPath);
         }
 
         private async Task LogAndProcess(MigrationsFolder folder, string changeDropFolder, long versionId, ConnectionType connectionType)

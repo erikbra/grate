@@ -139,9 +139,9 @@ namespace grate.Migration
             return theSqlWasRun;
         }
 
-        public async Task RestoreDatabase(string restoreFromPath)
+        public async Task RestoreDatabase(string backupPath)
         {
-            await Database.RestoreDatabase(restoreFromPath);
+            await Database.RestoreDatabase(backupPath);
         }
 
         /// <summary>

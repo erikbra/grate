@@ -18,19 +18,19 @@ namespace grate.Migration
         public override bool SupportsSchemas => true;
         protected override DbConnection GetSqlConnection(string? connectionString) => new SqlConnection(connectionString);
 
-        public override async Task RestoreDatabase(string restoreFromPath)
+        public override async Task RestoreDatabase(string backupPath)
         {
             try
             {
                 await OpenAdminConnection();
-                Logger.LogInformation("Restoring {dbName} database on {server} server from path {path}.", DatabaseName, ServerName, restoreFromPath);
+                Logger.LogInformation("Restoring {dbName} database on {server} server from path {path}.", DatabaseName, ServerName, backupPath);
                 using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
                 var cmd = AdminConnection.CreateCommand();
                 cmd.CommandText =
                         $@"USE master
                         ALTER DATABASE [{DatabaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
                         RESTORE DATABASE [{DatabaseName}]
-                        FROM DISK = N'{restoreFromPath}'
+                        FROM DISK = N'{backupPath}'
                         WITH NOUNLOAD
                         , STATS = 10
                         , RECOVERY
@@ -52,7 +52,7 @@ namespace grate.Migration
 
             await WaitUntilDatabaseIsReady();
 
-            Logger.LogInformation("Database {dbName} successfully restored from path {path}.", DatabaseName, restoreFromPath);
+            Logger.LogInformation("Database {dbName} successfully restored from path {path}.", DatabaseName, backupPath);
         }
     }
 }

@@ -500,6 +500,6 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
             GC.SuppressFinalize(this);
         }
 
-        public abstract Task RestoreDatabase(string restoreFromPath);
+        public abstract Task RestoreDatabase(string backupPath);
     }
 }

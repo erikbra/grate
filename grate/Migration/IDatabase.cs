@@ -22,7 +22,7 @@ namespace grate.Migration
         Task OpenAdminConnection();
         Task CloseAdminConnection();
         Task CreateDatabase();
-        Task RestoreDatabase(string restoreFromPath);
+        Task RestoreDatabase(string backupPath);
 
         /// <summary>
         /// Drops the databse if it exists, and does nothing if it doesn't.

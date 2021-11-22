@@ -16,7 +16,7 @@ namespace grate.Migration
         public override bool SupportsSchemas => false;
         protected override DbConnection GetSqlConnection(string? connectionString) => new MySqlConnection(connectionString);
 
-        public override Task RestoreDatabase(string restoreFromPath)
+        public override Task RestoreDatabase(string backupPath)
         {
             throw new System.NotImplementedException("Restoring a database from file is not currently supported for Maria DB.");
         }
