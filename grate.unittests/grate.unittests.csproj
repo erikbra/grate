@@ -27,10 +27,4 @@
   <ItemGroup>
     <ProjectReference Include="..\grate\grate.csproj" />
   </ItemGroup>
-
-<ItemGroup>
-    <None Update="SqlServer\test.bak">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-</ItemGroup>
 </Project>

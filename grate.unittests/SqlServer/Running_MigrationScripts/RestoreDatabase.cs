@@ -15,19 +15,31 @@ namespace grate.unittests.SqlServer.Running_MigrationScripts
     public class RestoreDatabase : SqlServerScriptsBase
     {
         protected override IGrateTestContext Context => GrateTestContext.SqlServer;
+        private readonly string _backupPath = "/var/opt/mssql/backup/test.bak";
+
+        [OneTimeSetUp]
+        public async Task RunBeforeTest()
+        {
+            await using (var conn = Context.CreateDbConnection("master"))
+            {
+                await conn.ExecuteAsync("use [master] CREATE DATABASE [test]");
+                await conn.ExecuteAsync("use [test] CREATE TABLE dbo.Table_1 (column1 int NULL)");
+                await conn.ExecuteAsync($"BACKUP DATABASE [test] TO  DISK = '{_backupPath}'");
+                await conn.ExecuteAsync("use [master] DROP DATABASE [test]");
+            }
+        }
         
         [Test]
         public async Task Ensure_database_gets_restored()
         {
             var db = TestConfig.RandomDatabase();
-            var backupFileName = "test.bak";
 
             var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
             CreateDummySql(knownFolders.Sprocs);
             
             var restoreConfig = Context.GetConfiguration(db, knownFolders) with
             {
-                RestoreFromPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),"SqlServer", backupFileName)
+                RestoreFromPath = _backupPath
             };
 
             await using (var migrator = Context.GetMigrator(restoreConfig))
@@ -35,15 +47,15 @@ namespace grate.unittests.SqlServer.Running_MigrationScripts
                 await migrator.Migrate();
             }
 
-            string[] results;
-            string sql = $"SELECT column1 FROM dbo.Table_1";
+            int[] results;
+            string sql = $"select count(1) from sys.tables where [name]='Table_1'";
 
             await using (var conn = Context.CreateDbConnection(db))
             {
-                results = (await conn.QueryAsync<string>(sql)).ToArray();
+                results = (await conn.QueryAsync<int>(sql)).ToArray();
             }
 
-            results.First().Should().Be("testing");
+            results.First().Should().Be(1);
         }
     }
 }
