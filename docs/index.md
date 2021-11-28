@@ -19,7 +19,7 @@ feature set of all supported databases.
 * PostgreSQL
 * MariaDB/MySQL
 * Sqlite
-* _(Oracle support is in the works)_
+* Oracle
 
 
 ## Prerequisites
