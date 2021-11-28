@@ -139,6 +139,11 @@ namespace grate.Migration
             return theSqlWasRun;
         }
 
+        public async Task RestoreDatabase(string backupPath)
+        {
+            await Database.RestoreDatabase(backupPath);
+        }
+
         /// <summary>
         /// Returns true if we're looking at an AnyTime folder, but the RunAllAnyTimeScripts flag is forced on
         /// </summary>

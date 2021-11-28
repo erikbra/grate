@@ -60,7 +60,12 @@ WHERE  version_row_number <= 1
                 await CreateIdInsertTrigger(ScriptsRunErrorsTable);
             }
         }
-        
+
+        public override Task RestoreDatabase(string backupPath)
+        {
+            throw new System.NotImplementedException("Restoring a database from file is not currently supported for Maria DB.");
+        }
+
         protected override async Task CreateVersionTable()
         {
             if (!await VersionTableExists())

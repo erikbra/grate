@@ -137,7 +137,7 @@ namespace grate.Migration
             }
         }
 
-        private async Task WaitUntilDatabaseIsReady()
+        protected async Task WaitUntilDatabaseIsReady()
         {
             const int maxDelay = 10_000;
             int totalDelay = 0;
@@ -499,5 +499,7 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
             
             GC.SuppressFinalize(this);
         }
+
+        public abstract Task RestoreDatabase(string backupPath);
     }
 }

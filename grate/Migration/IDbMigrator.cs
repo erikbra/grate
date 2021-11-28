@@ -29,5 +29,7 @@ namespace grate.Migration
         Task<bool> RunSql(string sql, string scriptName, MigrationType migrationType, long versionId,
             GrateEnvironment? environment,
             ConnectionType connectionType);
+
+        Task RestoreDatabase(string backupPath);
     }
 }
