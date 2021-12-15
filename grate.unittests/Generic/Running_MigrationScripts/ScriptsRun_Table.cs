@@ -95,7 +95,7 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
 
 
         Result[] scripts;
-        string sql = $"SELECT script_name, text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")} ORDER BY id";
+        string sql = $"SELECT script_name, text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")} ORDER BY script_name";
 
         await using (var conn = Context.CreateDbConnection(db))
         {
