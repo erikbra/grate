@@ -8,177 +8,176 @@ using grate.Migration;
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
 
-namespace grate.unittests.Generic.Running_MigrationScripts
+namespace grate.unittests.Generic.Running_MigrationScripts;
+
+[TestFixture]
+public abstract class Anytime_scripts : MigrationsScriptsBase
 {
-    [TestFixture]
-    public abstract class Anytime_scripts : MigrationsScriptsBase
+    [Test]
+    public async Task Are_not_run_more_than_once_when_unchanged()
     {
-        [Test]
-        public async Task Are_not_run_more_than_once_when_unchanged()
+        var db = TestConfig.RandomDatabase();
+
+        GrateMigrator? migrator;
+
+        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
+        CreateDummySql(knownFolders.Sprocs);
+
+        await using (migrator = Context.GetMigrator(db, knownFolders))
         {
-            var db = TestConfig.RandomDatabase();
-
-            GrateMigrator? migrator;
-
-            var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-            CreateDummySql(knownFolders.Sprocs);
-
-            await using (migrator = Context.GetMigrator(db, knownFolders))
-            {
-                await migrator.Migrate();
-            }
-            await using (migrator = Context.GetMigrator(db, knownFolders))
-            {
-                await migrator.Migrate();
-            }
-
-            string[] scripts;
-            string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
-
-            await using (var conn = Context.CreateDbConnection(db))
-            {
-                scripts = (await conn.QueryAsync<string>(sql)).ToArray();
-            }
-
-            scripts.Should().HaveCount(1);
+            await migrator.Migrate();
+        }
+        await using (migrator = Context.GetMigrator(db, knownFolders))
+        {
+            await migrator.Migrate();
         }
 
-        [Test]
-        public async Task Are_run_again_if_changed_between_runs()
+        string[] scripts;
+        string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
+
+        await using (var conn = Context.CreateDbConnection(db))
         {
-            var db = TestConfig.RandomDatabase();
-
-            GrateMigrator? migrator;
-
-            var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-            CreateDummySql(knownFolders.Sprocs);
-
-            await using (migrator = Context.GetMigrator(db, knownFolders))
-            {
-                await migrator.Migrate();
-            }
-
-            WriteSomeOtherSql(knownFolders.Sprocs);
-
-            await using (migrator = Context.GetMigrator(db, knownFolders))
-            {
-                await migrator.Migrate();
-            }
-
-            string[] scripts;
-            string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
-
-            await using (var conn = Context.CreateDbConnection(db))
-            {
-                scripts = (await conn.QueryAsync<string>(sql)).ToArray();
-            }
-
-            scripts.Should().HaveCount(2);
-
-            using (new AssertionScope())
-            {
-                scripts.First().Should().Be(Context.Sql.SelectVersion);
-                scripts.Last().Should().Be(Context.Syntax.CurrentDatabase);
-            }
+            scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
 
-        [Test]
-        public async Task Do_not_have_text_logged_if_flag_set()
+        scripts.Should().HaveCount(1);
+    }
+
+    [Test]
+    public async Task Are_run_again_if_changed_between_runs()
+    {
+        var db = TestConfig.RandomDatabase();
+
+        GrateMigrator? migrator;
+
+        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
+        CreateDummySql(knownFolders.Sprocs);
+
+        await using (migrator = Context.GetMigrator(db, knownFolders))
         {
-            var db = TestConfig.RandomDatabase();
+            await migrator.Migrate();
+        }
 
-            GrateMigrator? migrator;
+        WriteSomeOtherSql(knownFolders.Sprocs);
 
-            var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-            CreateDummySql(knownFolders.Sprocs);
+        await using (migrator = Context.GetMigrator(db, knownFolders))
+        {
+            await migrator.Migrate();
+        }
 
-            var config = Context.GetConfiguration(db, knownFolders) with
-            {
-                DoNotStoreScriptsRunText = true, // important
-            };
+        string[] scripts;
+        string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
+
+        await using (var conn = Context.CreateDbConnection(db))
+        {
+            scripts = (await conn.QueryAsync<string>(sql)).ToArray();
+        }
+
+        scripts.Should().HaveCount(2);
+
+        using (new AssertionScope())
+        {
+            scripts.First().Should().Be(Context.Sql.SelectVersion);
+            scripts.Last().Should().Be(Context.Syntax.CurrentDatabase);
+        }
+    }
+
+    [Test]
+    public async Task Do_not_have_text_logged_if_flag_set()
+    {
+        var db = TestConfig.RandomDatabase();
+
+        GrateMigrator? migrator;
+
+        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
+        CreateDummySql(knownFolders.Sprocs);
+
+        var config = Context.GetConfiguration(db, knownFolders) with
+        {
+            DoNotStoreScriptsRunText = true, // important
+        };
            
-            await using (migrator = Context.GetMigrator(config))
-            {
-                await migrator.Migrate();
-            }
+        await using (migrator = Context.GetMigrator(config))
+        {
+            await migrator.Migrate();
+        }
             
-            string[] scripts;
-            string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
+        string[] scripts;
+        string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-            await using (var conn = Context.CreateDbConnection(db))
-            {
-                scripts = (await conn.QueryAsync<string>(sql)).ToArray();
-            }
-
-            scripts.Should().HaveCount(1);
-            scripts.Single().Should().Be(null);
+        await using (var conn = Context.CreateDbConnection(db))
+        {
+            scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
 
-        [Test]
-        public async Task Do_have_text_logged_by_default()
-        {
-            var db = TestConfig.RandomDatabase();
+        scripts.Should().HaveCount(1);
+        scripts.Single().Should().Be(null);
+    }
 
-            GrateMigrator? migrator;
+    [Test]
+    public async Task Do_have_text_logged_by_default()
+    {
+        var db = TestConfig.RandomDatabase();
 
-            var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-            CreateDummySql(knownFolders.Sprocs);
+        GrateMigrator? migrator;
+
+        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
+        CreateDummySql(knownFolders.Sprocs);
             
-            var config = Context.GetConfiguration(db, knownFolders) with
-            {
-                DoNotStoreScriptsRunText = false, // important
-            };
+        var config = Context.GetConfiguration(db, knownFolders) with
+        {
+            DoNotStoreScriptsRunText = false, // important
+        };
            
-            await using (migrator = Context.GetMigrator(config))
-            {
-                await migrator.Migrate();
-            }
-
-            string[] scripts;
-            string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
-
-            await using (var conn = Context.CreateDbConnection(db))
-            {
-                scripts = (await conn.QueryAsync<string>(sql)).ToArray();
-            }
-
-            scripts.Should().HaveCount(1);
-            scripts.Single().Should().Be(Context.Sql.SelectVersion);
-        }
-
-        [Test]
-        public async Task Are_run_more_than_once_when_unchanged_but_flag_set()
+        await using (migrator = Context.GetMigrator(config))
         {
-            var db = TestConfig.RandomDatabase();
-
-            GrateMigrator? migrator;
-
-            var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-            CreateDummySql(knownFolders.Sprocs);
-            
-            var config = Context.GetConfiguration(db, knownFolders) with
-            {
-                RunAllAnyTimeScripts = true, // important
-            };
-
-            await using (migrator = Context.GetMigrator(config))
-            {
-                await migrator.Migrate();
-            }
-            await using (migrator = Context.GetMigrator(config))
-            {
-                await migrator.Migrate();
-            }
-
-            string[] scripts;
-            string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
-
-            await using (var conn = Context.CreateDbConnection(db))
-            {
-                scripts = (await conn.QueryAsync<string>(sql)).ToArray();
-            }
-
-            scripts.Should().HaveCount(2);
+            await migrator.Migrate();
         }
+
+        string[] scripts;
+        string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
+
+        await using (var conn = Context.CreateDbConnection(db))
+        {
+            scripts = (await conn.QueryAsync<string>(sql)).ToArray();
+        }
+
+        scripts.Should().HaveCount(1);
+        scripts.Single().Should().Be(Context.Sql.SelectVersion);
+    }
+
+    [Test]
+    public async Task Are_run_more_than_once_when_unchanged_but_flag_set()
+    {
+        var db = TestConfig.RandomDatabase();
+
+        GrateMigrator? migrator;
+
+        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
+        CreateDummySql(knownFolders.Sprocs);
+            
+        var config = Context.GetConfiguration(db, knownFolders) with
+        {
+            RunAllAnyTimeScripts = true, // important
+        };
+
+        await using (migrator = Context.GetMigrator(config))
+        {
+            await migrator.Migrate();
+        }
+        await using (migrator = Context.GetMigrator(config))
+        {
+            await migrator.Migrate();
+        }
+
+        string[] scripts;
+        string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
+
+        await using (var conn = Context.CreateDbConnection(db))
+        {
+            scripts = (await conn.QueryAsync<string>(sql)).ToArray();
+        }
+
+        scripts.Should().HaveCount(2);
     }
 }

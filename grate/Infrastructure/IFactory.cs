@@ -1,7 +1,6 @@
-namespace grate.Infrastructure
+namespace grate.Infrastructure;
+
+public interface IFactory
 {
-    public interface IFactory
-    {
-        public TValue GetService<TKey, TValue>(TKey key);
-    }
+    public TValue GetService<TKey, TValue>(TKey key);
 }

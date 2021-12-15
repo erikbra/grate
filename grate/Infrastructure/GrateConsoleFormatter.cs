@@ -5,98 +5,97 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.Options;
 
-namespace grate.Infrastructure
+namespace grate.Infrastructure;
+
+public class GrateConsoleFormatter : ConsoleFormatter, IDisposable
 {
-    public class GrateConsoleFormatter : ConsoleFormatter, IDisposable
+    public const string FormatterName = "grate-output";
+    private readonly IDisposable? _optionsReloadToken;
+
+    public GrateConsoleFormatter(IOptionsMonitor<SimpleConsoleFormatterOptions>? options) : base(FormatterName)
     {
-        public const string FormatterName = "grate-output";
-        private readonly IDisposable? _optionsReloadToken;
-
-        public GrateConsoleFormatter(IOptionsMonitor<SimpleConsoleFormatterOptions>? options) : base(FormatterName)
+        if (options != null)
         {
-            if (options != null)
-            {
-                ReloadLoggerOptions(options.CurrentValue);
-                _optionsReloadToken = options.OnChange(ReloadLoggerOptions);
-            }
+            ReloadLoggerOptions(options.CurrentValue);
+            _optionsReloadToken = options.OnChange(ReloadLoggerOptions);
+        }
+    }
+
+    public override void Write<TState>(in LogEntry<TState> logEntry, IExternalScopeProvider scopeProvider, TextWriter textWriter)
+    {
+        string? message = logEntry.Formatter?.Invoke(logEntry.State, logEntry.Exception);
+        if (logEntry.Exception == null && message == null)
+        {
+            return;
         }
 
-        public override void Write<TState>(in LogEntry<TState> logEntry, IExternalScopeProvider scopeProvider, TextWriter textWriter)
-        {
-            string? message = logEntry.Formatter?.Invoke(logEntry.State, logEntry.Exception);
-            if (logEntry.Exception == null && message == null)
-            {
-                return;
-            }
+        CreateDefaultLogMessage(textWriter, logEntry, message);
+    }
 
-            CreateDefaultLogMessage(textWriter, logEntry, message);
+    private void ReloadLoggerOptions(SimpleConsoleFormatterOptions options)
+    {
+        FormatterOptions = options;
+    }
+
+    private SimpleConsoleFormatterOptions? FormatterOptions { get; set; }
+
+    public void Dispose()
+    {
+        _optionsReloadToken?.Dispose();
+        GC.SuppressFinalize(this);
+    }
+
+    private static void CreateDefaultLogMessage<TState>(TextWriter textWriter, in LogEntry<TState> logEntry, string? message)
+    {
+        Exception? exception = logEntry.Exception;
+
+        LogLevel logLevel = logEntry.LogLevel;
+        ConsoleColors logLevelColors = GetLogLevelConsoleColors(logLevel);
+
+        textWriter.WriteColoredMessageLine(message, logLevelColors.Background, logLevelColors.Foreground);
+
+        if (exception != null)
+        {
+            textWriter.WriteColoredMessageLine(exception.ToString(), logLevelColors.Background, logLevelColors.Foreground);
+        }
+        textWriter.Flush();
+    }
+
+    private static ConsoleColors GetLogLevelConsoleColors(LogLevel logLevel)
+    {
+        bool disableColors = Console.IsOutputRedirected;
+
+        if (disableColors)
+        {
+            return ConsoleColors.None;
         }
 
-        private void ReloadLoggerOptions(SimpleConsoleFormatterOptions options)
+        // We must explicitly set the background color if we are setting the foreground color,
+        // since just setting one can look bad on the users console.
+        return logLevel switch
         {
-            FormatterOptions = options;
+            LogLevel.Trace => new ConsoleColors(GrateConsoleColor.Foreground.DarkYellow, GrateConsoleColor.Background.Black),
+            LogLevel.Debug => new ConsoleColors(GrateConsoleColor.Foreground.DarkGray, GrateConsoleColor.Background.Black),
+            LogLevel.Information => new ConsoleColors(GrateConsoleColor.Foreground.Green, GrateConsoleColor.Background.Black),
+            LogLevel.Warning => new ConsoleColors(GrateConsoleColor.Foreground.Yellow, GrateConsoleColor.Background.Black),
+            LogLevel.Error => new ConsoleColors(GrateConsoleColor.Foreground.Black, GrateConsoleColor.Background.DarkRed),
+            LogLevel.Critical => new ConsoleColors(GrateConsoleColor.Foreground.White, GrateConsoleColor.Background.DarkRed),
+            _ => ConsoleColors.None
+        };
+    }
+
+
+    private readonly struct ConsoleColors
+    {
+        public ConsoleColors(GrateConsoleColor foreground, GrateConsoleColor background)
+        {
+            Foreground = foreground;
+            Background = background;
         }
 
-        private SimpleConsoleFormatterOptions? FormatterOptions { get; set; }
+        public GrateConsoleColor Foreground { get; }
+        public GrateConsoleColor Background { get; }
 
-        public void Dispose()
-        {
-            _optionsReloadToken?.Dispose();
-            GC.SuppressFinalize(this);
-        }
-
-        private static void CreateDefaultLogMessage<TState>(TextWriter textWriter, in LogEntry<TState> logEntry, string? message)
-        {
-            Exception? exception = logEntry.Exception;
-
-            LogLevel logLevel = logEntry.LogLevel;
-            ConsoleColors logLevelColors = GetLogLevelConsoleColors(logLevel);
-
-            textWriter.WriteColoredMessageLine(message, logLevelColors.Background, logLevelColors.Foreground);
-
-            if (exception != null)
-            {
-                textWriter.WriteColoredMessageLine(exception.ToString(), logLevelColors.Background, logLevelColors.Foreground);
-            }
-            textWriter.Flush();
-        }
-
-        private static ConsoleColors GetLogLevelConsoleColors(LogLevel logLevel)
-        {
-            bool disableColors = Console.IsOutputRedirected;
-
-            if (disableColors)
-            {
-                return ConsoleColors.None;
-            }
-
-            // We must explicitly set the background color if we are setting the foreground color,
-            // since just setting one can look bad on the users console.
-            return logLevel switch
-            {
-                LogLevel.Trace => new ConsoleColors(GrateConsoleColor.Foreground.DarkYellow, GrateConsoleColor.Background.Black),
-                LogLevel.Debug => new ConsoleColors(GrateConsoleColor.Foreground.DarkGray, GrateConsoleColor.Background.Black),
-                LogLevel.Information => new ConsoleColors(GrateConsoleColor.Foreground.Green, GrateConsoleColor.Background.Black),
-                LogLevel.Warning => new ConsoleColors(GrateConsoleColor.Foreground.Yellow, GrateConsoleColor.Background.Black),
-                LogLevel.Error => new ConsoleColors(GrateConsoleColor.Foreground.Black, GrateConsoleColor.Background.DarkRed),
-                LogLevel.Critical => new ConsoleColors(GrateConsoleColor.Foreground.White, GrateConsoleColor.Background.DarkRed),
-                _ => ConsoleColors.None
-            };
-        }
-
-
-        private readonly struct ConsoleColors
-        {
-            public ConsoleColors(GrateConsoleColor foreground, GrateConsoleColor background)
-            {
-                Foreground = foreground;
-                Background = background;
-            }
-
-            public GrateConsoleColor Foreground { get; }
-            public GrateConsoleColor Background { get; }
-
-            public static ConsoleColors None => new();
-        }
+        public static ConsoleColors None => new();
     }
 }

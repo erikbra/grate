@@ -1,32 +1,31 @@
 ﻿using System;
 
-namespace grate.unittests.TestInfrastructure
+namespace grate.unittests.TestInfrastructure;
+
+public static class RandomExtensions
 {
-    public static class RandomExtensions
+    private static readonly char[] DefaultAllowedChars = "ABCDEFHIJKLMNOPQRSTUVWXYZabcdefhijklmnopqrstuvwxyz".ToCharArray();
+
+    public static string GetString(this Random random, int length, string allowedChars)
+        => GetString(random, length, allowedChars.ToCharArray());
+
+    public static string GetString(this Random random, int length, char[]? allowedChars = null)
     {
-        private static readonly char[] DefaultAllowedChars = "ABCDEFHIJKLMNOPQRSTUVWXYZabcdefhijklmnopqrstuvwxyz".ToCharArray();
+        allowedChars ??= DefaultAllowedChars;
 
-        public static string GetString(this Random random, int length, string allowedChars)
-            => GetString(random, length, allowedChars.ToCharArray());
+        var bytes = new byte[length];
+        random.NextBytes(bytes);
 
-        public static string GetString(this Random random, int length, char[]? allowedChars = null)
+        var allowedCharLength = (byte)allowedChars.Length;
+
+        char[] chars = new char[length];
+
+        for (int i = 0; i < length; i++)
         {
-            allowedChars ??= DefaultAllowedChars;
-
-            var bytes = new byte[length];
-            random.NextBytes(bytes);
-
-            var allowedCharLength = (byte)allowedChars.Length;
-
-            char[] chars = new char[length];
-
-            for (int i = 0; i < length; i++)
-            {
-                chars[i] = allowedChars[bytes[i] % allowedCharLength];
-            }
-
-            return new string(chars);
+            chars[i] = allowedChars[bytes[i] % allowedCharLength];
         }
 
+        return new string(chars);
     }
+
 }

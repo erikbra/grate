@@ -1,12 +1,11 @@
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
 
-namespace grate.unittests.Sqlite.Running_MigrationScripts
+namespace grate.unittests.Sqlite.Running_MigrationScripts;
+
+[TestFixture]
+[Category("Sqlite")]
+public class One_time_scripts: Generic.Running_MigrationScripts.One_time_scripts
 {
-    [TestFixture]
-    [Category("Sqlite")]
-    public class One_time_scripts: Generic.Running_MigrationScripts.One_time_scripts
-    {
-        protected override IGrateTestContext Context => GrateTestContext.Sqlite;
-    }
+    protected override IGrateTestContext Context => GrateTestContext.Sqlite;
 }

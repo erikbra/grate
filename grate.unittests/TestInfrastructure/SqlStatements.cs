@@ -1,7 +1,6 @@
-﻿namespace grate.unittests.TestInfrastructure
+﻿namespace grate.unittests.TestInfrastructure;
+
+public record SqlStatements
 {
-    public record SqlStatements
-    {
-        public string SelectVersion { get; init; } = default!;
-    }
+    public string SelectVersion { get; init; } = default!;
 }

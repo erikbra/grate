@@ -1,13 +1,12 @@
 ﻿using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
 
-namespace grate.unittests.SqlServer
+namespace grate.unittests.SqlServer;
+
+[SetUpFixture]
+[Category("Sqlite")]
+public class SetupTestEnvironment : Generic.SetupDockerTestEnvironment
 {
-    [SetUpFixture]
-    [Category("Sqlite")]
-    public class SetupTestEnvironment : Generic.SetupDockerTestEnvironment
-    {
-        protected override IGrateTestContext GrateTestContext => unittests.GrateTestContext.SqlServer;
-        protected override IDockerTestContext DockerTestContext => unittests.GrateTestContext.SqlServer;
-    }
+    protected override IGrateTestContext GrateTestContext => unittests.GrateTestContext.SqlServer;
+    protected override IDockerTestContext DockerTestContext => unittests.GrateTestContext.SqlServer;
 }

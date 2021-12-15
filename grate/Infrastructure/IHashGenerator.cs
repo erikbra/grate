@@ -1,7 +1,6 @@
-﻿namespace grate.Infrastructure
+﻿namespace grate.Infrastructure;
+
+public interface IHashGenerator
 {
-    public interface IHashGenerator
-    {
-        string Hash(string text);
-    }
+    string Hash(string text);
 }
