@@ -247,8 +247,12 @@ public class GrateMigrator : IAsyncDisposable
         {
             var sql = await File.ReadAllTextAsync(file.FullName);
 
-            bool theSqlRan = await _migrator.RunSql(sql, file.Name, folder.Type, versionId, _migrator.Configuration.Environment,
-                connectionType);
+                // Normalize file names to log, so that results won't vary if you run on *nix VS Windows
+                var fileNameToLog = string.Join('/',
+                    Path.GetRelativePath(folder.Path.ToString(), file.FullName).Split(Path.DirectorySeparatorChar));
+
+                bool theSqlRan = await _migrator.RunSql(sql, fileNameToLog, folder.Type, versionId, _migrator.Configuration.Environment,
+                    connectionType);
 
             if (theSqlRan)
             {
