@@ -1,7 +1,6 @@
-﻿namespace grate.unittests.TestInfrastructure
+﻿namespace grate.unittests.TestInfrastructure;
+
+public interface IDockerTestContext
 {
-    public interface IDockerTestContext
-    {
-        string DockerCommand(string serverName, string adminPassword);
-    }
+    string DockerCommand(string serverName, string adminPassword);
 }

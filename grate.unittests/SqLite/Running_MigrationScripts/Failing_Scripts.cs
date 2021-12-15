@@ -1,13 +1,12 @@
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
 
-namespace grate.unittests.Sqlite.Running_MigrationScripts
+namespace grate.unittests.Sqlite.Running_MigrationScripts;
+
+[TestFixture]
+[Category("Sqlite")]
+public class Failing_Scripts: Generic.Running_MigrationScripts.Failing_Scripts
 {
-    [TestFixture]
-    [Category("Sqlite")]
-    public class Failing_Scripts: Generic.Running_MigrationScripts.Failing_Scripts
-    {
-        protected override IGrateTestContext Context => GrateTestContext.Sqlite;
-        protected override string ExpextedErrorMessageForInvalidSql => "SQLite Error 1: 'no such column: TOP'.";
-    }
+    protected override IGrateTestContext Context => GrateTestContext.Sqlite;
+    protected override string ExpextedErrorMessageForInvalidSql => "SQLite Error 1: 'no such column: TOP'.";
 }

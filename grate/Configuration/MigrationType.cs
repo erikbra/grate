@@ -1,9 +1,8 @@
-namespace grate.Configuration
+namespace grate.Configuration;
+
+public enum MigrationType
 {
-    public enum MigrationType
-    {
-        Once,
-        AnyTime,
-        EveryTime
-    }
+    Once,
+    AnyTime,
+    EveryTime
 }

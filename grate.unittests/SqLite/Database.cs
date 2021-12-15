@@ -6,35 +6,34 @@ using grate.unittests.TestInfrastructure;
 using Microsoft.Data.Sqlite;
 using NUnit.Framework;
 
-namespace grate.unittests.Sqlite
+namespace grate.unittests.Sqlite;
+
+[TestFixture]
+[Category("Sqlite")]
+public class Database: Generic.GenericDatabase
 {
-    [TestFixture]
-    [Category("Sqlite")]
-    public class Database: Generic.GenericDatabase
+    protected override IGrateTestContext Context => GrateTestContext.Sqlite;
+
+    protected override async Task CreateDatabase(string db)
     {
-        protected override IGrateTestContext Context => GrateTestContext.Sqlite;
-
-        protected override async Task CreateDatabase(string db)
-        {
-            await using var conn = new SqliteConnection(Context.ConnectionString(db));
-            conn.Open();
-            await using var cmd = conn.CreateCommand();
-            var sql = "CREATE TABLE dummy(name VARCHAR(1))";
-            cmd.CommandText = sql;
-            await cmd.ExecuteNonQueryAsync();
-        }
-
-        protected override async Task<IEnumerable<string>> GetDatabases() 
-        {
-            var dbFiles = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), "*.db");
-            IEnumerable<string> dbNames = dbFiles
-                                            .Select(Path.GetFileNameWithoutExtension)
-                                            .Where(name => name is not null)
-                                            .Cast<string>();
-
-            return await ValueTask.FromResult(dbNames);
-        }
-
-        protected override bool ThrowOnMissingDatabase => false;
+        await using var conn = new SqliteConnection(Context.ConnectionString(db));
+        conn.Open();
+        await using var cmd = conn.CreateCommand();
+        var sql = "CREATE TABLE dummy(name VARCHAR(1))";
+        cmd.CommandText = sql;
+        await cmd.ExecuteNonQueryAsync();
     }
+
+    protected override async Task<IEnumerable<string>> GetDatabases() 
+    {
+        var dbFiles = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), "*.db");
+        IEnumerable<string> dbNames = dbFiles
+            .Select(Path.GetFileNameWithoutExtension)
+            .Where(name => name is not null)
+            .Cast<string>();
+
+        return await ValueTask.FromResult(dbNames);
+    }
+
+    protected override bool ThrowOnMissingDatabase => false;
 }

@@ -1,12 +1,11 @@
 ﻿// ReSharper disable InconsistentNaming
-namespace grate.Configuration
+namespace grate.Configuration;
+
+public enum DatabaseType
 {
-    public enum DatabaseType
-    {
-        sqlserver,
-        oracle,
-        postgresql,
-        mariadb,
-        sqlite
-    }
+    sqlserver,
+    oracle,
+    postgresql,
+    mariadb,
+    sqlite
 }

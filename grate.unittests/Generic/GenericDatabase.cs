@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Data.Common;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -11,141 +10,140 @@ using grate.Migration;
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
 
-namespace grate.unittests.Generic
+namespace grate.unittests.Generic;
+
+[TestFixture]
+public abstract class GenericDatabase
 {
-    [TestFixture]
-    public abstract class GenericDatabase
+    protected abstract IGrateTestContext Context { get; }
+
+    [Test]
+    public async Task Is_created_if_confed_and_it_does_not_exist()
     {
-        protected abstract IGrateTestContext Context { get; }
-
-        [Test]
-        public async Task Is_created_if_confed_and_it_does_not_exist()
-        {
-            var db = "NEWDATABASE";
+        var db = "NEWDATABASE";
             
-            await using var migrator = GetMigrator(GetConfiguration(db, true));
-            await migrator.Migrate();
+        await using var migrator = GetMigrator(GetConfiguration(db, true));
+        await migrator.Migrate();
 
-            IEnumerable<string> databases = await GetDatabases();
-            databases.Should().Contain(db);
+        IEnumerable<string> databases = await GetDatabases();
+        databases.Should().Contain(db);
+    }
+
+    [Test]
+    public async Task Is_not_created_if_not_confed()
+    {
+        var db = "SOMEOTHERDATABASE";
+            
+        IEnumerable<string> databasesBeforeMigration = await GetDatabases();
+        databasesBeforeMigration.Should().NotContain(db);
+            
+        await using var migrator = GetMigrator(GetConfiguration(db, false));
+            
+        // The migration should throw an error, as the database does not exist.
+        if (ThrowOnMissingDatabase)
+        {
+            Assert.ThrowsAsync(Context.DbExceptionType, () => migrator.Migrate());
         }
 
-        [Test]
-        public async Task Is_not_created_if_not_confed()
-        {
-            var db = "SOMEOTHERDATABASE";
-            
-            IEnumerable<string> databasesBeforeMigration = await GetDatabases();
-            databasesBeforeMigration.Should().NotContain(db);
-            
-            await using var migrator = GetMigrator(GetConfiguration(db, false));
-            
-            // The migration should throw an error, as the database does not exist.
-            if (ThrowOnMissingDatabase)
-            {
-                Assert.ThrowsAsync(Context.DbExceptionType, () => migrator.Migrate());
-            }
-
-            // Ensure that the database was in fact not created 
-            IEnumerable<string> databases = await GetDatabases();
-            databases.Should().NotContain(db);
-        }
+        // Ensure that the database was in fact not created 
+        IEnumerable<string> databases = await GetDatabases();
+        databases.Should().NotContain(db);
+    }
         
-        [Test]
-        public async Task Does_not_error_if_confed_to_create_but_already_exists()
-        {
-            var db = "DAATAA";
+    [Test]
+    public async Task Does_not_error_if_confed_to_create_but_already_exists()
+    {
+        var db = "DAATAA";
             
-            // Create the database manually before running the migration
-            await CreateDatabase(db);
+        // Create the database manually before running the migration
+        await CreateDatabase(db);
             
-            // Check that the database has been created
-            IEnumerable<string> databasesBeforeMigration = await GetDatabases();
-            databasesBeforeMigration.Should().Contain(db);
+        // Check that the database has been created
+        IEnumerable<string> databasesBeforeMigration = await GetDatabases();
+        databasesBeforeMigration.Should().Contain(db);
             
-            await using var migrator = GetMigrator(GetConfiguration(db, true));
+        await using var migrator = GetMigrator(GetConfiguration(db, true));
             
-            // There should be no errors running the migration
-            Assert.DoesNotThrowAsync(() => migrator.Migrate());
-        }
+        // There should be no errors running the migration
+        Assert.DoesNotThrowAsync(() => migrator.Migrate());
+    }
         
-        [Test]
-        public async Task Does_not_need_admin_connection_if_database_already_exists()
-        {
-            var db = "DATADATADATABASE";
+    [Test]
+    public async Task Does_not_need_admin_connection_if_database_already_exists()
+    {
+        var db = "DATADATADATABASE";
             
-            // Create the database manually before running the migration
-            await CreateDatabase(db);
+        // Create the database manually before running the migration
+        await CreateDatabase(db);
             
-            // Check that the database has been created
-            IEnumerable<string> databasesBeforeMigration = await GetDatabases();
-            databasesBeforeMigration.Should().Contain(db);
+        // Check that the database has been created
+        IEnumerable<string> databasesBeforeMigration = await GetDatabases();
+        databasesBeforeMigration.Should().Contain(db);
             
-            // Change the admin connection string to rubbish and run the migration
-            await using var migrator = GetMigrator(GetConfiguration(db, true, "Invalid stuff"));
+        // Change the admin connection string to rubbish and run the migration
+        await using var migrator = GetMigrator(GetConfiguration(db, true, "Invalid stuff"));
             
-            // There should be no errors running the migration
-            Assert.DoesNotThrowAsync(() => migrator.Migrate());
-        }
+        // There should be no errors running the migration
+        Assert.DoesNotThrowAsync(() => migrator.Migrate());
+    }
 
-        protected virtual async Task CreateDatabase(string db)
+    protected virtual async Task CreateDatabase(string db)
+    {
+        using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
-            using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+            for (var i = 0; i < 5; i++)
             {
-                for (var i = 0; i < 5; i++)
+                try
                 {
-                    try
-                    {
-                        await using var conn = Context.CreateAdminDbConnection();
-                        conn.Open();
-                        await using var cmd = conn.CreateCommand();
-                        cmd.CommandText = Context.Syntax.CreateDatabase(db, TestConfig.Password(Context.ConnectionString(db)));
-                        await cmd.ExecuteNonQueryAsync();
-                        break;
-                    }
-                    catch (DbException) { }
+                    await using var conn = Context.CreateAdminDbConnection();
+                    conn.Open();
+                    await using var cmd = conn.CreateCommand();
+                    cmd.CommandText = Context.Syntax.CreateDatabase(db, TestConfig.Password(Context.ConnectionString(db)));
+                    await cmd.ExecuteNonQueryAsync();
+                    break;
                 }
+                catch (DbException) { }
             }
         }
+    }
         
-        protected virtual async Task<IEnumerable<string>> GetDatabases()
+    protected virtual async Task<IEnumerable<string>> GetDatabases()
+    {
+        IEnumerable<string> databases =Enumerable.Empty<string>();
+        string sql = Context.Syntax.ListDatabases;
+
+        using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
-            IEnumerable<string> databases =Enumerable.Empty<string>();
-            string sql = Context.Syntax.ListDatabases;
-
-            using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+            for (var i = 0; i < 5; i++)
             {
-                for (var i = 0; i < 5; i++)
+                try
                 {
-                    try
-                    {
-                        await using var conn = Context.CreateAdminDbConnection();
-                        databases = await conn.QueryAsync<string>(sql);
-                        break;
-                    }
-                    catch (DbException) { }
+                    await using var conn = Context.CreateAdminDbConnection();
+                    databases = await conn.QueryAsync<string>(sql);
+                    break;
                 }
+                catch (DbException) { }
             }
-            return databases;
         }
+        return databases;
+    }
 
-        protected virtual bool ThrowOnMissingDatabase => true;
+    protected virtual bool ThrowOnMissingDatabase => true;
 
 
-        private GrateMigrator GetMigrator(GrateConfiguration config) => Context.GetMigrator(config);
+    private GrateMigrator GetMigrator(GrateConfiguration config) => Context.GetMigrator(config);
     
 
-        private GrateConfiguration GetConfiguration(string databaseName, bool createDatabase, string? adminConnectionString = null)
+    private GrateConfiguration GetConfiguration(string databaseName, bool createDatabase, string? adminConnectionString = null)
+    {
+        return new()
         {
-            return new()
-            {
-                CreateDatabase = createDatabase, 
-                ConnectionString = Context.ConnectionString(databaseName),
-                AdminConnectionString = adminConnectionString ?? Context.AdminConnectionString,
-                KnownFolders = KnownFolders.In(TestConfig.CreateRandomTempDirectory()),
-                NonInteractive = true,
-                DatabaseType = Context.DatabaseType
-            };
-        }
+            CreateDatabase = createDatabase, 
+            ConnectionString = Context.ConnectionString(databaseName),
+            AdminConnectionString = adminConnectionString ?? Context.AdminConnectionString,
+            KnownFolders = KnownFolders.In(TestConfig.CreateRandomTempDirectory()),
+            NonInteractive = true,
+            DatabaseType = Context.DatabaseType
+        };
     }
 }

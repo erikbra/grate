@@ -1,11 +1,10 @@
 ﻿using System;
 
-namespace grate.Migration
+namespace grate.Migration;
+
+public class OneTimeScriptChanged : Exception
 {
-    public class OneTimeScriptChanged : Exception
+    public OneTimeScriptChanged(string errorMessage) : base(errorMessage)
     {
-        public OneTimeScriptChanged(string errorMessage) : base(errorMessage)
-        {
-        }
     }
 }

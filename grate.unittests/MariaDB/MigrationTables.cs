@@ -1,12 +1,11 @@
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
 
-namespace grate.unittests.MariaDB
+namespace grate.unittests.MariaDB;
+
+[TestFixture]
+[Category("MariaDB")]
+public class MigrationTables: Generic.GenericMigrationTables
 {
-    [TestFixture]
-    [Category("MariaDB")]
-    public class MigrationTables: Generic.GenericMigrationTables
-    {
-        protected override IGrateTestContext Context => GrateTestContext.MariaDB;
-    }
+    protected override IGrateTestContext Context => GrateTestContext.MariaDB;
 }

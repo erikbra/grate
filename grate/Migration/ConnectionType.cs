@@ -1,8 +1,7 @@
-﻿namespace grate.Migration
+﻿namespace grate.Migration;
+
+public enum ConnectionType
 {
-    public enum ConnectionType
-    {
-        Default,
-        Admin
-    }
+    Default,
+    Admin
 }
