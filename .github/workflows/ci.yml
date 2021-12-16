@@ -83,7 +83,14 @@ jobs:
         dotnet-version: 6.0.x
         include-prerelease: false
     - name: Test
-      run: dotnet test --filter FullyQualifiedName~grate.unittests.${{ matrix.category }}  -c Release --logger:"junit;LogFilePath=test-results-${{ matrix.category }}.xml"
+      run: dotnet test --filter FullyQualifiedName~grate.unittests.${{ matrix.category }}  -c Release --logger:"trx;LogFilePath=test-results-${{ matrix.category }}.xml"
       env:
         LogLevel: Warning
         TZ: UTC
+
+    - name: Upload Unit Test Results
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: Unit Test Results (${{ matrix.category }})
+        path: grate.unittests/test-results-${{ matrix.category }}.xml
