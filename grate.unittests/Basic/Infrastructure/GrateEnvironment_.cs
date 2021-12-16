@@ -15,7 +15,7 @@ public class GrateEnvironment_
         var env = new GrateEnvironment("TEST");
         var file = FullPath("just_a_normal_file.sql");
 
-        env.ShouldRun(file).Should().BeTrue();
+        env.ShouldRun(file).Should().BeFalse();
     }
 
     [Test]
