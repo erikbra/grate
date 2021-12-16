@@ -85,7 +85,7 @@ jobs:
         dotnet-version: 6.0.x
         include-prerelease: false
     - name: Test
-      run: dotnet test --filter FullyQualifiedName~grate.unittests.${{ matrix.category }}  -c Release --logger:"trx;LogFilePath=/tmp/test-results-${{ matrix.category }}.xml"
+      run: dotnet test --filter FullyQualifiedName~grate.unittests.${{ matrix.category }}  -c Release --logger:"trx;LogFileName=/tmp/test-results-${{ matrix.category }}.xml"
       env:
         LogLevel: Warning
         TZ: UTC
