@@ -17,7 +17,7 @@ public class SqliteDatabase : AnsiSqlDatabase
     { }
 
     public override bool SupportsDdlTransactions => false;
-    public override bool SupportsSchemas => false;
+    protected override bool SupportsSchemas => false;
     protected override DbConnection GetSqlConnection(string? connectionString) => new SqliteConnection(connectionString);
 
     protected override string ExistsSql(string tableSchema, string fullTableName) =>

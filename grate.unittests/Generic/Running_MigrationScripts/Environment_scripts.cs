@@ -10,6 +10,7 @@ using NUnit.Framework;
 namespace grate.unittests.Generic.Running_MigrationScripts;
 
 [TestFixture]
+// ReSharper disable once InconsistentNaming
 public abstract class Environment_scripts : MigrationsScriptsBase
 {
     [Test]

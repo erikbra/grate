@@ -18,9 +18,7 @@ public static class TokenReplacer // When we have a second impl we'll add an int
 
         string output = regex.Replace(textToReplace, m =>
         {
-            string key = "";
-
-            key = m.Groups["key"].Value;
+            var key = m.Groups["key"].Value;
             if (!tokens.ContainsKey(key))
             {
                 return "{{" + key + "}}"; //leave unrecognised token alone

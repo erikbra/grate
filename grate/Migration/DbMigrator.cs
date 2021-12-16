@@ -19,15 +19,15 @@ public class DbMigrator : IDbMigrator
     {
         _logger = logger;
         _hashGenerator = hashGenerator;
-        Configuration = configuration ?? throw new ArgumentException(nameof(configuration), "No configuration passed to DbMigrator.  Container setup error?");
+        Configuration = configuration ?? throw new ArgumentException("No configuration passed to DbMigrator.  Container setup error?", nameof(configuration));
         Database = factory.GetService<DatabaseType, IDatabase>(Configuration.DatabaseType);
         StatementSplitter = new StatementSplitter(Database.StatementSeparatorRegex);
     }
 
-    public Task InitializeConnections() => Database?.InitializeConnections(Configuration)!;
+    public Task InitializeConnections() => Database.InitializeConnections(Configuration);
 
     public IDatabase Database { get; set; }
-    public StatementSplitter StatementSplitter { get; }
+    private StatementSplitter StatementSplitter { get; }
 
     public async Task<bool> DatabaseExists() => await Database.DatabaseExists();
 
@@ -66,7 +66,7 @@ public class DbMigrator : IDbMigrator
 
         async Task<bool> LogAndRunSql()
         {
-            _logger.LogInformation(" Running {scriptName} on {serverName} - {databaseName}.", scriptName, Database.ServerName, Database.DatabaseName);
+            _logger.LogInformation(" Running {ScriptName} on {ServerName} - {DatabaseName}.", scriptName, Database.ServerName, Database.DatabaseName);
 
             if (Configuration.DryRun)
             {
@@ -124,11 +124,11 @@ public class DbMigrator : IDbMigrator
                     case MigrationType.EveryTime:
                         theSqlWasRun = await LogAndRunSql();
                         break;
-                };
+                }
             }
             else
             {
-                _logger.LogDebug(" Skipped {scriptName} - {reason}.", scriptName, "No changes were found to run");
+                _logger.LogDebug(" Skipped {ScriptName} - {Reason}.", scriptName, "No changes were found to run");
             }
         }
         else
@@ -147,19 +147,19 @@ public class DbMigrator : IDbMigrator
     /// <summary>
     /// Returns true if we're looking at an AnyTime folder, but the RunAllAnyTimeScripts flag is forced on
     /// </summary>
-    internal static bool AnyTimeScriptForcedToRun(MigrationType migrationType, GrateConfiguration configuration)
+    private static bool AnyTimeScriptForcedToRun(MigrationType migrationType, GrateConfiguration configuration)
     {
         return migrationType == MigrationType.AnyTime && configuration.RunAllAnyTimeScripts;
     }
 
-    internal static ChangedScriptHandling DetermineChangeHandling(GrateConfiguration configuration)
+    private static ChangedScriptHandling DetermineChangeHandling(GrateConfiguration configuration)
     {
         if (configuration.WarnOnOneTimeScriptChanges) return ChangedScriptHandling.WarnAndRun;
         if (configuration.WarnAndIgnoreOnOneTimeScriptChanges) return ChangedScriptHandling.WarnAndIgnore;
         return ChangedScriptHandling.Error;
     }
 
-    internal enum ChangedScriptHandling
+    private enum ChangedScriptHandling
     {
         Error,
         WarnAndRun,
@@ -202,11 +202,7 @@ public class DbMigrator : IDbMigrator
     private Dictionary<string, string?>? _tokens;
     private string ReplaceTokensIn(string sql)
     {
-        if (_tokens == null)
-        {
-            _tokens = new TokenProvider(Configuration, Database).GetTokens();
-        }
-
+        _tokens ??= new TokenProvider(Configuration, Database).GetTokens();
         return TokenReplacer.ReplaceTokens(_tokens, sql);
     }
 
@@ -254,7 +250,7 @@ public class DbMigrator : IDbMigrator
 
     private void LogScriptChangedWarning(string scriptName)
     {
-        _logger.LogWarning("{scriptName} is a one time script that has changed since it was run.", scriptName);
+        _logger.LogWarning("{ScriptName} is a one time script that has changed since it was run.", scriptName);
     }
 
     /// <summary>

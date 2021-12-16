@@ -44,8 +44,8 @@ public class BatchSplitterReplacer_
         [Test]
         public void go_with_tab()
         {
-            string sql_to_match = @" GO" + string.Format("\t");
-            string expected_scrubbed = @" " + Batch_terminator_replacement_string + string.Format("\t");
+            string sql_to_match = " GO\t";
+            string expected_scrubbed = $@" {Batch_terminator_replacement_string}\t";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
             Assert.AreEqual(expected_scrubbed, sql_statement_scrubbed);
@@ -362,9 +362,9 @@ select ''
         [Test]
         public void go_with_double_dash_comment_and_tab_starting_line()
         {
-            string sql_to_match = @"--" + string.Format("\t") + @"GO
+            string sql_to_match = "--" + "\t" + @"GO
 ";
-            string expected_scrubbed = @"--" + string.Format("\t") + @"GO
+            string expected_scrubbed = @"--" + "\t" + @"GO
 ";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -374,9 +374,9 @@ select ''
         [Test]
         public void go_with_double_dash_comment_and_tab_starting_line_and_words_after_go()
         {
-            string sql_to_match = @"--" + string.Format("\t") + @"GO " + Words_to_check + @"
+            string sql_to_match = @"--" + "\t" + @"GO " + Words_to_check + @"
 ";
-            string expected_scrubbed = @"--" + string.Format("\t") + @"GO " + Words_to_check + @"
+            string expected_scrubbed = @"--" + "\t" + @"GO " + Words_to_check + @"
 ";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -386,9 +386,9 @@ select ''
         [Test]
         public void go_with_double_dash_comment_and_tab_starting_line_and_symbols_after_go()
         {
-            string sql_to_match = @"--" + string.Format("\t") + @"GO " + Symbols_to_check + @"
+            string sql_to_match = @"--" + "\t" + @"GO " + Symbols_to_check + @"
 ";
-            string expected_scrubbed = @"--" + string.Format("\t") + @"GO " + Symbols_to_check + @"
+            string expected_scrubbed = @"--" + "\t" + @"GO " + Symbols_to_check + @"
 ";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);

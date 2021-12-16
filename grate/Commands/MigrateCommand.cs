@@ -160,7 +160,7 @@ public sealed class MigrateCommand : RootCommand
     private static Option<bool> WarnAndRunOnScriptChange() =>
         new(
             new[] { "-w", "--warnononetimescriptchanges" },
-            "WarnOnOneTimeScriptChanges - Instructs grate to execute changed one time scripts(DDL / DML in Upfolder) that have previously been run against the database instead of failing.  A warning is logged for each one time script that is rerun. Defaults to false."
+            "WarnOnOneTimeScriptChanges - Instructs grate to execute changed one time scripts(DDL / DML in Up folder) that have previously been run against the database instead of failing.  A warning is logged for each one time script that is rerun. Defaults to false."
         );
 
     private static Option<bool> WarnAndIgnoreOnScriptChange() =>

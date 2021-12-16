@@ -12,9 +12,10 @@ using NUnit.Framework;
 namespace grate.unittests.Generic.Running_MigrationScripts;
 
 [TestFixture]
+// ReSharper disable once InconsistentNaming
 public abstract class Failing_Scripts : MigrationsScriptsBase
 {
-    protected abstract string ExpextedErrorMessageForInvalidSql { get; }
+    protected abstract string ExpectedErrorMessageForInvalidSql { get; }
 
     [Test]
     public async Task Aborts_the_run_giving_an_error_message()
@@ -29,7 +30,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
         await using (migrator = Context.GetMigrator(db, knownFolders))
         {
             var ex = Assert.ThrowsAsync(Context.DbExceptionType, migrator.Migrate);
-            ex?.Message.Should().Be(ExpextedErrorMessageForInvalidSql);
+            ex?.Message.Should().Be(ExpectedErrorMessageForInvalidSql);
         }
     }
 

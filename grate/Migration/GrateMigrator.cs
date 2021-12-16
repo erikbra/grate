@@ -34,22 +34,22 @@ public class GrateMigrator : IAsyncDisposable
         KnownFolders knownFolders = config.KnownFolders ?? throw new ArgumentException(nameof(config.KnownFolders));
 
 
-        _logger.LogInformation("Running grate v{version} against {serverName} - {databaseName}.",
+        _logger.LogInformation("Running grate v{Version} against {ServerName} - {DatabaseName}.",
             ApplicationInfo.Version,
-            database?.ServerName,
-            database?.DatabaseName
+            database.ServerName,
+            database.DatabaseName
         );
 
-        _logger.LogInformation("Looking in {upFolder} for scripts to run.", knownFolders?.Up?.Path);
+        _logger.LogInformation("Looking in {UpFolder} for scripts to run.", knownFolders.Up?.Path);
 
         PressEnterWhenReady(silent);
 
         var runInTransaction = MakeSureWeCanRunInTransaction(config.Transaction, silent, dbMigrator);
 
-        var changeDropFolder = ChangeDropFolder(config, database?.ServerName, database?.DatabaseName);
+        var changeDropFolder = ChangeDropFolder(config, database.ServerName, database.DatabaseName);
         CreateChangeDropFolder(changeDropFolder);
 
-        _logger.LogDebug("The change_drop (output) folder is: {changeDropFolder}", changeDropFolder);
+        _logger.LogDebug("The change_drop (output) folder is: {ChangeDropFolder}", changeDropFolder);
         Separator('=');
 
         _logger.LogInformation("Setup, Backup, Create/Restore/Drop");
@@ -58,7 +58,7 @@ public class GrateMigrator : IAsyncDisposable
         if (config.Drop)
         {
             await dbMigrator.DropDatabase();
-            _logger.LogInformation("{appName} has removed database ({databaseName}) if it existed.", ApplicationInfo.Name, database?.DatabaseName);
+            _logger.LogInformation("{AppName} has removed database ({DatabaseName}) if it existed.", ApplicationInfo.Name, database.DatabaseName);
         }
 
         var databaseCreated = false;
@@ -126,9 +126,9 @@ public class GrateMigrator : IAsyncDisposable
             }
 
             _logger.LogInformation(
-                "\n\ngrate v{version} has grated your database ({databaseName})! You are now at version {newVersion}. All changes and backups can be found at \"{changeDropFolder}\".",
+                "\n\ngrate v{Version} has grated your database ({DatabaseName})! You are now at version {NewVersion}. All changes and backups can be found at \"{ChangeDropFolder}\".",
                 ApplicationInfo.Version,
-                dbMigrator?.Database?.DatabaseName,
+                dbMigrator.Database.DatabaseName,
                 newVersion,
                 changeDropFolder);
 
@@ -149,7 +149,7 @@ public class GrateMigrator : IAsyncDisposable
                    TransactionScopeAsyncFlowOption.Enabled))
         {
             await dbMigrator.OpenAdminConnection();
-            await LogAndProcess(knownFolders!.AlterDatabase!, changeDropFolder, versionId, ConnectionType.Admin);
+            await LogAndProcess(knownFolders.AlterDatabase!, changeDropFolder, versionId, ConnectionType.Admin);
             await dbMigrator.CloseAdminConnection();
         }
     }
@@ -158,7 +158,7 @@ public class GrateMigrator : IAsyncDisposable
     {
         using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
-            await LogAndProcess(knownFolders!.BeforeMigration!, changeDropFolder, versionId, ConnectionType.Default);
+            await LogAndProcess(knownFolders.BeforeMigration!, changeDropFolder, versionId, ConnectionType.Default);
         }
     }
 
@@ -182,7 +182,7 @@ public class GrateMigrator : IAsyncDisposable
 
         var currentVersion = await dbMigrator.GetCurrentVersion();
         var newVersion = dbMigrator.Configuration.Version;
-        _logger.LogInformation(" Migrating {databaseName} from version {currentVersion} to {newVersion}.", dbMigrator.Database?.DatabaseName, currentVersion, newVersion);
+        _logger.LogInformation(" Migrating {DatabaseName} from version {CurrentVersion} to {NewVersion}.", dbMigrator.Database.DatabaseName, currentVersion, newVersion);
         var versionId = await dbMigrator.VersionTheDatabase(newVersion);
 
         return (versionId, newVersion);
@@ -221,7 +221,7 @@ public class GrateMigrator : IAsyncDisposable
             _ => throw new ArgumentOutOfRangeException(nameof(folder), $"Unexpected MigrationsFolder: {folder.Type}")
         };
 
-        _logger.LogInformation("Looking for {folderName} scripts in \"{path}\".{message}",
+        _logger.LogInformation("Looking for {FolderName} scripts in \"{Path}\".{Message}",
             folder.Name,
             folder.Path,
             msg);
@@ -258,7 +258,7 @@ public class GrateMigrator : IAsyncDisposable
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning(ex, "Unable to copy {file} to {changeDropFolder}. \n{exception}", file, changeDropFolder, ex.Message);
+                    _logger.LogWarning(ex, "Unable to copy {File} to {ChangeDropFolder}. \n{Exception}", file, changeDropFolder, ex.Message);
                 }
             }
         }
@@ -289,7 +289,8 @@ public class GrateMigrator : IAsyncDisposable
             .OrderBy(f => f.Name, StringComparer.CurrentCultureIgnoreCase);
     }
         
-#pragma warning disable CA2254 // Template should be a static expression.  Bug in pre-release .net 6: https://github.com/dotnet/roslyn-analyzers/issues/5415
+// ReSharper disable once TemplateIsNotCompileTimeConstantProblem
+#pragma warning disable CA2254 // Template should be a static expression.
     private void Separator(char c) => _logger.LogInformation(new string(c, 80));
 #pragma warning restore CA2254 // Template should be a static expression
 
@@ -305,7 +306,7 @@ public class GrateMigrator : IAsyncDisposable
     public static string ChangeDropFolder(GrateConfiguration config, string? server, string? database)
     {
         var folder = Path.Combine(
-            config.OutputPath!.ToString(),
+            config.OutputPath.ToString(),
             "migrations",
             RemoveInvalidPathChars(database),
             RemoveInvalidPathChars(server),
@@ -340,9 +341,9 @@ public class GrateMigrator : IAsyncDisposable
 
     private bool MakeSureWeCanRunInTransaction(bool runInTransaction, bool silent, IDbMigrator dbMigrator)
     {
-        if (runInTransaction && !dbMigrator.Database!.SupportsDdlTransactions)
+        if (runInTransaction && !dbMigrator.Database.SupportsDdlTransactions)
         {
-            _logger.LogWarning("You asked to run in a transaction, but this databasetype doesn't support DDL transactions.");
+            _logger.LogWarning("You asked to run in a transaction, but this database type doesn't support DDL transactions.");
             if (!silent)
             {
                 _logger.LogInformation("Please press enter to continue without transaction support...");

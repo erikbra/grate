@@ -91,8 +91,6 @@ public abstract class SetupDockerTestEnvironment
     {
         var sql = GrateTestContext.Sql.SelectVersion;
 
-        string? res;
-
         bool ready = false;
 
         try
@@ -104,7 +102,7 @@ public abstract class SetupDockerTestEnvironment
             cmd.CommandType = CommandType.Text;
             cmd.CommandText = sql;
 
-            res = (string?)await cmd.ExecuteScalarAsync();
+            var res = (string?)await cmd.ExecuteScalarAsync();
             ready = res?.StartsWith(GrateTestContext.ExpectedVersionPrefix) ?? false;
         }
         catch (DbException) when (swallowException)

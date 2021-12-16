@@ -11,6 +11,7 @@ using NUnit.Framework;
 namespace grate.unittests.Generic.Running_MigrationScripts;
 
 [TestFixture]
+// ReSharper disable once InconsistentNaming
 public abstract class Everytime_scripts : MigrationsScriptsBase
 {
     [Test]
