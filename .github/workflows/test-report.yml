@@ -1,4 +1,4 @@
-name: 'Create test Reports'
+name: 'Create Test Reports'
 on:
   workflow_run:
     workflows: ['CI']                     # runs after CI workflow
@@ -6,26 +6,9 @@ on:
       - completed
 
 jobs:
-  # report:
-  #    runs-on: ubuntu-latest
-  #    name: Create test report
-  #    strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
-  #       #category: [ "Basic" ]
-
-  #    steps:
-  #     - uses: dorny/test-reporter@v1
-  #       with:
-  #         artifact: test-results-${{ matrix.category }}     # artifact name
-  #         name: Test report (${{ matrix.category }})                     # Name of the check run which will be created
-  #         path: '*.xml'                                            # Path to test results (inside artifact .zip)
-  #         reporter: dotnet-trx                                     # Format of test results     
-
-  report1:
+  report:
      runs-on: ubuntu-latest
-     name: Create test report1
+     name: Create test report
 
      steps:
       - uses: dorny/test-reporter@v1

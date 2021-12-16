@@ -23,7 +23,7 @@ for more configuration options, see the [documentation](https://erikbra.github.i
 * PostgreSQL
 * MariaDB/MySQL
 * Sqlite
-* _(Oracle support is in the works)_
+* Oracle
 
 Full documentation can be found at [https://erikbra.github.io/grate/](https://erikbra.github.io/grate/).
 
