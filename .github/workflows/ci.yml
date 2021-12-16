@@ -35,6 +35,7 @@ jobs:
       run: dotnet pack ./grate/grate.csproj -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
 
   analyze:
+    #if: ${{ false }}
     name: Analyze Code Security
     runs-on: ubuntu-latest
     permissions:
@@ -74,6 +75,7 @@ jobs:
     strategy:
       matrix:
         category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
+        #category: [ "Basic" ]
 
     steps:
     - uses: actions/checkout@v2
@@ -83,7 +85,22 @@ jobs:
         dotnet-version: 6.0.x
         include-prerelease: false
     - name: Test
-      run: dotnet test --filter FullyQualifiedName~grate.unittests.${{ matrix.category }}  -c Release --logger:"junit;LogFilePath=test-results-${{ matrix.category }}.xml"
+      run: dotnet test --filter FullyQualifiedName~grate.unittests.${{ matrix.category }}  -c Release --logger:"trx;LogFileName=test-results-${{ matrix.category }}.xml"
       env:
         LogLevel: Warning
         TZ: UTC
+
+    - name: Upload Unit Test Results
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: Unit Test Results (${{ matrix.category }})
+        path: grate.unittests/TestResults/test-results-${{ matrix.category }}.xml
+
+    # - name: Create test reports
+    #   uses: dorny/test-reporter@v1
+    #   if: always()
+    #   with:
+    #     name: Test reports
+    #     path: grate.unittests/TestResults/test-results-*.xml
+    #     reporter: dotnet-trx
