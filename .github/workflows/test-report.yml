@@ -1,20 +1,19 @@
-name: 'Test Report'
+name: 'Create test Reports'
 on:
   workflow_run:
     workflows: ['CI']                     # runs after CI workflow
     types:
       - completed
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
 
 jobs:
   report:
      runs-on: ubuntu-latest
      name: Create test report
      strategy:
+      fail-fast: false
       matrix:
-        #category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
-        category: [ "Basic" ]
+        category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
+        #category: [ "Basic" ]
 
      steps:
       - uses: dorny/test-reporter@v1
@@ -23,16 +22,3 @@ jobs:
           name: Test report (${{ matrix.category }})                     # Name of the check run which will be created
           path: '*.xml'                                            # Path to test results (inside artifact .zip)
           reporter: dotnet-trx                                     # Format of test results     
-
-          #token: ${{ secrets.PAT_GITHUB }}
-
-  # report2:
-  #    runs-on: ubuntu-latest
-  #    name: Create test reports
-  #    steps:
-  #     - uses: dorny/test-reporter@v1
-  #       with:
-  #         artifact: test-results-(.*)                               # artifact name
-  #         name: Tests ($1)                        # Name of the check run which will be created
-  #         path: '*.xml'                                            # Path to test results (inside artifact .zip)
-  #         reporter: dotnet-trx                                     # Format of test results     
