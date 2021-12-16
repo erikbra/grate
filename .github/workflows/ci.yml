@@ -35,7 +35,7 @@ jobs:
       run: dotnet pack ./grate/grate.csproj -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
 
   analyze:
-    if: never()
+    if: ${{ false }}
     name: Analyze Code Security
     runs-on: ubuntu-latest
     permissions:
