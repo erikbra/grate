@@ -24,7 +24,7 @@ jobs:
           path: '*.xml'                                            # Path to test results (inside artifact .zip)
           reporter: dotnet-trx                                     # Format of test results     
 
-          token: ${{ secrets.PAT_GITHUB }}
+          #token: ${{ secrets.PAT_GITHUB }}
 
   # report2:
   #    runs-on: ubuntu-latest
