@@ -6,19 +6,32 @@ on:
       - completed
 
 jobs:
-  report:
+  # report:
+  #    runs-on: ubuntu-latest
+  #    name: Create test report
+  #    strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
+  #       #category: [ "Basic" ]
+
+  #    steps:
+  #     - uses: dorny/test-reporter@v1
+  #       with:
+  #         artifact: test-results-${{ matrix.category }}     # artifact name
+  #         name: Test report (${{ matrix.category }})                     # Name of the check run which will be created
+  #         path: '*.xml'                                            # Path to test results (inside artifact .zip)
+  #         reporter: dotnet-trx                                     # Format of test results     
+
+  report1:
      runs-on: ubuntu-latest
-     name: Create test report
-     strategy:
-      fail-fast: false
-      matrix:
-        category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
-        #category: [ "Basic" ]
+     name: Create test report1
 
      steps:
       - uses: dorny/test-reporter@v1
         with:
-          artifact: test-results-${{ matrix.category }}     # artifact name
-          name: Test report (${{ matrix.category }})                     # Name of the check run which will be created
+          artifact: /test-results-(.*)/             # artifact name
+          name: Test report $1                     # Name of the check run which will be created
           path: '*.xml'                                            # Path to test results (inside artifact .zip)
           reporter: dotnet-trx                                     # Format of test results     
+
