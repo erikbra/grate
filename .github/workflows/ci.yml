@@ -85,7 +85,7 @@ jobs:
         dotnet-version: 6.0.x
         include-prerelease: false
     - name: Test
-      run: dotnet test --filter FullyQualifiedName~grate.unittests.${{ matrix.category }}  -c Release --logger:"trx;LogFilePath=test-results-${{ matrix.category }}.xml"
+      run: dotnet test --filter FullyQualifiedName~grate.unittests.${{ matrix.category }}  -c Release --logger:"trx;LogFilePath=/tmp/test-results-${{ matrix.category }}.xml"
       env:
         LogLevel: Warning
         TZ: UTC
@@ -96,3 +96,11 @@ jobs:
       with:
         name: Unit Test Results (${{ matrix.category }})
         path: grate.unittests/test-results-${{ matrix.category }}.xml
+
+    - name: Create test reports
+      uses: dorny/test-reporter@v1
+      if: always()
+      with:
+        name: Test reports
+        path: '/tmp/test-results-*.xml'
+        reporter: dotnet-trx
