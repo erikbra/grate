@@ -85,7 +85,7 @@ jobs:
         dotnet-version: 6.0.x
         include-prerelease: false
     - name: Test
-      run: dotnet test --filter FullyQualifiedName~grate.unittests.${{ matrix.category }}  -c Release --logger:"trx;LogFileName=/tmp/test-results-${{ matrix.category }}.xml"
+      run: dotnet test --filter FullyQualifiedName~grate.unittests.${{ matrix.category }}  -c Release --logger:"trx;LogFileName=test-results-${{ matrix.category }}.xml"
       env:
         LogLevel: Warning
         TZ: UTC
@@ -95,12 +95,12 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: Unit Test Results (${{ matrix.category }})
-        path: grate.unittests/test-results-${{ matrix.category }}.xml
+        path: grate.unittests/TestResults/test-results-${{ matrix.category }}.xml
 
     - name: Create test reports
       uses: dorny/test-reporter@v1
       if: always()
       with:
         name: Test reports
-        path: '/tmp/test-results-*.xml'
+        path: grate.unittests/TestResul/test-results-*.xml
         reporter: dotnet-trx
