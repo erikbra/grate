@@ -102,5 +102,5 @@ jobs:
       if: always()
       with:
         name: Test reports
-        path: grate.unittests/TestResul/test-results-*.xml
+        path: grate.unittests/TestResults/test-results-*.xml
         reporter: dotnet-trx
