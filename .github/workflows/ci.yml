@@ -97,10 +97,10 @@ jobs:
         name: Unit Test Results (${{ matrix.category }})
         path: grate.unittests/TestResults/test-results-${{ matrix.category }}.xml
 
-    - name: Create test reports
-      uses: dorny/test-reporter@v1
-      if: always()
-      with:
-        name: Test reports
-        path: grate.unittests/TestResults/test-results-*.xml
-        reporter: dotnet-trx
+    # - name: Create test reports
+    #   uses: dorny/test-reporter@v1
+    #   if: always()
+    #   with:
+    #     name: Test reports
+    #     path: grate.unittests/TestResults/test-results-*.xml
+    #     reporter: dotnet-trx
