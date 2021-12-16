@@ -8,29 +8,31 @@ on:
   workflow_dispatch:
 
 jobs:
-  # report:
-  #    runs-on: ubuntu-latest
-  #    name: Create test report
-  #    strategy:
-  #     matrix:
-  #       #category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
-  #       category: [ "Basic" ]
-
-  #    steps:
-  #     - uses: dorny/test-reporter@v1
-  #       with:
-  #         artifact: Unit Test Results (${{ matrix.category }})     # artifact name
-  #         name: Tests (${{ matrix.category }})                     # Name of the check run which will be created
-  #         path: '*.xml'                                            # Path to test results (inside artifact .zip)
-  #         reporter: dotnet-trx                                     # Format of test results     
-
-  report2:
+  report:
      runs-on: ubuntu-latest
-     name: Create test reports
+     name: Create test report
+     strategy:
+      matrix:
+        category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
+        #category: [ "Basic" ]
+
      steps:
       - uses: dorny/test-reporter@v1
         with:
-          artifact: test-results-(.*)                               # artifact name
-          name: Tests ($1)                        # Name of the check run which will be created
+          artifact: test-results-${{ matrix.category }}     # artifact name
+          name: Test report (${{ matrix.category }})                     # Name of the check run which will be created
           path: '*.xml'                                            # Path to test results (inside artifact .zip)
           reporter: dotnet-trx                                     # Format of test results     
+
+          token: ${{ secrets.PAT_GITHUB }}
+
+  # report2:
+  #    runs-on: ubuntu-latest
+  #    name: Create test reports
+  #    steps:
+  #     - uses: dorny/test-reporter@v1
+  #       with:
+  #         artifact: test-results-(.*)                               # artifact name
+  #         name: Tests ($1)                        # Name of the check run which will be created
+  #         path: '*.xml'                                            # Path to test results (inside artifact .zip)
+  #         reporter: dotnet-trx                                     # Format of test results     
