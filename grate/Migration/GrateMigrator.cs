@@ -240,38 +240,38 @@ public class GrateMigrator : IAsyncDisposable
             return;
         }
 
-            var pattern = "*.sql";
-            var files = FileSystem.GetFiles(folder.Path, pattern);
+        var pattern = "*.sql";
+        var files = FileSystem.GetFiles(folder.Path, pattern);
 
         foreach (var file in files)
         {
             var sql = await File.ReadAllTextAsync(file.FullName);
 
-                // Normalize file names to log, so that results won't vary if you run on *nix VS Windows
-                var fileNameToLog = string.Join('/',
-                    Path.GetRelativePath(folder.Path.ToString(), file.FullName).Split(Path.DirectorySeparatorChar));
+            // Normalize file names to log, so that results won't vary if you run on *nix VS Windows
+            var fileNameToLog = string.Join('/',
+                Path.GetRelativePath(folder.Path.ToString(), file.FullName).Split(Path.DirectorySeparatorChar));
 
-                bool theSqlRan = await _migrator.RunSql(sql, fileNameToLog, folder.Type, versionId, _migrator.Configuration.Environment,
-                    connectionType);
+            bool theSqlRan = await _migrator.RunSql(sql, fileNameToLog, folder.Type, versionId, _migrator.Configuration.Environment,
+                connectionType);
 
-                if (theSqlRan)
+            if (theSqlRan)
+            {
+                try
                 {
-                    try
-                    {
-                        CopyToChangeDropFolder(folder.Path.Parent!, file, changeDropFolder);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning(ex, "Unable to copy {file} to {changeDropFolder}. \n{exception}", file, changeDropFolder, ex.Message);
-                    }
+                    CopyToChangeDropFolder(folder.Path.Parent!, file, changeDropFolder);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Unable to copy {file} to {changeDropFolder}. \n{exception}", file, changeDropFolder, ex.Message);
                 }
             }
+        }
 
     }
 
-        private void CopyToChangeDropFolder(DirectoryInfo migrationRoot, FileSystemInfo file, string changeDropFolder)
-        {
-            var relativePath = Path.GetRelativePath(migrationRoot.ToString(), file.FullName);
+    private void CopyToChangeDropFolder(DirectoryInfo migrationRoot, FileSystemInfo file, string changeDropFolder)
+    {
+        var relativePath = Path.GetRelativePath(migrationRoot.ToString(), file.FullName);
 
         string destinationFile = Path.Combine(changeDropFolder, "itemsRan", relativePath);
 
@@ -281,8 +281,8 @@ public class GrateMigrator : IAsyncDisposable
 
         _logger.LogTrace("Copying file {Filename} to {Destination}", file.FullName, destinationFile);
 
-            File.Copy(file.FullName, destinationFile);
-        }
+        File.Copy(file.FullName, destinationFile);
+    }
         
 #pragma warning disable CA2254 // Template should be a static expression.  Bug in pre-release .net 6: https://github.com/dotnet/roslyn-analyzers/issues/5415
     private void Separator(char c) => _logger.LogInformation(new string(c, 80));
@@ -297,23 +297,23 @@ public class GrateMigrator : IAsyncDisposable
         Directory.CreateDirectory(folder);
     }
 
-        public static string ChangeDropFolder(GrateConfiguration config, string? server, string? database)
-        {
-            var folder = Path.Combine(
-                config.OutputPath!.ToString(),
-                "migrations",
-                RemoveInvalidPathChars(database),
-                RemoveInvalidPathChars(server),
-                RemoveInvalidPathChars(DateTime.Now.ToString("O"))
-            );
-            return folder;
-        }
+    public static string ChangeDropFolder(GrateConfiguration config, string? server, string? database)
+    {
+        var folder = Path.Combine(
+            config.OutputPath!.ToString(),
+            "migrations",
+            RemoveInvalidPathChars(database),
+            RemoveInvalidPathChars(server),
+            RemoveInvalidPathChars(DateTime.Now.ToString("O"))
+        );
+        return folder;
+    }
 
-        private static readonly char[] InvalidPathCharacters = Path.GetInvalidPathChars()
-                                                                    .Append(':')
-                                                                    .Append(',')
-                                                                    .Append('+')
-                                                                    .ToArray();
+    private static readonly char[] InvalidPathCharacters = Path.GetInvalidPathChars()
+        .Append(':')
+        .Append(',')
+        .Append('+')
+        .ToArray();
 
     private static string RemoveInvalidPathChars(string? path)
     {

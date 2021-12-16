@@ -117,35 +117,35 @@ public abstract class GenericMigrationTables
             entries = await conn.QueryAsync<string>(sql);
         }
 
-            var versions = entries.ToList();
-            versions.Should().HaveCount(1);
-            versions.FirstOrDefault().Should().Be("a.b.c.d");
-        }
+        var versions = entries.ToList();
+        versions.Should().HaveCount(1);
+        versions.FirstOrDefault().Should().Be("a.b.c.d");
+    }
       
-        private static void CreateInvalidSql(MigrationsFolder? folder)
-        {
-            var dummySql = "SELECT TOP";
-            var path = MakeSurePathExists(folder);
-            WriteSql(path, "2_failing.sql", dummySql);
-        }
+    private static void CreateInvalidSql(MigrationsFolder? folder)
+    {
+        var dummySql = "SELECT TOP";
+        var path = MakeSurePathExists(folder);
+        WriteSql(path, "2_failing.sql", dummySql);
+    }
 
     private static void WriteSql(DirectoryInfo path, string filename, string? sql)
     {
         File.WriteAllText(Path.Combine(path.ToString(), filename), sql);
     }
 
-        private static DirectoryInfo MakeSurePathExists(MigrationsFolder? folder)
-            => MakeSurePathExists(folder?.Path);
+    private static DirectoryInfo MakeSurePathExists(MigrationsFolder? folder)
+        => MakeSurePathExists(folder?.Path);
         
-        protected static DirectoryInfo MakeSurePathExists(DirectoryInfo? path)
+    protected static DirectoryInfo MakeSurePathExists(DirectoryInfo? path)
+    {
+        ArgumentNullException.ThrowIfNull(path);
+        if (!path.Exists)
         {
-            ArgumentNullException.ThrowIfNull(path);
-            if (!path.Exists)
-            {
-                path.Create();
-            }
-            return path;
+            path.Create();
         }
+        return path;
+    }
 
         
 }

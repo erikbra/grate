@@ -160,4 +160,5 @@ public abstract class One_time_scripts: MigrationsScriptsBase
         scripts.Should().HaveCount(2); //script marked as run twice
         result.Should().Be("1"); // but still the first version of the view
     }
+
 }

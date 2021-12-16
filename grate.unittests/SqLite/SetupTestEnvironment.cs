@@ -21,32 +21,32 @@ public class SetupTestEnvironment
         var currentDirectory = Directory.GetCurrentDirectory();
         var dbFiles = Directory.GetFiles(currentDirectory, "*.db");
             
-            _logger.LogDebug($"Before tests. Deleting old DB files.");
-            foreach (var dbFile in dbFiles)
-            {
-                TryDeletingFile(dbFile);
-            }
-        }
-
-        private static void TryDeletingFile(string dbFile)
+        _logger.LogDebug($"Before tests. Deleting old DB files.");
+        foreach (var dbFile in dbFiles)
         {
-            var i = 0;
-            var sleepTime = 300;
-            const int maxTries = 5;
-            while (i++ < maxTries)
+            TryDeletingFile(dbFile);
+        }
+    }
+
+    private static void TryDeletingFile(string dbFile)
+    {
+        var i = 0;
+        var sleepTime = 300;
+        const int maxTries = 5;
+        while (i++ < maxTries)
+        {
+            try
             {
-                try
-                {
-                    _logger.LogDebug("File: {DbFile}", dbFile);
-                    File.Delete(dbFile);
-                    return;
-                }
-                catch (IOException) when (i <= maxTries)
-                {
-                    Thread.Sleep(sleepTime);
-                }
+                _logger.LogDebug("File: {DbFile}", dbFile);
+                File.Delete(dbFile);
+                return;
+            }
+            catch (IOException) when (i <= maxTries)
+            {
+                Thread.Sleep(sleepTime);
             }
         }
+    }
 
     [OneTimeTearDown]
     public void RunAfterAnyTests()
