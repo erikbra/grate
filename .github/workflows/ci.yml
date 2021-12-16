@@ -94,7 +94,7 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v2
       with:
-        name: Unit Test Results (${{ matrix.category }})
+        name: test-results-${{ matrix.category }}
         path: grate.unittests/TestResults/test-results-${{ matrix.category }}.xml
 
     # - name: Create test reports
