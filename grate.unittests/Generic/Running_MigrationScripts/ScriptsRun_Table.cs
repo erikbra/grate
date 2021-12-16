@@ -44,7 +44,7 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
     }
     
     [Test()]
-    public async Task Does_not_includes_the_folder_name_in_the_script_name_if_no_subfolders()
+    public async Task Does_not_include_the_folder_name_in_the_script_name_if_no_subfolders()
     {
         var db = TestConfig.RandomDatabase();
 
@@ -71,7 +71,10 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
         scripts.First().Should().Be(filename);
     }
     
+    // ReSharper disable InconsistentNaming
+    // ReSharper disable once ClassNeverInstantiated.Local
     record Result(string script_name, string text_of_script);
+    // ReSharper restore InconsistentNaming
     
     [Test()]
     public async Task Does_not_overwrite_scripts_from_different_folders_with_last_content()
@@ -95,7 +98,7 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
 
 
         Result[] scripts;
-        string sql = $"SELECT script_name, text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")} ORDER BY script_name";
+        string sql = $"SELECT script_name, text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
         await using (var conn = Context.CreateDbConnection(db))
         {
