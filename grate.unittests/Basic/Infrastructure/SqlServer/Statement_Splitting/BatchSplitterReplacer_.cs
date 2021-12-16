@@ -44,8 +44,8 @@ public class BatchSplitterReplacer_
         [Test]
         public void go_with_tab()
         {
-            string sql_to_match = " GO\t";
-            string expected_scrubbed = $@" {Batch_terminator_replacement_string}\t";
+            string sql_to_match = @" GO" + "\t";
+            string expected_scrubbed = @" " + Batch_terminator_replacement_string + "\t";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
             Assert.AreEqual(expected_scrubbed, sql_statement_scrubbed);
