@@ -35,6 +35,7 @@ jobs:
       run: dotnet pack ./grate/grate.csproj -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
 
   analyze:
+    if: never()
     name: Analyze Code Security
     runs-on: ubuntu-latest
     permissions:
@@ -73,7 +74,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
+        #category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
+        category: [ "Basic" ]
 
     steps:
     - uses: actions/checkout@v2
