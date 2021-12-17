@@ -8,6 +8,7 @@ namespace grate.unittests.Basic;
 
 [TestFixture]
 [Category("Basic")]
+// ReSharper disable once InconsistentNaming
 public class GrateConfiguration_
 {
     [Test]

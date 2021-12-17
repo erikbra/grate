@@ -52,7 +52,7 @@ public class CommandLineParsing
         var commandline = argName + database;
         var cfg = await ParseGrateConfiguration(commandline);
 
-        cfg?.SqlFilesDirectory?.ToString().Should().Be(database);
+        cfg?.SqlFilesDirectory.ToString().Should().Be(database);
     }
 
     [TestCase("-o ")]
@@ -66,7 +66,7 @@ public class CommandLineParsing
         var commandline = argName + database;
         var cfg = await ParseGrateConfiguration(commandline);
 
-        cfg?.OutputPath?.ToString().Should().Be(database);
+        cfg?.OutputPath.ToString().Should().Be(database);
     }
 
     [TestCase("--version=")]
@@ -250,7 +250,7 @@ public class CommandLineParsing
     public async Task TestDatabaseType(string args, DatabaseType expected)
     {
         var cfg = await ParseGrateConfiguration(args);
-        cfg?.DatabaseType.Should().Equals(expected);
+        cfg?.DatabaseType.Should().Be(expected);
     }
 
 

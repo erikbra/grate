@@ -15,7 +15,7 @@ public class SqlServerDatabase : AnsiSqlDatabase
     { }
 
     public override bool SupportsDdlTransactions => true;
-    public override bool SupportsSchemas => true;
+    protected override bool SupportsSchemas => true;
     protected override DbConnection GetSqlConnection(string? connectionString) => new SqlConnection(connectionString);
 
     public override async Task RestoreDatabase(string backupPath)
@@ -23,7 +23,7 @@ public class SqlServerDatabase : AnsiSqlDatabase
         try
         {
             await OpenAdminConnection();
-            Logger.LogInformation("Restoring {dbName} database on {server} server from path {path}.", DatabaseName, ServerName, backupPath);
+            Logger.LogInformation("Restoring {DbName} database on {Server} server from path {Path}.", DatabaseName, ServerName, backupPath);
             using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
             var cmd = AdminConnection.CreateCommand();
             cmd.CommandText =
@@ -42,7 +42,7 @@ public class SqlServerDatabase : AnsiSqlDatabase
         }
         catch (Exception ex)
         {
-            Logger.LogDebug(ex, "Got error: " + ex.Message);
+            Logger.LogDebug(ex, "Got error: {ErrorMessage}", ex.Message);
             throw;
         }
         finally
@@ -52,6 +52,6 @@ public class SqlServerDatabase : AnsiSqlDatabase
 
         await WaitUntilDatabaseIsReady();
 
-        Logger.LogInformation("Database {dbName} successfully restored from path {path}.", DatabaseName, backupPath);
+        Logger.LogInformation("Database {DbName} successfully restored from path {Path}.", DatabaseName, backupPath);
     }
 }

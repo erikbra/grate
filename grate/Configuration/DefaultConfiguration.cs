@@ -3,6 +3,7 @@ using System.IO;
 
 namespace grate.Configuration;
 
+// ReSharper disable once InconsistentNaming
 public static class DefaultConfiguration
 {
     public static readonly string DefaultAlterDatabaseFolderName = "alterDatabase";

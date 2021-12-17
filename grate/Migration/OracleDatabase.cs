@@ -21,7 +21,7 @@ public class OracleDatabase : AnsiSqlDatabase
     }
         
     public override bool SupportsDdlTransactions => false;
-    public override bool SupportsSchemas => false;
+    protected override bool SupportsSchemas => false;
 
     protected override DbConnection GetSqlConnection(string? connectionString) => new OracleConnection(connectionString);
 

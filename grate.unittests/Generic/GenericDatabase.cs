@@ -96,7 +96,7 @@ public abstract class GenericDatabase
                 try
                 {
                     await using var conn = Context.CreateAdminDbConnection();
-                    conn.Open();
+                    await conn.OpenAsync();
                     await using var cmd = conn.CreateCommand();
                     cmd.CommandText = Context.Syntax.CreateDatabase(db, TestConfig.Password(Context.ConnectionString(db)));
                     await cmd.ExecuteNonQueryAsync();

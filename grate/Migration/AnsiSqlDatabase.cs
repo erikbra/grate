@@ -18,6 +18,7 @@ public abstract class AnsiSqlDatabase : IDatabase
 {
     private string SchemaName { get; set; } = "";
     protected ILogger Logger { get; }
+    // ReSharper disable once InconsistentNaming
     protected DbConnection? _connection;
     private DbConnection? _adminConnection;
     private readonly ISyntax _syntax;
@@ -33,13 +34,12 @@ public abstract class AnsiSqlDatabase : IDatabase
     public string ServerName => Connection.DataSource;
     public virtual string DatabaseName => Connection.Database;
 
-    //protected string? Password => Connection.ConnectionString.Split(";", TrimEntries | RemoveEmptyEntries)
-    protected string? Password => ConnectionString?.Split(";", TrimEntries | RemoveEmptyEntries)
+    private string? Password => ConnectionString?.Split(";", TrimEntries | RemoveEmptyEntries)
         .SingleOrDefault(entry => entry.StartsWith("Password"))?
         .Split("=", TrimEntries | RemoveEmptyEntries).Last();
 
     public abstract bool SupportsDdlTransactions { get; }
-    public abstract bool SupportsSchemas { get; }
+    protected abstract bool SupportsSchemas { get; }
     public bool SplitBatchStatements => true;
 
     public string StatementSeparatorRegex => _syntax.StatementSeparatorRegex;
@@ -79,7 +79,7 @@ public abstract class AnsiSqlDatabase : IDatabase
     {
         if (!await DatabaseExists())
         {
-            Logger.LogTrace($"Creating database {DatabaseName}");
+            Logger.LogTrace("Creating database {DatabaseName}", DatabaseName);
                 
             using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
             var sql = _syntax.CreateDatabase(DatabaseName, Password);
@@ -116,19 +116,19 @@ public abstract class AnsiSqlDatabase : IDatabase
         try
         {
             await OpenConnection();
-            var databases = await Connection.QueryAsync<string>(sql);
+            var databases = (await Connection.QueryAsync<string>(sql)).ToArray();
                 
             Logger.LogTrace("Current databases: ");
             foreach (var db in databases)
             {
-                Logger.LogTrace(" * " + db);
+                Logger.LogTrace(" * {Database}", db);
             }
                 
             return databases.Contains(DatabaseName);
         }
         catch (DbException e)
         {
-            Logger.LogDebug(e, "Got error: " + e.Message);
+            Logger.LogDebug(e, "Got error: {ErrorMessage}", e.Message);
             return false;
         }
         finally
@@ -182,7 +182,7 @@ public abstract class AnsiSqlDatabase : IDatabase
     private async Task<bool> RunSchemaExists()
     {
         string sql = $"SELECT s.schema_name FROM information_schema.schemata s WHERE s.schema_name = '{SchemaName}'";
-        var res = await ExecuteScalarAsync<string>(Connection, sql, null);
+        var res = await ExecuteScalarAsync<string>(Connection, sql);
         return res == SchemaName;
     }
 
@@ -261,7 +261,7 @@ CREATE TABLE {VersionTable}(
 
         string existsSql = ExistsSql(tableSchema, fullTableName);
 
-        var res = await ExecuteScalarAsync<object>(Connection, existsSql, null);
+        var res = await ExecuteScalarAsync<object>(Connection, existsSql);
         return !DBNull.Value.Equals(res) && res is not null;
     }
         
@@ -286,7 +286,7 @@ ORDER BY id DESC", 1)}
     public async Task<string> GetCurrentVersion()
     {
         var sql = CurrentVersionSql;
-        var res = await ExecuteScalarAsync<string>(Connection, sql, null);
+        var res = await ExecuteScalarAsync<string>(Connection, sql);
         return res ?? "0.0.0.0";
     }
 
@@ -309,7 +309,7 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
                 enteredBy = ClaimsPrincipal.Current?.Identity?.Name ?? Environment.UserName
             });
 
-        Logger.LogInformation(" Versioning {dbName} database with version {version}.", DatabaseName, newVersion);
+        Logger.LogInformation(" Versioning {DbName} database with version {Version}.", DatabaseName, newVersion);
 
         return res;
     }

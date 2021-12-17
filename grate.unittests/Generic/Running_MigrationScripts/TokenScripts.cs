@@ -21,7 +21,7 @@ public abstract class TokenScripts : MigrationsScriptsBase
         var db = TestConfig.RandomDatabase().ToUpper();
 
         var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        var path = knownFolders?.Views?.Path ?? throw new Exception("Config Fail");
+        var path = knownFolders.Views?.Path ?? throw new Exception("Config Fail");
         WriteSql(path, "token.sql", CreateDatabaseName);
 
         await using (var migrator = Context.GetMigrator(db, knownFolders))
@@ -42,7 +42,7 @@ public abstract class TokenScripts : MigrationsScriptsBase
         var db = TestConfig.RandomDatabase();
 
         var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        var path = knownFolders?.Views?.Path ?? throw new Exception("Config Fail");
+        var path = knownFolders.Views?.Path ?? throw new Exception("Config Fail");
         WriteSql(path, "token.sql", CreateViewMyCustomToken);
             
         var config = Context.GetConfiguration(db, knownFolders) with

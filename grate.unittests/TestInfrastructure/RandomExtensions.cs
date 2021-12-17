@@ -4,6 +4,7 @@ namespace grate.unittests.TestInfrastructure;
 
 public static class RandomExtensions
 {
+    // ReSharper disable once InconsistentNaming
     private static readonly char[] DefaultAllowedChars = "ABCDEFHIJKLMNOPQRSTUVWXYZabcdefhijklmnopqrstuvwxyz".ToCharArray();
 
     public static string GetString(this Random random, int length, string allowedChars)

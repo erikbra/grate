@@ -34,6 +34,7 @@ public interface IGrateTestContext
 
     string ExpectedVersionPrefix { get; }
         
+    // ReSharper disable once InconsistentNaming
     public GrateConfiguration DefaultConfiguration => new()
     {
         CreateDatabase = SupportsCreateDatabase,

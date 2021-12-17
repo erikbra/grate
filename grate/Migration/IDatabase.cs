@@ -25,7 +25,7 @@ public interface IDatabase : IAsyncDisposable
     Task RestoreDatabase(string backupPath);
 
     /// <summary>
-    /// Drops the databse if it exists, and does nothing if it doesn't.
+    /// Drops the database if it exists, and does nothing if it doesn't.
     /// </summary>
     /// <returns></returns>
     Task DropDatabase();
