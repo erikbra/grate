@@ -12,6 +12,7 @@ using NUnit.Framework;
 namespace grate.unittests.Generic.Running_MigrationScripts;
 
 [TestFixture]
+// ReSharper disable once InconsistentNaming
 public abstract class Order_Of_Scripts: MigrationsScriptsBase
 {
     [Test()]

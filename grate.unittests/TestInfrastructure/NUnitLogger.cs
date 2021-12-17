@@ -38,9 +38,7 @@ public class NUnitLogger : ILogger
 
 public class NUnitLoggerProvider : ILoggerProvider
 {
-    public NUnitLoggerProvider() { }
-
-    public ConcurrentDictionary<string, NUnitLogger> Loggers { get; set; } = new();
+    private ConcurrentDictionary<string, NUnitLogger> Loggers { get; } = new();
 
     public ILogger CreateLogger(string categoryName)
     {

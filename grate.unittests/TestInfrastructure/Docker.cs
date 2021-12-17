@@ -36,6 +36,7 @@ public static class Docker
         return await StartDockerContainer(serverName, adminPassword, (_, _) => startArgs);
     }
 
+    // ReSharper disable once InconsistentNaming
     public static async Task<(string containerId, int port)> StartPostgreSQL(string serverName, string adminPassword)
     {
         var startArgs =

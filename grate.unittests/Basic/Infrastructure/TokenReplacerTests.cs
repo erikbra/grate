@@ -54,7 +54,7 @@ public class TokenReplacerTests
     }
 
     [Test]
-    public void EnsureDBMakesItToTokens()
+    public void EnsureDbMakesItToTokens()
     {
         var config = new GrateConfiguration()
         {

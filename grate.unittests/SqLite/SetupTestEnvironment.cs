@@ -13,7 +13,7 @@ namespace grate.unittests.Sqlite;
 public class SetupTestEnvironment
 {
         
-    static ILogger<SetupTestEnvironment> _logger = TestConfig.LogFactory.CreateLogger<SetupTestEnvironment>();
+    static readonly ILogger<SetupTestEnvironment> Logger = TestConfig.LogFactory.CreateLogger<SetupTestEnvironment>();
         
     [OneTimeSetUp]
     public void RunBeforeAnyTests()
@@ -21,7 +21,7 @@ public class SetupTestEnvironment
         var currentDirectory = Directory.GetCurrentDirectory();
         var dbFiles = Directory.GetFiles(currentDirectory, "*.db");
             
-        _logger.LogDebug($"Before tests. Deleting old DB files.");
+        Logger.LogDebug($"Before tests. Deleting old DB files.");
         foreach (var dbFile in dbFiles)
         {
             TryDeletingFile(dbFile);
@@ -56,10 +56,10 @@ public class SetupTestEnvironment
         var currentDirectory = Directory.GetCurrentDirectory();
         var dbFiles = Directory.GetFiles(currentDirectory, "*.db");
             
-        _logger.LogDebug("After tests. Deleting DB files.");
+        Logger.LogDebug("After tests. Deleting DB files.");
         foreach (var dbFile in dbFiles)
         {
-            _logger.LogDebug("File: {DbFile}", dbFile);
+            Logger.LogDebug("File: {DbFile}", dbFile);
             File.Delete(dbFile);
         }
     }

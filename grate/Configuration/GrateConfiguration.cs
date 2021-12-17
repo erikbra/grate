@@ -12,8 +12,8 @@ namespace grate.Configuration;
 /// </summary>
 public record GrateConfiguration
 {
-    private readonly string? _adminConnectionString = null;
-    private KnownFolders? _knownFolders;
+    private readonly string? _adminConnectionString;
+    private readonly KnownFolders? _knownFolders;
 
     public KnownFolders? KnownFolders
     {
@@ -50,8 +50,8 @@ public record GrateConfiguration
 
     public static GrateConfiguration Default => new();
     public bool CreateDatabase { get; init; } = true;
-    public bool AlterDatabase { get; init; } = false;
-    public bool Transaction { get; init; } = false;
+    public bool AlterDatabase { get; init; }
+    public bool Transaction { get; init; }
 
     /// <summary>
     /// The environment the current migration is targeting for env-specific scripts.

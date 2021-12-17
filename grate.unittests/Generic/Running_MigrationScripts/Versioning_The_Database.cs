@@ -9,6 +9,7 @@ using NUnit.Framework;
 namespace grate.unittests.Generic.Running_MigrationScripts;
 
 [TestFixture]
+// ReSharper disable once InconsistentNaming
 public abstract class Versioning_The_Database : MigrationsScriptsBase
 {
     [Test]

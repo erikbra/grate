@@ -12,6 +12,7 @@ using NUnit.Framework;
 namespace grate.unittests.Generic.Running_MigrationScripts;
 
 [TestFixture]
+// ReSharper disable once InconsistentNaming
 public abstract class One_time_scripts: MigrationsScriptsBase
 {
     [Test]
@@ -128,7 +129,7 @@ public abstract class One_time_scripts: MigrationsScriptsBase
         GrateMigrator? migrator;
 
         var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        var path = knownFolders?.Up?.Path ?? throw new Exception("Config Fail");
+        var path = knownFolders.Up?.Path ?? throw new Exception("Config Fail");
 
         WriteSql(path, "token.sql", CreateView1);
 
@@ -149,16 +150,14 @@ public abstract class One_time_scripts: MigrationsScriptsBase
             await migrator.Migrate(); // no exceptions this time
         }
 
-        string[] scripts;
         string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")} order by id";
 
         await using var conn = Context.CreateDbConnection(db);
-        scripts = (await conn.QueryAsync<string>(sql)).ToArray();
+        var scripts = await conn.QueryAsync<string>(sql);
         var result = (await conn.QueryAsync<string>("select col from grate")).Single();
 
 
         scripts.Should().HaveCount(2); //script marked as run twice
         result.Should().Be("1"); // but still the first version of the view
     }
-
 }

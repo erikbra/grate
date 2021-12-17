@@ -44,6 +44,6 @@ public abstract class DropDatabase : MigrationsScriptsBase
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
 
-        scripts.Should().HaveCount(1); // only one script because the databse was dropped after the first migration...
+        scripts.Should().HaveCount(1); // only one script because the database was dropped after the first migration...
     }
 }

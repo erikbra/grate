@@ -103,7 +103,7 @@ public class TokenProvider
         var parts = userToken.Split('=', RemoveEmptyEntries | TrimEntries);
         if (parts.Length != 2)
         {
-            throw new ArgumentOutOfRangeException(nameof(userToken), $"Failed to aprse provided user token '{userToken}'");
+            throw new ArgumentOutOfRangeException(nameof(userToken), $"Failed to parse provided user token '{userToken}'");
         }
 
         return (parts[0], parts[1]);

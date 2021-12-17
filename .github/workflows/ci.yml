@@ -16,11 +16,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-netcore-tool:
-    name: Build .NET Core (global) tool
-
+  build-code:
+    name: Build
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET
@@ -29,10 +27,18 @@ jobs:
         dotnet-version: 6.0.x
         include-prerelease: false
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore -r linux-x64 grate.unittests/grate.unittests.csproj
     - name: Build
-      #run: dotnet pack ./grate/grate.csproj -c release -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
-      run: dotnet pack ./grate/grate.csproj -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
+      run: dotnet build --no-self-contained grate.unittests/grate.unittests.csproj -r linux-x64 --no-restore -c release -o bin/bin
+
+    - name: Upload built binaries
+      uses: actions/upload-artifact@v2
+      with:
+        name: binaries
+        # Note the double bin/bin above. If you add more paths here, you should remove one 'bin', as if there's only one folder, the files are added to the zip root instead.
+        path: |
+          bin   
+        retention-days: 1
 
   analyze:
     name: Analyze Code Security
@@ -41,9 +47,6 @@ jobs:
       actions: read
       contents: read
       security-events: write
-
-    strategy:
-      fail-fast: false
 
     steps:
     - name: Checkout repository
@@ -71,19 +74,35 @@ jobs:
     name: Run tests
 
     runs-on: ubuntu-latest
+    needs: build-code
+
     strategy:
+      fail-fast: false
       matrix:
         category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Download binaries
+      uses: actions/download-artifact@v2
+      with:
+        name: binaries    
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
         include-prerelease: false
     - name: Test
-      run: dotnet test --filter FullyQualifiedName~grate.unittests.${{ matrix.category }}  -c Release --logger:"junit;LogFilePath=test-results-${{ matrix.category }}.xml"
+      run: dotnet vstest --TestCaseFilter:"FullyQualifiedName~grate.unittests.${{ matrix.category }}" bin/grate.unittests.dll --logger:"trx;LogFileName=test-results-${{ matrix.category }}.xml"
       env:
         LogLevel: Warning
         TZ: UTC
+
+    - name: Upload Unit Test Results
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-results-${{ matrix.category }}
+        #name: test-results
+        path: TestResults/test-results-${{ matrix.category }}.xml
+        retention-days: 1
+
