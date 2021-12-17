@@ -37,7 +37,7 @@ public class SetupTestEnvironment
         {
             try
             {
-                _logger.LogDebug("File: {DbFile}", dbFile);
+                Logger.LogDebug("File: {DbFile}", dbFile);
                 File.Delete(dbFile);
                 return;
             }
