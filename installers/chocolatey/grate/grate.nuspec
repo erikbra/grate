@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>grate</id>
+    <version>1.0.0.0</version>
+    <owners>Erik A. Brandstadmoen</owners>
+    <title>grate</title>
+    <authors>Erik A. Brandstadmoen</authors>
+    <projectUrl>https://erikbra.github.io/grate//</projectUrl>
+    <licenseUrl>https://github.com/erikbra/grate/blob/main/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectSourceUrl>https://github.com/erikbra/grate</projectSourceUrl>
+    <docsUrl>https://erikbra.github.io/grate/</docsUrl>
+    <bugTrackerUrl>https://github.com/erikbra/grate/issues</bugTrackerUrl>
+    <tags>grate roundhouse db migration database migrator</tags>
+    <summary>grate is a SQL scripts migration runner, using plain, old SQL for migrations</summary>
+    <description>
+# grate
+
+grate is a SQL scripts migration runner, using plain, old SQL for migrations. No meta-language, no code, no config,
+no EF migrations. If gives you full flexibility, and full control of your migrations, and lets you use
+all the fancy features of you particular database system. You are not constrained to any lowest common
+feature set of all supported databases.
+
+## Minimal example
+The only required argument to pass to grate is a **connection string** to tell it where to find your database. 
+It will deploy to that database, looking for sql scripts in the current directory.
+
+```
+grate --connectionstring="Server=(localdb)\MSSQLLocalDB;Integrated Security=true;Database=grate_test"
+```
+
+for more configuration options, see the [documentation](https://erikbra.github.io/grate/configuration-options/).
+
+
+
+## grate supports the following DMBS's
+
+* Microsoft SQL server
+* PostgreSQL
+* MariaDB/MySQL
+* Sqlite
+* Oracle
+
+Full documentation can be found at [https://erikbra.github.io/grate/](https://erikbra.github.io/grate/).
+    </description>
+  </metadata>
+  <files>
+    <file src="tools/**" target="tools" />
+  </files>
+</package>
