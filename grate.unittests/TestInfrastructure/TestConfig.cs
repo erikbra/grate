@@ -40,4 +40,27 @@ public static class TestConfig
         return logLevel;
     }
         
+    public static void WriteContent(DirectoryInfo? path, string filename, string? content)
+    {
+        ArgumentNullException.ThrowIfNull(path);
+        if (!path.Exists)
+        {
+            path.Create();
+        }
+
+        File.WriteAllText(Path.Combine(path.ToString(), filename), content);
+    }
+
+    public static DirectoryInfo MakeSurePathExists(DirectoryInfo? path)
+    {
+        ArgumentNullException.ThrowIfNull(path);
+        
+        if (!path.Exists)
+        {
+            path.Create();
+        }
+       
+        return path;
+    }
+        
 }

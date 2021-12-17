@@ -121,7 +121,7 @@ public abstract class GenericMigrationTables
         versions.Should().HaveCount(1);
         versions.FirstOrDefault().Should().Be("a.b.c.d");
     }
-
+      
     private static void CreateInvalidSql(MigrationsFolder? folder)
     {
         var dummySql = "SELECT TOP";
@@ -135,15 +135,17 @@ public abstract class GenericMigrationTables
     }
 
     private static DirectoryInfo MakeSurePathExists(MigrationsFolder? folder)
+        => MakeSurePathExists(folder?.Path);
+        
+    protected static DirectoryInfo MakeSurePathExists(DirectoryInfo? path)
     {
-        var path = folder?.Path ?? throw new ArgumentException(nameof(folder.Path));
-
+        ArgumentNullException.ThrowIfNull(path);
         if (!path.Exists)
         {
             path.Create();
         }
-
         return path;
     }
+
         
 }

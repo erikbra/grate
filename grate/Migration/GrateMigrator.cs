@@ -241,20 +241,24 @@ public class GrateMigrator : IAsyncDisposable
         }
 
         var pattern = "*.sql";
-        var files = GetFiles(folder.Path, pattern);
+        var files = FileSystem.GetFiles(folder.Path, pattern);
 
         foreach (var file in files)
         {
             var sql = await File.ReadAllTextAsync(file.FullName);
 
-            bool theSqlRan = await _migrator.RunSql(sql, file.Name, folder.Type, versionId, _migrator.Configuration.Environment,
+            // Normalize file names to log, so that results won't vary if you run on *nix VS Windows
+            var fileNameToLog = string.Join('/',
+                Path.GetRelativePath(folder.Path.ToString(), file.FullName).Split(Path.DirectorySeparatorChar));
+
+            bool theSqlRan = await _migrator.RunSql(sql, fileNameToLog, folder.Type, versionId, _migrator.Configuration.Environment,
                 connectionType);
 
             if (theSqlRan)
             {
                 try
                 {
-                    CopyToChangeDropFolder(file, changeDropFolder);
+                    CopyToChangeDropFolder(folder.Path.Parent!, file, changeDropFolder);
                 }
                 catch (Exception ex)
                 {
@@ -265,11 +269,9 @@ public class GrateMigrator : IAsyncDisposable
 
     }
 
-    private void CopyToChangeDropFolder(FileSystemInfo file, string changeDropFolder)
+    private void CopyToChangeDropFolder(DirectoryInfo migrationRoot, FileSystemInfo file, string changeDropFolder)
     {
-        var cfg = _migrator.Configuration;
-
-        var relativePath = Path.GetRelativePath(cfg.SqlFilesDirectory.ToString(), file.FullName);
+        var relativePath = Path.GetRelativePath(migrationRoot.ToString(), file.FullName);
 
         string destinationFile = Path.Combine(changeDropFolder, "itemsRan", relativePath);
 
@@ -280,13 +282,6 @@ public class GrateMigrator : IAsyncDisposable
         _logger.LogTrace("Copying file {Filename} to {Destination}", file.FullName, destinationFile);
 
         File.Copy(file.FullName, destinationFile);
-    }
-
-    private static IEnumerable<FileSystemInfo> GetFiles(DirectoryInfo folderPath, string pattern)
-    {
-        return folderPath
-            .EnumerateFileSystemInfos(pattern, SearchOption.AllDirectories).ToList()
-            .OrderBy(f => f.Name, StringComparer.CurrentCultureIgnoreCase);
     }
         
 // ReSharper disable once TemplateIsNotCompileTimeConstantProblem
@@ -310,7 +305,7 @@ public class GrateMigrator : IAsyncDisposable
             "migrations",
             RemoveInvalidPathChars(database),
             RemoveInvalidPathChars(server),
-            RemoveInvalidPathChars(DateTime.Now.ToString("s"))
+            RemoveInvalidPathChars(DateTime.Now.ToString("O"))
         );
         return folder;
     }
@@ -318,6 +313,7 @@ public class GrateMigrator : IAsyncDisposable
     private static readonly char[] InvalidPathCharacters = Path.GetInvalidPathChars()
         .Append(':')
         .Append(',')
+        .Append('+')
         .ToArray();
 
     private static string RemoveInvalidPathChars(string? path)
