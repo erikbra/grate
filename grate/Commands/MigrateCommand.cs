@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Invocation;
+using System.CommandLine.NamingConventionBinder;
 using System.IO;
 using grate.Configuration;
 using grate.Infrastructure;
@@ -116,7 +116,7 @@ public sealed class MigrateCommand : RootCommand
         );
 
     private static Option RunInTransaction() => //new Argument<bool>("-t");
-        new Option<string>(
+        new Option<bool>(
             new[] { "--transaction", "--trx", "-t" },
             "Run the migration in a transaction"
         );

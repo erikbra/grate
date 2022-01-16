@@ -25,6 +25,7 @@ up using modern .NET 6.
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.*" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.*" />
     <PackageReference Include="System.CommandLine" Version=" 2.0.0-*" />
+    <PackageReference Include="System.CommandLine.NamingConventionBinder" Version=" 2.0.0-*" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="4.0.*" />
     <PackageReference Include="Dapper" Version="2.0.*" />
     <PackageReference Include="Npgsql" Version="6.0.*" />

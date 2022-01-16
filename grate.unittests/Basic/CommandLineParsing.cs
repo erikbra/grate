@@ -1,4 +1,5 @@
 ﻿using System.CommandLine.Invocation;
+using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.Linq;
 using System.Threading.Tasks;
@@ -122,7 +123,7 @@ public class CommandLineParsing
         cfg?.Transaction.Should().Be(true);
     }
 
-    [TestCase("-t 0")]
+    [TestCase("-t false")]
     [TestCase("--trx false")]
     [TestCase("--transaction false")]
     [TestCase("--transaction=false")]
