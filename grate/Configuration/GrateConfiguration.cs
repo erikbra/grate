@@ -49,7 +49,7 @@ public record GrateConfiguration
     }
 
     public static GrateConfiguration Default => new();
-    public bool CreateDatabase { get; init; } = true;
+    public bool CreateDatabase { get; init; } = false;
     public bool AlterDatabase { get; init; }
     public bool Transaction { get; init; }
 

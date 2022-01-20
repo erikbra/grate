@@ -29,6 +29,7 @@ public sealed class MigrateCommand : RootCommand
         Add(Silent());
         Add(Version());
         Add(Drop());
+        Add(CreateDatabase());
         Add(Tokens());
         Add(WarnAndRunOnScriptChange());
         Add(WarnAndIgnoreOnScriptChange());
@@ -150,6 +151,11 @@ public sealed class MigrateCommand : RootCommand
         new(new[] { "--drop" },
             "Drop - This instructs grate to remove the target database.  Unlike RoundhousE grate will continue to run the migration scripts after the drop."
         );
+    
+    private static Option<bool>CreateDatabase() =>
+            new(new[] { "--create", "--createdatabase" },
+                    "CreateDatabase - This instructs grate to create the target database."
+                    );
 
     private static Option<bool> Tokens() =>
         new(
