@@ -15,7 +15,7 @@ There's a number of general changes in grate as a result of moving to the latest
 grate is built using the new [`System.CommandLine`](https://github.com/dotnet/command-line-api) API's, so:
 - Command line arguments are now **case-sensitive** on all operating systems (including windows)
 - Support for `/argument` on windows has been removed, and you'll have to use `-a` or `--argument` instead.  See `grate --help` for the full set of allowed options.
-- We have gained support for [Response (`.rsp`) files](ConfigurationOption/ResponseFiles.md)
+- We have gained support for [Response (`.rsp`) files](ConfigurationOptions/ResponseFiles.md)
 
 - By default grate stores version information in the `grate` database schema.  To continue using your existing version information pass `--schema=RoundhousE`
 - grate has a single mandatory `-cs`/`--connstring` argument for simplicity.  RH's `--database`, `--server`, `--accesstoken` etc arguments are no longer allowed.
