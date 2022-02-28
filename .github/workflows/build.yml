@@ -21,11 +21,11 @@ jobs:
     
     steps:
     - name: Setup .NET 5
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 5.0.x
     - name: Setup .NET 6
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 6.0.x
         include-prerelease: false
@@ -50,7 +50,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 6.0.x
         include-prerelease: false
@@ -88,7 +88,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 6.0.x
         include-prerelease: false
@@ -243,7 +243,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 6.0.x
         include-prerelease: false
