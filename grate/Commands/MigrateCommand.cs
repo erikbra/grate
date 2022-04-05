@@ -91,7 +91,7 @@ public sealed class MigrateCommand : RootCommand
     private static Option AccessToken() =>
         new Option<string>(
             new[] { "--accesstoken" },
-            "OBSOLETE: Please specify the connection string instead."
+            "Access token to be used for logging in to SQL Server / Azure SQL Database."
         );
 
     private static Option CommandTimeout() =>

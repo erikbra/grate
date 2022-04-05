@@ -37,6 +37,8 @@ public record GrateConfiguration
         init => _adminConnectionString = value;
     }
 
+    public string? AccessToken { get; set; } = null;
+
     private static string? WithAdminDb(string? connectionString)
     {
         if (string.IsNullOrEmpty(connectionString))

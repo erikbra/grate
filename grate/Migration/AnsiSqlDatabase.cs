@@ -48,7 +48,7 @@ public abstract class AnsiSqlDatabase : IDatabase
     public string ScriptsRunErrorsTable => _syntax.TableWithSchema(SchemaName, "ScriptsRunErrors");
     public string VersionTable => _syntax.TableWithSchema(SchemaName, "Version");
 
-    public Task InitializeConnections(GrateConfiguration configuration)
+    public virtual Task InitializeConnections(GrateConfiguration configuration)
     {
         Logger.LogInformation("Initializing connections.");
 
