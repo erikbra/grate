@@ -70,7 +70,7 @@ Options:
   -s, --instance, --server, --servername <servername>                      OBSOLETE: Please specify the connection string instead.
   -a, -acs, -csa, --adminconnectionstring, --adminconnstring               The connection string for connecting to master, if you want to create the database.
   <adminconnectionstring>
-  --accesstoken <accesstoken>                                              OBSOLETE: Please specify the connection string instead.
+  --accesstoken <accesstoken>                                              Access token to be used for logging in to SQL Server / Azure SQL Database.
   -ct, --commandtimeout <commandtimeout>                                   This is the timeout when commands are run. This is not for admin commands or 
                                                                            restore. [default: 60]
   -cta, --admincommandtimeout <admincommandtimeout>                        This is the timeout when administration commands are run (except for restore, which 
