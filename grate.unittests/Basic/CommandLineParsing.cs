@@ -28,6 +28,16 @@ public class CommandLineParsing
         cfg?.ConnectionString.Should().Be(database);
     }
 
+    [TestCase("--accesstoken ")]
+    public async Task AccessToken(string argName)
+    {
+        var token = "sometoken";
+        var commandline = argName + token;
+        var cfg = await ParseGrateConfiguration(commandline);
+
+        cfg?.AccessToken.Should().Be(token);
+    }
+
     [TestCase("-a ")]
     [TestCase("-acs ")]
     [TestCase("-csa ")]
