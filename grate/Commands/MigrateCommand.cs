@@ -121,10 +121,11 @@ public sealed class MigrateCommand : RootCommand
             "Run the migration in a transaction"
         );
 
-    private static Option<GrateEnvironment> Environment() =>
-        new(
-            new[] { "--env", "--environment" }, // we'll only support a single environment initially
-            "Environment Name - This allows grate to be environment aware and only run scripts that are in a particular environment based on the name of the script.  'something.ENV.LOCAL.sql' would only be run if --env=LOCAL was set."
+    private static Option<GrateEnvironment?> Environment() =>
+        new (
+            aliases: new[] { "--env", "--environment" }, // we'll only support a single environment initially
+            parseArgument: ArgumentParsers.ParseEnvironment, // Needed in System.CommandLine beta3: https://github.com/dotnet/command-line-api/issues/1664
+            description: "Environment Name - This allows grate to be environment aware and only run scripts that are in a particular environment based on the name of the script.  'something.ENV.LOCAL.sql' would only be run if --env=LOCAL was set."
         );
 
     private static Option<string> SchemaName() =>
