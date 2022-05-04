@@ -1,4 +1,5 @@
-﻿using System.CommandLine.Invocation;
+﻿using System.CommandLine;
+using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.Linq;
@@ -15,6 +16,17 @@ namespace grate.unittests.Basic;
 [Category("Basic")]
 public class CommandLineParsing
 {
+
+
+    [TestCase]
+    public void ParserIsConfiguredCorrectly()
+    {
+        // Test that the parser configuration is valid, see https://github.com/dotnet/command-line-api/issues/1613
+        var command = new MigrateCommand(null!); 
+        var configuration = new CommandLineConfiguration(command);
+        configuration.ThrowIfInvalid();
+    }
+
     [TestCase("-c ")]
     [TestCase("-cs ")]
     [TestCase("--connectionstring=")]

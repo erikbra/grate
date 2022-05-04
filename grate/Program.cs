@@ -38,7 +38,6 @@ public static class Program
             .UseHelp()
             .UseEnvironmentVariableDirective()
             .UseParseDirective()
-            .UseDebugDirective()
             .UseSuggestDirective()
             .RegisterWithDotnetSuggest()
             .UseTypoCorrections()
