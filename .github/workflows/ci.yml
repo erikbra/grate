@@ -32,7 +32,7 @@ jobs:
       run: dotnet build --no-self-contained grate.unittests/grate.unittests.csproj -r linux-x64 --no-restore -c release -o bin/bin
 
     - name: Upload built binaries
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: binaries
         # Note the double bin/bin above. If you add more paths here, you should remove one 'bin', as if there's only one folder, the files are added to the zip root instead.
@@ -99,7 +99,7 @@ jobs:
 
     - name: Upload Unit Test Results
       if: always()
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: test-results-${{ matrix.category }}
         #name: test-results
