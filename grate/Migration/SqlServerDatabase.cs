@@ -2,6 +2,7 @@
 using System.Data.Common;
 using System.Threading.Tasks;
 using System.Transactions;
+using grate.Configuration;
 using grate.Infrastructure;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
@@ -16,7 +17,20 @@ public class SqlServerDatabase : AnsiSqlDatabase
 
     public override bool SupportsDdlTransactions => true;
     protected override bool SupportsSchemas => true;
-    protected override DbConnection GetSqlConnection(string? connectionString) => new SqlConnection(connectionString);
+    protected override DbConnection GetSqlConnection(string? connectionString)
+    {
+        var conn = new SqlConnection(connectionString);
+        conn.AccessToken = AccessToken;
+
+        return conn;
+    }
+    protected string? AccessToken { get; private set; }
+
+    public override Task InitializeConnections(GrateConfiguration configuration)
+    {
+        AccessToken = configuration.AccessToken;
+        return base.InitializeConnections(configuration);
+    }
 
     public override async Task RestoreDatabase(string backupPath)
     {
