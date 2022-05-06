@@ -168,7 +168,7 @@ jobs:
         
 
     - name: Log in to the Container registry
-      uses: docker/login-action@42d299face0c5c43a0487c477f595ac9cf22f1a7
+      uses: docker/login-action@49ed152c8eca782a232dede0303416e8f356c37b
       with:
         #registry: ${{ env.REGISTRY }}
         username: ${{ github.actor }}
