@@ -241,7 +241,8 @@ CREATE TABLE {VersionTable}(
 	version {_syntax.VarcharType}(50) NULL,
 	entry_date {_syntax.TimestampType} NULL,
 	modified_date {_syntax.TimestampType} NULL,
-	entered_by {_syntax.VarcharType}(50) NULL
+	entered_by {_syntax.VarcharType}(50) NULL,
+	status {_syntax.VarcharType}(50) NOT NULL
 	{_syntax.PrimaryKeyConstraint("Version","id")}
 )";
         if (!await VersionTableExists())
@@ -294,8 +295,8 @@ ORDER BY id DESC", 1)}
     {
         var sql = Parameterize($@"
 INSERT INTO {VersionTable}
-(version, entry_date, modified_date, entered_by)
-VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
+(version, entry_date, modified_date, entered_by, status)
+VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy, @status)
 
 {_syntax.ReturnId}
 ");
@@ -306,7 +307,8 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
                 newVersion,
                 entryDate = DateTime.UtcNow,
                 modifiedDate = DateTime.UtcNow,
-                enteredBy = ClaimsPrincipal.Current?.Identity?.Name ?? Environment.UserName
+                enteredBy = ClaimsPrincipal.Current?.Identity?.Name ?? Environment.UserName,
+                status = MigrationStatus.InProgress
             });
 
         Logger.LogInformation(" Versioning {DbName} database with version {Version}.", DatabaseName, newVersion);
@@ -501,4 +503,17 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
     }
 
     public abstract Task RestoreDatabase(string backupPath);
+
+    public virtual async Task ChangeVersionStatus(string status, long versionId)
+    {
+        var updateSql = Parameterize($@"
+            UPDATE {VersionTable}
+            SET status = @status
+            WHERE id = @versionId");
+
+        using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+        await ExecuteAsync(Connection, updateSql, new { status, versionId });
+
+        s.Complete();
+    }
 }
