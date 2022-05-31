@@ -80,23 +80,27 @@ public class SqlServerDatabase : AnsiSqlDatabase
 
         // We can't use `db_id()` here as Azure Sql won't let you get the db_id of a database other than your current one :(
         // This should also mean that a SQL server running a Case Sensitive collation _also_ works as expected
-        var sql = $"select database_id from sys.databases where [name] = '{DatabaseName}'"; 
-
+        //var sql = $"select database_id from sys.databases where [name] = '{DatabaseName}'";
+        var sql = "select 1"; // just try and connect, and we'll look for a specific error message
         try
         {
-            await OpenAdminConnection();
-            var results = await AdminConnection.QueryAsync<int>(sql, commandType: Text);
+            await OpenConnection();
+            var results = await Connection.QueryAsync<int>(sql, commandType: Text);
 
             return results.Any();
         }
+        catch (SqlException ex) when (ex.Message.StartsWith("Cannot open database"))
+        {
+            return false; // we couldn't get to it, assume it just needs creation and let the next step fail if it's something else?
+        }
         catch (Exception ex)
         {
-            Logger.LogDebug(ex, "Got error: {ErrorMessage}", ex.Message);
+            Logger.LogError(ex, "An unexpected error occurred performing the CheckDatabaseExists check: {ErrorMessage}", ex.Message);
             throw;
         }
         finally
         {
-            await CloseAdminConnection();
+            await CloseConnection();
         }
     }
 }
