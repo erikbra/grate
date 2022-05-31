@@ -226,5 +226,4 @@ public sealed class MigrateCommand : RootCommand
             //() => DefaultServerName,
             "OBSOLETE: Please specify the connection string instead."
         );
-
 }
