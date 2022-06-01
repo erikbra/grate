@@ -168,6 +168,13 @@ public abstract class AnsiSqlDatabase : IDatabase
             await CreateVersionTable();
             s.Complete();
         }
+
+        using (var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+        {
+            await AddStatusColumnToVersionTableIfItDoesNotExsist();
+            s.Complete();
+        }
+
         await CloseConnection();
     }
 
@@ -241,8 +248,7 @@ CREATE TABLE {VersionTable}(
 	version {_syntax.VarcharType}(50) NULL,
 	entry_date {_syntax.TimestampType} NULL,
 	modified_date {_syntax.TimestampType} NULL,
-	entered_by {_syntax.VarcharType}(50) NULL,
-	status {_syntax.VarcharType}(50) NOT NULL
+	entered_by {_syntax.VarcharType}(50) NULL
 	{_syntax.PrimaryKeyConstraint("Version","id")}
 )";
         if (!await VersionTableExists())
@@ -251,9 +257,22 @@ CREATE TABLE {VersionTable}(
         }
     }
 
+    protected virtual async Task AddStatusColumnToVersionTableIfItDoesNotExsist()
+    {
+        string createSql = $@"
+            ALTER TABLE {VersionTable}
+            ADD status {_syntax.VarcharType}(50) NULL";
+
+        if (!await StatusColumnExists())
+        {
+            await ExecuteNonQuery(Connection, createSql);
+        }
+    }
+
     protected async Task<bool> ScriptsRunTableExists() => await TableExists(SchemaName, "ScriptsRun");
     protected async Task<bool> ScriptsRunErrorsTableExists() => await TableExists(SchemaName, "ScriptsRunErrors");
     protected async Task<bool> VersionTableExists() => await TableExists(SchemaName, "Version");
+    protected async Task<bool> StatusColumnExists() => await ColumnExists(SchemaName, "Version", "status");
 
     private async Task<bool> TableExists(string schemaName, string tableName)
     {
@@ -265,7 +284,18 @@ CREATE TABLE {VersionTable}(
         var res = await ExecuteScalarAsync<object>(Connection, existsSql);
         return !DBNull.Value.Equals(res) && res is not null;
     }
-        
+
+    private async Task<bool> ColumnExists(string schemaName, string tableName, string columnName)
+    {
+        var fullTableName = SupportsSchemas ? tableName : _syntax.TableWithSchema(schemaName, tableName);
+        var tableSchema = SupportsSchemas ? schemaName : DatabaseName;
+
+        string existsSql = ExistsSql(tableSchema, fullTableName, columnName);
+
+        var res = await ExecuteScalarAsync<object>(Connection, existsSql);
+        return !DBNull.Value.Equals(res) && res is not null;
+    }
+
     protected virtual string ExistsSql(string tableSchema, string fullTableName)
     {
         return $@"
@@ -275,7 +305,18 @@ table_schema = '{tableSchema}' AND
 table_name = '{fullTableName}'
 ";
     }
-        
+
+    protected virtual string ExistsSql(string tableSchema, string fullTableName, string columnName)
+    {
+        return $@"
+SELECT * FROM information_schema.columns 
+WHERE 
+table_schema = '{tableSchema}' AND
+table_name = '{fullTableName}' AND
+column_name = '{columnName}'
+";
+    }
+
     protected virtual string CurrentVersionSql => $@"
 SELECT 
 {_syntax.LimitN($@"

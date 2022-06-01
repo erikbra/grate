@@ -87,6 +87,71 @@ public abstract class GenericDatabase
         Assert.DoesNotThrowAsync(() => migrator.Migrate());
     }
 
+    [Test]
+    public async Task Adds_status_column_if_it_does_not_exist()
+    {
+        var db = "NEWDATABASE";
+
+        // Setup the database (with status column)
+        await using var migrator = GetMigrator(GetConfiguration(db, true));
+        await migrator.Migrate();
+
+        // Delete the status column (to simulate a database without it)
+        string deleteSql = $"ALTER TABLE {Context.Syntax.TableWithSchema("grate", "Version")} DROP COLUMN status";
+        string findAllColumnsSql = $"SELECT column_name FROM information_schema.columns where table_name = 'version'";
+
+        var currentColumns = new List<string>();
+        await using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
+        {
+            await conn.ExecuteAsync(deleteSql);
+            currentColumns = (await conn.QueryAsync<string>(findAllColumnsSql)).ToList();
+        }
+
+        // Make sure it's gone
+        currentColumns.Should().NotContain("status");
+
+        // Migrate again so the column gets added back
+        await migrator.Migrate();
+        currentColumns = new List<string>();
+        await using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
+        {
+            currentColumns = (await conn.QueryAsync<string>(findAllColumnsSql)).ToList();
+        }
+
+        currentColumns.Should().Contain("status");
+    }
+
+    [Test]
+    public async Task Does_not_error_if_status_column_tries_to_create_twice()
+    {
+        var db = "NEWDATABASE";
+
+        // Setup the database (with status column)
+        await using var migrator = GetMigrator(GetConfiguration(db, true));
+        await migrator.Migrate();
+
+        string findAllColumnsSql = $"SELECT column_name FROM information_schema.columns where table_name = 'version'";
+
+        var currentColumns = new List<string>();
+        await using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
+        {
+            currentColumns = (await conn.QueryAsync<string>(findAllColumnsSql)).ToList();
+        }
+
+        // Make sure the 'status' column is there
+        currentColumns.Should().Contain("status");
+
+        // Migrate again to make sure this does not crash.
+        await migrator.Migrate();
+        currentColumns = new List<string>();
+        await using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
+        {
+            currentColumns = (await conn.QueryAsync<string>(findAllColumnsSql)).ToList();
+        }
+
+        currentColumns.Should().Contain("status");
+    }
+
     protected virtual async Task CreateDatabase(string db)
     {
         using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
