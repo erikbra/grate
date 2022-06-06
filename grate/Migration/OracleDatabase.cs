@@ -33,6 +33,14 @@ WHERE
 lower(table_name) = '{fullTableName.ToLowerInvariant()}'
 ";
 
+    protected override string ExistsSql(string tableSchema, string fullTableName, string columnName) =>
+    $@"
+SELECT * FROM user_tab_columns
+WHERE 
+lower(table_name) = '{fullTableName.ToLowerInvariant()}' AND
+lower(column_name) = '{columnName.ToLowerInvariant()}'
+";
+
     protected override string CurrentVersionSql => $@"
 SELECT version
 FROM 
