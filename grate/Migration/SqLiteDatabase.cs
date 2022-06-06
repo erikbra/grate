@@ -26,11 +26,7 @@ SELECT name FROM sqlite_master
 WHERE type ='table' AND 
 name = '{fullTableName}';
 ";
-
-    protected override string ExistsSql(string tableSchema, string fullTableName, string columnName) =>
-    $@"
-SELECT COUNT(*) AS CNTREC FROM pragma_table_info('{fullTableName}') WHERE name='{columnName}'";
-
+        
     public override string DatabaseName => GetDatabaseName(Connection);
 
     /// <summary>

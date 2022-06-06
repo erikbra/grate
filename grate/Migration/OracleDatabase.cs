@@ -33,15 +33,6 @@ WHERE
 lower(table_name) = '{fullTableName.ToLowerInvariant()}'
 ";
 
-    protected override string ExistsSql(string tableSchema, string fullTableName, string columnName) =>
-    $@"
-SELECT * FROM all_tab_columns
-WHERE 
-lower(table_name) = '{fullTableName.ToLowerInvariant()}'
-AND
-lower(column_name) = '{columnName.ToLowerInvariant()}'
-";
-
     protected override string CurrentVersionSql => $@"
 SELECT version
 FROM 
@@ -85,7 +76,7 @@ WHERE  version_row_number <= 1
             await CreateIdInsertTrigger(VersionTable);
         }
     }
-
+        
     protected override string Parameterize(string sql) => sql.Replace("@", ":");
     protected override object Bool(bool source) => source ? '1': '0';
 
