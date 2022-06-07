@@ -106,22 +106,64 @@ public abstract class GenericMigrationTables
         await using (var migrator = Context.GetMigrator(db, knownFolders))
         {
             await migrator.Migrate();
+            // Migrate twice to check if multiple versions get created
+            await migrator.Migrate();
         }
 
-        IEnumerable<string> entries;
-        var fullTableName = Context.Syntax.TableWithSchema("grate", "Version");
-        string sql = $"SELECT version FROM {fullTableName}";
+        IEnumerable<(string version, string status)> entries;
+        string sql = $"SELECT version, status FROM {Context.Syntax.TableWithSchema("grate", "Version")}";
             
         await using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
         {
-            entries = await conn.QueryAsync<string>(sql);
+            entries = await conn.QueryAsync<(string version, string status)>(sql);
         }
 
         var versions = entries.ToList();
-        versions.Should().HaveCount(1);
-        versions.FirstOrDefault().Should().Be("a.b.c.d");
+        versions.Should().HaveCount(2);
+        var version = versions.First();
+        version.version.Should().Be("a.b.c.d");
+        // Validate the version is finished after running without errors
+        version.status.Should().Be(MigrationStatus.Finished);
     }
-      
+
+    [Test()]
+    public async Task Adds_status_column_to_version_table_if_necessary()
+    {
+        var db = "StatusColumnDatabase";
+
+        var knownFolders = KnownFolders.In(TestConfig.CreateRandomTempDirectory());
+
+        await using (var migrator = Context.GetMigrator(db, knownFolders))
+        {
+            await migrator.Migrate();
+            // Delete status column from version table to test a database before the status column.
+            string deleteSql = $"ALTER TABLE {Context.Syntax.TableWithSchema("grate", "Version")} DROP COLUMN status";
+
+            await using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
+            {
+                await conn.ExecuteAsync(deleteSql);
+            }
+
+            // Migrate again (so add the column back)
+            await migrator.Migrate();
+        }
+
+        IEnumerable<(string version, string status)> entries;
+        string sql = $"SELECT version, status FROM {Context.Syntax.TableWithSchema("grate", "Version")}";
+
+        await using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
+        {
+            entries = await conn.QueryAsync<(string version, string status)>(sql);
+        }
+
+        var versions = entries.ToList();
+        versions.Should().HaveCount(2);
+        var version = versions.Single(x => x.status != null);
+        version.version.Should().Be("a.b.c.d");
+        // Validate the version is finished after running without errors
+        version.status.Should().Be(MigrationStatus.Finished);
+    }
+
     private static void CreateInvalidSql(MigrationsFolder? folder)
     {
         var dummySql = "SELECT TOP";
@@ -146,6 +188,4 @@ public abstract class GenericMigrationTables
         }
         return path;
     }
-
-        
 }
