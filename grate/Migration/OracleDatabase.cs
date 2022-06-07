@@ -6,7 +6,6 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Dapper;
-using grate.Configuration;
 using grate.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Oracle.ManagedDataAccess.Client;
@@ -31,14 +30,6 @@ public class OracleDatabase : AnsiSqlDatabase
 SELECT * FROM user_tables
 WHERE 
 lower(table_name) = '{fullTableName.ToLowerInvariant()}'
-";
-
-    protected override string ExistsSql(string tableSchema, string fullTableName, string columnName) =>
-    $@"
-SELECT * FROM user_tab_columns
-WHERE 
-lower(table_name) = '{fullTableName.ToLowerInvariant()}' AND
-lower(column_name) = '{columnName.ToLowerInvariant()}'
 ";
 
     protected override string CurrentVersionSql => $@"
@@ -92,8 +83,8 @@ WHERE  version_row_number <= 1
     {
         var sql = (string)$@"
 INSERT INTO {VersionTable}
-(version, entry_date, modified_date, entered_by, status)
-VALUES(:newVersion, :entryDate, :modifiedDate, :enteredBy, :status)
+(version, entry_date, modified_date, entered_by)
+VALUES(:newVersion, :entryDate, :modifiedDate, :enteredBy)
 RETURNING id into :id
 ";
         var parameters = new
@@ -102,7 +93,6 @@ RETURNING id into :id
             entryDate = DateTime.UtcNow,
             modifiedDate = DateTime.UtcNow,
             enteredBy = ClaimsPrincipal.Current?.Identity?.Name ?? Environment.UserName,
-            status = MigrationStatus.InProgress,
         };
         var dynParams = new DynamicParameters(parameters);
         dynParams.Add(":id", dbType: DbType.Int64, direction: ParameterDirection.Output);
@@ -116,24 +106,6 @@ RETURNING id into :id
         Logger.LogInformation(" Versioning {dbName} database with version {version}.", DatabaseName, newVersion);
 
         return res;
-    }
-
-    public override async Task ChangeVersionStatus(string status, long versionId)
-    {
-        var sql = (string)$@"
-            UPDATE {VersionTable}
-            SET status = :status
-            WHERE id = :versionId";
-
-        var parameters = new
-        {
-            status,
-            versionId,
-        };
-
-        await Connection.ExecuteAsync(
-            sql,
-            parameters);
     }
 
     public override string DatabaseName
