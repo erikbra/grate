@@ -18,14 +18,14 @@ grate is built using the new [`System.CommandLine`](https://github.com/dotnet/co
 - We have gained support for [Response (`.rsp`) files](ConfigurationOptions/ResponseFiles.md)
 
 - By default grate stores version information in the `grate` database schema.  To continue using your existing version information pass `--schema=RoundhousE`
-- grate has a single mandatory `-cs`/`--connstring` argument for simplicity.  RH's `--database`, `--server`, `--accesstoken` etc arguments are no longer allowed.
+- grate has a single mandatory `-cs`/`--connstring` argument for simplicity.  RH's `--database`, `--server` etc arguments are no longer allowed.
 
 - Not all previously supported tokens are available yet.  For more information see the [Token Replacement docs](TokenReplacement.md).
 - UserTokens have had two small changes.  In keeping with the `System.CommandLine` standards the `--ut` option is now passed multiple times for multiple tokens, rather than parsing a single ';' delimited string. Support for `;` delimited lists of tokens may be re-added in the future.
 
 - The `DropCreate` 'mode' has been merged with the `--drop` option. RH used a single-run workflow for `Normal` and `RestoreRun` modes, but needed two executions for the `DropCreate` mode.  grate uses the `--drop` option like RH but **it continues with the creation and migration afterwards**! If you have a scenario for dropping a database but _not_ then running a migration, please open an issue!
 
-- The `--verbose` flag has been changed to a `--verbosity` flag, accepting the values of `<Critical|Debug|Error|Information|None|Trace|Warning>` (see https://docs.microsoft.com/dotnet/api/Microsoft.Extensions.Logging.LogLevel for details)
+- The `--verbose` flag has been changed to a `--verbosity` flag, accepting the values of `<Critical|Debug|Error|Information|None|Trace|Warning>` (see [the MS docs](https://docs.microsoft.com/dotnet/api/Microsoft.Extensions.Logging.LogLevel) for details)
 
 
 ## RH Features that aren't yet in grate
@@ -37,8 +37,7 @@ Expect this list to shrink over time.
 - `--defaultencoding`
 - `--isuptodate`
 - MSBuild Task.
-- Multiple Environments per run. Scripts can target multiple environments (`blah.env.test.uat.sql`), but each migration can only target a single environment.  If this is a limiting factor for please raise an issue to discuss.
-- Oracle Database support.  We know this is a big one for some people, but none of the current maintainers are Oracle devs.  If you'd like this support please raise an issue!
+- Multiple Environments per run. Scripts can target multiple environments (`blah.env.test.uat.sql`), but each migration can only target a single environment.  If this is a limiting factor for  you please raise an issue to discuss.
 - Recovery Modes (`--simple`, `--recoverymode` etc).  A `runAfterCreateDatabase` script using `alter {{DatabaseName}} ...` may work for you in the meantime.
 - Restore Options (`--restorefrompath`, `--restoreoptions`, `--restoretimeout` etc)
 - Version info sourced from a file.  `--version=<VALUE>` support is available on the command line

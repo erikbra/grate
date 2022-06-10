@@ -103,7 +103,6 @@ public sealed class MigrateCommand : RootCommand
             "This is the timeout when administration commands are run (except for restore, which has its own)."
         );
 
-
     //DATABASE OPTIONS
     private static Option DatabaseType() =>
         new Option<DatabaseType>(
@@ -117,6 +116,7 @@ public sealed class MigrateCommand : RootCommand
             new[] { "--transaction", "--trx", "-t" },
             "Run the migration in a transaction"
         );
+
     private static Option<string> SchemaName() =>
         new(
             new[] { "--sc", "--schema", "--schemaname" },
@@ -208,7 +208,7 @@ public sealed class MigrateCommand : RootCommand
 
     private static Option<string> Version() =>
         new(
-            new[] { "--version" }, // we can't use --version as it conflicts with the standard option
+            new[] { "--version" },
             "Database Version - specify the version of the current migration directly on the command line."
         );
 
