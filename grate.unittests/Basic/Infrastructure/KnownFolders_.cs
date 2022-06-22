@@ -19,6 +19,10 @@ public class KnownFolders_
     [Test]
     public void Returns_folder_in_existing_order()
     {
+        Folders.Should().BeEquivalentTo(new[]
+        {
+            Folders.Down
+        });
     }
 
     [Test]
