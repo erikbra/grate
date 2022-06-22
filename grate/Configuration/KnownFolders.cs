@@ -12,7 +12,7 @@ public class KnownFolders: Collection<MigrationsFolder>, IFoldersConfiguration
     public MigrationsFolder? RunAfterCreateDatabase { get; init; }
     public MigrationsFolder? RunBeforeUp { get; init; }
     public MigrationsFolder? Up { get; init; }
-    public MigrationsFolder? Down { get; init; }
+    //public MigrationsFolder? Down { get; init; }
     public MigrationsFolder? RunFirstAfterUp { get; init; }
     public MigrationsFolder? Functions { get; init; }
     public MigrationsFolder? Views { get; init; }
@@ -33,12 +33,13 @@ public class KnownFolders: Collection<MigrationsFolder>, IFoldersConfiguration
         }
 
         return new KnownFolders(
+            beforeMigration: new MigrationsFolder("BeforeMigration", Wrap("beforeMigration"), EveryTime),
             alterDatabase: new MigrationsFolder("AlterDatabase", Wrap("alterDatabase"), AnyTime, ConnectionType.Admin),
             runAfterCreateDatabase: new MigrationsFolder("Run After Create Database", Wrap("runAfterCreateDatabase"),
                 AnyTime),
             runBeforeUp: new MigrationsFolder("Run Before Update", Wrap("runBeforeUp"), AnyTime),
             up: new MigrationsFolder("Update", Wrap("up"), Once),
-            down: new MigrationsFolder("Down Folder - Nothing to see here. Move along.", Wrap("down"), Once),
+            //down: new MigrationsFolder("Down Folder - Nothing to see here. Move along.", Wrap("down"), Once),
             runFirstAfterUp: new MigrationsFolder("Run First After Update", Wrap("runFirstAfterUp"), Once),
             functions: new MigrationsFolder("Functions", Wrap("functions"), AnyTime),
             views: new MigrationsFolder("Views", Wrap("views"), AnyTime),
@@ -48,17 +49,17 @@ public class KnownFolders: Collection<MigrationsFolder>, IFoldersConfiguration
             runAfterOtherAnyTimeScripts: new MigrationsFolder("Run after Other Anytime Scripts",
                 Wrap("runAfterOtherAnyTimeScripts"), AnyTime),
             permissions: new MigrationsFolder("Permissions", Wrap("permissions"), EveryTime),
-            beforeMigration: new MigrationsFolder("BeforeMigration", Wrap("beforeMigration"), EveryTime),
             afterMigration: new MigrationsFolder("AfterMigration", Wrap("afterMigration"), EveryTime)
         );
     }
 
     private KnownFolders(
+        MigrationsFolder beforeMigration,
         MigrationsFolder alterDatabase,
         MigrationsFolder runAfterCreateDatabase,
         MigrationsFolder runBeforeUp,
         MigrationsFolder up,
-        MigrationsFolder down,
+        //MigrationsFolder down,
         MigrationsFolder runFirstAfterUp,
         MigrationsFolder functions,
         MigrationsFolder views,
@@ -67,16 +68,16 @@ public class KnownFolders: Collection<MigrationsFolder>, IFoldersConfiguration
         MigrationsFolder indexes,
         MigrationsFolder runAfterOtherAnyTimeScripts,
         MigrationsFolder permissions,
-        MigrationsFolder beforeMigration,
         MigrationsFolder afterMigration
     )
         : base(new List<MigrationsFolder>()
         {
+            beforeMigration,
             alterDatabase,
             runAfterCreateDatabase,
             runBeforeUp,
             up,
-            down,
+            //down,
             runFirstAfterUp,
             functions,
             views,
@@ -85,7 +86,6 @@ public class KnownFolders: Collection<MigrationsFolder>, IFoldersConfiguration
             indexes,
             runAfterOtherAnyTimeScripts,
             permissions,
-            beforeMigration,
             afterMigration
         })
     {
@@ -93,7 +93,7 @@ public class KnownFolders: Collection<MigrationsFolder>, IFoldersConfiguration
         RunAfterCreateDatabase = runAfterCreateDatabase;
         RunBeforeUp = runBeforeUp;
         Up = up;
-        Down = down;
+        //Down = down;
         RunFirstAfterUp = runFirstAfterUp;
         Functions = functions;
         Views = views;

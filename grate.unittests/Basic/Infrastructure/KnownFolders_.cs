@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Immutable;
+using System.IO;
 using System.Runtime.CompilerServices;
 using FluentAssertions;
 using grate.Configuration;
@@ -19,9 +20,24 @@ public class KnownFolders_
     [Test]
     public void Returns_folder_in_existing_order()
     {
-        Folders.Should().BeEquivalentTo(new[]
+        var items = Folders.ToImmutableArray();
+        
+        Assert.Multiple(() =>
         {
-            Folders.Down
+            items[0].Should().Be(Folders.BeforeMigration);
+            items[1].Should().Be(Folders.AlterDatabase);
+            items[2].Should().Be(Folders.RunAfterCreateDatabase);
+            items[3].Should().Be(Folders.RunBeforeUp);
+            items[4].Should().Be(Folders.Up);
+            items[5].Should().Be(Folders.RunFirstAfterUp);
+            items[6].Should().Be(Folders.Functions);
+            items[7].Should().Be(Folders.Views);
+            items[8].Should().Be(Folders.Sprocs);
+            items[9].Should().Be(Folders.Triggers);
+            items[10].Should().Be(Folders.Indexes);
+            items[11].Should().Be(Folders.RunAfterOtherAnyTimeScripts);
+            items[12].Should().Be(Folders.Permissions);
+            items[13].Should().Be(Folders.AfterMigration);
         });
     }
 
