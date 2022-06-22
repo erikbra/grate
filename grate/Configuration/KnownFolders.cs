@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using grate.Migration;
 using static grate.Configuration.MigrationType;
 
 namespace grate.Configuration;
@@ -31,7 +32,7 @@ public class KnownFolders
 
         return new KnownFolders()
         {
-            AlterDatabase = new MigrationsFolder("AlterDatabase", Wrap("alterDatabase"), AnyTime),
+            AlterDatabase = new MigrationsFolder("AlterDatabase", Wrap("alterDatabase"), AnyTime, ConnectionType.Admin),
             RunAfterCreateDatabase = new MigrationsFolder("Run After Create Database", Wrap("runAfterCreateDatabase"), AnyTime),
             RunBeforeUp = new MigrationsFolder("Run Before Update", Wrap("runBeforeUp"), AnyTime),
             Up = new MigrationsFolder("Update", Wrap("up"), Once),
