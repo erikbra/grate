@@ -1,6 +1,7 @@
-﻿using System;
-using System.Data.Common;
+﻿using System.Data.Common;
+using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Transactions;
 using Dapper;
@@ -14,7 +15,7 @@ namespace grate.unittests.Generic.Running_MigrationScripts;
 
 [TestFixture]
 // ReSharper disable once InconsistentNaming
-public abstract class Failing_Scripts : MigrationsScriptsBase
+public abstract class Failing_A_Script : MigrationsScriptsBase
 {
     protected abstract string ExpectedErrorMessageForInvalidSql { get; }
 
@@ -36,7 +37,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
     }
 
     [Test]
-    public async Task Are_Inserted_Into_ScriptRunErrors_Table()
+    public async Task Inserts_Failed_Scripts_Into_ScriptRunErrors_Table()
     {
         var db = TestConfig.RandomDatabase();
 
@@ -67,7 +68,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         scripts.Should().HaveCount(1);
     }
-
+    
     [Test]
     public void Ensure_Command_Timeout_Fires()
     {
@@ -126,44 +127,91 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
         });
     }
 
-    // This does not work for MySql/MariaDB, as it does not support DDL transactions
-    // [Test]
-    // public async Task Makes_Whole_Transaction_Rollback()
-    // {
-    //     var db = TestConfig.RandomDatabase();
-    //
-    //     GrateMigrator? migrator;
-    //     
-    //     var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-    //     CreateDummySql(knownFolders.Up);
-    //     CreateInvalidSql(knownFolders.Up);
-    //     
-    //     await using (migrator = GrateTestContext.GetMigrator(db, true, knownFolders))
-    //     {
-    //         try
-    //         {
-    //             await migrator.Migrate();
-    //         }
-    //         catch (DbException)
-    //         {
-    //         }
-    //     }
-    //
-    //     string[] scripts;
-    //     string sql = $"SELECT script_name FROM {GrateTestContext.Syntax.TableWithSchema("grate", "ScriptsRun")}";
-    //     
-    //     await using (var conn = GrateTestContext.CreateDbConnection(db))
-    //     {
-    //         scripts = (await conn.QueryAsync<string>(sql)).ToArray();
-    //     }
-    //
-    //     scripts.Should().BeEmpty();
-    // }
+    [Test]
+    [TestCaseSource(nameof(ShouldStillBeRunOnRollback))]
+    public virtual async Task Still_Runs_The_Scripts_In(MigrationsFolder folder)
+    {
+        var scripts = await RunMigration(folder);
+        scripts.Should().HaveCount(1);
+    }
 
-    private static void CreateInvalidSql(MigrationsFolder? folder)
+    [Test]
+    [TestCaseSource(nameof(ShouldNotBeRunOnRollback))]
+    public virtual async Task Rolls_Back_Runs_Of_Scripts_In(MigrationsFolder folder)
+    {
+        if (!Context.SupportsTransaction)
+        {
+            Assert.Ignore("DDL transactions not supported, skipping tests");
+        }
+
+        var scripts = await RunMigration(folder);
+        scripts.Should().BeEmpty();
+    }
+
+
+    private async Task<string[]> RunMigration(MigrationsFolder folder)
+    {
+        string[] scripts;
+
+        var db = TestConfig.RandomDatabase();
+
+        GrateMigrator? migrator;
+
+        var knownFolders = Folders;
+        CreateDummySql(folder);
+        CreateInvalidSql(knownFolders.Up);
+
+        await using (migrator = Context.GetMigrator(db, knownFolders, true))
+        {
+            try
+            {
+                await migrator.Migrate();
+            }
+            catch (DbException)
+            {
+            }
+        }
+
+        string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
+
+        await using (var conn = Context.CreateDbConnection(db))
+        {
+            scripts = (await conn.QueryAsync<string>(sql)).ToArray();
+        }
+
+        return scripts;
+    }
+
+    protected static void CreateInvalidSql(MigrationsFolder? folder)
     {
         var dummySql = "SELECT TOP";
         var path = MakeSurePathExists(folder);
         WriteSql(path, "2_failing.sql", dummySql);
     }
+
+    private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
+    private static readonly KnownFolders Folders = KnownFolders.In(Root);
+
+    private static readonly object?[] ShouldStillBeRunOnRollback =
+    {
+        GetTestCase(Folders.BeforeMigration), GetTestCase(Folders.AlterDatabase), GetTestCase(Folders.Permissions),
+        GetTestCase(Folders.AfterMigration),
+    };
+
+    private static readonly object?[] ShouldNotBeRunOnRollback =
+    {
+        GetTestCase(Folders.RunAfterCreateDatabase), GetTestCase(Folders.RunBeforeUp), GetTestCase(Folders.Up),
+        GetTestCase(Folders.RunFirstAfterUp), GetTestCase(Folders.Functions), GetTestCase(Folders.Views),
+        GetTestCase(Folders.Sprocs), GetTestCase(Folders.Triggers), GetTestCase(Folders.Indexes),
+        GetTestCase(Folders.RunAfterOtherAnyTimeScripts),
+    };
+
+    private static TestCaseData GetTestCase(
+        MigrationsFolder? folder,
+        [CallerArgumentExpression("folder")] string migrationsFolderDefinitionName = ""
+    ) =>
+        new TestCaseData(folder)
+            .SetArgDisplayNames(
+                migrationsFolderDefinitionName
+            );
 }

@@ -6,7 +6,7 @@ using static grate.Configuration.MigrationType;
 
 namespace grate.Configuration;
 
-public class KnownFolders: Collection<MigrationsFolder>, IFoldersConfiguration
+public class KnownFolders: Collection<MigrationsFolder?>, IFoldersConfiguration
 {
     public MigrationsFolder? AlterDatabase { get; init; }
     public MigrationsFolder? RunAfterCreateDatabase { get; init; }

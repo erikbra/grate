@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Transactions;
 using FluentAssertions;
