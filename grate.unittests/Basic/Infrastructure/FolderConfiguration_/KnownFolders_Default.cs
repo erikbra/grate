@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Transactions;
 using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
@@ -15,10 +16,10 @@ namespace grate.unittests.Basic.Infrastructure;
 [TestOf(nameof(KnownFolders))]
 [Category("Basic")]
 // ReSharper disable once InconsistentNaming
-public class KnownFolders_
+public class KnownFolders_Default
 {
     [Test]
-    public void Returns_folder_in_existing_order()
+    public void Returns_folders_in_current_order()
     {
         var items = Folders.ToImmutableArray();
         
@@ -43,11 +44,12 @@ public class KnownFolders_
 
     [Test]
     [TestCaseSource(nameof(ExpectedKnownFolderNames))]
-    public void Has_expected_current_folder_configuration(
+    public void Has_expected_folder_configuration(
             MigrationsFolder folder, 
             string expectedName, 
             MigrationType expectedType,
-            ConnectionType expectedConnectionType
+            ConnectionType expectedConnectionType,
+            TransactionHandling transactionHandling
         )
     {
         var root = Root.ToString();
@@ -57,6 +59,7 @@ public class KnownFolders_
             folder.Path.ToString().Should().Be(Path.Combine(root, expectedName));
             folder.Type.Should().Be(expectedType);
             folder.ConnectionType.Should().Be(expectedConnectionType);
+            folder.TransactionHandling.Should().Be(transactionHandling);
         });
     }
 
@@ -65,20 +68,20 @@ public class KnownFolders_
 
     private static readonly object?[] ExpectedKnownFolderNames =
     {
-        GetTestCase(Folders.BeforeMigration ,"beforeMigration", EveryTime, Default),
-        GetTestCase(Folders.AlterDatabase ,"alterDatabase", AnyTime, Admin),
-        GetTestCase(Folders.RunAfterCreateDatabase ,"runAfterCreateDatabase", AnyTime, Default),
-        GetTestCase(Folders.RunBeforeUp ,"runBeforeUp", AnyTime, Default),
-        GetTestCase(Folders.Up ,"up", Once, Default),
-        GetTestCase(Folders.RunFirstAfterUp ,"runFirstAfterUp", Once, Default),
-        GetTestCase(Folders.Functions ,"functions", AnyTime, Default),
-        GetTestCase(Folders.Views ,"views", AnyTime, Default),
-        GetTestCase(Folders.Sprocs ,"sprocs", AnyTime, Default),
-        GetTestCase(Folders.Triggers ,"triggers", AnyTime, Default),
-        GetTestCase(Folders.Indexes ,"indexes", AnyTime, Default),
-        GetTestCase(Folders.RunAfterOtherAnyTimeScripts ,"runAfterOtherAnyTimeScripts", AnyTime, Default),
-        GetTestCase(Folders.Permissions ,"permissions", EveryTime, Default),
-        GetTestCase(Folders.AfterMigration ,"afterMigration", EveryTime, Default),
+        GetTestCase(Folders.BeforeMigration ,"beforeMigration", EveryTime, Default, TransactionHandling.Default),
+        GetTestCase(Folders.AlterDatabase ,"alterDatabase", AnyTime, Admin, TransactionHandling.Default),
+        GetTestCase(Folders.RunAfterCreateDatabase ,"runAfterCreateDatabase", AnyTime, Default, TransactionHandling.Default),
+        GetTestCase(Folders.RunBeforeUp ,"runBeforeUp", AnyTime, Default, TransactionHandling.Default),
+        GetTestCase(Folders.Up ,"up", Once, Default, TransactionHandling.Default),
+        GetTestCase(Folders.RunFirstAfterUp ,"runFirstAfterUp", Once, Default, TransactionHandling.Default),
+        GetTestCase(Folders.Functions ,"functions", AnyTime, Default, TransactionHandling.Default),
+        GetTestCase(Folders.Views ,"views", AnyTime, Default, TransactionHandling.Default),
+        GetTestCase(Folders.Sprocs ,"sprocs", AnyTime, Default, TransactionHandling.Default),
+        GetTestCase(Folders.Triggers ,"triggers", AnyTime, Default, TransactionHandling.Default),
+        GetTestCase(Folders.Indexes ,"indexes", AnyTime, Default, TransactionHandling.Default),
+        GetTestCase(Folders.RunAfterOtherAnyTimeScripts ,"runAfterOtherAnyTimeScripts", AnyTime, Default, TransactionHandling.Default),
+        GetTestCase(Folders.Permissions ,"permissions", EveryTime, Default, TransactionHandling.Suppress),
+        GetTestCase(Folders.AfterMigration ,"afterMigration", EveryTime, Default, TransactionHandling.Suppress),
     };
     
     private static TestCaseData GetTestCase(
@@ -86,14 +89,16 @@ public class KnownFolders_
         string expectedName,
         MigrationType expectedType,
         ConnectionType expectedConnectionType,
+        TransactionHandling transactionHandling,
         [CallerArgumentExpression("folder")] string migrationsFolderDefinitionName = ""
     ) =>
-        new TestCaseData(folder, expectedName, expectedType, expectedConnectionType)
+        new TestCaseData(folder, expectedName, expectedType, expectedConnectionType, transactionHandling)
             .SetArgDisplayNames(
                     migrationsFolderDefinitionName, 
                     expectedName,
                     expectedType.ToString(),
-                    expectedConnectionType.ToString()
+                    "conn: " + expectedConnectionType.ToString(),
+                    "tran: " + transactionHandling.ToString()
                 );
    
 }

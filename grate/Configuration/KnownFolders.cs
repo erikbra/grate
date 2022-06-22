@@ -48,8 +48,8 @@ public class KnownFolders: Collection<MigrationsFolder>, IFoldersConfiguration
             indexes: new MigrationsFolder("Indexes", Wrap("indexes"), AnyTime),
             runAfterOtherAnyTimeScripts: new MigrationsFolder("Run after Other Anytime Scripts",
                 Wrap("runAfterOtherAnyTimeScripts"), AnyTime),
-            permissions: new MigrationsFolder("Permissions", Wrap("permissions"), EveryTime),
-            afterMigration: new MigrationsFolder("AfterMigration", Wrap("afterMigration"), EveryTime)
+            permissions: new MigrationsFolder("Permissions", Wrap("permissions"), EveryTime, TransactionHandling: TransactionHandling.Suppress),
+            afterMigration: new MigrationsFolder("AfterMigration", Wrap("afterMigration"), EveryTime, TransactionHandling: TransactionHandling.Suppress)
         );
     }
 
