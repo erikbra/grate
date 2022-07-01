@@ -170,7 +170,15 @@ public class GrateMigrator : IAsyncDisposable
         _logger.LogInformation("Grate Structure");
         Separator('=');
 
-        await dbMigrator.RunSupportTasks();
+        if (dbMigrator.Configuration.DryRun)
+        {
+            _logger.LogInformation("Skipping creation of versioning structures due to --dryrun");
+        }
+        else
+        {
+            await dbMigrator.RunSupportTasks();
+        }
+
         await dbMigrator.CloseConnection();
     }
 
@@ -283,8 +291,8 @@ public class GrateMigrator : IAsyncDisposable
 
         File.Copy(file.FullName, destinationFile);
     }
-        
-// ReSharper disable once TemplateIsNotCompileTimeConstantProblem
+
+    // ReSharper disable once TemplateIsNotCompileTimeConstantProblem
 #pragma warning disable CA2254 // Template should be a static expression.
     private void Separator(char c) => _logger.LogInformation(new string(c, 80));
 #pragma warning restore CA2254 // Template should be a static expression

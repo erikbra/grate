@@ -1,4 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using System.Transactions;
+using Dapper;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using grate.Configuration;
@@ -21,7 +24,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
 
         var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
         CreateDummySql(knownFolders.Sprocs);
-            
+
         await using (migrator = Context.GetMigrator(db, knownFolders))
         {
             await migrator.Migrate();
@@ -31,11 +34,35 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
                 // Version again
                 var version = await migrator.DbMigrator.VersionTheDatabase("1.2.3.4");
                 version.Should().Be(2);
-                
+
                 // And again
                 version = await migrator.DbMigrator.VersionTheDatabase("1.2.3.4");
                 version.Should().Be(3);
             }
+        }
+    }
+
+    [Test]
+    public async Task Does_Not_Create_Versions_When_Dryrun()
+    {
+        //for bug #204 - when running --baseline and --dryrun on a new db it shouldn't create the grate schema's etc
+        var db = TestConfig.RandomDatabase();
+        GrateMigrator? migrator;
+        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
+
+        CreateDummySql(knownFolders.Sprocs); // make sure there's somethign that could be logged...
+
+        var grateConfig = Context.GetConfiguration(db, knownFolders) with
+        {
+            Baseline = true, // don't run the sql
+            DryRun = true // and don't actually _touch_ the DB, just report stuff
+        };
+
+        await using (migrator = Context.GetMigrator(grateConfig))
+        {
+            await migrator.Migrate(); // shouldn't touch anything because of --dryrun
+            var addedTable = await migrator.DbMigrator.Database.VersionTableExists();
+            Assert.False(addedTable);
         }
     }
 }
