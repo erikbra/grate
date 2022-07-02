@@ -18,7 +18,7 @@ public abstract class AnsiSqlDatabase : IDatabase
 {
     private string SchemaName { get; set; } = "";
 
-    private GrateConfiguration _configuration;
+    private GrateConfiguration? _configuration;
 
     protected ILogger Logger { get; }
     // ReSharper disable once InconsistentNaming
@@ -377,9 +377,9 @@ WHERE id = (SELECT MAX(id) FROM {ScriptsRunTable} sr2 WHERE sr2.script_name = sr
             return results.ToDictionary(item => item.script_name, item => item.text_hash);
 
         }
-        catch (Exception ex) when (_configuration.DryRun)
+        catch (Exception ex) when (_configuration?.DryRun ?? throw new InvalidOperationException("No configuration available."))
         {
-            Logger.LogDebug("Ignoring error getting ScriptsRun when in --dryrun, probable missing table");
+            Logger.LogDebug(ex, "Ignoring error getting ScriptsRun when in --dryrun, probable missing table");
             return new Dictionary<string, string>(); // return empty set if nothing has ever been run
         }
     }
@@ -421,7 +421,7 @@ WHERE script_name = @scriptName");
             var run = await ExecuteScalarAsync<bool?>(Connection, hasRunSql, new { scriptName });
             return run ?? false;
         }
-        catch (Exception ex) when (_configuration.DryRun)
+        catch (Exception ex) when (_configuration?.DryRun ?? throw new InvalidOperationException("No configuration available"))
         {
             Logger.LogDebug(ex, "Ignoring exception in dryrun, missing table?");
             return false;
