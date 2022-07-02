@@ -47,22 +47,19 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
     {
         //for bug #204 - when running --baseline and --dryrun on a new db it shouldn't create the grate schema's etc
         var db = TestConfig.RandomDatabase();
-        GrateMigrator? migrator;
         var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
 
-        CreateDummySql(knownFolders.Sprocs); // make sure there's somethign that could be logged...
+        CreateDummySql(knownFolders.Sprocs); // make sure there's something that could be logged...
 
         var grateConfig = Context.GetConfiguration(db, knownFolders) with
         {
             Baseline = true, // don't run the sql
-            DryRun = true // and don't actually _touch_ the DB, just report stuff
+            DryRun = true // and don't actually _touch_ the DB in any way
         };
 
-        await using (migrator = Context.GetMigrator(grateConfig))
-        {
-            await migrator.Migrate(); // shouldn't touch anything because of --dryrun
-            var addedTable = await migrator.DbMigrator.Database.VersionTableExists();
-            Assert.False(addedTable);
-        }
+        await using var migrator = Context.GetMigrator(grateConfig);
+        await migrator.Migrate(); // shouldn't touch anything because of --dryrun
+        var addedTable = await migrator.DbMigrator.Database.VersionTableExists();
+        Assert.False(addedTable); // we didn't even add the grate infrastructure
     }
 }
