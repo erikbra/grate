@@ -19,7 +19,7 @@ public class OracleDatabase : AnsiSqlDatabase
         : base(logger, new OracleSyntax())
     {
     }
-        
+
     public override bool SupportsDdlTransactions => false;
     protected override bool SupportsSchemas => false;
 
@@ -39,8 +39,8 @@ FROM
             ROW_NUMBER() OVER (ORDER BY version DESC) AS version_row_number 
     FROM {VersionTable})
 WHERE  version_row_number <= 1
-"; 
-        
+";
+
     protected override async Task CreateScriptsRunTable()
     {
         if (!await ScriptsRunTableExists())
@@ -50,7 +50,7 @@ WHERE  version_row_number <= 1
             await CreateIdInsertTrigger(ScriptsRunTable);
         }
     }
-        
+
     protected override async Task CreateScriptsRunErrorsTable()
     {
         if (!await ScriptsRunErrorsTableExists())
@@ -75,9 +75,9 @@ WHERE  version_row_number <= 1
             await CreateIdInsertTrigger(VersionTable);
         }
     }
-        
+
     protected override string Parameterize(string sql) => sql.Replace("@", ":");
-    protected override object Bool(bool source) => source ? '1': '0';
+    protected override object Bool(bool source) => source ? '1' : '0';
 
     public override async Task<long> VersionTheDatabase(string newVersion)
     {
@@ -96,7 +96,7 @@ RETURNING id into :id
         };
         var dynParams = new DynamicParameters(parameters);
         dynParams.Add(":id", dbType: DbType.Int64, direction: ParameterDirection.Output);
-            
+
         await Connection.ExecuteAsync(
             sql,
             dynParams);
@@ -121,16 +121,16 @@ RETURNING id into :id
     {
         var tokens = connectionString?.Split(";", RemoveEmptyEntries | TrimEntries) ?? Enumerable.Empty<string>();
         var keyPairs = tokens.Select(t => t.Split("=", TrimEntries));
-        return keyPairs.ToDictionary(pair => pair[0], pair => (string?) pair[1]);
+        return keyPairs.ToDictionary(pair => pair[0], pair => (string?)pair[1]);
     }
-        
-    private static string? GetValue(IDictionary<string, string?> dictionary, string key) => 
+
+    private static string? GetValue(IDictionary<string, string?> dictionary, string key) =>
         dictionary.TryGetValue(key, out string? value) ? value : null;
 
     private async Task CreateIdSequence(string table)
     {
         var sql = $"CREATE SEQUENCE {table}_seq";
-        await ExecuteNonQuery(Connection, sql);
+        await ExecuteNonQuery(Connection, sql, Config?.CommandTimeout);
     }
 
     private async Task CreateIdInsertTrigger(string table)
@@ -142,6 +142,6 @@ FOR EACH ROW
 BEGIN
   SELECT {table}_seq.nextval INTO :new.id FROM dual;
 END;";
-        await ExecuteNonQuery(Connection, sql);
+        await ExecuteNonQuery(Connection, sql, Config?.CommandTimeout);
     }
 }

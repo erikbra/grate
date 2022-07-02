@@ -75,8 +75,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         if (sql == default)
         {
-            //I haven't found the sql syntax for all the DBMS's to sleep yet...
-            Assert.Ignore("Db not configured for timeout testing");
+            Assert.Ignore("DBMS doesn't support sleep() for testing");
         }
 
         var db = TestConfig.RandomDatabase();
@@ -88,6 +87,35 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
         var config = Context.GetConfiguration(db, knownFolders) with
         {
             CommandTimeout = 1, // shorter than the script runs for
+        };
+
+        Assert.CatchAsync(async () =>
+        {
+            await using var migrator = Context.GetMigrator(config);
+            await migrator.Migrate();
+            Assert.Fail("Should have thrown a timeout exception prior to this!");
+        });
+    }
+
+    [Test]
+    public void Ensure_AdminCommand_Timeout_Fires()
+    {
+        var sql = Context.Sql.SleepTwoSeconds;
+
+        if (sql == default)
+        {
+            Assert.Ignore("DBMS doesn't support sleep() for testing");
+        }
+
+        var db = TestConfig.RandomDatabase();
+        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
+        var path = MakeSurePathExists(knownFolders.AlterDatabase); //so it's run on the admin connection
+        WriteSql(path, "goodnight.sql", sql);
+
+        // run it with a timeout shorter than the 1 second sleep, should timeout
+        var config = Context.GetConfiguration(db, knownFolders) with
+        {
+            AdminCommandTimeout = 1, // shorter than the script runs for
         };
 
         Assert.CatchAsync(async () =>
