@@ -255,9 +255,9 @@ CREATE TABLE {VersionTable}(
 
     protected async Task<bool> ScriptsRunTableExists() => await TableExists(SchemaName, "ScriptsRun");
     protected async Task<bool> ScriptsRunErrorsTableExists() => await TableExists(SchemaName, "ScriptsRunErrors");
-    protected async Task<bool> VersionTableExists() => await TableExists(SchemaName, "Version");
+    public async Task<bool> VersionTableExists() => await TableExists(SchemaName, "Version");
 
-    private async Task<bool> TableExists(string schemaName, string tableName)
+    public async Task<bool> TableExists(string schemaName, string tableName)
     {
         var fullTableName = SupportsSchemas ? tableName : _syntax.TableWithSchema(schemaName, tableName);
         var tableSchema = SupportsSchemas ? schemaName : DatabaseName;
@@ -288,9 +288,17 @@ ORDER BY id DESC", 1)}
 
     public async Task<string> GetCurrentVersion()
     {
-        var sql = CurrentVersionSql;
-        var res = await ExecuteScalarAsync<string>(Connection, sql);
-        return res ?? "0.0.0.0";
+        try
+        {
+            var sql = CurrentVersionSql;
+            var res = await ExecuteScalarAsync<string>(Connection, sql);
+            return res ?? "0.0.0.0";
+        }
+        catch (Exception ex)
+        {
+            Logger.LogDebug(ex, "An error occurred getting the current database version, new database + --dryrun?");
+            return "0.0.0.0";
+        }
     }
 
     public virtual async Task<long> VersionTheDatabase(string newVersion)
@@ -354,13 +362,24 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
 
     private async Task<IDictionary<string, string>> GetAllScriptsRun()
     {
-        var sql = $@"
+
+        try
+        {
+
+            var sql = $@"
 SELECT script_name, text_hash
 FROM {ScriptsRunTable} sr
 WHERE id = (SELECT MAX(id) FROM {ScriptsRunTable} sr2 WHERE sr2.script_name = sr.script_name)
 ";
-        var results = await Connection.QueryAsync<ScriptsRunCacheItem>(sql);
-        return results.ToDictionary(item => item.script_name, item => item.text_hash);
+            var results = await Connection.QueryAsync<ScriptsRunCacheItem>(sql);
+            return results.ToDictionary(item => item.script_name, item => item.text_hash);
+
+        }
+        catch (Exception ex) when (Config?.DryRun ?? throw new InvalidOperationException("No configuration available."))
+        {
+            Logger.LogDebug(ex, "Ignoring error getting ScriptsRun when in --dryrun, probable missing table");
+            return new Dictionary<string, string>(); // return empty set if nothing has ever been run
+        }
     }
 
     private async Task<IDictionary<string, string>> GetScriptsRunCache() => _scriptsRunCache ??= await GetAllScriptsRun();
@@ -391,12 +410,20 @@ WHERE script_name = @scriptName");
             return true;
         }
 
-        var hasRunSql = Parameterize($@"
+        try
+        {
+            var hasRunSql = Parameterize($@"
 SELECT 1 FROM  {ScriptsRunTable}
 WHERE script_name = @scriptName");
 
-        var run = await ExecuteScalarAsync<bool?>(Connection, hasRunSql, new { scriptName });
-        return run ?? false;
+            var run = await ExecuteScalarAsync<bool?>(Connection, hasRunSql, new { scriptName });
+            return run ?? false;
+        }
+        catch (Exception ex) when (Config?.DryRun ?? throw new InvalidOperationException("No configuration available"))
+        {
+            Logger.LogDebug(ex, "Ignoring exception in dryrun, missing table?");
+            return false;
+        }
     }
 
     protected virtual object Bool(bool source) => source;

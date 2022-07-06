@@ -113,6 +113,7 @@ public record GrateConfiguration
 
     /// <summary>
     /// If true we need to log what we would have done, but NOT run any SQL
+    /// including writing to the grate versioning schema
     /// </summary>
     public bool DryRun { get; init; }
 
