@@ -34,6 +34,7 @@ class MariaDbGrateTestContext : TestContextBase, IGrateTestContext, IDockerTestC
     public SqlStatements Sql => new()
     {
         SelectVersion = "SELECT VERSION()",
+        SleepTwoSeconds = "SELECT SLEEP(2);"
     };
 
 

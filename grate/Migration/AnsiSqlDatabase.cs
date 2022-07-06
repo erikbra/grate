@@ -18,7 +18,7 @@ public abstract class AnsiSqlDatabase : IDatabase
 {
     private string SchemaName { get; set; } = "";
 
-    private GrateConfiguration? _configuration;
+    protected GrateConfiguration? Config { get; private set; }
 
     protected ILogger Logger { get; }
     // ReSharper disable once InconsistentNaming
@@ -58,9 +58,7 @@ public abstract class AnsiSqlDatabase : IDatabase
         ConnectionString = configuration.ConnectionString;
         AdminConnectionString = configuration.AdminConnectionString;
         SchemaName = configuration.SchemaName;
-
-        _configuration = configuration;
-
+        Config = configuration;
         return Task.CompletedTask;
     }
 
@@ -89,7 +87,7 @@ public abstract class AnsiSqlDatabase : IDatabase
             using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
             var sql = _syntax.CreateDatabase(DatabaseName, Password);
 
-            await ExecuteNonQuery(AdminConnection, sql);
+            await ExecuteNonQuery(AdminConnection, sql, Config?.AdminCommandTimeout);
             s.Complete();
         }
 
@@ -104,7 +102,7 @@ public abstract class AnsiSqlDatabase : IDatabase
             using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
             await CloseConnection(); // try and ensure there's nobody else in there...
             await OpenAdminConnection();
-            await ExecuteNonQuery(AdminConnection, _syntax.DropDatabase(DatabaseName));
+            await ExecuteNonQuery(AdminConnection, _syntax.DropDatabase(DatabaseName), Config?.AdminCommandTimeout);
             s.Complete();
         }
     }
@@ -180,7 +178,7 @@ public abstract class AnsiSqlDatabase : IDatabase
     {
         if (SupportsSchemas && !await RunSchemaExists())
         {
-            await ExecuteNonQuery(Connection, _syntax.CreateSchema(SchemaName));
+            await ExecuteNonQuery(Connection, _syntax.CreateSchema(SchemaName), Config?.CommandTimeout);
         }
     }
 
@@ -211,7 +209,7 @@ CREATE TABLE {ScriptsRunTable}(
 
         if (!await ScriptsRunTableExists())
         {
-            await ExecuteNonQuery(Connection, createSql);
+            await ExecuteNonQuery(Connection, createSql, Config?.CommandTimeout);
         }
     }
 
@@ -233,7 +231,7 @@ CREATE TABLE {ScriptsRunErrorsTable}(
 )";
         if (!await ScriptsRunErrorsTableExists())
         {
-            await ExecuteNonQuery(Connection, createSql);
+            await ExecuteNonQuery(Connection, createSql, Config?.CommandTimeout);
         }
     }
 
@@ -251,7 +249,7 @@ CREATE TABLE {VersionTable}(
 )";
         if (!await VersionTableExists())
         {
-            await ExecuteNonQuery(Connection, createSql);
+            await ExecuteNonQuery(Connection, createSql, Config?.CommandTimeout);
         }
     }
 
@@ -337,14 +335,14 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
     {
         Logger.LogTrace("[SQL] Running (on connection '{ConnType}'): \n{Sql}", connectionType.ToString(), sql);
 
-        var conn = connectionType switch
+        var (conn, timeout) = connectionType switch
         {
-            ConnectionType.Default => Connection,
-            ConnectionType.Admin => AdminConnection,
+            ConnectionType.Default => (Connection, Config?.CommandTimeout),
+            ConnectionType.Admin => (AdminConnection, Config?.AdminCommandTimeout),
             _ => throw new ArgumentOutOfRangeException(nameof(connectionType), connectionType, "Unknown connection type: " + connectionType)
         };
 
-        await ExecuteNonQuery(conn, sql);
+        await ExecuteNonQuery(conn, sql, timeout);
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local
@@ -377,7 +375,7 @@ WHERE id = (SELECT MAX(id) FROM {ScriptsRunTable} sr2 WHERE sr2.script_name = sr
             return results.ToDictionary(item => item.script_name, item => item.text_hash);
 
         }
-        catch (Exception ex) when (_configuration?.DryRun ?? throw new InvalidOperationException("No configuration available."))
+        catch (Exception ex) when (Config?.DryRun ?? throw new InvalidOperationException("No configuration available."))
         {
             Logger.LogDebug(ex, "Ignoring error getting ScriptsRun when in --dryrun, probable missing table");
             return new Dictionary<string, string>(); // return empty set if nothing has ever been run
@@ -421,7 +419,7 @@ WHERE script_name = @scriptName");
             var run = await ExecuteScalarAsync<bool?>(Connection, hasRunSql, new { scriptName });
             return run ?? false;
         }
-        catch (Exception ex) when (_configuration?.DryRun ?? throw new InvalidOperationException("No configuration available"))
+        catch (Exception ex) when (Config?.DryRun ?? throw new InvalidOperationException("No configuration available"))
         {
             Logger.LogDebug(ex, "Ignoring exception in dryrun, missing table?");
             return false;
@@ -514,13 +512,19 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
         return await conn.ExecuteAsync(sql, parameters);
     }
 
-    protected async Task ExecuteNonQuery(DbConnection conn, string sql)
+    protected async Task ExecuteNonQuery(DbConnection conn, string sql, int? timeout)
     {
         Logger.LogTrace("SQL: {Sql}", sql);
 
         await using var cmd = conn.CreateCommand();
         cmd.CommandText = sql;
         cmd.CommandType = CommandType.Text;
+
+        if (timeout.HasValue)
+        {
+            cmd.CommandTimeout = timeout.Value;
+        }
+
         await cmd.ExecuteNonQueryAsync();
     }
 

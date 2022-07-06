@@ -34,6 +34,7 @@ class SqlServerGrateTestContext : TestContextBase, IGrateTestContext, IDockerTes
     public SqlStatements Sql => new()
     {
         SelectVersion = "SELECT @@VERSION",
+        SleepTwoSeconds = "WAITFOR DELAY '00:00:02'"
     };
 
     public string ExpectedVersionPrefix => "Microsoft SQL Server 2019";
