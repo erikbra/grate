@@ -1,4 +1,5 @@
-﻿using System.Data.Common;
+﻿using System;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -65,6 +66,64 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
         }
 
         scripts.Should().HaveCount(1);
+    }
+
+    [Test]
+    public void Ensure_Command_Timeout_Fires()
+    {
+        var sql = Context.Sql.SleepTwoSeconds;
+
+        if (sql == default)
+        {
+            Assert.Ignore("DBMS doesn't support sleep() for testing");
+        }
+
+        var db = TestConfig.RandomDatabase();
+        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
+        var path = MakeSurePathExists(knownFolders.Up);
+        WriteSql(path, "goodnight.sql", sql);
+
+        // run it with a timeout shorter than the 1 second sleep, should timeout
+        var config = Context.GetConfiguration(db, knownFolders) with
+        {
+            CommandTimeout = 1, // shorter than the script runs for
+        };
+
+        Assert.CatchAsync(async () =>
+        {
+            await using var migrator = Context.GetMigrator(config);
+            await migrator.Migrate();
+            Assert.Fail("Should have thrown a timeout exception prior to this!");
+        });
+    }
+
+    [Test]
+    public void Ensure_AdminCommand_Timeout_Fires()
+    {
+        var sql = Context.Sql.SleepTwoSeconds;
+
+        if (sql == default)
+        {
+            Assert.Ignore("DBMS doesn't support sleep() for testing");
+        }
+
+        var db = TestConfig.RandomDatabase();
+        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
+        var path = MakeSurePathExists(knownFolders.AlterDatabase); //so it's run on the admin connection
+        WriteSql(path, "goodnight.sql", sql);
+
+        // run it with a timeout shorter than the 1 second sleep, should timeout
+        var config = Context.GetConfiguration(db, knownFolders) with
+        {
+            AdminCommandTimeout = 1, // shorter than the script runs for
+        };
+
+        Assert.CatchAsync(async () =>
+        {
+            await using var migrator = Context.GetMigrator(config);
+            await migrator.Migrate();
+            Assert.Fail("Should have thrown a timeout exception prior to this!");
+        });
     }
 
     // This does not work for MySql/MariaDB, as it does not support DDL transactions

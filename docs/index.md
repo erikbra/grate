@@ -31,7 +31,7 @@ prerequisites for running grate. ICU is required (e.g. libicu on Debian Linux)
 ## Goal
 
 The goal of grate is to be largely backwards compatible with RoundhousE, which is an amazing tool. It is initiated by the main
-maintainer of RoundhousE for the last three years, please see this issue in the RoundhousE repo for details: https://github.com/chucknorris/roundhouse/issues/438.
+maintainer of RoundhousE for the last three years, please see this issue in the RoundhousE repo for details: [https://github.com/chucknorris/roundhouse/issues/438](https://github.com/chucknorris/roundhouse/issues/438).
 
 While early versions of grate may not support every last RoundhousE feature, those features that are implemented should work identically, or with only very small changes.  For detailed information see the [migration](MigratingFromRoundhousE.md) docco.
 

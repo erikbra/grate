@@ -171,7 +171,7 @@ jobs:
       uses: docker/login-action@49ed152c8eca782a232dede0303416e8f356c37b
       with:
         #registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
+        username: ${{ github.repository_owner}}
         password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
     - name: Extract metadata (tags, labels) for Docker

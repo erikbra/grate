@@ -17,6 +17,9 @@ namespace grate.Migration;
 public abstract class AnsiSqlDatabase : IDatabase
 {
     private string SchemaName { get; set; } = "";
+
+    protected GrateConfiguration? Config { get; private set; }
+
     protected ILogger Logger { get; }
     // ReSharper disable once InconsistentNaming
     protected DbConnection? _connection;
@@ -55,7 +58,7 @@ public abstract class AnsiSqlDatabase : IDatabase
         ConnectionString = configuration.ConnectionString;
         AdminConnectionString = configuration.AdminConnectionString;
         SchemaName = configuration.SchemaName;
-
+        Config = configuration;
         return Task.CompletedTask;
     }
 
@@ -80,11 +83,11 @@ public abstract class AnsiSqlDatabase : IDatabase
         if (!await DatabaseExists())
         {
             Logger.LogTrace("Creating database {DatabaseName}", DatabaseName);
-                
+
             using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
             var sql = _syntax.CreateDatabase(DatabaseName, Password);
 
-            await ExecuteNonQuery(AdminConnection, sql);
+            await ExecuteNonQuery(AdminConnection, sql, Config?.AdminCommandTimeout);
             s.Complete();
         }
 
@@ -99,7 +102,7 @@ public abstract class AnsiSqlDatabase : IDatabase
             using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
             await CloseConnection(); // try and ensure there's nobody else in there...
             await OpenAdminConnection();
-            await ExecuteNonQuery(AdminConnection, _syntax.DropDatabase(DatabaseName));
+            await ExecuteNonQuery(AdminConnection, _syntax.DropDatabase(DatabaseName), Config?.AdminCommandTimeout);
             s.Complete();
         }
     }
@@ -117,13 +120,13 @@ public abstract class AnsiSqlDatabase : IDatabase
         {
             await OpenConnection();
             var databases = (await Connection.QueryAsync<string>(sql)).ToArray();
-                
+
             Logger.LogTrace("Current databases: ");
             foreach (var db in databases)
             {
                 Logger.LogTrace(" * {Database}", db);
             }
-                
+
             return databases.Contains(DatabaseName);
         }
         catch (DbException e)
@@ -175,7 +178,7 @@ public abstract class AnsiSqlDatabase : IDatabase
     {
         if (SupportsSchemas && !await RunSchemaExists())
         {
-            await ExecuteNonQuery(Connection, _syntax.CreateSchema(SchemaName));
+            await ExecuteNonQuery(Connection, _syntax.CreateSchema(SchemaName), Config?.CommandTimeout);
         }
     }
 
@@ -201,12 +204,12 @@ CREATE TABLE {ScriptsRunTable}(
 	entry_date {_syntax.TimestampType} NULL,
 	modified_date {_syntax.TimestampType} NULL,
 	entered_by {_syntax.VarcharType}(50) NULL
-	{_syntax.PrimaryKeyConstraint("ScriptsRun","id")}
+	{_syntax.PrimaryKeyConstraint("ScriptsRun", "id")}
 )";
-            
+
         if (!await ScriptsRunTableExists())
         {
-            await ExecuteNonQuery(Connection, createSql);
+            await ExecuteNonQuery(Connection, createSql, Config?.CommandTimeout);
         }
     }
 
@@ -224,11 +227,11 @@ CREATE TABLE {ScriptsRunErrorsTable}(
 	entry_date {_syntax.TimestampType} NULL,
 	modified_date {_syntax.TimestampType} NULL,
 	entered_by {_syntax.VarcharType}(50) NULL
-	{_syntax.PrimaryKeyConstraint("ScriptsRunErrors","id")}
+	{_syntax.PrimaryKeyConstraint("ScriptsRunErrors", "id")}
 )";
         if (!await ScriptsRunErrorsTableExists())
         {
-            await ExecuteNonQuery(Connection, createSql);
+            await ExecuteNonQuery(Connection, createSql, Config?.CommandTimeout);
         }
     }
 
@@ -242,19 +245,19 @@ CREATE TABLE {VersionTable}(
 	entry_date {_syntax.TimestampType} NULL,
 	modified_date {_syntax.TimestampType} NULL,
 	entered_by {_syntax.VarcharType}(50) NULL
-	{_syntax.PrimaryKeyConstraint("Version","id")}
+	{_syntax.PrimaryKeyConstraint("Version", "id")}
 )";
         if (!await VersionTableExists())
         {
-            await ExecuteNonQuery(Connection, createSql);
+            await ExecuteNonQuery(Connection, createSql, Config?.CommandTimeout);
         }
     }
 
     protected async Task<bool> ScriptsRunTableExists() => await TableExists(SchemaName, "ScriptsRun");
     protected async Task<bool> ScriptsRunErrorsTableExists() => await TableExists(SchemaName, "ScriptsRunErrors");
-    protected async Task<bool> VersionTableExists() => await TableExists(SchemaName, "Version");
+    public async Task<bool> VersionTableExists() => await TableExists(SchemaName, "Version");
 
-    private async Task<bool> TableExists(string schemaName, string tableName)
+    public async Task<bool> TableExists(string schemaName, string tableName)
     {
         var fullTableName = SupportsSchemas ? tableName : _syntax.TableWithSchema(schemaName, tableName);
         var tableSchema = SupportsSchemas ? schemaName : DatabaseName;
@@ -264,7 +267,7 @@ CREATE TABLE {VersionTable}(
         var res = await ExecuteScalarAsync<object>(Connection, existsSql);
         return !DBNull.Value.Equals(res) && res is not null;
     }
-        
+
     protected virtual string ExistsSql(string tableSchema, string fullTableName)
     {
         return $@"
@@ -274,20 +277,28 @@ table_schema = '{tableSchema}' AND
 table_name = '{fullTableName}'
 ";
     }
-        
+
     protected virtual string CurrentVersionSql => $@"
 SELECT 
 {_syntax.LimitN($@"
 version
 FROM {VersionTable}
 ORDER BY id DESC", 1)}
-"; 
+";
 
     public async Task<string> GetCurrentVersion()
     {
-        var sql = CurrentVersionSql;
-        var res = await ExecuteScalarAsync<string>(Connection, sql);
-        return res ?? "0.0.0.0";
+        try
+        {
+            var sql = CurrentVersionSql;
+            var res = await ExecuteScalarAsync<string>(Connection, sql);
+            return res ?? "0.0.0.0";
+        }
+        catch (Exception ex)
+        {
+            Logger.LogDebug(ex, "An error occurred getting the current database version, new database + --dryrun?");
+            return "0.0.0.0";
+        }
     }
 
     public virtual async Task<long> VersionTheDatabase(string newVersion)
@@ -324,14 +335,14 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
     {
         Logger.LogTrace("[SQL] Running (on connection '{ConnType}'): \n{Sql}", connectionType.ToString(), sql);
 
-        var conn = connectionType switch
+        var (conn, timeout) = connectionType switch
         {
-            ConnectionType.Default => Connection,
-            ConnectionType.Admin => AdminConnection,
+            ConnectionType.Default => (Connection, Config?.CommandTimeout),
+            ConnectionType.Admin => (AdminConnection, Config?.AdminCommandTimeout),
             _ => throw new ArgumentOutOfRangeException(nameof(connectionType), connectionType, "Unknown connection type: " + connectionType)
         };
 
-        await ExecuteNonQuery(conn, sql);
+        await ExecuteNonQuery(conn, sql, timeout);
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local
@@ -351,13 +362,24 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
 
     private async Task<IDictionary<string, string>> GetAllScriptsRun()
     {
-        var sql = $@"
+
+        try
+        {
+
+            var sql = $@"
 SELECT script_name, text_hash
 FROM {ScriptsRunTable} sr
 WHERE id = (SELECT MAX(id) FROM {ScriptsRunTable} sr2 WHERE sr2.script_name = sr.script_name)
 ";
-        var results = await Connection.QueryAsync<ScriptsRunCacheItem>(sql);
-        return results.ToDictionary(item => item.script_name, item => item.text_hash);
+            var results = await Connection.QueryAsync<ScriptsRunCacheItem>(sql);
+            return results.ToDictionary(item => item.script_name, item => item.text_hash);
+
+        }
+        catch (Exception ex) when (Config?.DryRun ?? throw new InvalidOperationException("No configuration available."))
+        {
+            Logger.LogDebug(ex, "Ignoring error getting ScriptsRun when in --dryrun, probable missing table");
+            return new Dictionary<string, string>(); // return empty set if nothing has ever been run
+        }
     }
 
     private async Task<IDictionary<string, string>> GetScriptsRunCache() => _scriptsRunCache ??= await GetAllScriptsRun();
@@ -376,7 +398,7 @@ WHERE id = (SELECT MAX(id) FROM {ScriptsRunTable} sr2 WHERE sr2.script_name = sr
 SELECT text_hash FROM  {ScriptsRunTable}
 WHERE script_name = @scriptName");
 
-        var hash = await ExecuteScalarAsync<string?>(Connection,  hashSql, new { scriptName });
+        var hash = await ExecuteScalarAsync<string?>(Connection, hashSql, new { scriptName });
         return hash;
     }
 
@@ -388,12 +410,20 @@ WHERE script_name = @scriptName");
             return true;
         }
 
-        var hasRunSql = Parameterize($@"
+        try
+        {
+            var hasRunSql = Parameterize($@"
 SELECT 1 FROM  {ScriptsRunTable}
 WHERE script_name = @scriptName");
 
-        var run = await ExecuteScalarAsync<bool?>(Connection, hasRunSql, new { scriptName });
-        return run ?? false;
+            var run = await ExecuteScalarAsync<bool?>(Connection, hasRunSql, new { scriptName });
+            return run ?? false;
+        }
+        catch (Exception ex) when (Config?.DryRun ?? throw new InvalidOperationException("No configuration available"))
+        {
+            Logger.LogDebug(ex, "Ignoring exception in dryrun, missing table?");
+            return false;
+        }
     }
 
     protected virtual object Bool(bool source) => source;
@@ -431,7 +461,7 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
 
         var versionSql = Parameterize($"SELECT version FROM {VersionTable} WHERE id = @versionId");
         var version = await ExecuteScalarAsync<string>(Connection, versionSql, new { versionId });
-            
+
         var scriptRunErrors = new
         {
             version,
@@ -456,7 +486,7 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
             await conn.CloseAsync();
         }
     }
-        
+
     protected virtual async Task Open(DbConnection? conn)
     {
         if (conn != null && conn.State != ConnectionState.Open)
@@ -470,7 +500,7 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
     {
         Logger.LogTrace("SQL: {Sql}", sql);
         Logger.LogTrace("Parameters: {@Parameters}", parameters);
-            
+
         return await conn.ExecuteScalarAsync<T?>(sql, parameters);
     }
 
@@ -478,17 +508,23 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
     {
         Logger.LogTrace("SQL: {Sql}", sql);
         Logger.LogTrace("Parameters: {@Parameters}", parameters);
-            
+
         return await conn.ExecuteAsync(sql, parameters);
     }
 
-    protected async Task ExecuteNonQuery(DbConnection conn, string sql)
+    protected async Task ExecuteNonQuery(DbConnection conn, string sql, int? timeout)
     {
         Logger.LogTrace("SQL: {Sql}", sql);
-        
+
         await using var cmd = conn.CreateCommand();
         cmd.CommandText = sql;
         cmd.CommandType = CommandType.Text;
+
+        if (timeout.HasValue)
+        {
+            cmd.CommandTimeout = timeout.Value;
+        }
+
         await cmd.ExecuteNonQueryAsync();
     }
 
@@ -496,7 +532,7 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
     {
         await CloseConnection();
         await CloseAdminConnection();
-            
+
         GC.SuppressFinalize(this);
     }
 

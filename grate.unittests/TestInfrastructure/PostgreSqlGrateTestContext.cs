@@ -34,6 +34,7 @@ internal class PostgreSqlGrateTestContext : TestContextBase, IGrateTestContext, 
     public SqlStatements Sql => new()
     {
         SelectVersion = "SELECT version()",
+        SleepTwoSeconds = "SELECT pg_sleep(2);"
     };
 
 
