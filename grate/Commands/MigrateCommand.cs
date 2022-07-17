@@ -29,6 +29,7 @@ public sealed class MigrateCommand : RootCommand
         Add(Silent());
         Add(Version());
         Add(Drop());
+        Add(CreateDatabase());
         Add(Tokens());
         Add(WarnAndRunOnScriptChange());
         Add(WarnAndIgnoreOnScriptChange());
@@ -52,7 +53,7 @@ public sealed class MigrateCommand : RootCommand
                 new[] { "--connectionstring", "-c", "-cs", "--connstring" },
                 "You now provide an entire connection string. ServerName and Database are obsolete."
             )
-            { IsRequired = true };
+        { IsRequired = true };
 
 
     //CONNECTIONSTRING OPTIONS
@@ -61,7 +62,7 @@ public sealed class MigrateCommand : RootCommand
                 new[] { "-csa", "-a", "--adminconnectionstring", "-acs", "--adminconnstring" },
                 "The connection string for connecting to master, if you want to create the database.  Defaults to the same as --connstring."
             )
-            { IsRequired = false };
+        { IsRequired = false };
 
 
     //DIRECTORY OPTIONS
@@ -129,10 +130,16 @@ public sealed class MigrateCommand : RootCommand
             "Drop - This instructs grate to remove the target database.  Unlike RoundhousE grate will continue to run the migration scripts after the drop."
         );
 
+    private static Option<bool> CreateDatabase() =>
+        new(new[] { "--createdatabase", "--create" },
+            () => true,
+            "Create - This instructs grate to create the target database if it does not exist.  Defaults to true.  Set to false to emulate the --donotcreatedatabase flag in roundhouse."
+        );
+
 
     //ENVIRONMENT OPTIONS
     private static Option<GrateEnvironment?> Environment() =>
-        new (
+        new(
             aliases: new[] { "--env", "--environment" },
             parseArgument: ArgumentParsers.ParseEnvironment, // Needed in System.CommandLine beta3: https://github.com/dotnet/command-line-api/issues/1664
             description: "Environment Name - This allows grate to be environment aware and only run scripts that are in a particular environment based on the name of the script.  'something.ENV.LOCAL.sql' would only be run if --env=LOCAL was set."
@@ -187,7 +194,7 @@ public sealed class MigrateCommand : RootCommand
             new[] { "--baseline" },
             "Baseline - This instructs grate to mark the scripts as run, but not to actually run anything against the database. Use this option if you already have scripts that have been run through other means (and BEFORE you start the new ones)."
         );
-            
+
     private static Option<bool> DryRun() =>
         new(
             new[] { "--dryrun" },
