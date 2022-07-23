@@ -131,8 +131,9 @@ public abstract class Failing_A_Script : MigrationsScriptsBase
     [TestCaseSource(nameof(ShouldStillBeRunOnRollback))]
     public virtual async Task Still_Runs_The_Scripts_In(MigrationsFolder folder)
     {
-        var scripts = await RunMigration(folder);
-        scripts.Should().HaveCount(1);
+        var filename = folder.Name + "_jalla1.sql";
+        var scripts = await RunMigration(folder, filename);
+        scripts.Should().Contain(filename);
     }
 
     [Test]
@@ -144,12 +145,12 @@ public abstract class Failing_A_Script : MigrationsScriptsBase
             Assert.Ignore("DDL transactions not supported, skipping tests");
         }
 
-        var scripts = await RunMigration(folder);
+        var scripts = await RunMigration(folder, folder.Name + "_jalla1.sql");
         scripts.Should().BeEmpty();
     }
 
 
-    private async Task<string[]> RunMigration(MigrationsFolder folder)
+    private async Task<string[]> RunMigration(MigrationsFolder folder, string filename)
     {
         string[] scripts;
 
@@ -158,7 +159,7 @@ public abstract class Failing_A_Script : MigrationsScriptsBase
         GrateMigrator? migrator;
 
         var knownFolders = Folders;
-        CreateDummySql(folder);
+        CreateDummySql(folder, filename);
         CreateInvalidSql(knownFolders.Up);
 
         await using (migrator = Context.GetMigrator(db, knownFolders, true))
