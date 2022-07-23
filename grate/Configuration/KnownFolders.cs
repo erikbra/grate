@@ -70,7 +70,7 @@ public class KnownFolders: Collection<MigrationsFolder?>, IFoldersConfiguration
         MigrationsFolder permissions,
         MigrationsFolder afterMigration
     )
-        : base(new List<MigrationsFolder>()
+        : base(new List<MigrationsFolder?>()
         {
             beforeMigration,
             alterDatabase,

@@ -2,6 +2,6 @@
 
 namespace grate.Configuration;
 
-public interface IFoldersConfiguration: IReadOnlyCollection<MigrationsFolder>
+public interface IFoldersConfiguration: IReadOnlyCollection<MigrationsFolder?>
 {
 }
