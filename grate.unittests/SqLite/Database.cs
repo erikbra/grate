@@ -1,4 +1,5 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,12 +17,16 @@ public class Database: Generic.GenericDatabase
 
     protected override async Task CreateDatabase(string db)
     {
-        await using var conn = new SqliteConnection(Context.ConnectionString(db));
-        conn.Open();
-        await using var cmd = conn.CreateCommand();
-        var sql = "CREATE TABLE dummy(name VARCHAR(1))";
-        cmd.CommandText = sql;
-        await cmd.ExecuteNonQueryAsync();
+        try
+        {
+            await using var conn = new SqliteConnection(Context.ConnectionString(db));
+            conn.Open();
+            await using var cmd = conn.CreateCommand();
+            var sql = "CREATE TABLE dummy(name VARCHAR(1))";
+            cmd.CommandText = sql;
+            await cmd.ExecuteNonQueryAsync();
+        }
+        catch (DbException) { }
     }
 
     protected override async Task<IEnumerable<string>> GetDatabases() 
