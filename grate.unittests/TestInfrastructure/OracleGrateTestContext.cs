@@ -39,4 +39,5 @@ internal class OracleGrateTestContext : TestContextBase, IGrateTestContext, IDoc
 
     public string ExpectedVersionPrefix => "Oracle Database 11g Express Edition Release 11.2.0.2.0 - 64bit Production";
     public bool SupportsCreateDatabase => true;
+    public bool DatabaseNamingCaseSensitive => false;
 }

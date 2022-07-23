@@ -36,4 +36,5 @@ class SqliteGrateTestContext : TestContextBase, IGrateTestContext
 
     public string ExpectedVersionPrefix => "3.32.3";
     public bool SupportsCreateDatabase => false;
+    public bool DatabaseNamingCaseSensitive => false;
 }

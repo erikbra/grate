@@ -40,4 +40,5 @@ class MariaDbGrateTestContext : TestContextBase, IGrateTestContext, IDockerTestC
 
     public string ExpectedVersionPrefix => "10.5.9-MariaDB";
     public bool SupportsCreateDatabase => true;
+    public bool DatabaseNamingCaseSensitive => true;
 }
