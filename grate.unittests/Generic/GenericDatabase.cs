@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
@@ -103,6 +104,29 @@ public abstract class GenericDatabase
         await using var migrator = GetMigrator(GetConfiguration(db.ToLower(), true)); // ToLower is important here, this reproduces the bug in #167
         // There should be no errors running the migration
         Assert.DoesNotThrowAsync(() => migrator.Migrate());
+    }
+
+    [Test]
+    public async Task Should_create_the_databases_with_name_as_case_is_supported()
+    {
+        const string db = "CaseSensitiveName";
+        var lowercaseDbName = db.ToLower();
+
+        await CreateDatabase(db);
+        await CreateDatabase(lowercaseDbName);
+
+        var databases = (await GetDatabases()).ToArray();
+
+        if (Context.DatabaseNamingCaseSensitive)
+        {
+            databases.Should().Contain(db);
+            databases.Should().Contain(lowercaseDbName);
+        }
+        else
+        {
+            var matches = databases.Count(x => string.Equals(x, db, StringComparison.OrdinalIgnoreCase));
+            matches.Should().Be(1);
+        }
     }
 
     protected virtual async Task CreateDatabase(string db)
