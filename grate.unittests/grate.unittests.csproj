@@ -21,6 +21,8 @@
     <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="3.21.*" />
     <PackageReference Include="Npgsql" Version="6.0.*" />
     <PackageReference Include="MySqlConnector" Version="2.1.*" />
+    <!-- This NewtonSoft.Json reference is needed because of incompatible 3-rd level refs from Microsof.NET.Test.Sdk -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.*" />
   </ItemGroup>
 
   <ItemGroup>
