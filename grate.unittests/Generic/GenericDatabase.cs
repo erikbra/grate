@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,7 +27,7 @@ public abstract class GenericDatabase
         await migrator.Migrate();
 
         IEnumerable<string> databases = await GetDatabases();
-        databases.Should().Contain(db);
+        Exist(databases, db).Should().BeTrue();
     }
 
     [Test]
@@ -35,7 +36,7 @@ public abstract class GenericDatabase
         var db = "SOMEOTHERDATABASE";
             
         IEnumerable<string> databasesBeforeMigration = await GetDatabases();
-        databasesBeforeMigration.Should().NotContain(db);
+        Exist(databasesBeforeMigration, db).Should().BeFalse();
             
         await using var migrator = GetMigrator(GetConfiguration(db, false));
             
@@ -47,7 +48,7 @@ public abstract class GenericDatabase
 
         // Ensure that the database was in fact not created 
         IEnumerable<string> databases = await GetDatabases();
-        databases.Should().NotContain(db);
+        Exist(databases, db).Should().BeFalse();
     }
         
     [Test]
@@ -60,14 +61,14 @@ public abstract class GenericDatabase
             
         // Check that the database has been created
         IEnumerable<string> databasesBeforeMigration = await GetDatabases();
-        databasesBeforeMigration.Should().Contain(db);
+        Exist(databasesBeforeMigration, db).Should().BeTrue();
             
         await using var migrator = GetMigrator(GetConfiguration(db, true));
             
         // There should be no errors running the migration
         Assert.DoesNotThrowAsync(() => migrator.Migrate());
     }
-        
+
     [Test]
     public async Task Does_not_need_admin_connection_if_database_already_exists()
     {
@@ -78,7 +79,7 @@ public abstract class GenericDatabase
             
         // Check that the database has been created
         IEnumerable<string> databasesBeforeMigration = await GetDatabases();
-        databasesBeforeMigration.Should().Contain(db);
+        Exist(databasesBeforeMigration, db).Should().BeTrue();
             
         // Change the admin connection string to rubbish and run the migration
         await using var migrator = GetMigrator(GetConfiguration(db, true, "Invalid stuff"));
@@ -98,11 +99,34 @@ public abstract class GenericDatabase
 
         // Check that the database has been created
         IEnumerable<string> databasesBeforeMigration = await GetDatabases();
-        databasesBeforeMigration.Should().Contain(db);
+        Exist(databasesBeforeMigration, db).Should().BeTrue();
 
         await using var migrator = GetMigrator(GetConfiguration(db.ToLower(), true)); // ToLower is important here, this reproduces the bug in #167
         // There should be no errors running the migration
         Assert.DoesNotThrowAsync(() => migrator.Migrate());
+    }
+
+    [Test]
+    public async Task Should_create_the_databases_with_name_as_case_is_supported()
+    {
+        const string db = "CaseSensitiveName";
+        var lowercaseDbName = db.ToLower();
+
+        await CreateDatabase(db);
+        await CreateDatabase(lowercaseDbName);
+
+        var databases = (await GetDatabases()).ToArray();
+
+        if (Context.DatabaseNamingCaseSensitive)
+        {
+            databases.Should().Contain(db);
+            databases.Should().Contain(lowercaseDbName);
+        }
+        else
+        {
+            var matches = databases.Count(x => string.Equals(x, db, StringComparison.OrdinalIgnoreCase));
+            matches.Should().Be(1);
+        }
     }
 
     protected virtual async Task CreateDatabase(string db)
@@ -127,7 +151,7 @@ public abstract class GenericDatabase
         
     protected virtual async Task<IEnumerable<string>> GetDatabases()
     {
-        IEnumerable<string> databases =Enumerable.Empty<string>();
+        IEnumerable<string> databases = Enumerable.Empty<string>();
         string sql = Context.Syntax.ListDatabases;
 
         using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
@@ -144,6 +168,15 @@ public abstract class GenericDatabase
             }
         }
         return databases;
+    }
+
+    private bool Exist(IEnumerable<string> databases, string db)
+    {
+        var comparer = Context.DatabaseNamingCaseSensitive
+            ? StringComparer.InvariantCulture
+            : StringComparer.InvariantCultureIgnoreCase;
+        
+        return databases.Contains(db, comparer);
     }
 
     protected virtual bool ThrowOnMissingDatabase => true;

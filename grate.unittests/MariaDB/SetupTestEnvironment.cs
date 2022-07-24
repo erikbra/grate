@@ -3,10 +3,21 @@ using NUnit.Framework;
 
 namespace grate.unittests.MariaDB;
 
-[SetUpFixture]
-[Category("MariaDB")]
-public class SetupTestEnvironment : Generic.SetupDockerTestEnvironment
+public class SetupTestEnvironment
 {
-    protected override IGrateTestContext GrateTestContext => unittests.GrateTestContext.MariaDB;
-    protected override IDockerTestContext DockerTestContext => unittests.GrateTestContext.MariaDB;
+    [SetUpFixture]
+    [Category("MariaDB")]
+    public class Default : Generic.SetupDockerTestEnvironment
+    {
+        protected override IGrateTestContext GrateTestContext => unittests.GrateTestContext.MariaDB;
+        protected override IDockerTestContext DockerTestContext => unittests.GrateTestContext.MariaDB;
+    }
+
+    [SetUpFixture]
+    [Category("MariaDBCaseInsensitive")]
+    public class CaseInsensitive : Generic.SetupDockerTestEnvironment
+    {
+        protected override IGrateTestContext GrateTestContext => unittests.GrateTestContext.MariaDBCaseInsensitive;
+        protected override IDockerTestContext DockerTestContext => unittests.GrateTestContext.MariaDBCaseInsensitive;
+    }
 }
