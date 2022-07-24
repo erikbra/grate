@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -74,37 +75,44 @@ public class GrateMigrator : IAsyncDisposable
         }
 
         TransactionScope? scope = null;
+        await dbMigrator.OpenConnection();
+            
+        // Run these first without a transaction, to make sure the tables are created even on a potential rollback
+        await CreateGrateStructure(dbMigrator);
+         
+        var (versionId, newVersion) = await VersionTheDatabase(dbMigrator);
+
+        Separator('=');
+        _logger.LogInformation("Migration Scripts");
+        Separator('=');
+
+        // This one should not be necessary, we throw on assignment if null
+        System.Diagnostics.Debug.Assert(knownFolders != null, nameof(knownFolders) + " != null");
+
+        await BeforeMigration(knownFolders, changeDropFolder, versionId);
+
+        if (config.AlterDatabase)
+        {
+            await AlterDatabase(dbMigrator, knownFolders, changeDropFolder, versionId);
+        }
+
+        await dbMigrator.CloseConnection();
+
+        Exception? exception = default;
+            
         try
         {
-            // Run these first without a transaction, to make sure the tables are created even on a potential rollback
-            await CreateGrateStructure(dbMigrator);
-
             // Start the transaction, if configured
             if (runInTransaction)
             {
                 scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
             }
-
             await dbMigrator.OpenConnection();
-            var (versionId, newVersion) = await VersionTheDatabase(dbMigrator);
-
-            Separator('=');
-            _logger.LogInformation("Migration Scripts");
-            Separator('=');
-
-            // This one should not be necessary, we throw on assignment if null
-            System.Diagnostics.Debug.Assert(knownFolders != null, nameof(knownFolders) + " != null");
-
-            await BeforeMigration(knownFolders, changeDropFolder, versionId);
-
-            if (config.AlterDatabase)
-            {
-                await AlterDatabase(dbMigrator, knownFolders, changeDropFolder, versionId);
-            }
 
             if (databaseCreated)
             {
-                await LogAndProcess(knownFolders.RunAfterCreateDatabase!, changeDropFolder, versionId, ConnectionType.Default);
+                await LogAndProcess(knownFolders.RunAfterCreateDatabase!, changeDropFolder, versionId,
+                    ConnectionType.Default);
             }
 
             await LogAndProcess(knownFolders.RunBeforeUp!, changeDropFolder, versionId, ConnectionType.Default);
@@ -115,30 +123,43 @@ public class GrateMigrator : IAsyncDisposable
             await LogAndProcess(knownFolders.Sprocs!, changeDropFolder, versionId, ConnectionType.Default);
             await LogAndProcess(knownFolders.Triggers!, changeDropFolder, versionId, ConnectionType.Default);
             await LogAndProcess(knownFolders.Indexes!, changeDropFolder, versionId, ConnectionType.Default);
-            await LogAndProcess(knownFolders.RunAfterOtherAnyTimeScripts!, changeDropFolder, versionId, ConnectionType.Default);
+            await LogAndProcess(knownFolders.RunAfterOtherAnyTimeScripts!, changeDropFolder, versionId,
+                ConnectionType.Default);
+            
+            await dbMigrator.CloseConnection();
 
             scope?.Complete();
-
-            using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
-            {
-                await LogAndProcess(knownFolders.Permissions!, changeDropFolder, versionId, ConnectionType.Default);
-                await LogAndProcess(knownFolders.AfterMigration!, changeDropFolder, versionId, ConnectionType.Default);
-            }
-
-            _logger.LogInformation(
-                "\n\ngrate v{Version} has grated your database ({DatabaseName})! You are now at version {NewVersion}. All changes and backups can be found at \"{ChangeDropFolder}\".",
-                ApplicationInfo.Version,
-                dbMigrator.Database.DatabaseName,
-                newVersion,
-                changeDropFolder);
-
-            Separator(' ');
-
+        }catch (DbException ex)
+        {
+            // Catch exceptions, so that we run the rest of the scripts, that should always be run.
+            exception = ex;
         }
         finally
         {
             scope?.Dispose();
         }
+
+        using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+        {
+            await dbMigrator.OpenConnection();
+            await LogAndProcess(knownFolders.Permissions!, changeDropFolder, versionId, ConnectionType.Default);
+            await LogAndProcess(knownFolders.AfterMigration!, changeDropFolder, versionId, ConnectionType.Default);
+        }
+
+        if (exception is not null)
+        {
+            throw exception;
+        }
+
+        _logger.LogInformation(
+            "\n\ngrate v{Version} has grated your database ({DatabaseName})! You are now at version {NewVersion}. All changes and backups can be found at \"{ChangeDropFolder}\".",
+            ApplicationInfo.Version,
+            dbMigrator.Database.DatabaseName,
+            newVersion,
+            changeDropFolder);
+
+        Separator(' ');
+
 
     }
 
@@ -164,8 +185,6 @@ public class GrateMigrator : IAsyncDisposable
 
     private async Task CreateGrateStructure(IDbMigrator dbMigrator)
     {
-        await dbMigrator.OpenConnection();
-
         Separator('=');
         _logger.LogInformation("Grate Structure");
         Separator('=');
@@ -178,8 +197,6 @@ public class GrateMigrator : IAsyncDisposable
         {
             await dbMigrator.RunSupportTasks();
         }
-
-        await dbMigrator.CloseConnection();
     }
 
     private async Task<(long, string)> VersionTheDatabase(IDbMigrator dbMigrator)

@@ -48,7 +48,7 @@ public class TokenProvider
             ["DoNotAlterDatabase"] = (!_config.AlterDatabase).ToString(),
             ["DoNotCreateDatabase"] = (!_config.CreateDatabase).ToString(),
             ["DoNotStoreScriptsRunText"] = _config.DoNotStoreScriptsRunText.ToString(),
-            ["DownFolderName"] = _config.KnownFolders?.Down.ToToken(),
+            //["DownFolderName"] = _config.KnownFolders?.Down.ToToken(),
             ["Drop"] = _config.Drop.ToString(),
             ["DryRun"] = _config.DryRun.ToString(),
             ["EnvironmentName"] = _config.Environment?.Current,

@@ -68,16 +68,28 @@ public interface IGrateTestContext
 
     public GrateMigrator GetMigrator(string databaseName, KnownFolders knownFolders)
     {
-        return GetMigrator(databaseName, knownFolders, null);
+        return GetMigrator(databaseName, knownFolders, null, false);
+    }
+    
+    public GrateMigrator GetMigrator(string databaseName, KnownFolders knownFolders, bool runInTransaction)
+    {
+        return GetMigrator(databaseName, knownFolders, null, runInTransaction);
+    }
+    
+    
+    public GrateMigrator GetMigrator(string databaseName, KnownFolders knownFolders, string? env)
+    {
+        return GetMigrator(databaseName, knownFolders, env, false);
     }
 
-    public GrateMigrator GetMigrator(string databaseName, KnownFolders knownFolders, string? env)
+    public GrateMigrator GetMigrator(string databaseName, KnownFolders knownFolders, string? env, bool runInTransaction)
     {
         var config = DefaultConfiguration with
         {
             ConnectionString = ConnectionString(databaseName),
             KnownFolders = knownFolders,
             Environment = env != null ? new GrateEnvironment(env) : null,
+            Transaction = runInTransaction
         };
 
         return GetMigrator(config);

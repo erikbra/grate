@@ -40,10 +40,10 @@ public class SqlServerDatabase : AnsiSqlDatabase
     {
         try
         {
-            await OpenAdminConnection();
             Logger.LogInformation("Restoring {DbName} database on {Server} server from path {Path}.", DatabaseName, ServerName, backupPath);
             using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
-            var cmd = AdminConnection.CreateCommand();
+            await using var conn = await OpenNewAdminConnection();
+            var cmd = conn.CreateCommand();
             cmd.CommandText =
                 $@"USE master
                         ALTER DATABASE [{DatabaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
@@ -63,10 +63,6 @@ public class SqlServerDatabase : AnsiSqlDatabase
             Logger.LogDebug(ex, "Got error: {ErrorMessage}", ex.Message);
             throw;
         }
-        finally
-        {
-            await CloseAdminConnection();
-        }
 
         await WaitUntilDatabaseIsReady();
 
@@ -82,7 +78,6 @@ public class SqlServerDatabase : AnsiSqlDatabase
         var sql = $"select name from sys.databases where [name] = '{DatabaseName}'";
         try
         {
-            await OpenConnection();
             var results = await Connection.QueryAsync<string>(sql, commandType: Text);
             return results.Any();
         }
@@ -90,10 +85,6 @@ public class SqlServerDatabase : AnsiSqlDatabase
         {
             Logger.LogDebug(ex, "An unexpected error occurred performing the CheckDatabaseExists check: {ErrorMessage}", ex.Message);
             return false; // base method also returns false on any DbException
-        }
-        finally
-        {
-            await CloseConnection();
         }
     }
 }
