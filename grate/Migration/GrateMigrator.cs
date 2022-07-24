@@ -137,12 +137,12 @@ public class GrateMigrator : IAsyncDisposable
             scope?.Dispose();
         }
 
-            using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
-            {
+        using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+        {
             await dbMigrator.OpenConnection();
-                await LogAndProcess(knownFolders.Permissions!, changeDropFolder, versionId, ConnectionType.Default);
-                await LogAndProcess(knownFolders.AfterMigration!, changeDropFolder, versionId, ConnectionType.Default);
-            }
+            await LogAndProcess(knownFolders.Permissions!, changeDropFolder, versionId, ConnectionType.Default);
+            await LogAndProcess(knownFolders.AfterMigration!, changeDropFolder, versionId, ConnectionType.Default);
+        }
 
         if (exception is not null)
         {

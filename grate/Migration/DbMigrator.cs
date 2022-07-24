@@ -205,7 +205,11 @@ public class DbMigrator : IDbMigrator
         return _hashGenerator.Hash(sql);
     }
 
-    private Task<bool> ThisScriptIsAlreadyRun(string scriptName) => Database.HasRun(scriptName);
+    private Task<bool> ThisScriptIsAlreadyRun(string scriptName)
+    {
+        using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+        return Database.HasRun(scriptName);
+    }
 
 
     /// <summary>

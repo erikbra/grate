@@ -42,8 +42,10 @@ public class SqlServerDatabase : AnsiSqlDatabase
         {
             await OpenAdminConnection();
             Logger.LogInformation("Restoring {DbName} database on {Server} server from path {Path}.", DatabaseName, ServerName, backupPath);
+            
             using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
-            var cmd = AdminConnection.CreateCommand();
+            await using var conn = await GetAdminConnection();
+            var cmd = conn.CreateCommand();
             cmd.CommandText =
                 $@"USE master
                         ALTER DATABASE [{DatabaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
@@ -82,8 +84,9 @@ public class SqlServerDatabase : AnsiSqlDatabase
         var sql = $"select name from sys.databases where [name] = '{DatabaseName}'";
         try
         {
-            await OpenConnection();
-            var results = await Connection.QueryAsync<string>(sql, commandType: Text);
+            //await OpenConnection();
+            await using var conn = await GetConnection();
+            var results = await conn.QueryAsync<string>(sql, commandType: Text);
             return results.Any();
         }
         catch (DbException ex)

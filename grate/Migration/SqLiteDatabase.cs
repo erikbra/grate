@@ -26,8 +26,8 @@ SELECT name FROM sqlite_master
 WHERE type ='table' AND 
 name = '{fullTableName}';
 ";
-        
-    public override string DatabaseName => GetDatabaseName(Connection);
+
+    public override string DatabaseName => GetDatabaseName(GetSqlConnection(ConnectionString));
 
     /// <summary>
     /// Dropping a database in Sqlite is a bit different, it's just a matter of deleting a file on disk.
@@ -35,7 +35,7 @@ name = '{fullTableName}';
     /// <returns></returns>
     public override Task DropDatabase()
     {
-        var db = Connection.DataSource;
+        var db = GetSqlConnection(ConnectionString).DataSource;
 
         SqliteConnection.ClearAllPools();
 
@@ -49,7 +49,7 @@ name = '{fullTableName}';
 
     public override Task<bool> DatabaseExists()
     {
-        var file = Connection.DataSource;
+        var file = GetSqlConnection(ConnectionString).DataSource;
         return Task.FromResult(File.Exists(file));
     }
 
