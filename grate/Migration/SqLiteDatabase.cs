@@ -35,7 +35,7 @@ name = '{fullTableName}';
     /// <returns></returns>
     public override Task DropDatabase()
     {
-        var db = _connection?.DataSource;
+        var db = Connection.DataSource;
 
         SqliteConnection.ClearAllPools();
 

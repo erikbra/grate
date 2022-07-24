@@ -112,7 +112,7 @@ RETURNING id into :id
     {
         get
         {
-            var tokens = Tokenize(_connection?.ConnectionString);
+            var tokens = Tokenize(Connection.ConnectionString);
             return GetValue(tokens, "Proxy User Id") ?? GetValue(tokens, "User ID") ?? base.DatabaseName;
         }
     }
