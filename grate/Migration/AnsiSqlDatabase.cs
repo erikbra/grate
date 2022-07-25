@@ -143,6 +143,7 @@ public abstract class AnsiSqlDatabase : IDatabase
             using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
             await using var conn = await OpenNewAdminConnection();
             await ExecuteNonQuery(conn, _syntax.DropDatabase(DatabaseName), Config?.AdminCommandTimeout);
+            s.Complete();
         }
     }
 
@@ -185,7 +186,7 @@ public abstract class AnsiSqlDatabase : IDatabase
         {
             try
             {
-                await OpenConnection();
+                await using var conn =  await GetConnection();
                 databaseReady = true;
             }
             catch (DbException)
@@ -552,12 +553,26 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
         }
     }
 
+    private static readonly List<DbConnection> _openedConnections = new List<DbConnection>();
+
     protected virtual async Task Open(DbConnection? conn)
     {
-        if (conn != null && conn.State != ConnectionState.Open)
+        try
         {
-            await conn.OpenAsync();
-            await conn.QueryAsync<string>(_syntax.CurrentDatabase);
+            if (conn != null && conn.State != ConnectionState.Open)
+            {
+                await conn.OpenAsync();
+                
+                _openedConnections.Add(conn);
+                
+                await conn.QueryAsync<string>(_syntax.CurrentDatabase);
+            }
+        }
+        catch (PlatformNotSupportedException
+               pnse) // On promoting to distributed transaction (should not happen, but does)
+        {
+            var msg = pnse.Message;
+
         }
     }
 

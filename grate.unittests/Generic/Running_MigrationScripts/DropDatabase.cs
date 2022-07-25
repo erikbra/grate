@@ -1,9 +1,11 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
 using Dapper;
 using FluentAssertions;
 using grate.Configuration;
 using grate.unittests.TestInfrastructure;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
 namespace grate.unittests.Generic.Running_MigrationScripts;

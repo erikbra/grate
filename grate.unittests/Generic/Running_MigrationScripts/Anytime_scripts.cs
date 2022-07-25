@@ -175,11 +175,12 @@ public abstract class Anytime_scripts : MigrationsScriptsBase
         string[] scripts;
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        //using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+        using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
         await using (var conn = Context.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
+        s.Complete();
 
         scripts.Should().HaveCount(2);
     }

@@ -55,23 +55,27 @@ public class GrateMigrator : IAsyncDisposable
 
         _logger.LogInformation("Setup, Backup, Create/Restore/Drop");
         Separator('=');
-
-        if (config.Drop)
-        {
-            await dbMigrator.DropDatabase();
-            _logger.LogInformation("{AppName} has removed database ({DatabaseName}) if it existed.", ApplicationInfo.Name, database.DatabaseName);
-        }
-
+        
         var databaseCreated = false;
 
-        if (config.CreateDatabase)
+        using (var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
-            databaseCreated = await CreateDatabaseIfItDoesNotExist(dbMigrator);
-        }
+            if (config.Drop)
+            {
+                await dbMigrator.DropDatabase();
+                _logger.LogInformation("{AppName} has removed database ({DatabaseName}) if it existed.", ApplicationInfo.Name, database.DatabaseName);
+            }
 
-        if (!string.IsNullOrEmpty(config.Restore))
-        {
-            await RestoreDatabaseFromPath(config.Restore, dbMigrator);
+            if (config.CreateDatabase)
+            {
+                databaseCreated = await CreateDatabaseIfItDoesNotExist(dbMigrator);
+            }
+
+            if (!string.IsNullOrEmpty(config.Restore))
+            {
+                await RestoreDatabaseFromPath(config.Restore, dbMigrator);
+            }
+            s.Complete();
         }
 
         TransactionScope? scope = null;
@@ -137,11 +141,12 @@ public class GrateMigrator : IAsyncDisposable
             scope?.Dispose();
         }
 
-        using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+        using (var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
             await dbMigrator.OpenConnection();
             await LogAndProcess(knownFolders.Permissions!, changeDropFolder, versionId, ConnectionType.Default);
             await LogAndProcess(knownFolders.AfterMigration!, changeDropFolder, versionId, ConnectionType.Default);
+            s.Complete();
         }
 
         if (exception is not null)
@@ -164,21 +169,19 @@ public class GrateMigrator : IAsyncDisposable
     private async Task AlterDatabase(IDbMigrator dbMigrator, KnownFolders knownFolders, string changeDropFolder,
         long versionId)
     {
-        using (new TransactionScope(TransactionScopeOption.Suppress,
-                   TransactionScopeAsyncFlowOption.Enabled))
-        {
-            await dbMigrator.OpenAdminConnection();
-            await LogAndProcess(knownFolders.AlterDatabase!, changeDropFolder, versionId, ConnectionType.Admin);
-            await dbMigrator.CloseAdminConnection();
-        }
+        using var s = new TransactionScope(TransactionScopeOption.Suppress,
+            TransactionScopeAsyncFlowOption.Enabled);
+        await dbMigrator.OpenAdminConnection();
+        await LogAndProcess(knownFolders.AlterDatabase!, changeDropFolder, versionId, ConnectionType.Admin);
+        await dbMigrator.CloseAdminConnection();
+        s.Complete();
     }
 
     private async Task BeforeMigration(KnownFolders knownFolders, string changeDropFolder, long versionId)
     {
-        using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
-        {
-            await LogAndProcess(knownFolders.BeforeMigration!, changeDropFolder, versionId, ConnectionType.Default);
-        }
+        using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+        await LogAndProcess(knownFolders.BeforeMigration!, changeDropFolder, versionId, ConnectionType.Default);
+        s.Complete();
     }
 
     private async Task CreateGrateStructure(IDbMigrator dbMigrator)

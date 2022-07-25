@@ -107,22 +107,21 @@ public abstract class GenericDatabase
 
     protected virtual async Task CreateDatabase(string db)
     {
-        using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+        using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+        for (var i = 0; i < 5; i++)
         {
-            for (var i = 0; i < 5; i++)
+            try
             {
-                try
-                {
-                    await using var conn = Context.CreateAdminDbConnection();
-                    await conn.OpenAsync();
-                    await using var cmd = conn.CreateCommand();
-                    cmd.CommandText = Context.Syntax.CreateDatabase(db, TestConfig.Password(Context.ConnectionString(db)));
-                    await cmd.ExecuteNonQueryAsync();
-                    break;
-                }
-                catch (DbException) { }
+                await using var conn = Context.CreateAdminDbConnection();
+                await conn.OpenAsync();
+                await using var cmd = conn.CreateCommand();
+                cmd.CommandText = Context.Syntax.CreateDatabase(db, TestConfig.Password(Context.ConnectionString(db)));
+                await cmd.ExecuteNonQueryAsync();
+                break;
             }
+            catch (DbException) { }
         }
+        s.Complete();
     }
         
     protected virtual async Task<IEnumerable<string>> GetDatabases()
@@ -130,19 +129,18 @@ public abstract class GenericDatabase
         IEnumerable<string> databases =Enumerable.Empty<string>();
         string sql = Context.Syntax.ListDatabases;
 
-        using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+        using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+        for (var i = 0; i < 5; i++)
         {
-            for (var i = 0; i < 5; i++)
+            try
             {
-                try
-                {
-                    await using var conn = Context.CreateAdminDbConnection();
-                    databases = await conn.QueryAsync<string>(sql);
-                    break;
-                }
-                catch (DbException) { }
+                await using var conn = Context.CreateAdminDbConnection();
+                databases = await conn.QueryAsync<string>(sql);
+                break;
             }
+            catch (DbException) { }
         }
+        s.Complete();
         return databases;
     }
 

@@ -208,7 +208,9 @@ public class DbMigrator : IDbMigrator
     private Task<bool> ThisScriptIsAlreadyRun(string scriptName)
     {
         using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
-        return Database.HasRun(scriptName);
+        var alreadyRun = Database.HasRun(scriptName);
+        s.Complete();
+        return alreadyRun;
     }
 
 
@@ -257,6 +259,7 @@ public class DbMigrator : IDbMigrator
                 await Database.OpenConnection();
                 await RecordScriptInScriptsRunErrorsTable(scriptName, sql, statement, ex.Message, versionId);
                 await Database.CloseConnection();
+                s.Complete();
                 
                 throw;
             }
@@ -294,6 +297,7 @@ public class DbMigrator : IDbMigrator
             $"{scriptName} has changed since the last time it was run. By default this is not allowed - scripts that run once should never change. To change this behavior to a warning, please set warnOnOneTimeScriptChanges to true and run again. Stopping execution.";
         await RecordScriptInScriptsRunErrorsTable(scriptName, sql, sql, errorMessage, versionId);
         await Database.CloseConnection();
+        s.Complete();
         throw new OneTimeScriptChanged(errorMessage);
     }
 
