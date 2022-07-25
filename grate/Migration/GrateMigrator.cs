@@ -137,26 +137,27 @@ public class GrateMigrator : IAsyncDisposable
             scope?.Dispose();
         }
 
-            using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
-            {
+        using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+        {
             await dbMigrator.OpenConnection();
-                await LogAndProcess(knownFolders.Permissions!, changeDropFolder, versionId, ConnectionType.Default);
-                await LogAndProcess(knownFolders.AfterMigration!, changeDropFolder, versionId, ConnectionType.Default);
-            }
+            await LogAndProcess(knownFolders.Permissions!, changeDropFolder, versionId, ConnectionType.Default);
+            await LogAndProcess(knownFolders.AfterMigration!, changeDropFolder, versionId, ConnectionType.Default);
+            await dbMigrator.CloseConnection();
+        }
 
         if (exception is not null)
         {
             throw exception;
         }
 
-            _logger.LogInformation(
-                "\n\ngrate v{Version} has grated your database ({DatabaseName})! You are now at version {NewVersion}. All changes and backups can be found at \"{ChangeDropFolder}\".",
-                ApplicationInfo.Version,
-                dbMigrator.Database.DatabaseName,
-                newVersion,
-                changeDropFolder);
+        _logger.LogInformation(
+            "\n\ngrate v{Version} has grated your database ({DatabaseName})! You are now at version {NewVersion}. All changes and backups can be found at \"{ChangeDropFolder}\".",
+            ApplicationInfo.Version,
+            dbMigrator.Database.DatabaseName,
+            newVersion,
+            changeDropFolder);
 
-            Separator(' ');
+        Separator(' ');
 
 
     }
