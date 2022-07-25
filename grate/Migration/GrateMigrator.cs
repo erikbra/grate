@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using grate.Configuration;
 using grate.Exceptions;
+using grate.Infrastructure;
 using Microsoft.Extensions.Logging;
 
 namespace grate.Migration;
@@ -64,51 +65,45 @@ public class GrateMigrator : IAsyncDisposable
 
         try
         {
-            using (var s = new TransactionScope(TransactionScopeOption.Suppress,
-                       TransactionScopeAsyncFlowOption.Enabled))
+            if (config.Drop)
             {
-                if (config.Drop)
-                {
-                    await dbMigrator.DropDatabase();
-                    _logger.LogInformation("{AppName} has removed database ({DatabaseName}) if it existed.",
-                        ApplicationInfo.Name, database.DatabaseName);
-                }
-
-                if (config.CreateDatabase)
-                {
-                    databaseCreated = await CreateDatabaseIfItDoesNotExist(dbMigrator);
-                }
-
-                if (!string.IsNullOrEmpty(config.Restore))
-                {
-                    await RestoreDatabaseFromPath(config.Restore, dbMigrator);
-                }
-
-                await dbMigrator.OpenConnection();
-
-                // Run these first without a transaction, to make sure the tables are created even on a potential rollback
-                await CreateGrateStructure(dbMigrator);
-
-                (versionId, newVersion) = await VersionTheDatabase(dbMigrator);
-
-                Separator('=');
-                _logger.LogInformation("Migration Scripts");
-                Separator('=');
-
-                // This one should not be necessary, we throw on assignment if null
-                System.Diagnostics.Debug.Assert(knownFolders != null, nameof(knownFolders) + " != null");
-
-                await BeforeMigration(knownFolders, changeDropFolder, versionId);
-
-                if (config.AlterDatabase)
-                {
-                    await AlterDatabase(dbMigrator, knownFolders, changeDropFolder, versionId);
-                }
-
-                await dbMigrator.CloseConnection();
-
-                s.Complete();
+                await Snippet.RunInSeparateTransaction(dbMigrator.DropDatabase);
+                _logger.LogInformation("{AppName} has removed database ({DatabaseName}) if it existed.",
+                    ApplicationInfo.Name, database.DatabaseName);
             }
+
+            if (config.CreateDatabase)
+            {
+                databaseCreated = await Snippet.RunInSeparateTransaction(() => CreateDatabaseIfItDoesNotExist(dbMigrator));
+            }
+
+            if (!string.IsNullOrEmpty(config.Restore))
+            {
+                await Snippet.RunInSeparateTransaction(() => RestoreDatabaseFromPath(config.Restore, dbMigrator));
+            }
+
+            await dbMigrator.OpenConnection();
+
+            // Run these first without a transaction, to make sure the tables are created even on a potential rollback
+            await Snippet.RunInSeparateTransaction(() => CreateGrateStructure(dbMigrator));
+
+            (versionId, newVersion) = await Snippet.RunInSeparateTransaction(() => VersionTheDatabase(dbMigrator));
+
+            Separator('=');
+            _logger.LogInformation("Migration Scripts");
+            Separator('=');
+
+            // This one should not be necessary, we throw on assignment if null
+            System.Diagnostics.Debug.Assert(knownFolders != null, nameof(knownFolders) + " != null");
+
+            await Snippet.RunInSeparateTransaction(() => BeforeMigration(knownFolders, changeDropFolder, versionId));
+
+            if (config.AlterDatabase)
+            {
+                await Snippet.RunInSeparateTransaction(() => AlterDatabase(dbMigrator, knownFolders, changeDropFolder, versionId));
+            }
+
+            await dbMigrator.CloseConnection();
         }
         catch (DbException dbe)
         {

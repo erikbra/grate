@@ -36,6 +36,8 @@ public class SqlServerDatabase : AnsiSqlDatabase
         return base.InitializeConnections(configuration);
     }
 
+    protected override string? MakeReadOnly(string? connectionString) => connectionString + ";ApplicationIntent=ReadOnly";
+
     public override async Task RestoreDatabase(string backupPath)
     {
         try
@@ -85,7 +87,7 @@ public class SqlServerDatabase : AnsiSqlDatabase
         try
         {
             //await OpenConnection();
-            await using var conn = await GetConnection();
+            await using var conn = await GetReadOnlyConnection();
             var results = await conn.QueryAsync<string>(sql, commandType: Text);
             return results.Any();
         }

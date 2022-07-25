@@ -189,7 +189,7 @@ public abstract class AnsiSqlDatabase : IDatabase
         {
             try
             {
-                await using var conn =  await GetConnection();
+                await using var conn =  await GetReadOnlyConnection();
                 databaseReady = true;
             }
             catch (DbException)
