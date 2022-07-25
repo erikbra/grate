@@ -72,7 +72,7 @@ public class DbMigrator : IDbMigrator
 
     public async Task<bool> RunSql(string sql, string scriptName, MigrationType migrationType, long versionId,
         GrateEnvironment? environment,
-        ConnectionType connectionType)
+        ConnectionType connectionType, TransactionHandling transactionHandling)
     {
         var theSqlWasRun = false;
 
@@ -86,7 +86,7 @@ public class DbMigrator : IDbMigrator
             }
             else
             {
-                await RunTheActualSql(sql, scriptName, migrationType, versionId, connectionType);
+                await RunTheActualSql(sql, scriptName, migrationType, versionId, connectionType, transactionHandling);
                 return true;
             }
         }
@@ -229,19 +229,20 @@ public class DbMigrator : IDbMigrator
     /// <param name="migrationType"></param>
     /// <param name="versionId"></param>
     /// <param name="connectionType"></param>
+    /// <param name="transactionHandling"></param>
     /// <returns></returns>
-    private async Task RunTheActualSql(
-        string sql,
+    private async Task RunTheActualSql(string sql,
         string scriptName,
         MigrationType migrationType,
         long versionId,
-        ConnectionType connectionType)
+        ConnectionType connectionType, 
+        TransactionHandling transactionHandling)
     {
         foreach (var statement in GetStatements(sql))
         {
             try
             {
-                await Database.RunSql(statement, connectionType);
+                await Database.RunSql(statement, connectionType, transactionHandling);
             }
             catch (Exception ex)
             {
@@ -249,11 +250,7 @@ public class DbMigrator : IDbMigrator
                 await Database.CloseConnection();
                 Transaction.Current?.Dispose();
 
-                using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
-                await Database.OpenConnection();
                 await RecordScriptInScriptsRunErrorsTable(scriptName, sql, statement, ex.Message, versionId);
-                await Database.CloseConnection();
-                
                 throw;
             }
         }

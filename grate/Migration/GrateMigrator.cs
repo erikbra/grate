@@ -55,7 +55,12 @@ public class GrateMigrator : IAsyncDisposable
 
         _logger.LogInformation("Setup, Backup, Create/Restore/Drop");
         Separator('=');
-
+        
+        TransactionScope? scope = null;
+        Exception? exception = default;
+        string? newVersion = default;
+        long versionId = default;
+        
         if (config.Drop)
         {
             await dbMigrator.DropDatabase();
@@ -68,19 +73,19 @@ public class GrateMigrator : IAsyncDisposable
         {
             databaseCreated = await CreateDatabaseIfItDoesNotExist(dbMigrator);
         }
-
+            
+      
         if (!string.IsNullOrEmpty(config.Restore))
         {
             await RestoreDatabaseFromPath(config.Restore, dbMigrator);
         }
 
-        TransactionScope? scope = null;
         await dbMigrator.OpenConnection();
 
         // Run these first without a transaction, to make sure the tables are created even on a potential rollback
         await CreateGrateStructure(dbMigrator);
 
-        var (versionId, newVersion) = await VersionTheDatabase(dbMigrator);
+        (versionId, newVersion) = await VersionTheDatabase(dbMigrator);
 
         Separator('=');
         _logger.LogInformation("Migration Scripts");
@@ -95,11 +100,12 @@ public class GrateMigrator : IAsyncDisposable
         {
             await AlterDatabase(dbMigrator, knownFolders, changeDropFolder, versionId);
         }
-
+        
         await dbMigrator.CloseConnection();
 
-        Exception? exception = default;
-
+        var ct = ConnectionType.Default;
+        var th = TransactionHandling.Default;
+            
         try
         {
             // Start the transaction, if configured
@@ -107,25 +113,26 @@ public class GrateMigrator : IAsyncDisposable
             {
                 scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
             }
+
             await dbMigrator.OpenConnection();
+
 
             if (databaseCreated)
             {
-                await LogAndProcess(knownFolders.RunAfterCreateDatabase!, changeDropFolder, versionId, ConnectionType.Default);
+                await LogAndProcess(knownFolders.RunAfterCreateDatabase!, changeDropFolder, versionId, ct, th);
             }
 
-            await LogAndProcess(knownFolders.RunBeforeUp!, changeDropFolder, versionId, ConnectionType.Default);
-            await LogAndProcess(knownFolders.Up!, changeDropFolder, versionId, ConnectionType.Default);
-            await LogAndProcess(knownFolders.RunFirstAfterUp!, changeDropFolder, versionId, ConnectionType.Default);
-            await LogAndProcess(knownFolders.Functions!, changeDropFolder, versionId, ConnectionType.Default);
-            await LogAndProcess(knownFolders.Views!, changeDropFolder, versionId, ConnectionType.Default);
-            await LogAndProcess(knownFolders.Sprocs!, changeDropFolder, versionId, ConnectionType.Default);
-            await LogAndProcess(knownFolders.Triggers!, changeDropFolder, versionId, ConnectionType.Default);
-            await LogAndProcess(knownFolders.Indexes!, changeDropFolder, versionId, ConnectionType.Default);
-            await LogAndProcess(knownFolders.RunAfterOtherAnyTimeScripts!, changeDropFolder, versionId, ConnectionType.Default);
-
+            await LogAndProcess(knownFolders.RunBeforeUp!, changeDropFolder, versionId, ct, th);
+            await LogAndProcess(knownFolders.Up!, changeDropFolder, versionId, ct, th);
+            await LogAndProcess(knownFolders.RunFirstAfterUp!, changeDropFolder, versionId, ct, th);
+            await LogAndProcess(knownFolders.Functions!, changeDropFolder, versionId, ct, th);
+            await LogAndProcess(knownFolders.Views!, changeDropFolder, versionId, ct, th);
+            await LogAndProcess(knownFolders.Sprocs!, changeDropFolder, versionId, ct, th);
+            await LogAndProcess(knownFolders.Triggers!, changeDropFolder, versionId, ct, th);
+            await LogAndProcess(knownFolders.Indexes!, changeDropFolder, versionId, ct, th);
+            await LogAndProcess(knownFolders.RunAfterOtherAnyTimeScripts!, changeDropFolder, versionId, ct, th);
+            
             await dbMigrator.CloseConnection();
-
             scope?.Complete();
         }
         catch (DbException ex)
@@ -138,13 +145,10 @@ public class GrateMigrator : IAsyncDisposable
             scope?.Dispose();
         }
 
-        using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
-        {
-            await dbMigrator.OpenConnection();
-            await LogAndProcess(knownFolders.Permissions!, changeDropFolder, versionId, ConnectionType.Default);
-            await LogAndProcess(knownFolders.AfterMigration!, changeDropFolder, versionId, ConnectionType.Default);
-            await dbMigrator.CloseConnection();
-        }
+        await LogAndProcess(knownFolders.Permissions!, changeDropFolder, versionId, ct,
+            TransactionHandling.Autonomous);
+        await LogAndProcess(knownFolders.AfterMigration!, changeDropFolder, versionId, ct,
+            TransactionHandling.Autonomous);
 
         if (exception is not null)
         {
@@ -166,21 +170,16 @@ public class GrateMigrator : IAsyncDisposable
     private async Task AlterDatabase(IDbMigrator dbMigrator, KnownFolders knownFolders, string changeDropFolder,
         long versionId)
     {
-        using (new TransactionScope(TransactionScopeOption.Suppress,
-                   TransactionScopeAsyncFlowOption.Enabled))
-        {
-            await dbMigrator.OpenAdminConnection();
-            await LogAndProcess(knownFolders.AlterDatabase!, changeDropFolder, versionId, ConnectionType.Admin);
-            await dbMigrator.CloseAdminConnection();
-        }
+        await dbMigrator.OpenAdminConnection();
+        await LogAndProcess(knownFolders.AlterDatabase!, changeDropFolder, versionId, ConnectionType.Admin,
+            TransactionHandling.Autonomous);
+        await dbMigrator.CloseAdminConnection();
     }
 
     private async Task BeforeMigration(KnownFolders knownFolders, string changeDropFolder, long versionId)
     {
-        using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
-        {
-            await LogAndProcess(knownFolders.BeforeMigration!, changeDropFolder, versionId, ConnectionType.Default);
-        }
+        await LogAndProcess(knownFolders.BeforeMigration!, changeDropFolder, versionId, ConnectionType.Default,
+            TransactionHandling.Autonomous);
     }
 
     private async Task CreateGrateStructure(IDbMigrator dbMigrator)
@@ -222,9 +221,7 @@ public class GrateMigrator : IAsyncDisposable
         }
         else
         {
-            await dbMigrator.OpenAdminConnection();
             databaseCreated = await dbMigrator.CreateDatabase();
-            await dbMigrator.CloseAdminConnection();
         }
         return databaseCreated;
     }
@@ -234,7 +231,7 @@ public class GrateMigrator : IAsyncDisposable
         await dbMigrator.RestoreDatabase(backupPath);
     }
 
-    private async Task LogAndProcess(MigrationsFolder folder, string changeDropFolder, long versionId, ConnectionType connectionType)
+    private async Task LogAndProcess(MigrationsFolder folder, string changeDropFolder, long versionId, ConnectionType connectionType, TransactionHandling transactionHandling)
     {
         if (!folder.Path.Exists)
         {
@@ -264,12 +261,13 @@ public class GrateMigrator : IAsyncDisposable
             msg);
 
         Separator('-');
-        await Process(folder, changeDropFolder, versionId, connectionType);
+        await Process(folder, changeDropFolder, versionId, connectionType, transactionHandling);
         Separator('-');
         Separator(' ');
     }
 
-    private async Task Process(MigrationsFolder folder, string changeDropFolder, long versionId, ConnectionType connectionType)
+    private async Task Process(MigrationsFolder folder, string changeDropFolder, long versionId,
+        ConnectionType connectionType, TransactionHandling transactionHandling)
     {
         var pattern = "*.sql";
         var files = FileSystem.GetFiles(folder.Path, pattern);
@@ -285,7 +283,7 @@ public class GrateMigrator : IAsyncDisposable
                 Path.GetRelativePath(folder.Path.ToString(), file.FullName).Split(Path.DirectorySeparatorChar));
 
             bool theSqlRan = await _migrator.RunSql(sql, fileNameToLog, folder.Type, versionId, _migrator.Configuration.Environment,
-                connectionType);
+                connectionType, transactionHandling);
 
             if (theSqlRan)
             {
