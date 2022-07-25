@@ -116,21 +116,31 @@ public class GrateMigrator : IAsyncDisposable
 
             await dbMigrator.OpenConnection();
 
-
             if (databaseCreated)
             {
                 await LogAndProcess(knownFolders.RunAfterCreateDatabase!, changeDropFolder, versionId, ct, th);
             }
 
-            await LogAndProcess(knownFolders.RunBeforeUp!, changeDropFolder, versionId, ct, th);
-            await LogAndProcess(knownFolders.Up!, changeDropFolder, versionId, ct, th);
-            await LogAndProcess(knownFolders.RunFirstAfterUp!, changeDropFolder, versionId, ct, th);
-            await LogAndProcess(knownFolders.Functions!, changeDropFolder, versionId, ct, th);
-            await LogAndProcess(knownFolders.Views!, changeDropFolder, versionId, ct, th);
-            await LogAndProcess(knownFolders.Sprocs!, changeDropFolder, versionId, ct, th);
-            await LogAndProcess(knownFolders.Triggers!, changeDropFolder, versionId, ct, th);
-            await LogAndProcess(knownFolders.Indexes!, changeDropFolder, versionId, ct, th);
-            await LogAndProcess(knownFolders.RunAfterOtherAnyTimeScripts!, changeDropFolder, versionId, ct, th);
+            // Make a list of functions first (prepare for a dynamic list of these from configuration)
+            var scriptFolderTasks = new List<Func<Task>>()
+            {
+                () => LogAndProcess(knownFolders.RunBeforeUp!, changeDropFolder, versionId, ct, th),
+                () => LogAndProcess(knownFolders.Up!, changeDropFolder, versionId, ct, th),
+                () => LogAndProcess(knownFolders.RunFirstAfterUp!, changeDropFolder, versionId, ct, th),
+                () => LogAndProcess(knownFolders.Functions!, changeDropFolder, versionId, ct, th),
+                () => LogAndProcess(knownFolders.Views!, changeDropFolder, versionId, ct, th),
+                () => LogAndProcess(knownFolders.Sprocs!, changeDropFolder, versionId, ct, th),
+                () => LogAndProcess(knownFolders.Triggers!, changeDropFolder, versionId, ct, th),
+                () => LogAndProcess(knownFolders.Indexes!, changeDropFolder, versionId, ct, th),
+                () => LogAndProcess(knownFolders.RunAfterOtherAnyTimeScripts!, changeDropFolder, versionId, ct, th)
+            };
+
+            // Execute them all in order
+            foreach (var task in scriptFolderTasks)
+            {
+                await task();
+            }
+
             
             await dbMigrator.CloseConnection();
             scope?.Complete();
