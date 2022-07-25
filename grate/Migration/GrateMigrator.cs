@@ -143,6 +143,7 @@ public class GrateMigrator : IAsyncDisposable
             await dbMigrator.OpenConnection();
             await LogAndProcess(knownFolders.Permissions!, changeDropFolder, versionId, ConnectionType.Default);
             await LogAndProcess(knownFolders.AfterMigration!, changeDropFolder, versionId, ConnectionType.Default);
+            await dbMigrator.CloseConnection();
         }
 
         if (exception is not null)

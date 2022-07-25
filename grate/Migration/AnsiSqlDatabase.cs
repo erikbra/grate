@@ -128,7 +128,7 @@ public abstract class AnsiSqlDatabase : IDatabase
             Logger.LogTrace("Creating database {DatabaseName}", DatabaseName);
             
             var sql = _syntax.CreateDatabase(DatabaseName, Password);
-            await RunInAutonomousTransaction(AdminConnectionString, conn => ExecuteNonQuery(conn, sql, Config?.AdminCommandTimeout));
+            await RunInAutonomousTransaction(AdminConnectionString, async conn => await ExecuteNonQuery(conn, sql, Config?.AdminCommandTimeout));
         }
 
         await CloseAdminConnection();
@@ -140,9 +140,7 @@ public abstract class AnsiSqlDatabase : IDatabase
         if (await DatabaseExists())
         {
             await CloseConnection(); // try and ensure there's nobody else in there...
-            using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
-            await using var conn = await OpenNewAdminConnection();
-            await ExecuteNonQuery(conn, _syntax.DropDatabase(DatabaseName), Config?.AdminCommandTimeout);
+            await RunInAutonomousTransaction(AdminConnectionString, async conn => await ExecuteNonQuery(conn, _syntax.DropDatabase(DatabaseName), Config?.AdminCommandTimeout));
         }
     }
 
@@ -157,7 +155,6 @@ public abstract class AnsiSqlDatabase : IDatabase
 
         try
         {
-            //var databases = (await Connection.QueryAsync<string>(sql)).ToArray();
             var databases = (await RunInAutonomousTransaction(ConnectionString, async conn => await conn.QueryAsync<string>(sql))).ToArray();
 
             Logger.LogTrace("Current databases: ");
@@ -186,7 +183,7 @@ public abstract class AnsiSqlDatabase : IDatabase
             try
             {
                 await OpenConnection();
-                //_ = await RunInAutonomousTransaction(ConnectionString, _ => Task.FromResult(1));
+                //_ = await RunInAutonomousTransaction(ConnectionString, async conn => await Task.FromResult(1));
                 databaseReady = true;
             }
             catch (DbException)
@@ -209,14 +206,14 @@ public abstract class AnsiSqlDatabase : IDatabase
     {
         if (SupportsSchemas && !await RunSchemaExists())
         {
-            await ExecuteNonQuery(Connection, _syntax.CreateSchema(SchemaName), Config?.CommandTimeout);
+            await RunInAutonomousTransaction(ConnectionString, async conn => await ExecuteNonQuery(conn, _syntax.CreateSchema(SchemaName), Config?.CommandTimeout));
         }
     }
 
     private async Task<bool> RunSchemaExists()
     {
         string sql = $"SELECT s.schema_name FROM information_schema.schemata s WHERE s.schema_name = '{SchemaName}'";
-        var res = await ExecuteScalarAsync<string>(Connection, sql);
+        var res = await RunInAutonomousTransaction(ConnectionString, async conn => await ExecuteScalarAsync<string>(conn, sql));
         return res == SchemaName;
     }
 
@@ -240,7 +237,7 @@ CREATE TABLE {ScriptsRunTable}(
 
         if (!await ScriptsRunTableExists())
         {
-            await ExecuteNonQuery(Connection, createSql, Config?.CommandTimeout);
+            await RunInAutonomousTransaction(ConnectionString, async conn => await ExecuteNonQuery(conn, createSql, Config?.CommandTimeout));
         }
     }
 
@@ -262,7 +259,7 @@ CREATE TABLE {ScriptsRunErrorsTable}(
 )";
         if (!await ScriptsRunErrorsTableExists())
         {
-            await ExecuteNonQuery(Connection, createSql, Config?.CommandTimeout);
+            await RunInAutonomousTransaction(ConnectionString, async conn => await ExecuteNonQuery(conn, createSql, Config?.CommandTimeout));
         }
     }
 
@@ -280,7 +277,7 @@ CREATE TABLE {VersionTable}(
 )";
         if (!await VersionTableExists())
         {
-            await ExecuteNonQuery(Connection, createSql, Config?.CommandTimeout);
+            await RunInAutonomousTransaction(ConnectionString, async conn => await ExecuteNonQuery(conn, createSql, Config?.CommandTimeout));
         }
     }
 
@@ -295,7 +292,8 @@ CREATE TABLE {VersionTable}(
 
         string existsSql = ExistsSql(tableSchema, fullTableName);
 
-        var res = await ExecuteScalarAsync<object>(Connection, existsSql);
+        var res = await RunInAutonomousTransaction(ConnectionString, async conn => await ExecuteScalarAsync<object>(conn, existsSql));
+        
         return !DBNull.Value.Equals(res) && res is not null;
     }
 
@@ -322,7 +320,7 @@ ORDER BY id DESC", 1)}
         try
         {
             var sql = CurrentVersionSql;
-            var res = await ExecuteScalarAsync<string>(Connection, sql);
+            var res = await RunInAutonomousTransaction(ConnectionString, async conn => await ExecuteScalarAsync<string>(conn, sql));
             return res ?? "0.0.0.0";
         }
         catch (Exception ex)
