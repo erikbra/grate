@@ -62,12 +62,40 @@ public abstract class AnsiSqlDatabase : IDatabase
     }
 
     private string? AdminConnectionString { get; set; }
-    private string? ConnectionString { get; set; }
+    protected string? ConnectionString { get; set; }
 
     protected abstract DbConnection GetSqlConnection(string? connectionString);
 
     protected DbConnection AdminConnection => _adminConnection ??= GetSqlConnection(AdminConnectionString);
     protected DbConnection Connection => _connection ??= GetSqlConnection(ConnectionString);
+
+    protected async Task<TResult> RunInAutonomousTransaction<TResult>(string? connectionString, Func<DbConnection, Task<TResult>> func)
+    {
+        TResult res;
+        using (var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+        {
+            await using (var connection = GetSqlConnection(connectionString))
+            {
+                await Open(connection);
+                res = await func(connection);
+            }
+            s.Complete();
+        }
+        return res;
+    }
+    
+    protected async Task RunInAutonomousTransaction(string? connectionString, Func<DbConnection, Task> func)
+    {
+        using (var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+        {
+            await using (var connection = GetSqlConnection(connectionString))
+            {
+                await Open(connection);
+                await func(connection);
+            }
+            s.Complete();
+        }
+    }
 
     public async Task OpenConnection() => await Open(Connection);
     // Don't use the properties, they can open a connection just to dispose it!
@@ -84,13 +112,6 @@ public abstract class AnsiSqlDatabase : IDatabase
         await Close(_adminConnection);
         _adminConnection = null;
     }
-    
-    protected async Task<DbConnection> OpenNewConnection()
-    {
-        var conn = GetSqlConnection(ConnectionString);
-        await Open(conn);
-        return conn;
-    }
 
     protected async Task<DbConnection> OpenNewAdminConnection()
     {
@@ -105,13 +126,9 @@ public abstract class AnsiSqlDatabase : IDatabase
         if (!await DatabaseExists())
         {
             Logger.LogTrace("Creating database {DatabaseName}", DatabaseName);
-
-            using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
-            await using var conn = await OpenNewAdminConnection();
+            
             var sql = _syntax.CreateDatabase(DatabaseName, Password);
-
-            await ExecuteNonQuery(conn, sql, Config?.AdminCommandTimeout);
-            s.Complete();
+            await RunInAutonomousTransaction(AdminConnectionString, conn => ExecuteNonQuery(conn, sql, Config?.AdminCommandTimeout));
         }
 
         await CloseAdminConnection();
@@ -140,7 +157,8 @@ public abstract class AnsiSqlDatabase : IDatabase
 
         try
         {
-            var databases = (await Connection.QueryAsync<string>(sql)).ToArray();
+            //var databases = (await Connection.QueryAsync<string>(sql)).ToArray();
+            var databases = (await RunInAutonomousTransaction(ConnectionString, async conn => await conn.QueryAsync<string>(sql))).ToArray();
 
             Logger.LogTrace("Current databases: ");
             foreach (var db in databases)
@@ -168,6 +186,7 @@ public abstract class AnsiSqlDatabase : IDatabase
             try
             {
                 await OpenConnection();
+                //_ = await RunInAutonomousTransaction(ConnectionString, _ => Task.FromResult(1));
                 databaseReady = true;
             }
             catch (DbException)
