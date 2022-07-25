@@ -16,8 +16,8 @@ internal class PostgreSqlGrateTestContext : TestContextBase, IGrateTestContext, 
     public string DockerCommand(string serverName, string adminPassword) =>
         $"run -d --name {serverName} -e POSTGRES_PASSWORD={adminPassword} -P postgres:latest";
 
-    public string AdminConnectionString => $"Host=localhost;Port={Port};Database=postgres;Username=postgres;Password={AdminPassword};Include Error Detail=true";
-    public string ConnectionString(string database) => $"Host=localhost;Port={Port};Database={database};Username=postgres;Password={AdminPassword};Include Error Detail=true";
+    public string AdminConnectionString => $"Host=localhost;Port={Port};Database=postgres;Username=postgres;Password={AdminPassword};Include Error Detail=true;Pooling=false";
+    public string ConnectionString(string database) => $"Host=localhost;Port={Port};Database={database};Username=postgres;Password={AdminPassword};Include Error Detail=true;Pooling=false";
 
     public DbConnection GetDbConnection(string connectionString) => new NpgsqlConnection(connectionString);
 

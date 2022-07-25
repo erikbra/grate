@@ -16,8 +16,8 @@ internal class OracleGrateTestContext : TestContextBase, IGrateTestContext, IDoc
     public string DockerCommand(string serverName, string adminPassword) =>
         $"run -d --name {serverName} -e ORACLE_ENABLE_XDB=true -P oracleinanutshell/oracle-xe-11g:latest";
 
-    public string AdminConnectionString => $@"Data Source=localhost:{Port}/XE;User ID=SYSTEM;Password=oracle";
-    public string ConnectionString(string database) => $@"Data Source=localhost:{Port}/XE;User ID={database.ToUpper()};Password=oracle";
+    public string AdminConnectionString => $@"Data Source=localhost:{Port}/XE;User ID=SYSTEM;Password=oracle;Pooling=False";
+    public string ConnectionString(string database) => $@"Data Source=localhost:{Port}/XE;User ID={database.ToUpper()};Password=oracle;Pooling=False";
 
     public DbConnection GetDbConnection(string connectionString) => new OracleConnection(connectionString);
 
