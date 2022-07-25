@@ -28,7 +28,7 @@ public interface IDbMigrator: IAsyncDisposable
     Task CloseAdminConnection();
     Task<bool> RunSql(string sql, string scriptName, MigrationType migrationType, long versionId,
         GrateEnvironment? environment,
-        ConnectionType connectionType);
+        ConnectionType connectionType, TransactionHandling transactionHandling);
 
     Task RestoreDatabase(string backupPath);
 }

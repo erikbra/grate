@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Dapper;
 using grate.Configuration;
+using grate.Exceptions;
 using grate.Infrastructure;
 using Microsoft.Extensions.Logging;
 using static System.StringSplitOptions;
@@ -183,7 +184,7 @@ public abstract class AnsiSqlDatabase : IDatabase
             try
             {
                 await OpenConnection();
-                //_ = await RunInAutonomousTransaction(ConnectionString, async conn => await Task.FromResult(1));
+                _ = await RunInAutonomousTransaction(ConnectionString, async conn => await Task.FromResult(1));
                 databaseReady = true;
             }
             catch (DbException)
@@ -360,19 +361,51 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
         Transaction.Current?.Rollback();
     }
 
-    public async Task RunSql(string sql, ConnectionType connectionType)
+    public async Task RunSql(string sql, ConnectionType connectionType, TransactionHandling transactionHandling)
     {
-        Logger.LogTrace("[SQL] Running (on connection '{ConnType}'): \n{Sql}", connectionType.ToString(), sql);
+        Logger.LogTrace("[SQL] Running (on connection '{ConnType}', transaction handling '{TransactionHandling}'): \n{Sql}", 
+                            connectionType.ToString(), 
+                            transactionHandling,
+                            sql);
 
-        var (conn, timeout) = connectionType switch
+        int? timeout = GetTimeout(connectionType);
+        var connection = GetDbConnection(connectionType);
+        var connectionString = GetConnectionString(connectionType);
+
+        var task = transactionHandling switch
         {
-            ConnectionType.Default => (Connection, Config?.CommandTimeout),
-            ConnectionType.Admin => (AdminConnection, Config?.AdminCommandTimeout),
-            _ => throw new ArgumentOutOfRangeException(nameof(connectionType), connectionType, "Unknown connection type: " + connectionType)
+            TransactionHandling.Default => ExecuteNonQuery(connection, sql, timeout),
+            TransactionHandling.Autonomous => RunInAutonomousTransaction(connectionString, conn => ExecuteNonQuery(conn, sql, timeout)),
+            _ => throw new UnknownConnectionType(connectionType)
         };
-
-        await ExecuteNonQuery(conn, sql, timeout);
+        
+        await task;
     }
+
+    
+    private DbConnection GetDbConnection(ConnectionType connectionType) => 
+        connectionType switch
+        {
+            ConnectionType.Default => Connection,
+            ConnectionType.Admin => AdminConnection,
+            _ => throw new UnknownConnectionType(connectionType)
+        };
+    
+    private string? GetConnectionString(ConnectionType connectionType) => 
+        connectionType switch
+        {
+            ConnectionType.Default => ConnectionString,
+            ConnectionType.Admin => AdminConnectionString,
+            _ => throw new UnknownConnectionType(connectionType)
+        };
+    
+    private int? GetTimeout(ConnectionType connectionType) => 
+        connectionType switch
+        {
+            ConnectionType.Default => Config?.CommandTimeout,
+            ConnectionType.Admin => Config?.AdminCommandTimeout,
+            _ => throw new UnknownConnectionType(connectionType)
+        };
 
     // ReSharper disable once ClassNeverInstantiated.Local
     private class ScriptsRunCacheItem
@@ -489,20 +522,24 @@ INSERT INTO {ScriptsRunErrorsTable}
 VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)");
 
         var versionSql = Parameterize($"SELECT version FROM {VersionTable} WHERE id = @versionId");
-        var version = await ExecuteScalarAsync<string>(Connection, versionSql, new { versionId });
 
-        var scriptRunErrors = new
-        {
-            version,
-            scriptName,
-            sql,
-            errorSql,
-            errorMessage,
-            now = DateTime.UtcNow,
-            usr = Environment.UserName,
-        };
+        await RunInAutonomousTransaction(ConnectionString, async conn =>
+            {
+                var version = await ExecuteScalarAsync<string>(conn, versionSql, new { versionId });
 
-        await ExecuteAsync(Connection, insertSql, scriptRunErrors);
+                var scriptRunErrors = new
+                {
+                    version,
+                    scriptName,
+                    sql,
+                    errorSql,
+                    errorMessage,
+                    now = DateTime.UtcNow,
+                    usr = Environment.UserName,
+                };
+
+                await ExecuteAsync(conn, insertSql, scriptRunErrors);
+        });
     }
 
     private static async Task Close(DbConnection? conn)
