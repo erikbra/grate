@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace grate.Infrastructure;
+namespace grate.Exceptions;
 
 public class UnknownConnectionType: ArgumentOutOfRangeException
 {

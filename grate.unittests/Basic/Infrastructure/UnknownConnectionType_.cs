@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using grate.Exceptions;
 using grate.Infrastructure;
 using NUnit.Framework;
 

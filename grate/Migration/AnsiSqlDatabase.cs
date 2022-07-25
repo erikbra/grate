@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Dapper;
 using grate.Configuration;
+using grate.Exceptions;
 using grate.Infrastructure;
 using Microsoft.Extensions.Logging;
 using static System.StringSplitOptions;
@@ -55,6 +56,8 @@ public abstract class AnsiSqlDatabase : IDatabase
         Logger.LogInformation("Initializing connections.");
 
         ConnectionString = configuration.ConnectionString;
+        ReadOnlyConnectionString = MakeReadOnly(configuration.ConnectionString);
+        
         AdminConnectionString = configuration.AdminConnectionString;
         SchemaName = configuration.SchemaName;
         Config = configuration;
@@ -62,20 +65,20 @@ public abstract class AnsiSqlDatabase : IDatabase
     }
 
     private string? AdminConnectionString { get; set; }
-    protected string? ConnectionString { get; set; }
+    protected string? ConnectionString { get; private set; }
+    private string? ReadOnlyConnectionString { get; set; }
 
     protected abstract DbConnection GetSqlConnection(string? connectionString);
+    
+    protected virtual string? MakeReadOnly(string? connectionString) => connectionString;
 
-    protected async Task<DbConnection> GetAdminConnection()
+    protected Task<DbConnection> GetAdminConnection() => OpenNewSqlConnection(AdminConnectionString);
+    protected Task<DbConnection> GetConnection() => OpenNewSqlConnection(ConnectionString);
+    protected Task<DbConnection> GetReadOnlyConnection() => OpenNewSqlConnection(ReadOnlyConnectionString);
+    
+    protected async Task<DbConnection> OpenNewSqlConnection(string? connectionString)
     {
-        var conn = GetSqlConnection(AdminConnectionString);
-        await Open(conn);
-        return conn;
-    }
-
-    protected async Task<DbConnection> GetConnection()
-    {
-        var conn = GetSqlConnection(ConnectionString);
+        var conn = GetSqlConnection(connectionString);
         await Open(conn);
         return conn;
     }
@@ -218,7 +221,7 @@ public abstract class AnsiSqlDatabase : IDatabase
     {
         string sql = $"SELECT s.schema_name FROM information_schema.schemata s WHERE s.schema_name = '{SchemaName}'";
         
-        await using var conn = await GetConnection();
+        await using var conn = await GetReadOnlyConnection();
         var res = await ExecuteScalarAsync<string>(conn, sql);
         return res == SchemaName;
     }
@@ -329,7 +332,7 @@ ORDER BY id DESC", 1)}
         try
         {
             var sql = CurrentVersionSql;
-            await using var conn = await GetConnection();
+            await using var conn = await GetReadOnlyConnection();
             var res = await ExecuteScalarAsync<string>(conn, sql);
             return res ?? "0.0.0.0";
         }
@@ -434,7 +437,7 @@ SELECT script_name, text_hash
 FROM {ScriptsRunTable} sr
 WHERE id = (SELECT MAX(id) FROM {ScriptsRunTable} sr2 WHERE sr2.script_name = sr.script_name)
 ";
-            await using var conn = await GetConnection();
+            await using var conn = await GetReadOnlyConnection();
             var results = await conn.QueryAsync<ScriptsRunCacheItem>(sql);
             return results.ToDictionary(item => item.script_name, item => item.text_hash);
 
@@ -462,7 +465,7 @@ WHERE id = (SELECT MAX(id) FROM {ScriptsRunTable} sr2 WHERE sr2.script_name = sr
 SELECT text_hash FROM  {ScriptsRunTable}
 WHERE script_name = @scriptName");
 
-        await using var conn = await GetConnection();
+        await using var conn = await GetReadOnlyConnection();
         var hash = await ExecuteScalarAsync<string?>(conn, hashSql, new { scriptName });
         return hash;
     }
@@ -481,7 +484,7 @@ WHERE script_name = @scriptName");
 SELECT 1 FROM  {ScriptsRunTable}
 WHERE script_name = @scriptName");
 
-            await using var conn = await GetConnection();
+            await using var conn = await GetReadOnlyConnection();
             var run = await ExecuteScalarAsync<bool?>(conn, hasRunSql, new { scriptName });
             return run ?? false;
         }

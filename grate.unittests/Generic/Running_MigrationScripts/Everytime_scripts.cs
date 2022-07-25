@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Dapper;
 using FluentAssertions;
 using grate.Configuration;
+using grate.Exceptions;
 using grate.Migration;
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;

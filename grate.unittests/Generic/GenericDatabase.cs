@@ -6,6 +6,7 @@ using System.Transactions;
 using Dapper;
 using FluentAssertions;
 using grate.Configuration;
+using grate.Exceptions;
 using grate.Migration;
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
@@ -42,7 +43,7 @@ public abstract class GenericDatabase
         // The migration should throw an error, as the database does not exist.
         if (ThrowOnMissingDatabase)
         {
-            Assert.ThrowsAsync(Context.DbExceptionType, () => migrator.Migrate());
+            Assert.ThrowsAsync<MigrationFailed>(() => migrator.Migrate());
         }
 
         // Ensure that the database was in fact not created 

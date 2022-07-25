@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
 using Dapper;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -29,9 +30,13 @@ public abstract class Order_Of_Scripts: MigrationsScriptsBase
         string[] scripts;
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
             
-        await using (var conn = Context.CreateDbConnection(db))
+        using (var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
-            scripts = (await conn.QueryAsync<string>(sql)).ToArray();
+            await using (var conn = Context.CreateDbConnection(db))
+            {
+                scripts = (await conn.QueryAsync<string>(sql)).ToArray();
+            }
+            s.Complete();
         }
 
         var expectation = new[]
