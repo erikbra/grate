@@ -82,18 +82,13 @@ public class SqlServerDatabase : AnsiSqlDatabase
         var sql = $"select name from sys.databases where [name] = '{DatabaseName}'";
         try
         {
-            await OpenConnection();
-            var results = await Connection.QueryAsync<string>(sql, commandType: Text);
+            var results = await RunInAutonomousTransaction(ConnectionString, conn => conn.QueryAsync<string>(sql, commandType: Text));
             return results.Any();
         }
         catch (DbException ex)
         {
             Logger.LogDebug(ex, "An unexpected error occurred performing the CheckDatabaseExists check: {ErrorMessage}", ex.Message);
             return false; // base method also returns false on any DbException
-        }
-        finally
-        {
-            await CloseConnection();
         }
     }
 }
