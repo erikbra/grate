@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Common;
 using System.Threading.Tasks;
 using grate.Configuration;
 
@@ -15,6 +16,7 @@ public interface IDatabase : IAsyncDisposable
     public string ScriptsRunTable { get; }
     public string ScriptsRunErrorsTable { get; }
     public string VersionTable { get; }
+    DbConnection ActiveConnection { set; }
 
     Task InitializeConnections(GrateConfiguration configuration);
     Task OpenConnection();
@@ -42,4 +44,6 @@ public interface IDatabase : IAsyncDisposable
         TransactionHandling transactionHandling);
     Task InsertScriptRunError(string scriptName, string? sql, string errorSql, string errorMessage, long versionId);
     Task<bool> VersionTableExists();
+    void SetDefaultConnectionActive();
+    Task<IDisposable> OpenNewActiveConnection();
 }

@@ -50,6 +50,9 @@ public class DbMigrator : IDbMigrator
     public Task OpenConnection() => Database.OpenConnection();
     public Task CloseConnection() => Database.CloseConnection();
 
+    public void SetDefaultConnectionActive() => Database.SetDefaultConnectionActive();
+    public Task<IDisposable> OpenNewActiveConnection() => Database.OpenNewActiveConnection();
+
     public Task RunSupportTasks() => Database.RunSupportTasks();
     public Task<string> GetCurrentVersion() => Database.GetCurrentVersion();
     public Task<long> VersionTheDatabase(string newVersion)

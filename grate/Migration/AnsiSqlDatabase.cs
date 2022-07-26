@@ -69,7 +69,22 @@ public abstract class AnsiSqlDatabase : IDatabase
     protected abstract DbConnection GetSqlConnection(string? connectionString);
 
     protected DbConnection AdminConnection => _adminConnection ??= GetSqlConnection(AdminConnectionString);
+    
     protected DbConnection Connection => _connection ??= GetSqlConnection(ConnectionString);
+    
+    public DbConnection ActiveConnection { protected get; set; }
+
+    public void SetDefaultConnectionActive()
+    {
+        ActiveConnection = Connection;
+    }
+
+    public async Task<IDisposable> OpenNewActiveConnection()
+    {
+        var newConnection = GetSqlConnection(ConnectionString);
+        await Open(newConnection);
+        return ActiveConnection = newConnection;
+    }
 
     protected async Task<TResult> RunInAutonomousTransaction<TResult>(string? connectionString, Func<DbConnection, Task<TResult>> func)
     {
@@ -83,6 +98,7 @@ public abstract class AnsiSqlDatabase : IDatabase
             {
                 await Open(connection);
                 res = await func(connection);
+                await Close(connection);
             }
             s.Complete();
         }
@@ -97,12 +113,18 @@ public abstract class AnsiSqlDatabase : IDatabase
             {
                 await Open(connection);
                 await func(connection);
+                await Close(connection);
             }
             s.Complete();
         }
     }
 
-    public async Task OpenConnection() => await Open(Connection);
+    public async Task OpenConnection()
+    {
+        await Open(Connection);
+        SetDefaultConnectionActive();
+    }
+
     // Don't use the properties, they can open a connection just to dispose it!
     public async Task CloseConnection()
     {
@@ -117,14 +139,6 @@ public abstract class AnsiSqlDatabase : IDatabase
         await Close(_adminConnection);
         _adminConnection = null;
     }
-
-    protected async Task<DbConnection> OpenNewAdminConnection()
-    {
-        var conn = GetSqlConnection(AdminConnectionString);
-        await Open(conn);
-        return conn;
-    }
-
 
     public async Task CreateDatabase()
     {
@@ -344,7 +358,7 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
 
 {_syntax.ReturnId}
 ");
-        var res = (long)await Connection.ExecuteScalarAsync<int>(
+        var res = (long)await ActiveConnection.ExecuteScalarAsync<int>(
             sql,
             new
             {
@@ -390,7 +404,7 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
     private DbConnection GetDbConnection(ConnectionType connectionType) => 
         connectionType switch
         {
-            ConnectionType.Default => Connection,
+            ConnectionType.Default => ActiveConnection,
             ConnectionType.Admin => AdminConnection,
             _ => throw new UnknownConnectionType(connectionType)
         };
@@ -428,7 +442,6 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
 
     private async Task<IDictionary<string, string>> GetAllScriptsRun()
     {
-
         try
         {
 
@@ -437,7 +450,7 @@ SELECT script_name, text_hash
 FROM {ScriptsRunTable} sr
 WHERE id = (SELECT MAX(id) FROM {ScriptsRunTable} sr2 WHERE sr2.script_name = sr.script_name)
 ";
-            var results = await Connection.QueryAsync<ScriptsRunCacheItem>(sql);
+            var results = await ActiveConnection.QueryAsync<ScriptsRunCacheItem>(sql);
             return results.ToDictionary(item => item.script_name, item => item.text_hash);
 
         }
@@ -464,7 +477,7 @@ WHERE id = (SELECT MAX(id) FROM {ScriptsRunTable} sr2 WHERE sr2.script_name = sr
 SELECT text_hash FROM  {ScriptsRunTable}
 WHERE script_name = @scriptName");
 
-        var hash = await ExecuteScalarAsync<string?>(Connection, hashSql, new { scriptName });
+        var hash = await ExecuteScalarAsync<string?>(ActiveConnection, hashSql, new { scriptName });
         return hash;
     }
 
@@ -481,14 +494,16 @@ WHERE script_name = @scriptName");
             var hasRunSql = Parameterize($@"
 SELECT 1 FROM  {ScriptsRunTable}
 WHERE script_name = @scriptName");
+            
+            var task = ExecuteScalarAsync<bool?>(ActiveConnection, hasRunSql, new { scriptName });
 
-            var task = transactionHandling switch
-            {
-                TransactionHandling.Default => ExecuteScalarAsync<bool?>(Connection, hasRunSql, new { scriptName }),
-                TransactionHandling.Autonomous => RunInAutonomousTransaction(ConnectionString,
-                    async conn => await ExecuteScalarAsync<bool?>(conn, hasRunSql, new { scriptName })),
-                _ => throw new UnknownTransactionHandling(transactionHandling)
-            };
+            // var task = transactionHandling switch
+            // {
+            //     TransactionHandling.Default => ExecuteScalarAsync<bool?>(ActiveConnection, hasRunSql, new { scriptName }),
+            //     TransactionHandling.Autonomous => RunInAutonomousTransaction(ConnectionString,
+            //         async conn => await ExecuteScalarAsync<bool?>(conn, hasRunSql, new { scriptName })),
+            //     _ => throw new UnknownTransactionHandling(transactionHandling)
+            // };
 
             var run = await task;
             return run ?? false;
@@ -526,7 +541,7 @@ VALUES (@versionId, @scriptName, @sql, @hash, @runOnce, @now, @now, @usr)");
 
         var execution = transactionHandling switch
         {
-            TransactionHandling.Default => ExecuteAsync(Connection, insertSql, scriptRun),
+            TransactionHandling.Default => ExecuteAsync(ActiveConnection, insertSql, scriptRun),
             TransactionHandling.Autonomous => RunInAutonomousTransaction(ConnectionString,
                 conn => ExecuteAsync(conn, insertSql, scriptRun)),
             _ => throw new UnknownTransactionHandling(transactionHandling)
