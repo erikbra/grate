@@ -248,7 +248,7 @@ public class DbMigrator : IDbMigrator
             {
                 Database.Rollback();
                 await Database.CloseConnection();
-                //Transaction.Current?.Dispose();
+                Transaction.Current?.Dispose();
 
                 await RecordScriptInScriptsRunErrorsTable(scriptName, sql, statement, ex.Message, versionId);
                 throw;
@@ -278,7 +278,7 @@ public class DbMigrator : IDbMigrator
     {
         Database.Rollback();
         await Database.CloseConnection();
-        //Transaction.Current?.Dispose();
+        Transaction.Current?.Dispose();
 
         using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
         await Database.OpenConnection();

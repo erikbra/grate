@@ -12,6 +12,7 @@ using grate.Exceptions;
 using grate.Infrastructure;
 using Microsoft.Extensions.Logging;
 using static System.StringSplitOptions;
+using IsolationLevel = System.Transactions.IsolationLevel;
 
 namespace grate.Migration;
 
@@ -73,7 +74,10 @@ public abstract class AnsiSqlDatabase : IDatabase
     protected async Task<TResult> RunInAutonomousTransaction<TResult>(string? connectionString, Func<DbConnection, Task<TResult>> func)
     {
         TResult res;
-        using (var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+        using (var s = new TransactionScope(
+                   TransactionScopeOption.Suppress, 
+                   new TransactionOptions() { IsolationLevel = IsolationLevel.ReadUncommitted} , 
+                   TransactionScopeAsyncFlowOption.Enabled))
         {
             await using (var connection = GetSqlConnection(connectionString))
             {
@@ -375,7 +379,7 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
         var task = transactionHandling switch
         {
             TransactionHandling.Default => ExecuteNonQuery(connection, sql, timeout),
-            TransactionHandling.Autonomous => RunInAutonomousTransaction(connectionString, conn => ExecuteNonQuery(conn, sql, timeout)),
+            TransactionHandling.Autonomous => RunInAutonomousTransaction(connectionString, async conn => await ExecuteNonQuery(conn, sql, timeout)),
             _ => throw new UnknownConnectionType(connectionType)
         };
         
