@@ -76,8 +76,7 @@ public abstract class Order_Of_Scripts: MigrationsScriptsBase
         {
             CreateDatabase = createDatabase, 
             ConnectionString = Context.ConnectionString(databaseName),
-            KnownFolders = KnownFolders.In(scriptsDir),
-            Transaction = true
+            KnownFolders = KnownFolders.In(scriptsDir)
         };
 
         CreateDummySql(config.KnownFolders.AfterMigration, "1_aftermigration.sql");

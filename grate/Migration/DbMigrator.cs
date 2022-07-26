@@ -208,7 +208,7 @@ public class DbMigrator : IDbMigrator
         return _hashGenerator.Hash(sql);
     }
 
-    private Task<bool> ThisScriptIsAlreadyRun(string scriptName, TransactionHandling transactionHandling) => Database.HasRun(scriptName, transactionHandling);
+    private async Task<bool> ThisScriptIsAlreadyRun(string scriptName, TransactionHandling transactionHandling) => await Database.HasRun(scriptName, transactionHandling);
 
 
     /// <summary>
