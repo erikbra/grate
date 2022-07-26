@@ -142,12 +142,14 @@ public class GrateMigrator : IAsyncDisposable
             //     await task();
             // }
 
+            bool exceptionOccured = false;
+
             foreach (var folder in knownFolders)
             {
                 // Don't run any more folders that runs in the transaction, if the transaction is already aborted
                 // (due to an error in a script, or something else)
                 if (
-                    RunningInAbortedTransaction(scope)
+                    runInTransaction && exceptionOccured
                     && folder?.TransactionHandling == TransactionHandling.Default)
                 {
                     continue;
@@ -160,25 +162,39 @@ public class GrateMigrator : IAsyncDisposable
                 {
                     // Catch exceptions, so that we run the rest of the scripts, that should always be run.
                     exceptions.Add(ex);
-                }catch (TransactionException ex)
-                {
-                    // Catch exceptions, so that we run the rest of the scripts, that should always be run.
-                    exceptions.Add(ex);
+                    
+                    //await dbMigrator.CloseConnection();
+                    //scope?.Dispose();
+                    
+                    exceptionOccured = true;
                 }
+                // catch (TransactionException ex)
+                // {
+                //     // Catch exceptions, so that we run the rest of the scripts, that should always be run.
+                //     exceptions.Add(ex);
+                //     
+                //     await dbMigrator.CloseConnection();
+                //     scope?.Dispose();
+                //     
+                //     exceptionOccured = true;
+                // }
             }
-            
             await dbMigrator.CloseConnection();
-            scope?.Complete();
+            
+            if (!exceptionOccured)
+            {
+                scope?.Complete();
+            }
         }
-        catch (DbException ex)
-        {
-            // Catch exceptions, so that we run the rest of the scripts, that should always be run.
-            exceptions.Add(ex);
-        }catch (TransactionException ex)
-        {
-            // Catch exceptions, so that we run the rest of the scripts, that should always be run.
-            exceptions.Add(ex);
-        }
+        // catch (DbException ex)
+        // {
+        //     // Catch exceptions, so that we run the rest of the scripts, that should always be run.
+        //     exceptions.Add(ex);
+        // }catch (TransactionException ex)
+        // {
+        //     // Catch exceptions, so that we run the rest of the scripts, that should always be run.
+        //     exceptions.Add(ex);
+        // }
         finally
         {
             try
@@ -208,11 +224,6 @@ public class GrateMigrator : IAsyncDisposable
         Separator(' ');
 
 
-    }
-
-    private static bool RunningInAbortedTransaction(TransactionScope? scope)
-    {
-        return scope is not null && Transaction.Current?.TransactionInformation?.Status != TransactionStatus.Active;
     }
 
     private async Task AlterDatabase(IDbMigrator dbMigrator, KnownFolders knownFolders, string changeDropFolder,
