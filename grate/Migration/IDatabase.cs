@@ -38,7 +38,8 @@ public interface IDatabase : IAsyncDisposable
     Task RunSql(string sql, ConnectionType connectionType, TransactionHandling transactionHandling);
     Task<string?> GetCurrentHash(string scriptName);
     Task<bool> HasRun(string scriptName);
-    Task InsertScriptRun(string scriptName, string? sql, string hash, bool runOnce, long versionId);
+    Task InsertScriptRun(string scriptName, string? sql, string hash, bool runOnce, long versionId,
+        TransactionHandling transactionHandling);
     Task InsertScriptRunError(string scriptName, string? sql, string errorSql, string errorMessage, long versionId);
     Task<bool> VersionTableExists();
 }

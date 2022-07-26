@@ -104,7 +104,7 @@ public class DbMigrator : IDbMigrator
 
         if (Configuration.Baseline)
         {
-            await RecordScriptInScriptsRunTable(scriptName, sql, migrationType, versionId);
+            await RecordScriptInScriptsRunTable(scriptName, sql, migrationType, versionId, transactionHandling);
             return false;
         }
 
@@ -129,7 +129,7 @@ public class DbMigrator : IDbMigrator
                     case MigrationType.Once when changeHandling == ChangedScriptHandling.WarnAndIgnore:
                         LogScriptChangedWarning(scriptName);
                         _logger.LogDebug("Ignoring script but marking as run due to WarnAndIgnoreOnOneTimeScriptChanges option being set.");
-                        await RecordScriptInScriptsRunTable(scriptName, sql, migrationType, versionId);
+                        await RecordScriptInScriptsRunTable(scriptName, sql, migrationType, versionId, transactionHandling);
                         break;
 
                     case MigrationType.AnyTime:
@@ -248,14 +248,14 @@ public class DbMigrator : IDbMigrator
             {
                 Database.Rollback();
                 await Database.CloseConnection();
-                Transaction.Current?.Dispose();
+                //Transaction.Current?.Dispose();
 
                 await RecordScriptInScriptsRunErrorsTable(scriptName, sql, statement, ex.Message, versionId);
                 throw;
             }
         }
 
-        await RecordScriptInScriptsRunTable(scriptName, sql, migrationType, versionId);
+        await RecordScriptInScriptsRunTable(scriptName, sql, migrationType, versionId, transactionHandling);
     }
 
     private IEnumerable<string> GetStatements(string sql) => StatementSplitter.Split(sql);
@@ -278,7 +278,7 @@ public class DbMigrator : IDbMigrator
     {
         Database.Rollback();
         await Database.CloseConnection();
-        Transaction.Current?.Dispose();
+        //Transaction.Current?.Dispose();
 
         using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
         await Database.OpenConnection();
@@ -290,7 +290,8 @@ public class DbMigrator : IDbMigrator
         throw new OneTimeScriptChanged(errorMessage);
     }
 
-    private Task RecordScriptInScriptsRunTable(string scriptName, string sql, MigrationType migrationType, long versionId)
+    private Task RecordScriptInScriptsRunTable(string scriptName, string sql, MigrationType migrationType,
+        long versionId, TransactionHandling transactionHandling)
     {
         var hash = _hashGenerator.Hash(sql);
         var sqlToStore = Configuration.DoNotStoreScriptsRunText ? null : sql;
@@ -303,7 +304,7 @@ public class DbMigrator : IDbMigrator
         else
         {
             _logger.LogTrace("Recording {ScriptName} script ran on {ServerName} - {DatabaseName}.", scriptName, Database.ServerName, Database.DatabaseName);
-            return Database.InsertScriptRun(scriptName, sqlToStore, hash, migrationType == MigrationType.Once, versionId);
+            return Database.InsertScriptRun(scriptName, sqlToStore, hash, migrationType == MigrationType.Once, versionId, transactionHandling);
         }
     }
 

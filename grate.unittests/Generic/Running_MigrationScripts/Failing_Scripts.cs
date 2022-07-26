@@ -7,6 +7,7 @@ using System.Transactions;
 using Dapper;
 using FluentAssertions;
 using grate.Configuration;
+using grate.Exceptions;
 using grate.Migration;
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
@@ -31,8 +32,8 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         await using (migrator = Context.GetMigrator(db, knownFolders))
         {
-            var ex = Assert.ThrowsAsync(Context.DbExceptionType, migrator.Migrate);
-            ex?.Message.Should().Be(ExpectedErrorMessageForInvalidSql);
+            var ex = Assert.ThrowsAsync<MigrationFailed>(migrator.Migrate);
+            ex?.Message.Should().Be($"Migration failed due to errors ({ExpectedErrorMessageForInvalidSql})");
         }
     }
 
@@ -52,7 +53,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
             {
                 await migrator.Migrate();
             }
-            catch (DbException)
+            catch (MigrationFailed)
             {
             }
         }
@@ -168,7 +169,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
             {
                 await migrator.Migrate();
             }
-            catch (DbException)
+            catch (MigrationFailed)
             {
             }
         }
