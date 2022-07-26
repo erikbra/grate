@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using grate.Configuration;
+using grate.Exceptions;
 using Microsoft.Extensions.Logging;
 
 namespace grate.Migration;
@@ -57,7 +58,7 @@ public class GrateMigrator : IAsyncDisposable
         Separator('=');
         
         TransactionScope? scope = null;
-        Exception? exception = default;
+        IList<Exception> exceptions = new List<Exception>();
         string? newVersion = default;
         long versionId = default;
         
@@ -120,27 +121,51 @@ public class GrateMigrator : IAsyncDisposable
             {
                 await LogAndProcess(knownFolders.RunAfterCreateDatabase!, changeDropFolder, versionId, ct, th);
             }
+            
+            // // Make a list of functions first (prepare for a dynamic list of these from configuration)
+            // var scriptFolderTasks = new List<Func<Task>>()
+            // {
+            //     () => LogAndProcess(knownFolders.RunBeforeUp!, changeDropFolder, versionId, ct, th),
+            //     () => LogAndProcess(knownFolders.Up!, changeDropFolder, versionId, ct, th),
+            //     () => LogAndProcess(knownFolders.RunFirstAfterUp!, changeDropFolder, versionId, ct, th),
+            //     () => LogAndProcess(knownFolders.Functions!, changeDropFolder, versionId, ct, th),
+            //     () => LogAndProcess(knownFolders.Views!, changeDropFolder, versionId, ct, th),
+            //     () => LogAndProcess(knownFolders.Sprocs!, changeDropFolder, versionId, ct, th),
+            //     () => LogAndProcess(knownFolders.Triggers!, changeDropFolder, versionId, ct, th),
+            //     () => LogAndProcess(knownFolders.Indexes!, changeDropFolder, versionId, ct, th),
+            //     () => LogAndProcess(knownFolders.RunAfterOtherAnyTimeScripts!, changeDropFolder, versionId, ct, th)
+            // };
+            //
+            // // Execute them all in order
+            // foreach (var task in scriptFolderTasks)
+            // {
+            //     await task();
+            // }
 
-            // Make a list of functions first (prepare for a dynamic list of these from configuration)
-            var scriptFolderTasks = new List<Func<Task>>()
+            foreach (var folder in knownFolders)
             {
-                () => LogAndProcess(knownFolders.RunBeforeUp!, changeDropFolder, versionId, ct, th),
-                () => LogAndProcess(knownFolders.Up!, changeDropFolder, versionId, ct, th),
-                () => LogAndProcess(knownFolders.RunFirstAfterUp!, changeDropFolder, versionId, ct, th),
-                () => LogAndProcess(knownFolders.Functions!, changeDropFolder, versionId, ct, th),
-                () => LogAndProcess(knownFolders.Views!, changeDropFolder, versionId, ct, th),
-                () => LogAndProcess(knownFolders.Sprocs!, changeDropFolder, versionId, ct, th),
-                () => LogAndProcess(knownFolders.Triggers!, changeDropFolder, versionId, ct, th),
-                () => LogAndProcess(knownFolders.Indexes!, changeDropFolder, versionId, ct, th),
-                () => LogAndProcess(knownFolders.RunAfterOtherAnyTimeScripts!, changeDropFolder, versionId, ct, th)
-            };
-
-            // Execute them all in order
-            foreach (var task in scriptFolderTasks)
-            {
-                await task();
+                // Don't run any more folders that runs in the transaction, if the transaction is already aborted
+                // (due to an error in a script, or something else)
+                if (
+                    RunningInAbortedTransaction(scope)
+                    && folder?.TransactionHandling == TransactionHandling.Default)
+                {
+                    continue;
+                }
+                
+                try {
+                    await LogAndProcess(folder!, changeDropFolder, versionId, 
+                        folder!.ConnectionType, folder.TransactionHandling);
+                }catch (DbException ex)
+                {
+                    // Catch exceptions, so that we run the rest of the scripts, that should always be run.
+                    exceptions.Add(ex);
+                }catch (TransactionException ex)
+                {
+                    // Catch exceptions, so that we run the rest of the scripts, that should always be run.
+                    exceptions.Add(ex);
+                }
             }
-
             
             await dbMigrator.CloseConnection();
             scope?.Complete();
@@ -148,21 +173,29 @@ public class GrateMigrator : IAsyncDisposable
         catch (DbException ex)
         {
             // Catch exceptions, so that we run the rest of the scripts, that should always be run.
-            exception = ex;
+            exceptions.Add(ex);
+        }catch (TransactionException ex)
+        {
+            // Catch exceptions, so that we run the rest of the scripts, that should always be run.
+            exceptions.Add(ex);
         }
         finally
         {
-            scope?.Dispose();
+            try
+            {
+                scope?.Dispose();
+            }
+            catch (TransactionAbortedException) { }
         }
 
-        await LogAndProcess(knownFolders.Permissions!, changeDropFolder, versionId, ct,
-            TransactionHandling.Autonomous);
-        await LogAndProcess(knownFolders.AfterMigration!, changeDropFolder, versionId, ct,
-            TransactionHandling.Autonomous);
+        // await LogAndProcess(knownFolders.Permissions!, changeDropFolder, versionId, ct,
+        //     TransactionHandling.Autonomous);
+        // await LogAndProcess(knownFolders.AfterMigration!, changeDropFolder, versionId, ct,
+        //     TransactionHandling.Autonomous);
 
-        if (exception is not null)
+        if (exceptions.Any())
         {
-            throw exception;
+            throw new MigrationFailed(exceptions);
         }
 
         _logger.LogInformation(
@@ -175,6 +208,11 @@ public class GrateMigrator : IAsyncDisposable
         Separator(' ');
 
 
+    }
+
+    private static bool RunningInAbortedTransaction(TransactionScope? scope)
+    {
+        return scope is not null && Transaction.Current?.TransactionInformation?.Status != TransactionStatus.Active;
     }
 
     private async Task AlterDatabase(IDbMigrator dbMigrator, KnownFolders knownFolders, string changeDropFolder,

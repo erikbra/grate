@@ -478,7 +478,8 @@ WHERE script_name = @scriptName");
 SELECT 1 FROM  {ScriptsRunTable}
 WHERE script_name = @scriptName");
 
-            var run = await ExecuteScalarAsync<bool?>(Connection, hasRunSql, new { scriptName });
+            var run = await RunInAutonomousTransaction(ConnectionString,
+                async conn => await ExecuteScalarAsync<bool?>(conn, hasRunSql, new { scriptName }));
             return run ?? false;
         }
         catch (Exception ex) when (Config?.DryRun ?? throw new InvalidOperationException("No configuration available"))
@@ -490,7 +491,8 @@ WHERE script_name = @scriptName");
 
     protected virtual object Bool(bool source) => source;
 
-    public async Task InsertScriptRun(string scriptName, string? sql, string hash, bool runOnce, long versionId)
+    public async Task InsertScriptRun(string scriptName, string? sql, string hash, bool runOnce, long versionId,
+        TransactionHandling transactionHandling)
     {
         var cache = await GetScriptsRunCache();
         cache.Remove(scriptName);
@@ -511,7 +513,15 @@ VALUES (@versionId, @scriptName, @sql, @hash, @runOnce, @now, @now, @usr)");
             usr = Environment.UserName
         };
 
-        await ExecuteAsync(Connection, insertSql, scriptRun);
+        var execution = transactionHandling switch
+        {
+            TransactionHandling.Default => ExecuteAsync(Connection, insertSql, scriptRun),
+            TransactionHandling.Autonomous => RunInAutonomousTransaction(ConnectionString,
+                conn => ExecuteAsync(conn, insertSql, scriptRun)),
+            _ => throw new UnknownTransactionHandling(transactionHandling)
+        };
+
+        await execution;
     }
 
     public async Task InsertScriptRunError(string scriptName, string? sql, string errorSql, string errorMessage, long versionId)

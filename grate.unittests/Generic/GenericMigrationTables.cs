@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Dapper;
 using FluentAssertions;
 using grate.Configuration;
+using grate.Exceptions;
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
 
@@ -60,7 +61,7 @@ public abstract class GenericMigrationTables
             {
                 await migrator.Migrate();
             }
-            catch (DbException)
+            catch (MigrationFailed)
             {
             }
         }
