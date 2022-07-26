@@ -31,4 +31,6 @@ public interface IDbMigrator: IAsyncDisposable
         ConnectionType connectionType, TransactionHandling transactionHandling);
 
     Task RestoreDatabase(string backupPath);
+    void SetDefaultConnectionActive();
+    Task<IDisposable> OpenNewActiveConnection();
 }

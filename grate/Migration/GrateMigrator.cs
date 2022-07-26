@@ -146,18 +146,31 @@ public class GrateMigrator : IAsyncDisposable
 
             foreach (var folder in knownFolders)
             {
+                var processingFolderInDefaultTransaction = folder?.TransactionHandling == TransactionHandling.Default;
+                
                 // Don't run any more folders that runs in the transaction, if the transaction is already aborted
                 // (due to an error in a script, or something else)
                 if (
                     runInTransaction && exceptionOccured
-                    && folder?.TransactionHandling == TransactionHandling.Default)
+                    && processingFolderInDefaultTransaction)
                 {
                     continue;
                 }
                 
                 try {
-                    await LogAndProcess(folder!, changeDropFolder, versionId, 
-                        folder!.ConnectionType, folder.TransactionHandling);
+                    if (processingFolderInDefaultTransaction)
+                    {
+                        await LogAndProcess(folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
+                    }
+                    else
+                    {
+                        using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+                        using (await dbMigrator.OpenNewActiveConnection())
+                        {
+                            await LogAndProcess(folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
+                        }
+                        s.Complete();
+                    }
                 }catch (DbException ex)
                 {
                     // Catch exceptions, so that we run the rest of the scripts, that should always be run.
@@ -178,7 +191,10 @@ public class GrateMigrator : IAsyncDisposable
                 //     
                 //     exceptionOccured = true;
                 // }
+                
+            dbMigrator.SetDefaultConnectionActive();
             }
+            
             await dbMigrator.CloseConnection();
             
             if (!exceptionOccured)
