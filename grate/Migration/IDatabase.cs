@@ -37,7 +37,7 @@ public interface IDatabase : IAsyncDisposable
     void Rollback();
     Task RunSql(string sql, ConnectionType connectionType, TransactionHandling transactionHandling);
     Task<string?> GetCurrentHash(string scriptName);
-    Task<bool> HasRun(string scriptName);
+    Task<bool> HasRun(string scriptName, TransactionHandling transactionHandling);
     Task InsertScriptRun(string scriptName, string? sql, string hash, bool runOnce, long versionId,
         TransactionHandling transactionHandling);
     Task InsertScriptRunError(string scriptName, string? sql, string errorSql, string errorMessage, long versionId);

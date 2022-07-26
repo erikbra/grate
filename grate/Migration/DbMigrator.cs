@@ -108,7 +108,7 @@ public class DbMigrator : IDbMigrator
             return false;
         }
 
-        if (await ThisScriptIsAlreadyRun(scriptName) && !IsEverytimeScript(scriptName, migrationType))
+        if (await ThisScriptIsAlreadyRun(scriptName, transactionHandling) && !IsEverytimeScript(scriptName, migrationType))
         {
             if (AnyTimeScriptForcedToRun(migrationType, Configuration) || await ScriptHasChanged(scriptName, sql))
             {
@@ -205,7 +205,7 @@ public class DbMigrator : IDbMigrator
         return _hashGenerator.Hash(sql);
     }
 
-    private Task<bool> ThisScriptIsAlreadyRun(string scriptName) => Database.HasRun(scriptName);
+    private Task<bool> ThisScriptIsAlreadyRun(string scriptName, TransactionHandling transactionHandling) => Database.HasRun(scriptName, transactionHandling);
 
 
     /// <summary>

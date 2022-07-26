@@ -468,7 +468,7 @@ WHERE script_name = @scriptName");
         return hash;
     }
 
-    public async Task<bool> HasRun(string scriptName)
+    public async Task<bool> HasRun(string scriptName, TransactionHandling transactionHandling)
     {
         var cache = await GetScriptsRunCache();
         if (cache.ContainsKey(scriptName))
@@ -482,8 +482,15 @@ WHERE script_name = @scriptName");
 SELECT 1 FROM  {ScriptsRunTable}
 WHERE script_name = @scriptName");
 
-            var run = await RunInAutonomousTransaction(ConnectionString,
-                async conn => await ExecuteScalarAsync<bool?>(conn, hasRunSql, new { scriptName }));
+            var task = transactionHandling switch
+            {
+                TransactionHandling.Default => ExecuteScalarAsync<bool?>(Connection, hasRunSql, new { scriptName }),
+                TransactionHandling.Autonomous => RunInAutonomousTransaction(ConnectionString,
+                    async conn => await ExecuteScalarAsync<bool?>(conn, hasRunSql, new { scriptName })),
+                _ => throw new UnknownTransactionHandling(transactionHandling)
+            };
+
+            var run = await task;
             return run ?? false;
         }
         catch (Exception ex) when (Config?.DryRun ?? throw new InvalidOperationException("No configuration available"))
