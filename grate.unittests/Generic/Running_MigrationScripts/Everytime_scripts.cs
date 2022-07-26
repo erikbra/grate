@@ -50,8 +50,24 @@ public abstract class Everytime_scripts : MigrationsScriptsBase
 
         await using var migrator = Context.GetMigrator(config);
         await migrator.Migrate();
-        // this helper takes into account whether the grate versioning table exists or not.
-        Assert.False(await migrator.DbMigrator.Database.HasRun("1_jalla.sql"));
+        
+        string[] scripts;
+        string sql = $"SELECT 1 FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")} " +
+                     $"WHERE script_name = '1_jalla.sql'";
+
+        await using (var conn = Context.CreateDbConnection(db))
+        {
+            try
+            {
+                scripts = (await conn.QueryAsync<string>(sql)).ToArray();
+            }
+            catch (Exception) when (config.DryRun)
+            {
+                scripts = Array.Empty<string>();
+            }
+        }
+
+        scripts.Should().BeEmpty();
     }
 
     [Test]
