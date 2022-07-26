@@ -82,7 +82,7 @@ public class SqlServerDatabase : AnsiSqlDatabase
         var sql = $"select name from sys.databases where [name] = '{DatabaseName}'";
         try
         {
-            var results = await RunInAutonomousTransaction(ConnectionString, async conn => await conn.QueryAsync<string>(sql, commandType: Text));
+            var results = await ActiveConnection.QueryAsync<string>(sql, commandType: Text);
             return results.Any();
         }
         catch (DbException ex)

@@ -62,6 +62,8 @@ public class GrateMigrator : IAsyncDisposable
         string? newVersion = default;
         long versionId = default;
         
+        dbMigrator.SetDefaultConnectionActive();
+        
         if (config.Drop)
         {
             await dbMigrator.DropDatabase();
@@ -75,7 +77,6 @@ public class GrateMigrator : IAsyncDisposable
             databaseCreated = await CreateDatabaseIfItDoesNotExist(dbMigrator);
         }
             
-      
         if (!string.IsNullOrEmpty(config.Restore))
         {
             await RestoreDatabaseFromPath(config.Restore, dbMigrator);
