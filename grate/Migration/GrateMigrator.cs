@@ -122,26 +122,6 @@ public class GrateMigrator : IAsyncDisposable
             {
                 await LogAndProcess(knownFolders.RunAfterCreateDatabase!, changeDropFolder, versionId, ct, th);
             }
-            
-            // // Make a list of functions first (prepare for a dynamic list of these from configuration)
-            // var scriptFolderTasks = new List<Func<Task>>()
-            // {
-            //     () => LogAndProcess(knownFolders.RunBeforeUp!, changeDropFolder, versionId, ct, th),
-            //     () => LogAndProcess(knownFolders.Up!, changeDropFolder, versionId, ct, th),
-            //     () => LogAndProcess(knownFolders.RunFirstAfterUp!, changeDropFolder, versionId, ct, th),
-            //     () => LogAndProcess(knownFolders.Functions!, changeDropFolder, versionId, ct, th),
-            //     () => LogAndProcess(knownFolders.Views!, changeDropFolder, versionId, ct, th),
-            //     () => LogAndProcess(knownFolders.Sprocs!, changeDropFolder, versionId, ct, th),
-            //     () => LogAndProcess(knownFolders.Triggers!, changeDropFolder, versionId, ct, th),
-            //     () => LogAndProcess(knownFolders.Indexes!, changeDropFolder, versionId, ct, th),
-            //     () => LogAndProcess(knownFolders.RunAfterOtherAnyTimeScripts!, changeDropFolder, versionId, ct, th)
-            // };
-            //
-            // // Execute them all in order
-            // foreach (var task in scriptFolderTasks)
-            // {
-            //     await task();
-            // }
 
             bool exceptionOccured = false;
 
@@ -176,24 +156,8 @@ public class GrateMigrator : IAsyncDisposable
                 {
                     // Catch exceptions, so that we run the rest of the scripts, that should always be run.
                     exceptions.Add(ex);
-                    
-                    //await dbMigrator.CloseConnection();
-                    //scope?.Dispose();
-                    
                     exceptionOccured = true;
                 }
-                // catch (TransactionException ex)
-                // {
-                //     // Catch exceptions, so that we run the rest of the scripts, that should always be run.
-                //     exceptions.Add(ex);
-                //     
-                //     await dbMigrator.CloseConnection();
-                //     scope?.Dispose();
-                //     
-                //     exceptionOccured = true;
-                // }
-                
-            dbMigrator.SetDefaultConnectionActive();
             }
             
             await dbMigrator.CloseConnection();
@@ -203,15 +167,6 @@ public class GrateMigrator : IAsyncDisposable
                 scope?.Complete();
             }
         }
-        // catch (DbException ex)
-        // {
-        //     // Catch exceptions, so that we run the rest of the scripts, that should always be run.
-        //     exceptions.Add(ex);
-        // }catch (TransactionException ex)
-        // {
-        //     // Catch exceptions, so that we run the rest of the scripts, that should always be run.
-        //     exceptions.Add(ex);
-        // }
         finally
         {
             try
@@ -220,11 +175,6 @@ public class GrateMigrator : IAsyncDisposable
             }
             catch (TransactionAbortedException) { }
         }
-
-        // await LogAndProcess(knownFolders.Permissions!, changeDropFolder, versionId, ct,
-        //     TransactionHandling.Autonomous);
-        // await LogAndProcess(knownFolders.AfterMigration!, changeDropFolder, versionId, ct,
-        //     TransactionHandling.Autonomous);
 
         if (exceptions.Any())
         {

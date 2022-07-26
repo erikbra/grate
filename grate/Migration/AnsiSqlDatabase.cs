@@ -80,11 +80,31 @@ public abstract class AnsiSqlDatabase : IDatabase
         ActiveConnection = Connection;
     }
 
+    private class NewActiveConnectionWrapper : IDisposable
+    {
+        private readonly IDbConnection _conn;
+        private readonly IDatabase _owner;
+
+        public NewActiveConnectionWrapper(IDbConnection conn, IDatabase owner)
+        {
+            _conn = conn;
+            _owner = owner;
+        }
+
+        public void Dispose()
+        {
+            _conn.Close();
+            _conn.Dispose();
+            _owner.SetDefaultConnectionActive();
+        }
+    }
+
     public async Task<IDisposable> OpenNewActiveConnection()
     {
         var newConnection = GetSqlConnection(ConnectionString);
         await Open(newConnection);
-        return ActiveConnection = newConnection;
+        ActiveConnection = newConnection;
+        return new NewActiveConnectionWrapper(ActiveConnection, this);
     }
 
     protected async Task<TResult> RunInAutonomousTransaction<TResult>(string? connectionString, Func<DbConnection, Task<TResult>> func)
@@ -465,7 +485,6 @@ WHERE id = (SELECT MAX(id) FROM {ScriptsRunTable} sr2 WHERE sr2.script_name = sr
 SELECT text_hash FROM  {ScriptsRunTable}
 WHERE script_name = @scriptName");
 
-       
         var hash = await ExecuteScalarAsync<string?>(ActiveConnection, hashSql, new { scriptName });
         return hash;
     }
@@ -480,10 +499,7 @@ WHERE script_name = @scriptName");
 
         try
         {
-            var hasRunSql = Parameterize($@"
-SELECT 1 FROM  {ScriptsRunTable}
-WHERE script_name = @scriptName");
-            
+            var hasRunSql = Parameterize(HasRunSql);
             var run = await ExecuteScalarAsync<bool?>(ActiveConnection, hasRunSql, new { scriptName });
             return run ?? false;
         }
@@ -493,6 +509,11 @@ WHERE script_name = @scriptName");
             return false;
         }
     }
+
+    protected virtual string HasRunSql =>
+        $@"
+SELECT 1 FROM  {ScriptsRunTable}
+WHERE script_name = @scriptName";
 
     protected virtual object Bool(bool source) => source;
 

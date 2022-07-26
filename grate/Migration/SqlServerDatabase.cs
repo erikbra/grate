@@ -91,4 +91,9 @@ public class SqlServerDatabase : AnsiSqlDatabase
             return false; // base method also returns false on any DbException
         }
     }
+    
+    protected override string HasRunSql =>
+        $@"
+SELECT 1 FROM  {ScriptsRunTable} WITH (NOLOCK)
+WHERE script_name = @scriptName";
 }

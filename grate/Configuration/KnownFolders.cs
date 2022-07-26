@@ -72,6 +72,7 @@ public class KnownFolders: Collection<MigrationsFolder?>, IFoldersConfiguration
     )
         : base(new List<MigrationsFolder?>()
         {
+            // TODO: Separate this list in a "static" one and a dynamic one
             //beforeMigration,
             //alterDatabase,
             //runAfterCreateDatabase,
