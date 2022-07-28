@@ -33,4 +33,5 @@ public interface IDbMigrator: IAsyncDisposable
     Task RestoreDatabase(string backupPath);
     void SetDefaultConnectionActive();
     Task<IDisposable> OpenNewActiveConnection();
+    Task OpenActiveConnection();
 }

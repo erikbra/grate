@@ -70,6 +70,7 @@ public class GrateMigrator : IAsyncDisposable
             _logger.LogInformation("{AppName} has removed database ({DatabaseName}) if it existed.", ApplicationInfo.Name, database.DatabaseName);
         }
 
+        // NOTE: THis is no longer taken into account when running 'RunAfterCreateDatabase'. Is that a problem?
         var databaseCreated = false;
 
         if (config.CreateDatabase)
@@ -82,8 +83,6 @@ public class GrateMigrator : IAsyncDisposable
             await RestoreDatabaseFromPath(config.Restore, dbMigrator);
         }
 
-        await dbMigrator.OpenConnection();
-
         // Run these first without a transaction, to make sure the tables are created even on a potential rollback
         await CreateGrateStructure(dbMigrator);
 
@@ -92,35 +91,13 @@ public class GrateMigrator : IAsyncDisposable
         Separator('=');
         _logger.LogInformation("Migration Scripts");
         Separator('=');
-
-        // This one should not be necessary, we throw on assignment if null
-        System.Diagnostics.Debug.Assert(knownFolders != null, nameof(knownFolders) + " != null");
-
-        await BeforeMigration(knownFolders, changeDropFolder, versionId);
-
-        //if (config.AlterDatabase)
-        //{
-            await AlterDatabase(dbMigrator, knownFolders, changeDropFolder, versionId);
-        //}
         
-        await dbMigrator.CloseConnection();
-
-        var ct = ConnectionType.Default;
-        var th = TransactionHandling.Default;
-            
         try
         {
             // Start the transaction, if configured
             if (runInTransaction)
             {
                 scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-            }
-
-            await dbMigrator.OpenConnection();
-
-            //if (databaseCreated)
-            {
-                await LogAndProcess(knownFolders.RunAfterCreateDatabase!, changeDropFolder, versionId, ct, th);
             }
 
             bool exceptionOccured = false;
@@ -193,17 +170,19 @@ public class GrateMigrator : IAsyncDisposable
 
     }
 
-    private async Task AlterDatabase(IDbMigrator dbMigrator, KnownFolders knownFolders, string changeDropFolder,
-        long versionId)
+    private async Task EnsureConnectionIsOpen(ConnectionType connectionType)
     {
-        await LogAndProcess(knownFolders.AlterDatabase!, changeDropFolder, versionId, ConnectionType.Admin,
-            TransactionHandling.Autonomous);
-    }
-
-    private async Task BeforeMigration(KnownFolders knownFolders, string changeDropFolder, long versionId)
-    {
-        await LogAndProcess(knownFolders.BeforeMigration!, changeDropFolder, versionId, ConnectionType.Default,
-            TransactionHandling.Autonomous);
+        switch (connectionType)
+        {
+            case ConnectionType.Default:
+                await _migrator.OpenActiveConnection();
+                break;
+            case ConnectionType.Admin:
+                await _migrator.OpenAdminConnection();
+                break;
+            default:
+                throw new UnknownConnectionType(connectionType);
+        }
     }
 
     private async Task CreateGrateStructure(IDbMigrator dbMigrator)
@@ -218,7 +197,12 @@ public class GrateMigrator : IAsyncDisposable
         }
         else
         {
-            await dbMigrator.RunSupportTasks();
+            using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+            using (await dbMigrator.OpenNewActiveConnection())
+            {
+                await dbMigrator.RunSupportTasks();
+            }
+            s.Complete();
         }
     }
 
@@ -293,6 +277,11 @@ public class GrateMigrator : IAsyncDisposable
     private async Task Process(MigrationsFolder folder, string changeDropFolder, long versionId,
         ConnectionType connectionType, TransactionHandling transactionHandling)
     {
+        //if (transactionHandling != TransactionHandling.Autonomous)
+        {
+            await EnsureConnectionIsOpen(connectionType);
+        }
+        
         var pattern = "*.sql";
         var files = FileSystem.GetFiles(folder.Path, pattern);
 

@@ -33,8 +33,8 @@ public class KnownFolders: Collection<MigrationsFolder?>, IFoldersConfiguration
         }
 
         return new KnownFolders(
-            beforeMigration: new MigrationsFolder("BeforeMigration", Wrap("beforeMigration"), EveryTime),
-            alterDatabase: new MigrationsFolder("AlterDatabase", Wrap("alterDatabase"), AnyTime, ConnectionType.Admin),
+            beforeMigration: new MigrationsFolder("BeforeMigration", Wrap("beforeMigration"), EveryTime, TransactionHandling: TransactionHandling.Autonomous),
+            alterDatabase: new MigrationsFolder("AlterDatabase", Wrap("alterDatabase"), AnyTime, ConnectionType.Admin, TransactionHandling.Autonomous),
             runAfterCreateDatabase: new MigrationsFolder("Run After Create Database", Wrap("runAfterCreateDatabase"),
                 AnyTime),
             runBeforeUp: new MigrationsFolder("Run Before Update", Wrap("runBeforeUp"), AnyTime),
@@ -73,9 +73,9 @@ public class KnownFolders: Collection<MigrationsFolder?>, IFoldersConfiguration
         : base(new List<MigrationsFolder?>()
         {
             // TODO: Separate this list in a "static" one and a dynamic one
-            //beforeMigration,
-            //alterDatabase,
-            //runAfterCreateDatabase,
+            beforeMigration,
+            alterDatabase,
+            runAfterCreateDatabase,
             runBeforeUp,
             up,
             //down,
