@@ -15,7 +15,7 @@ class SqlServerGrateTestContext : TestContextBase, IGrateTestContext, IDockerTes
     public string AdminPassword { get; set; } = default!;
     public int? Port { get; set; }
     
-    // on arm64 (M1), use this image instead: mcr.microsoft.com/azure-sql-edge
+    // on arm64 (M1), the standard mssql/server image is not available
     private static string DockerImage => RuntimeInformation.ProcessArchitecture switch
     {
         Arm64 => "mcr.microsoft.com/azure-sql-edge:latest",
@@ -23,10 +23,8 @@ class SqlServerGrateTestContext : TestContextBase, IGrateTestContext, IDockerTes
         var other => throw new PlatformNotSupportedException("Unsupported platform for running tests: " + other)
     };
 
-    private static string Platform => DockerPlatform();
-
     public string DockerCommand(string serverName, string adminPassword) =>
-        $"run -d --platform {Platform} --name {serverName} -e ACCEPT_EULA=Y -e SA_PASSWORD={adminPassword} -e MSSQL_PID=Developer -e MSSQL_COLLATION=Danish_Norwegian_CI_AS -P {DockerImage}";
+        $"run -d --name {serverName} -e ACCEPT_EULA=Y -e SA_PASSWORD={adminPassword} -e MSSQL_PID=Developer -e MSSQL_COLLATION=Danish_Norwegian_CI_AS -P {DockerImage}";
 
     public string AdminConnectionString => $"Data Source=localhost,{Port};Initial Catalog=master;User Id=sa;Password={AdminPassword};Encrypt=false;Pooling=false";
     public string ConnectionString(string database) => $"Data Source=localhost,{Port};Initial Catalog={database};User Id=sa;Password={AdminPassword};Encrypt=false;Pooling=false";
