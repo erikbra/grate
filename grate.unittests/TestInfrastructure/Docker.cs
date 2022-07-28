@@ -16,7 +16,7 @@ public static class Docker
         //TestContext.Progress.WriteLine("find port: " + findPortArgs);
 
         var hostPortList = await RunDockerCommand(findPortArgs);
-        var hostPort = hostPortList.Split(" ", StringSplitOptions.RemoveEmptyEntries).First();
+        var hostPort = hostPortList.Split(" ", StringSplitOptions.RemoveEmptyEntries).Last();
         return (serverName, int.Parse(hostPort));
     }
 
