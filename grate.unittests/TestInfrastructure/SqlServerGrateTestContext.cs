@@ -14,6 +14,7 @@ class SqlServerGrateTestContext : TestContextBase, IGrateTestContext, IDockerTes
 {
     public string AdminPassword { get; set; } = default!;
     public int? Port { get; set; }
+    public override int? ContainerPort => 1433;
     
     // on arm64 (M1), the standard mssql/server image is not available
     private static string DockerImage => RuntimeInformation.ProcessArchitecture switch

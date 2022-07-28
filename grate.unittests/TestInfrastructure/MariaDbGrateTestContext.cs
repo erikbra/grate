@@ -15,7 +15,7 @@ class MariaDbGrateTestContext : TestContextBase, IGrateTestContext, IDockerTestC
 
     public string DockerCommand(string serverName, string adminPassword) =>
         $"run -d --name {serverName} -e MYSQL_ROOT_PASSWORD={adminPassword} -P mariadb:10.5.9";
-
+    
     public string AdminConnectionString => $"Server=localhost;Port={Port};Database=mysql;Uid=root;Pwd={AdminPassword}";
     public string ConnectionString(string database) => $"Server=localhost;Port={Port};Database={database};Uid=root;Pwd={AdminPassword}";
 
