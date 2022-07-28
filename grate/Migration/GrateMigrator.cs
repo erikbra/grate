@@ -98,10 +98,10 @@ public class GrateMigrator : IAsyncDisposable
 
         await BeforeMigration(knownFolders, changeDropFolder, versionId);
 
-        if (config.AlterDatabase)
-        {
+        //if (config.AlterDatabase)
+        //{
             await AlterDatabase(dbMigrator, knownFolders, changeDropFolder, versionId);
-        }
+        //}
         
         await dbMigrator.CloseConnection();
 
@@ -118,7 +118,7 @@ public class GrateMigrator : IAsyncDisposable
 
             await dbMigrator.OpenConnection();
 
-            if (databaseCreated)
+            //if (databaseCreated)
             {
                 await LogAndProcess(knownFolders.RunAfterCreateDatabase!, changeDropFolder, versionId, ct, th);
             }
@@ -196,10 +196,8 @@ public class GrateMigrator : IAsyncDisposable
     private async Task AlterDatabase(IDbMigrator dbMigrator, KnownFolders knownFolders, string changeDropFolder,
         long versionId)
     {
-        await dbMigrator.OpenAdminConnection();
         await LogAndProcess(knownFolders.AlterDatabase!, changeDropFolder, versionId, ConnectionType.Admin,
             TransactionHandling.Autonomous);
-        await dbMigrator.CloseAdminConnection();
     }
 
     private async Task BeforeMigration(KnownFolders knownFolders, string changeDropFolder, long versionId)
