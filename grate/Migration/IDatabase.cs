@@ -46,4 +46,5 @@ public interface IDatabase : IAsyncDisposable
     Task<bool> VersionTableExists();
     void SetDefaultConnectionActive();
     Task<IDisposable> OpenNewActiveConnection();
+    Task OpenActiveConnection();
 }

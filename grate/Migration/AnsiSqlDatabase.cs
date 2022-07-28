@@ -139,6 +139,11 @@ public abstract class AnsiSqlDatabase : IDatabase
             s.Complete();
         }
     }
+    
+    public async Task OpenActiveConnection()
+    {
+        await Open(ActiveConnection);
+    }
 
     public async Task OpenConnection()
     {

@@ -145,9 +145,10 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
         {
             Assert.Ignore("DDL transactions not supported, skipping tests");
         }
-
-        var scripts = await RunMigration(folder, folder.Name + "_jalla1.sql");
-        scripts.Should().BeEmpty();
+        
+        var filename = folder.Name + "_jalla1.sql";
+        var scripts = await RunMigration(folder, filename);
+        scripts.Should().NotContain(filename);
     }
 
 
