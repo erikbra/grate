@@ -70,9 +70,7 @@ public class GrateMigrator : IAsyncDisposable
             _logger.LogInformation("{AppName} has removed database ({DatabaseName}) if it existed.", ApplicationInfo.Name, database.DatabaseName);
         }
 
-        // NOTE: THis is no longer taken into account when running 'RunAfterCreateDatabase'. Is that a problem?
         var databaseCreated = false;
-
         if (config.CreateDatabase)
         {
             databaseCreated = await CreateDatabaseIfItDoesNotExist(dbMigrator);
@@ -111,6 +109,13 @@ public class GrateMigrator : IAsyncDisposable
                 if (
                     runInTransaction && exceptionOccured
                     && processingFolderInDefaultTransaction)
+                {
+                    continue;
+                }
+                
+                // This is an ugly "if" run on every script, to check one special folder which has conditions.
+                // If possible, we should find a 'cleaner' way to do this.
+                if ((knownFolders?.RunAfterCreateDatabase?.Name.Equals(folder?.Name) ?? false) && ! databaseCreated)
                 {
                     continue;
                 }
