@@ -67,8 +67,8 @@ public class KnownFolders_Default
 
     private static readonly object?[] ExpectedKnownFolderNames =
     {
-        GetTestCase(Folders.BeforeMigration ,"beforeMigration", EveryTime, Default, TransactionHandling.Default),
-        GetTestCase(Folders.AlterDatabase ,"alterDatabase", AnyTime, Admin, TransactionHandling.Default),
+        GetTestCase(Folders.BeforeMigration ,"beforeMigration", EveryTime, Default, TransactionHandling.Autonomous),
+        GetTestCase(Folders.AlterDatabase ,"alterDatabase", AnyTime, Admin, TransactionHandling.Autonomous),
         GetTestCase(Folders.RunAfterCreateDatabase ,"runAfterCreateDatabase", AnyTime, Default, TransactionHandling.Default),
         GetTestCase(Folders.RunBeforeUp ,"runBeforeUp", AnyTime, Default, TransactionHandling.Default),
         GetTestCase(Folders.Up ,"up", Once, Default, TransactionHandling.Default),
