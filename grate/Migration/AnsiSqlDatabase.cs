@@ -230,9 +230,12 @@ public abstract class AnsiSqlDatabase : IDatabase
         {
             try
             {
-                await OpenConnection();
-                //_ = await RunInAutonomousTransaction(ConnectionString, async conn => await Task.FromResult(1));
-                databaseReady = true;
+                using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+                using (await OpenNewActiveConnection())
+                {
+                    databaseReady = true;
+                }
+                s.Complete();
             }
             catch (DbException)
             {
