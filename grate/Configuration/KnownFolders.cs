@@ -1,27 +1,26 @@
 ﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using grate.Migration;
 using static grate.Configuration.MigrationType;
 
 namespace grate.Configuration;
 
-public class KnownFolders: Collection<MigrationsFolder?>, IFoldersConfiguration
+public class KnownFolders: Dictionary<string, MigrationsFolder?>, IFoldersConfiguration
 {
-    public MigrationsFolder? AlterDatabase { get; }
-    public MigrationsFolder? RunAfterCreateDatabase { get; }
-    public MigrationsFolder? RunBeforeUp { get; }
-    public MigrationsFolder? Up { get; }
-    public MigrationsFolder? RunFirstAfterUp { get; }
-    public MigrationsFolder? Functions { get; }
-    public MigrationsFolder? Views { get; }
-    public MigrationsFolder? Sprocs { get; }
-    public MigrationsFolder? Triggers { get; }
-    public MigrationsFolder? Indexes { get; }
-    public MigrationsFolder? RunAfterOtherAnyTimeScripts { get; }
-    public MigrationsFolder? Permissions { get; }
-    public MigrationsFolder? BeforeMigration { get; }
-    public MigrationsFolder? AfterMigration { get; }
+    public MigrationsFolder? AlterDatabase => this[nameof(AlterDatabase)];
+    public MigrationsFolder? RunAfterCreateDatabase => this[nameof(RunAfterCreateDatabase)];
+    public MigrationsFolder? RunBeforeUp => this[nameof(RunBeforeUp)];
+    public MigrationsFolder? Up => this[nameof(Up)];
+    public MigrationsFolder? RunFirstAfterUp => this[nameof(RunFirstAfterUp)];
+    public MigrationsFolder? Functions => this[nameof(Functions)];
+    public MigrationsFolder? Views => this[nameof(Views)];
+    public MigrationsFolder? Sprocs => this[nameof(Sprocs)];
+    public MigrationsFolder? Triggers => this[nameof(Triggers)];
+    public MigrationsFolder? Indexes => this[nameof(Indexes)];
+    public MigrationsFolder? RunAfterOtherAnyTimeScripts => this[nameof(RunAfterOtherAnyTimeScripts)];
+    public MigrationsFolder? Permissions => this[nameof(Permissions)];
+    public MigrationsFolder? BeforeMigration => this[nameof(BeforeMigration)];
+    public MigrationsFolder? AfterMigration => this[nameof(AfterMigration)];
         
     public static KnownFolders In(DirectoryInfo parent, IKnownFolderNames? folderNames = null)
     {
@@ -32,74 +31,27 @@ public class KnownFolders: Collection<MigrationsFolder?>, IFoldersConfiguration
             var folder = Path.Combine(parent.FullName, folderName);
             return new DirectoryInfo(folder);
         }
-
-        return new KnownFolders(
-            beforeMigration: new MigrationsFolder("BeforeMigration", Wrap(folderNames.BeforeMigration), EveryTime, TransactionHandling: TransactionHandling.Autonomous),
-            alterDatabase: new MigrationsFolder("AlterDatabase", Wrap(folderNames.AlterDatabase), AnyTime, ConnectionType.Admin, TransactionHandling.Autonomous),
-            runAfterCreateDatabase: new MigrationsFolder("Run After Create Database", Wrap(folderNames.RunAfterCreateDatabase),
-                AnyTime),
-            runBeforeUp: new MigrationsFolder("Run Before Update", Wrap(folderNames.RunBeforeUp), AnyTime),
-            up: new MigrationsFolder("Update", Wrap(folderNames.Up), Once),
-            runFirstAfterUp: new MigrationsFolder("Run First After Update", Wrap(folderNames.RunFirstAfterUp), Once),
-            functions: new MigrationsFolder("Functions", Wrap(folderNames.Functions), AnyTime),
-            views: new MigrationsFolder("Views", Wrap(folderNames.Views), AnyTime),
-            sprocs: new MigrationsFolder("Stored Procedures", Wrap(folderNames.Sprocs), AnyTime),
-            triggers: new MigrationsFolder("Triggers", Wrap(folderNames.Triggers), AnyTime),
-            indexes: new MigrationsFolder("Indexes", Wrap(folderNames.Indexes), AnyTime),
-            runAfterOtherAnyTimeScripts: new MigrationsFolder("Run after Other Anytime Scripts",
-                Wrap(folderNames.RunAfterOtherAnyTimeScripts), AnyTime),
-            permissions: new MigrationsFolder("Permissions", Wrap(folderNames.Permissions), EveryTime, TransactionHandling: TransactionHandling.Autonomous),
-            afterMigration: new MigrationsFolder("AfterMigration", Wrap(folderNames.AfterMigration), EveryTime, TransactionHandling: TransactionHandling.Autonomous)
-        );
-    }
-
-    private KnownFolders(
-        MigrationsFolder beforeMigration,
-        MigrationsFolder alterDatabase,
-        MigrationsFolder runAfterCreateDatabase,
-        MigrationsFolder runBeforeUp,
-        MigrationsFolder up,
-        MigrationsFolder runFirstAfterUp,
-        MigrationsFolder functions,
-        MigrationsFolder views,
-        MigrationsFolder sprocs,
-        MigrationsFolder triggers,
-        MigrationsFolder indexes,
-        MigrationsFolder runAfterOtherAnyTimeScripts,
-        MigrationsFolder permissions,
-        MigrationsFolder afterMigration
-    )
-        : base(new List<MigrationsFolder?>()
+        
+        return new KnownFolders()
         {
-            beforeMigration,
-            alterDatabase,
-            runAfterCreateDatabase,
-            runBeforeUp,
-            up,
-            runFirstAfterUp,
-            functions,
-            views,
-            sprocs,
-            triggers,
-            indexes,
-            runAfterOtherAnyTimeScripts,
-            permissions,
-            afterMigration
-        })
-    {
-        AlterDatabase = alterDatabase;
-        RunAfterCreateDatabase = runAfterCreateDatabase;
-        RunBeforeUp = runBeforeUp;
-        Up = up;
-        RunFirstAfterUp = runFirstAfterUp;
-        Functions = functions;
-        Views = views;
-        Sprocs = sprocs;
-        Triggers = triggers;
-        Indexes = indexes;
-        RunAfterOtherAnyTimeScripts = runAfterOtherAnyTimeScripts;
-        Permissions = permissions;
-        BeforeMigration = beforeMigration;
-        AfterMigration = afterMigration;
+            { nameof(KnownFolderNames.BeforeMigration), new MigrationsFolder("BeforeMigration", Wrap(folderNames.BeforeMigration), EveryTime, TransactionHandling: TransactionHandling.Autonomous) },
+            { nameof(KnownFolderNames.AlterDatabase) , new MigrationsFolder("AlterDatabase", Wrap(folderNames.AlterDatabase), AnyTime, ConnectionType.Admin, TransactionHandling.Autonomous) },
+            { nameof(KnownFolderNames.RunAfterCreateDatabase), new MigrationsFolder("Run After Create Database", Wrap(folderNames.RunAfterCreateDatabase), AnyTime) },
+            { nameof(KnownFolderNames.RunBeforeUp),  new MigrationsFolder("Run Before Update", Wrap(folderNames.RunBeforeUp), AnyTime) },
+            { nameof(KnownFolderNames.Up), new MigrationsFolder("Update", Wrap(folderNames.Up), Once) },
+            { nameof(KnownFolderNames.RunFirstAfterUp), new MigrationsFolder("Run First After Update", Wrap(folderNames.RunFirstAfterUp), Once) },
+            { nameof(KnownFolderNames.Functions), new MigrationsFolder("Functions", Wrap(folderNames.Functions), AnyTime) },
+            { nameof(KnownFolderNames.Views), new MigrationsFolder("Views", Wrap(folderNames.Views), AnyTime) },
+            { nameof(KnownFolderNames.Sprocs), new MigrationsFolder("Stored Procedures", Wrap(folderNames.Sprocs), AnyTime) },
+            { nameof(KnownFolderNames.Triggers), new MigrationsFolder("Triggers", Wrap(folderNames.Triggers), AnyTime) },
+            { nameof(KnownFolderNames.Indexes), new MigrationsFolder("Indexes", Wrap(folderNames.Indexes), AnyTime) },
+            { nameof(KnownFolderNames.RunAfterOtherAnyTimeScripts), new MigrationsFolder("Run after Other Anytime Scripts", Wrap(folderNames.RunAfterOtherAnyTimeScripts), AnyTime) },
+            { nameof(KnownFolderNames.Permissions), new MigrationsFolder("Permissions", Wrap(folderNames.Permissions), EveryTime, TransactionHandling: TransactionHandling.Autonomous) },
+            { nameof(KnownFolderNames.AfterMigration), new MigrationsFolder("AfterMigration", Wrap(folderNames.AfterMigration), EveryTime, TransactionHandling: TransactionHandling.Autonomous) }
+        }
+        ;
+
     }
+    
+
 }

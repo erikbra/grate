@@ -1,20 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.CommandLine;
-using System.CommandLine.Help;
-using System.CommandLine.Invocation;
-using System.CommandLine.NamingConventionBinder;
-using System.CommandLine.Parsing;
-using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using FluentAssertions;
 using grate.Commands;
 using grate.Configuration;
-using grate.Infrastructure;
-using grate.Migration;
 using NUnit.Framework;
 
 namespace grate.unittests.Basic.CommandLineParsing;

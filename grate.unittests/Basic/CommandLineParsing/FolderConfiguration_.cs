@@ -34,7 +34,7 @@ public class FolderConfiguration_
         var expected = KnownFolders.In(parent);
         var actual = cfg?.KnownFolders;
 
-        AssertEquivalent(expected, actual);
+        AssertEquivalent(expected.Values, actual?.Values);
     }
 
     [Test]
@@ -49,7 +49,7 @@ public class FolderConfiguration_
         
         var actual = cfg?.KnownFolders;
         
-        AssertEquivalent(expected, actual);
+        AssertEquivalent(expected.Values, actual?.Values);
     }
 
     private static readonly object?[] FoldersCommandLines =

@@ -23,7 +23,7 @@ public class KnownFolders_CustomNames
     [Test]
     public void Returns_folders_in_same_order_as_default()
     {
-        var items = Folders.ToImmutableArray();
+        var items = Folders.Values.ToImmutableArray();
 
         Assert.Multiple(() =>
         {
@@ -65,7 +65,7 @@ public class KnownFolders_CustomNames
         });
     }
 
-    private static IKnownFolderNames FolderNames = new KnownFolderNames()
+    private static readonly IKnownFolderNames OverriddenFolderNames = new KnownFolderNames()
     {
         BeforeMigration = "beforeMigration" + Random.GetString(8),
         AlterDatabase = "alterDatabase" + Random.GetString(8),
@@ -84,26 +84,26 @@ public class KnownFolders_CustomNames
     };
     
     private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
-    private static readonly KnownFolders Folders = KnownFolders.In(Root, FolderNames);
+    private static readonly KnownFolders Folders = KnownFolders.In(Root, OverriddenFolderNames);
 
     private static readonly object?[] ExpectedKnownFolderNames =
     {
-        GetTestCase(Folders.BeforeMigration, FolderNames.BeforeMigration, EveryTime, Default, TransactionHandling.Autonomous),
-        GetTestCase(Folders.AlterDatabase, FolderNames.AlterDatabase, AnyTime, Admin, TransactionHandling.Autonomous),
-        GetTestCase(Folders.RunAfterCreateDatabase, FolderNames.RunAfterCreateDatabase, AnyTime, Default,
+        GetTestCase(Folders.BeforeMigration, OverriddenFolderNames.BeforeMigration, EveryTime, Default, TransactionHandling.Autonomous),
+        GetTestCase(Folders.AlterDatabase, OverriddenFolderNames.AlterDatabase, AnyTime, Admin, TransactionHandling.Autonomous),
+        GetTestCase(Folders.RunAfterCreateDatabase, OverriddenFolderNames.RunAfterCreateDatabase, AnyTime, Default,
             TransactionHandling.Default),
-        GetTestCase(Folders.RunBeforeUp, FolderNames.RunBeforeUp, AnyTime, Default, TransactionHandling.Default),
-        GetTestCase(Folders.Up, FolderNames.Up, Once, Default, TransactionHandling.Default),
-        GetTestCase(Folders.RunFirstAfterUp, FolderNames.RunFirstAfterUp, Once, Default, TransactionHandling.Default),
-        GetTestCase(Folders.Functions, FolderNames.Functions, AnyTime, Default, TransactionHandling.Default),
-        GetTestCase(Folders.Views, FolderNames.Views, AnyTime, Default, TransactionHandling.Default),
-        GetTestCase(Folders.Sprocs, FolderNames.Sprocs, AnyTime, Default, TransactionHandling.Default),
-        GetTestCase(Folders.Triggers, FolderNames.Triggers, AnyTime, Default, TransactionHandling.Default),
-        GetTestCase(Folders.Indexes, FolderNames.Indexes, AnyTime, Default, TransactionHandling.Default),
-        GetTestCase(Folders.RunAfterOtherAnyTimeScripts, FolderNames.RunAfterOtherAnyTimeScripts, AnyTime, Default,
+        GetTestCase(Folders.RunBeforeUp, OverriddenFolderNames.RunBeforeUp, AnyTime, Default, TransactionHandling.Default),
+        GetTestCase(Folders.Up, OverriddenFolderNames.Up, Once, Default, TransactionHandling.Default),
+        GetTestCase(Folders.RunFirstAfterUp, OverriddenFolderNames.RunFirstAfterUp, Once, Default, TransactionHandling.Default),
+        GetTestCase(Folders.Functions, OverriddenFolderNames.Functions, AnyTime, Default, TransactionHandling.Default),
+        GetTestCase(Folders.Views, OverriddenFolderNames.Views, AnyTime, Default, TransactionHandling.Default),
+        GetTestCase(Folders.Sprocs, OverriddenFolderNames.Sprocs, AnyTime, Default, TransactionHandling.Default),
+        GetTestCase(Folders.Triggers, OverriddenFolderNames.Triggers, AnyTime, Default, TransactionHandling.Default),
+        GetTestCase(Folders.Indexes, OverriddenFolderNames.Indexes, AnyTime, Default, TransactionHandling.Default),
+        GetTestCase(Folders.RunAfterOtherAnyTimeScripts, OverriddenFolderNames.RunAfterOtherAnyTimeScripts, AnyTime, Default,
             TransactionHandling.Default),
-        GetTestCase(Folders.Permissions, FolderNames.Permissions, EveryTime, Default, TransactionHandling.Autonomous),
-        GetTestCase(Folders.AfterMigration, FolderNames.AfterMigration, EveryTime, Default, TransactionHandling.Autonomous),
+        GetTestCase(Folders.Permissions, OverriddenFolderNames.Permissions, EveryTime, Default, TransactionHandling.Autonomous),
+        GetTestCase(Folders.AfterMigration, OverriddenFolderNames.AfterMigration, EveryTime, Default, TransactionHandling.Autonomous),
     };
 
     private static TestCaseData GetTestCase(

@@ -100,7 +100,7 @@ public class GrateMigrator : IAsyncDisposable
 
             bool exceptionOccured = false;
 
-            foreach (var folder in knownFolders)
+            foreach (var folder in knownFolders.Values)
             {
                 var processingFolderInDefaultTransaction = folder?.TransactionHandling == TransactionHandling.Default;
                 
