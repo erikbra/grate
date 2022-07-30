@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
+using System.CommandLine.Parsing;
 using System.IO;
+using System.Linq;
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
@@ -17,6 +19,7 @@ public sealed class MigrateCommand : RootCommand
         Add(ConnectionString());
         Add(SqlFilesDirectory());
         Add(OutputPath());
+        Add(Folders());
         Add(ServerName());
         Add(AdminConnectionString());
         Add(AccessToken());
@@ -80,6 +83,23 @@ public sealed class MigrateCommand : RootCommand
             "This is where everything related to the migration is stored. This includes any backups, all items that ran, permission dumps, logs, etc."
         ).ExistingOnly();
 
+
+    private static readonly ParseArgument<IKnownFolderNames> ParseKnownFolderNames = 
+        result => KnownFolderNamesArgument.Parse(result.Tokens[0].ToString());
+
+    private static Option Folders() =>
+        new Option<IKnownFolderNames>(
+            new[] { "--folders" },
+            ParseKnownFolderNames,
+            description: 
+@"Folder configuration, if you wish to override any of the default folder names.
+Supply a comma separated list of mappings, e.g
+--folders up:ddl,views:projections,beforemigration:preparefordeploy
+
+"
+
+        );
+    
 
     //SECURITY OPTIONS
     private static Option AccessToken() =>

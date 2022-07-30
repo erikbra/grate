@@ -17,9 +17,11 @@ public record GrateConfiguration
 
     public KnownFolders? KnownFolders
     {
-        get => _knownFolders ?? KnownFolders.In(SqlFilesDirectory);
+        get => _knownFolders ?? KnownFolders.In(SqlFilesDirectory, Folders);
         init => _knownFolders = value;
     }
+
+    public IKnownFolderNames? Folders { get; init; }
 
     public DatabaseType DatabaseType { get; init; } // = DatabaseType.sqlserver;
 
