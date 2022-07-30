@@ -7,20 +7,20 @@ namespace grate.Configuration;
 
 public class KnownFolders: Dictionary<string, MigrationsFolder?>, IFoldersConfiguration
 {
-    public MigrationsFolder? AlterDatabase => this[nameof(AlterDatabase)];
-    public MigrationsFolder? RunAfterCreateDatabase => this[nameof(RunAfterCreateDatabase)];
-    public MigrationsFolder? RunBeforeUp => this[nameof(RunBeforeUp)];
-    public MigrationsFolder? Up => this[nameof(Up)];
-    public MigrationsFolder? RunFirstAfterUp => this[nameof(RunFirstAfterUp)];
-    public MigrationsFolder? Functions => this[nameof(Functions)];
-    public MigrationsFolder? Views => this[nameof(Views)];
-    public MigrationsFolder? Sprocs => this[nameof(Sprocs)];
-    public MigrationsFolder? Triggers => this[nameof(Triggers)];
-    public MigrationsFolder? Indexes => this[nameof(Indexes)];
-    public MigrationsFolder? RunAfterOtherAnyTimeScripts => this[nameof(RunAfterOtherAnyTimeScripts)];
-    public MigrationsFolder? Permissions => this[nameof(Permissions)];
-    public MigrationsFolder? BeforeMigration => this[nameof(BeforeMigration)];
-    public MigrationsFolder? AfterMigration => this[nameof(AfterMigration)];
+    public MigrationsFolder? AlterDatabase => this[nameof(KnownFolderNames.AlterDatabase)];
+    public MigrationsFolder? RunAfterCreateDatabase => this[nameof(KnownFolderNames.RunAfterCreateDatabase)];
+    public MigrationsFolder? RunBeforeUp => this[nameof(KnownFolderNames.RunBeforeUp)];
+    public MigrationsFolder? Up => this[nameof(KnownFolderNames.Up)];
+    public MigrationsFolder? RunFirstAfterUp => this[nameof(KnownFolderNames.RunFirstAfterUp)];
+    public MigrationsFolder? Functions => this[nameof(KnownFolderNames.Functions)];
+    public MigrationsFolder? Views => this[nameof(KnownFolderNames.Views)];
+    public MigrationsFolder? Sprocs => this[nameof(KnownFolderNames.Sprocs)];
+    public MigrationsFolder? Triggers => this[nameof(KnownFolderNames.Triggers)];
+    public MigrationsFolder? Indexes => this[nameof(KnownFolderNames.Indexes)];
+    public MigrationsFolder? RunAfterOtherAnyTimeScripts => this[nameof(KnownFolderNames.RunAfterOtherAnyTimeScripts)];
+    public MigrationsFolder? Permissions => this[nameof(KnownFolderNames.Permissions)];
+    public MigrationsFolder? BeforeMigration => this[nameof(KnownFolderNames.BeforeMigration)];
+    public MigrationsFolder? AfterMigration => this[nameof(KnownFolderNames.AfterMigration)];
         
     public static KnownFolders In(DirectoryInfo parent, IKnownFolderNames? folderNames = null)
     {
