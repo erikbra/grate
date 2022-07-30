@@ -84,20 +84,16 @@ public sealed class MigrateCommand : RootCommand
         ).ExistingOnly();
 
 
-    private static readonly ParseArgument<IKnownFolderNames> ParseKnownFolderNames = 
-        result => KnownFolderNamesArgument.Parse(result.Tokens[0].ToString());
-
     private static Option Folders() =>
         new Option<IKnownFolderNames>(
             new[] { "--folders" },
-            ParseKnownFolderNames,
+            result => KnownFolderNamesArgument.Parse(result.Tokens[0].ToString()),
             description: 
 @"Folder configuration, if you wish to override any of the default folder names.
 Supply a comma separated list of mappings, e.g
 --folders up:ddl,views:projections,beforemigration:preparefordeploy
 
 "
-
         );
     
 
