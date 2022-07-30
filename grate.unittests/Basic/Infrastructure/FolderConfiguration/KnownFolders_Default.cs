@@ -20,7 +20,7 @@ public class KnownFolders_Default
     [Test]
     public void Returns_folders_in_current_order()
     {
-        var items = Folders.ToImmutableArray();
+        var items = Folders.Values.ToImmutableArray();
         
         Assert.Multiple(() =>
         {

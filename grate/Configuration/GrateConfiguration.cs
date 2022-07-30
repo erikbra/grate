@@ -15,9 +15,9 @@ public record GrateConfiguration
     private readonly string? _adminConnectionString;
     private readonly KnownFolders? _knownFolders;
 
-    public KnownFolders? KnownFolders
+    public KnownFolders KnownFolders
     {
-        get => _knownFolders ?? KnownFolders.In(SqlFilesDirectory, Folders);
+        get => _knownFolders ?? grate.Configuration.KnownFolders.In(SqlFilesDirectory, Folders);
         init => _knownFolders = value;
     }
 
