@@ -10,14 +10,13 @@ using grate.Configuration;
 using grate.Infrastructure;
 using NUnit.Framework;
 
-namespace grate.unittests.Basic;
+namespace grate.unittests.Basic.CommandLineParsing;
 
 [TestFixture]
 [Category("Basic")]
-public class CommandLineParsing
+// ReSharper disable once InconsistentNaming
+public class Basic_CommandLineParsing
 {
-
-
     [TestCase]
     public void ParserIsConfiguredCorrectly()
     {

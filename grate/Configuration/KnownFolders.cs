@@ -8,24 +8,25 @@ namespace grate.Configuration;
 
 public class KnownFolders: Collection<MigrationsFolder?>, IFoldersConfiguration
 {
-    public MigrationsFolder? AlterDatabase { get; init; }
-    public MigrationsFolder? RunAfterCreateDatabase { get; init; }
-    public MigrationsFolder? RunBeforeUp { get; init; }
-    public MigrationsFolder? Up { get; init; }
-    //public MigrationsFolder? Down { get; init; }
-    public MigrationsFolder? RunFirstAfterUp { get; init; }
-    public MigrationsFolder? Functions { get; init; }
-    public MigrationsFolder? Views { get; init; }
-    public MigrationsFolder? Sprocs { get; init; }
-    public MigrationsFolder? Triggers { get; init; }
-    public MigrationsFolder? Indexes { get; init; }
-    public MigrationsFolder? RunAfterOtherAnyTimeScripts { get; init; }
-    public MigrationsFolder? Permissions { get; init; }
-    public MigrationsFolder? BeforeMigration { get; init; }
-    public MigrationsFolder? AfterMigration { get; init; }
+    public MigrationsFolder? AlterDatabase { get; }
+    public MigrationsFolder? RunAfterCreateDatabase { get; }
+    public MigrationsFolder? RunBeforeUp { get; }
+    public MigrationsFolder? Up { get; }
+    public MigrationsFolder? RunFirstAfterUp { get; }
+    public MigrationsFolder? Functions { get; }
+    public MigrationsFolder? Views { get; }
+    public MigrationsFolder? Sprocs { get; }
+    public MigrationsFolder? Triggers { get; }
+    public MigrationsFolder? Indexes { get; }
+    public MigrationsFolder? RunAfterOtherAnyTimeScripts { get; }
+    public MigrationsFolder? Permissions { get; }
+    public MigrationsFolder? BeforeMigration { get; }
+    public MigrationsFolder? AfterMigration { get; }
         
-    public static KnownFolders In(DirectoryInfo parent)
+    public static KnownFolders In(DirectoryInfo parent, IKnownFolderNames? folderNames = null)
     {
+        folderNames ??= KnownFolderNames.Default;
+        
         DirectoryInfo Wrap(string folderName)
         {
             var folder = Path.Combine(parent.FullName, folderName);
@@ -33,23 +34,22 @@ public class KnownFolders: Collection<MigrationsFolder?>, IFoldersConfiguration
         }
 
         return new KnownFolders(
-            beforeMigration: new MigrationsFolder("BeforeMigration", Wrap("beforeMigration"), EveryTime, TransactionHandling: TransactionHandling.Autonomous),
-            alterDatabase: new MigrationsFolder("AlterDatabase", Wrap("alterDatabase"), AnyTime, ConnectionType.Admin, TransactionHandling.Autonomous),
-            runAfterCreateDatabase: new MigrationsFolder("Run After Create Database", Wrap("runAfterCreateDatabase"),
+            beforeMigration: new MigrationsFolder("BeforeMigration", Wrap(folderNames.BeforeMigration), EveryTime, TransactionHandling: TransactionHandling.Autonomous),
+            alterDatabase: new MigrationsFolder("AlterDatabase", Wrap(folderNames.AlterDatabase), AnyTime, ConnectionType.Admin, TransactionHandling.Autonomous),
+            runAfterCreateDatabase: new MigrationsFolder("Run After Create Database", Wrap(folderNames.RunAfterCreateDatabase),
                 AnyTime),
-            runBeforeUp: new MigrationsFolder("Run Before Update", Wrap("runBeforeUp"), AnyTime),
-            up: new MigrationsFolder("Update", Wrap("up"), Once),
-            //down: new MigrationsFolder("Down Folder - Nothing to see here. Move along.", Wrap("down"), Once),
-            runFirstAfterUp: new MigrationsFolder("Run First After Update", Wrap("runFirstAfterUp"), Once),
-            functions: new MigrationsFolder("Functions", Wrap("functions"), AnyTime),
-            views: new MigrationsFolder("Views", Wrap("views"), AnyTime),
-            sprocs: new MigrationsFolder("Stored Procedures", Wrap("sprocs"), AnyTime),
-            triggers: new MigrationsFolder("Triggers", Wrap("triggers"), AnyTime),
-            indexes: new MigrationsFolder("Indexes", Wrap("indexes"), AnyTime),
+            runBeforeUp: new MigrationsFolder("Run Before Update", Wrap(folderNames.RunBeforeUp), AnyTime),
+            up: new MigrationsFolder("Update", Wrap(folderNames.Up), Once),
+            runFirstAfterUp: new MigrationsFolder("Run First After Update", Wrap(folderNames.RunFirstAfterUp), Once),
+            functions: new MigrationsFolder("Functions", Wrap(folderNames.Functions), AnyTime),
+            views: new MigrationsFolder("Views", Wrap(folderNames.Views), AnyTime),
+            sprocs: new MigrationsFolder("Stored Procedures", Wrap(folderNames.Sprocs), AnyTime),
+            triggers: new MigrationsFolder("Triggers", Wrap(folderNames.Triggers), AnyTime),
+            indexes: new MigrationsFolder("Indexes", Wrap(folderNames.Indexes), AnyTime),
             runAfterOtherAnyTimeScripts: new MigrationsFolder("Run after Other Anytime Scripts",
-                Wrap("runAfterOtherAnyTimeScripts"), AnyTime),
-            permissions: new MigrationsFolder("Permissions", Wrap("permissions"), EveryTime, TransactionHandling: TransactionHandling.Autonomous),
-            afterMigration: new MigrationsFolder("AfterMigration", Wrap("afterMigration"), EveryTime, TransactionHandling: TransactionHandling.Autonomous)
+                Wrap(folderNames.RunAfterOtherAnyTimeScripts), AnyTime),
+            permissions: new MigrationsFolder("Permissions", Wrap(folderNames.Permissions), EveryTime, TransactionHandling: TransactionHandling.Autonomous),
+            afterMigration: new MigrationsFolder("AfterMigration", Wrap(folderNames.AfterMigration), EveryTime, TransactionHandling: TransactionHandling.Autonomous)
         );
     }
 
@@ -59,7 +59,6 @@ public class KnownFolders: Collection<MigrationsFolder?>, IFoldersConfiguration
         MigrationsFolder runAfterCreateDatabase,
         MigrationsFolder runBeforeUp,
         MigrationsFolder up,
-        //MigrationsFolder down,
         MigrationsFolder runFirstAfterUp,
         MigrationsFolder functions,
         MigrationsFolder views,
@@ -72,13 +71,11 @@ public class KnownFolders: Collection<MigrationsFolder?>, IFoldersConfiguration
     )
         : base(new List<MigrationsFolder?>()
         {
-            // TODO: Separate this list in a "static" one and a dynamic one
             beforeMigration,
             alterDatabase,
             runAfterCreateDatabase,
             runBeforeUp,
             up,
-            //down,
             runFirstAfterUp,
             functions,
             views,
@@ -94,7 +91,6 @@ public class KnownFolders: Collection<MigrationsFolder?>, IFoldersConfiguration
         RunAfterCreateDatabase = runAfterCreateDatabase;
         RunBeforeUp = runBeforeUp;
         Up = up;
-        //Down = down;
         RunFirstAfterUp = runFirstAfterUp;
         Functions = functions;
         Views = views;

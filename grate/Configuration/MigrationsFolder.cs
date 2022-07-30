@@ -4,9 +4,9 @@ using grate.Migration;
 namespace grate.Configuration;
 
 public record MigrationsFolder(
-    string Name,
-    DirectoryInfo Path,
-    MigrationType Type,
-    ConnectionType ConnectionType = ConnectionType.Default,
-    TransactionHandling TransactionHandling = TransactionHandling.Default)
+        string Name,
+        DirectoryInfo Path,
+        MigrationType Type,
+        ConnectionType ConnectionType = ConnectionType.Default,
+        TransactionHandling TransactionHandling = TransactionHandling.Default)
     : Folder(Name, Path);
