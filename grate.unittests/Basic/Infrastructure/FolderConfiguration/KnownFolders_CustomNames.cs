@@ -119,7 +119,7 @@ public class KnownFolders_CustomNames
                 migrationsFolderDefinitionName,
                 expectedName,
                 expectedType.ToString(),
-                "conn: " + expectedConnectionType.ToString(),
-                "tran: " + transactionHandling.ToString()
+                "conn: " + expectedConnectionType,
+                "tran: " + transactionHandling
             );
 }
