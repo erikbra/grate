@@ -83,7 +83,7 @@ public class Fully_Customised_Folders
                 migrationsFolderDefinitionName,
                 expectedName,
                 expectedType.ToString(),
-                "conn: " + expectedConnectionType.ToString(),
-                "tran: " + transactionHandling.ToString()
+                "conn: " + expectedConnectionType,
+                "tran: " + transactionHandling
             );
 }
