@@ -5,5 +5,5 @@ namespace grate.Configuration;
 
 public interface IFoldersConfiguration: IReadOnlyDictionary<string, MigrationsFolder?>
 {
-    DirectoryInfo Root { get; }
+    DirectoryInfo? Root { get; }
 }
