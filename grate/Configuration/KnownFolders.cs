@@ -7,6 +7,7 @@ namespace grate.Configuration;
 
 public class KnownFolders: Dictionary<string, MigrationsFolder?>, IFoldersConfiguration
 {
+
     public MigrationsFolder? AlterDatabase => this[nameof(KnownFolderNames.AlterDatabase)];
     public MigrationsFolder? RunAfterCreateDatabase => this[nameof(KnownFolderNames.RunAfterCreateDatabase)];
     public MigrationsFolder? RunBeforeUp => this[nameof(KnownFolderNames.RunBeforeUp)];
@@ -32,7 +33,7 @@ public class KnownFolders: Dictionary<string, MigrationsFolder?>, IFoldersConfig
             return new DirectoryInfo(folder);
         }
         
-        return new KnownFolders()
+        return new KnownFolders(parent)
         {
             { nameof(KnownFolderNames.BeforeMigration), new MigrationsFolder("BeforeMigration", Wrap(folderNames.BeforeMigration), EveryTime, TransactionHandling: TransactionHandling.Autonomous) },
             { nameof(KnownFolderNames.AlterDatabase) , new MigrationsFolder("AlterDatabase", Wrap(folderNames.AlterDatabase), AnyTime, ConnectionType.Admin, TransactionHandling.Autonomous) },
@@ -48,10 +49,14 @@ public class KnownFolders: Dictionary<string, MigrationsFolder?>, IFoldersConfig
             { nameof(KnownFolderNames.RunAfterOtherAnyTimeScripts), new MigrationsFolder("Run after Other Anytime Scripts", Wrap(folderNames.RunAfterOtherAnyTimeScripts), AnyTime) },
             { nameof(KnownFolderNames.Permissions), new MigrationsFolder("Permissions", Wrap(folderNames.Permissions), EveryTime, TransactionHandling: TransactionHandling.Autonomous) },
             { nameof(KnownFolderNames.AfterMigration), new MigrationsFolder("AfterMigration", Wrap(folderNames.AfterMigration), EveryTime, TransactionHandling: TransactionHandling.Autonomous) }
-        }
-        ;
-
+        };
     }
-    
 
+    private KnownFolders(DirectoryInfo root)
+    {
+        Root = root;
+    }
+
+
+    public DirectoryInfo Root { get; }
 }

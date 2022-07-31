@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 
 namespace grate.Configuration;
 
-public interface IFoldersConfiguration: IDictionary<string, MigrationsFolder?>
+public interface IFoldersConfiguration: IReadOnlyDictionary<string, MigrationsFolder?>
 {
+    DirectoryInfo Root { get; }
 }
