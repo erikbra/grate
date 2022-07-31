@@ -1,5 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using FluentAssertions;
 using grate.Commands;
 using grate.Configuration;
@@ -17,7 +19,7 @@ public class CustomFoldersCommand_
         var actual = CustomFoldersCommand.Parse(argument);
 
         actual.Should().NotBeNull();
-        actual?.Root?.ToString().Should().Be(expected.Root.ToString());
+        actual?.Root?.ToString().Should().Be(expected.Root?.ToString());
 
         var expectedArr = expected.ToArray();
         var actualArr = actual?.ToArray();
@@ -83,6 +85,28 @@ public class CustomFoldersCommand_
                 new MigrationsFolder(new DirectoryInfo("/tmp/somewhere"), "folderB", MigrationType.Once),
                 new MigrationsFolder(new DirectoryInfo("/tmp/somewhere"), "folderC", MigrationType.AnyTime)
                 )),
+        
+        GetTestCase("Without root - relative folders",
+            @"{
+    ""folders"": {
+        ""folderA"": ""Everytime""
+    }
+}",
+            new CustomFoldersConfiguration(
+                null,
+                new MigrationsFolder(new DirectoryInfo(Directory.GetCurrentDirectory()), "folderA", MigrationType.EveryTime)
+            )),
+        
+        GetTestCase("Without root - absolute folders",
+            @"{
+    ""folders"": {
+        ""folderA"": { ""path"": ""/tmp/gorilla"", ""type"": ""Everytime"" },
+    }
+}",
+            new CustomFoldersConfiguration(
+                null,
+                new MigrationsFolder("folderA", new DirectoryInfo("/tmp/gorilla"), MigrationType.EveryTime)
+            )),
     };
 
     private static TestCaseData GetTestCase(

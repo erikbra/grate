@@ -22,23 +22,32 @@ public static class CustomFoldersCommand
         };
     }
     
-    private static readonly JsonSerializerOptions SerializerOptions;
+    public static readonly JsonSerializerOptions SerializerOptions;
 
     static CustomFoldersCommand()
     {
-        SerializerOptions = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true,
-        };
-        SerializerOptions.Converters
-            .Add(new JsonStringEnumConverter());
+        SerializerOptions = CreateSerializerOptions();
         SerializerOptions.Converters
             .Add(new ParseableMigrationsFolderJsonConverter());
     }
 
+    private static JsonSerializerOptions CreateSerializerOptions()
+    {
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            ReadCommentHandling = JsonCommentHandling.Skip,
+            AllowTrailingCommas = true
+        };
+        options.Converters
+            .Add(new JsonStringEnumConverter());
+
+        return options;
+    }
+
     private record ParseableFolderConfiguration
     {
-        public string Root { get; init; } = default!;
+        public string? Root { get; init; }
         public Dictionary<string, ParseableMigrationsFolder> Folders { get; set; } = new();
 
         [JsonIgnore]
@@ -49,36 +58,32 @@ public static class CustomFoldersCommand
                 {
                     var (path, migrationType, connectionType, transactionHandling) = item.Value;
                     return new MigrationsFolder(
-                        new DirectoryInfo(Root), 
-                        path ?? item.Key, migrationType,
+                        new DirectoryInfo(Root ?? Directory.GetCurrentDirectory()),
+                        item.Key,
+                        path ?? item.Key, 
+                        migrationType,
                         connectionType, transactionHandling);
                 });
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local
-    public record ParseableMigrationsFolder(
+    private record ParseableMigrationsFolder(
         string? Path,
         MigrationType Type,
         ConnectionType ConnectionType = ConnectionType.Default,
         TransactionHandling TransactionHandling = TransactionHandling.Default
     );
-    
+
     /// <summary>
     /// Deserialized either a proper JSON representing a MigrationsFolder, or a string specifying
     /// just the MigrationType, in which case the rest of the values are filled out with default values.
     /// </summary>
     private class ParseableMigrationsFolderJsonConverter : JsonConverter<ParseableMigrationsFolder>
     {
-        private static readonly JsonSerializerOptions OptionsWithoutMe;
+        private static readonly JsonSerializerOptions OptionsWithoutMe = CreateSerializerOptions();
 
         static ParseableMigrationsFolderJsonConverter()
         {
-            OptionsWithoutMe = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-            };
-            OptionsWithoutMe.Converters
-                .Add(new JsonStringEnumConverter());
         }
 
         public override ParseableMigrationsFolder? Read(
