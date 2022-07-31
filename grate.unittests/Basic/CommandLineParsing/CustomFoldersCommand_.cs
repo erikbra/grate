@@ -52,9 +52,9 @@ public class CustomFoldersCommand_
 
     private static readonly object?[] FoldersCommandLines =
     {
-        GetTestCase("Empty", "{}", CustomFoldersConfiguration.Empty),
-        GetTestCase("Only Root", "{ \"root\": \"/tmp/jallajalla\" }", new CustomFoldersConfiguration(new DirectoryInfo("/tmp/jallajalla"))),
-        GetTestCase("Mostly defaults",
+        GetTestCase("Text - Empty", "{}", CustomFoldersConfiguration.Empty),
+        GetTestCase("Text - Only Root", "{ \"root\": \"/tmp/jallajalla\" }", new CustomFoldersConfiguration(new DirectoryInfo("/tmp/jallajalla"))),
+        GetTestCase("Text - Mostly defaults",
 @"{ 
     ""root"": ""/tmp/jalla"",
     ""folders"": {
@@ -69,7 +69,7 @@ public class CustomFoldersCommand_
                 new MigrationsFolder(new DirectoryInfo("/tmp/jalla"), "folder2", MigrationType.EveryTime),
                 new MigrationsFolder(new DirectoryInfo("/tmp/jalla"), "folder3", MigrationType.AnyTime)
                 )),
-        GetTestCase("With only migration type",
+        GetTestCase("Text - With only migration type",
 @"{
     ""root"": ""/tmp/somewhere"",
     ""folders"": {
@@ -85,7 +85,7 @@ public class CustomFoldersCommand_
                 new MigrationsFolder(new DirectoryInfo("/tmp/somewhere"), "folderC", MigrationType.AnyTime)
                 )),
         
-        GetTestCase("Without root - relative folders",
+        GetTestCase("Text - Without root - relative folders",
             @"{
     ""folders"": {
         ""folderA"": ""Everytime""
@@ -96,7 +96,7 @@ public class CustomFoldersCommand_
                 new MigrationsFolder(new DirectoryInfo(Directory.GetCurrentDirectory()), "folderA", MigrationType.EveryTime)
             )),
         
-        GetTestCase("Without root - absolute folders",
+        GetTestCase("Text - Without root - absolute folders",
             @"{
     ""folders"": {
         ""folderA"": { ""path"": ""/tmp/gorilla"", ""type"": ""Everytime"" },
