@@ -56,10 +56,11 @@ public class Fully_Customised_Folders
     private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
 
     private static readonly IFoldersConfiguration Folders = new CustomFoldersConfiguration(
-        new MigrationsFolder("structure", Root.CreateSubdirectory("structure"), Once),
-        new MigrationsFolder("randomstuff", Root.CreateSubdirectory("randomstuff"), AnyTime, Admin, TransactionHandling.Autonomous),
-        new MigrationsFolder("procedures", Root.CreateSubdirectory("procs"), AnyTime),
-        new MigrationsFolder("security", Root.CreateSubdirectory("secret"), AnyTime)
+        Root, 
+        new MigrationsFolder(Root, "structure", Once),
+        new MigrationsFolder(Root, "randomstuff", AnyTime, Admin, TransactionHandling.Autonomous),
+        new MigrationsFolder(Root, "procedures", "procs", AnyTime),
+        new MigrationsFolder(Root, "security", "secret", AnyTime)
     );
 
     private static readonly object?[] ExpectedKnownFolderNames =

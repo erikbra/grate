@@ -33,7 +33,7 @@ public class GrateMigrator : IAsyncDisposable
         var silent = dbMigrator.Configuration.Silent;
         var database = dbMigrator.Database;
         var config = dbMigrator.Configuration;
-        KnownFolders knownFolders = config.KnownFolders ?? throw new ArgumentException(nameof(config.KnownFolders));
+        IFoldersConfiguration knownFolders = config.KnownFolders ?? throw new ArgumentException(nameof(config.KnownFolders));
 
 
         _logger.LogInformation("Running grate v{Version} against {ServerName} - {DatabaseName}.",
@@ -42,7 +42,7 @@ public class GrateMigrator : IAsyncDisposable
             database.DatabaseName
         );
 
-        _logger.LogInformation("Looking in {UpFolder} for scripts to run.", knownFolders.Up?.Path);
+        _logger.LogInformation("Looking in {UpFolder} for scripts to run.", knownFolders.Root);
 
         PressEnterWhenReady(silent);
 
@@ -115,7 +115,7 @@ public class GrateMigrator : IAsyncDisposable
                 
                 // This is an ugly "if" run on every script, to check one special folder which has conditions.
                 // If possible, we should find a 'cleaner' way to do this.
-                if ((knownFolders?.RunAfterCreateDatabase?.Name.Equals(folder?.Name) ?? false) && ! databaseCreated)
+                if (nameof(KnownFolderNames.RunAfterCreateDatabase).Equals(folder?.Name) && ! databaseCreated)
                 {
                     continue;
                 }
