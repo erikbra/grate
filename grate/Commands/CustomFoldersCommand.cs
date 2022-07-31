@@ -13,7 +13,20 @@ public static class CustomFoldersCommand
 {
     public static IFoldersConfiguration? Parse(string arg)
     {
-        var parsed = JsonSerializer.Deserialize<ParseableFolderConfiguration>(arg, SerializerOptions);
+        if (IsFile(arg))
+        {
+            arg = File.Exists(arg) ? File.ReadAllText(arg) : "{}";
+        }
+        
+        string content = arg switch
+        {
+            null => "{}",
+            { Length: 0 } => "{}",
+            { } a when IsFile(a) => File.ReadAllText(a),
+            _ => arg
+        };
+        
+        var parsed = JsonSerializer.Deserialize<ParseableFolderConfiguration>(content, SerializerOptions);
         return (parsed, parsed?.Root) switch
         {
             (null, _) => CustomFoldersConfiguration.Empty,
@@ -21,7 +34,12 @@ public static class CustomFoldersCommand
             _ => new CustomFoldersConfiguration(new DirectoryInfo(parsed.Root), parsed.MigrationsFolders)
         };
     }
-    
+
+    private static bool IsFile(string s)
+    {
+        return File.Exists(s) || s.StartsWith("/") ;
+    }
+
     public static readonly JsonSerializerOptions SerializerOptions;
 
     static CustomFoldersCommand()

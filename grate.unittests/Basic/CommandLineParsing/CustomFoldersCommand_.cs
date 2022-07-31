@@ -1,7 +1,5 @@
 ﻿using System.IO;
 using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using FluentAssertions;
 using grate.Commands;
 using grate.Configuration;
@@ -14,6 +12,7 @@ public class CustomFoldersCommand_
 {
     [Test]
     [TestCaseSource(nameof(FoldersCommandLines))]
+    [TestCaseSource(nameof(FileFoldersCommandLines))]
     public void Can_Parse(string argument, IFoldersConfiguration expected)
     {
         var actual = CustomFoldersCommand.Parse(argument);
@@ -108,6 +107,55 @@ public class CustomFoldersCommand_
                 new MigrationsFolder("folderA", new DirectoryInfo("/tmp/gorilla"), MigrationType.EveryTime)
             )),
     };
+
+    private static readonly object?[] FileFoldersCommandLines =
+    {
+        GetTestCase("File - NonExistant file", "/tmp/this/does/not/exist" , CustomFoldersConfiguration.Empty),
+        GetTestCase("File - Empty file", CreateFile(""), CustomFoldersConfiguration.Empty),
+        GetTestCase("File - Empty Json", CreateFile("{}"), CustomFoldersConfiguration.Empty),
+        GetTestCase("File - Only Root", CreateFile("{ \"root\": \"/tmp/jallajalla\" }"),
+            new CustomFoldersConfiguration(new DirectoryInfo("/tmp/jallajalla"))),
+        GetTestCase("File - Mostly defaults",
+            CreateFile(@"{ 
+    ""root"": ""/tmp/jalla"",
+    ""folders"": {
+        ""folder1"": { ""type"": ""Once"" },
+        ""folder2"": { ""type"": ""EveryTime"" },
+        ""folder3"": { ""type"": ""AnyTime"" }
+    }
+}"),
+            new CustomFoldersConfiguration(
+                new DirectoryInfo("/tmp/jalla"),
+                new MigrationsFolder(new DirectoryInfo("/tmp/jalla"), "folder1", MigrationType.Once),
+                new MigrationsFolder(new DirectoryInfo("/tmp/jalla"), "folder2", MigrationType.EveryTime),
+                new MigrationsFolder(new DirectoryInfo("/tmp/jalla"), "folder3", MigrationType.AnyTime)
+            )),
+        GetTestCase("File - With only migration type",
+            CreateFile(@"{
+    ""root"": ""/tmp/somewhere"",
+    ""folders"": {
+        ""folderA"": ""Everytime"",
+        ""folderB"": ""Once"",
+        ""folderC"": ""AnyTime""
+    }
+}"),
+            new CustomFoldersConfiguration(
+                new DirectoryInfo("/tmp/somewhere"),
+                new MigrationsFolder(new DirectoryInfo("/tmp/somewhere"), "folderA", MigrationType.EveryTime),
+                new MigrationsFolder(new DirectoryInfo("/tmp/somewhere"), "folderB", MigrationType.Once),
+                new MigrationsFolder(new DirectoryInfo("/tmp/somewhere"), "folderC", MigrationType.AnyTime)
+            )),
+    };
+
+    private static string CreateFile(string content)
+    {
+        var tmpFile = Path.GetTempFileName();
+        File.WriteAllText(tmpFile, content);
+        return tmpFile;
+    }
+    
+    
+    
 
     private static TestCaseData GetTestCase(
         string testCaseName,
