@@ -51,11 +51,41 @@ public class FolderConfiguration_
         
         AssertEquivalent(expected.Values, actual?.Values);
     }
+    
+    [Test]
+    [TestCaseSource(nameof(FullyCustomFoldersCommandLines))]
+    public async Task Fully_Customised(string commandLine, IFoldersConfiguration expected)
+    {
+        var cfg = await ParseGrateConfiguration(commandLine);
+        var actual = cfg?.KnownFolders;
+        
+        AssertEquivalent(expected.Values, actual?.Values);
+    }
 
     private static readonly object?[] FoldersCommandLines =
     {
         GetTestCase("--folders=up:tables", names => names with { Up = "tables" }),
         GetTestCase("--folders=up:tables,views:projections", names => names with { Up = "tables", Views = "projections"})
+    };
+    
+    private static readonly object?[] FullyCustomFoldersCommandLines =
+    {
+        GetCustomisedTestCase(
+        "Mostly defaults",
+@"--folders={ 
+    ""root"": ""/tmp/jalla"",
+    ""folders"": {
+        ""folder1"": { ""type"": ""Once"" },
+        ""folder2"": { ""type"": ""EveryTime"" },
+        ""folder3"": { ""type"": ""AnyTime"" }
+    }
+}""",
+        new CustomFoldersConfiguration(
+            new DirectoryInfo("/tmp/jalla"),
+            new MigrationsFolder(new DirectoryInfo("/tmp/jalla"), "folder1", MigrationType.Once),
+            new MigrationsFolder(new DirectoryInfo("/tmp/jalla"), "folder2", MigrationType.EveryTime),
+            new MigrationsFolder(new DirectoryInfo("/tmp/jalla"), "folder3", MigrationType.AnyTime)
+        )),
     };
 
     private static TestCaseData GetTestCase(
@@ -63,6 +93,12 @@ public class FolderConfiguration_
         Func<KnownFolderNames, KnownFolderNames> expectedOverrides,
         [CallerArgumentExpression("expectedOverrides")] string overridesText = ""
     ) => new TestCaseData(folderArg, expectedOverrides).SetArgDisplayNames(folderArg, overridesText);
+    
+    private static TestCaseData GetCustomisedTestCase(
+        string caseName,
+        string folderArg,
+        IFoldersConfiguration expected
+    ) => new TestCaseData(folderArg, expected).SetArgDisplayNames(caseName, folderArg);
 
     private static void AssertEquivalent(
         IEnumerable<MigrationsFolder?> expected,
