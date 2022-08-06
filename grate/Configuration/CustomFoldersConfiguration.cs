@@ -29,7 +29,16 @@ public class CustomFoldersConfiguration: Dictionary<string, MigrationsFolder?>, 
     public CustomFoldersConfiguration() 
     { }
 
-    public DirectoryInfo? Root { get; }
+    public DirectoryInfo? Root { get; private set; }
+    
+    public void SetRoot(DirectoryInfo root)
+    {
+        Root = root;
+        foreach (var value in Values)
+        {
+            value?.SetRoot(root);
+        }
+    }
 
     public static CustomFoldersConfiguration Empty => new(new DirectoryInfo("/dev/null"));
 

@@ -76,10 +76,10 @@ public abstract class Order_Of_Scripts: MigrationsScriptsBase
         {
             CreateDatabase = createDatabase, 
             ConnectionString = Context.ConnectionString(databaseName),
-            KnownFolders = KnownFolders.In(scriptsDir)
+            Folders = KnownFolders.In(scriptsDir)
         };
 
-        var knownFolders = (KnownFolders) config.KnownFolders;
+        var knownFolders = (KnownFolders) config.Folders;
         
         CreateDummySql(knownFolders.AfterMigration, "1_aftermigration.sql");
         CreateDummySql(knownFolders.AlterDatabase, "1_alterdatabase.sql");

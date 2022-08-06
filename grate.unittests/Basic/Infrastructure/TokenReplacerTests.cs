@@ -42,7 +42,7 @@ public class TokenReplacerTests
     public void EnsureConfigMakesItToTokens()
     {
         var folders = KnownFolders.In(new DirectoryInfo(Path.GetTempPath()));
-        var config = new GrateConfiguration() { SchemaName = "Test", KnownFolders = folders };
+        var config = new GrateConfiguration() { SchemaName = "Test", Folders = folders };
         var provider = new TokenProvider(config, GrateTestContext.SqlServer.DatabaseMigrator);
         var tokens = provider.GetTokens();
 
@@ -59,7 +59,7 @@ public class TokenReplacerTests
         var config = new GrateConfiguration()
         {
             ConnectionString = "Server=(LocalDb)\\mssqllocaldb;Database=TestDb;",
-            KnownFolders = KnownFolders.In(new DirectoryInfo(Path.GetTempPath()))
+            Folders = KnownFolders.In(new DirectoryInfo(Path.GetTempPath()))
         };
 
 

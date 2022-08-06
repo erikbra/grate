@@ -27,12 +27,12 @@ public class FolderConfiguration_
     [Test()]
     public async Task Default()
     {
-        var cfg = await ParseGrateConfiguration("");
+        var cfg = await ParseGrateConfiguration("--sqlfilesdirectory=/tmp");
 
         var parent = cfg?.SqlFilesDirectory ?? new DirectoryInfo("/tmp");
 
         var expected = KnownFolders.In(parent);
-        var actual = cfg?.KnownFolders;
+        var actual = cfg?.Folders;
 
         AssertEquivalent(expected.Values, actual?.Values);
     }
@@ -41,23 +41,22 @@ public class FolderConfiguration_
     [TestCaseSource(nameof(FoldersCommandLines))]
     public async Task Default_With_Overrides(string commandLine, Func<KnownFolderNames, KnownFolderNames> applyExpectedOverrides)
     {
-        var cfg = await ParseGrateConfiguration(commandLine);
-        
+        var cfg = await ParseGrateConfiguration("--sqlfilesdirectory=/tmp", commandLine);
         var parent = cfg?.SqlFilesDirectory ?? new DirectoryInfo("/tmp");
         var folderConfig = applyExpectedOverrides(KnownFolderNames.Default);
         var expected = KnownFolders.In(parent, folderConfig);
         
-        var actual = cfg?.KnownFolders;
+        var actual = cfg?.Folders;
         
         AssertEquivalent(expected.Values, actual?.Values);
     }
     
     [Test]
     [TestCaseSource(nameof(FullyCustomFoldersCommandLines))]
-    public async Task Fully_Customised(string commandLine, IFoldersConfiguration expected)
+    public async Task Fully_Customised(string root, string foldersArgument, IFoldersConfiguration expected)
     {
-        var cfg = await ParseGrateConfiguration(commandLine);
-        var actual = cfg?.KnownFolders;
+        var cfg = await ParseGrateConfiguration("--sqlfilesdirectory="+ root, foldersArgument);
+        var actual = cfg?.Folders;
         
         AssertEquivalent(expected.Values, actual?.Values);
     }
@@ -72,14 +71,8 @@ public class FolderConfiguration_
     {
         GetCustomisedTestCase(
         "Mostly defaults",
-@"--folders={ 
-    ""root"": ""/tmp/jalla"",
-    ""folders"": {
-        ""folder1"": { ""type"": ""Once"" },
-        ""folder2"": { ""type"": ""EveryTime"" },
-        ""folder3"": { ""type"": ""AnyTime"" }
-    }
-}""",
+        "/tmp/jalla",
+@"--folders={ ""root"": ""/tmp/jalla"", ""folders"": { ""folder1"": { ""type"": ""Once"" }, ""folder2"": { ""type"": ""EveryTime"" }, ""folder3"": { ""type"": ""AnyTime"" } }}",
         new CustomFoldersConfiguration(
             new DirectoryInfo("/tmp/jalla"),
             new MigrationsFolder(new DirectoryInfo("/tmp/jalla"), "folder1", MigrationType.Once),
@@ -96,9 +89,10 @@ public class FolderConfiguration_
     
     private static TestCaseData GetCustomisedTestCase(
         string caseName,
+        string root,
         string folderArg,
         IFoldersConfiguration expected
-    ) => new TestCaseData(folderArg, expected).SetArgDisplayNames(caseName, folderArg);
+    ) => new TestCaseData(root, folderArg, expected).SetArgDisplayNames(caseName, folderArg);
 
     private static void AssertEquivalent(
         IEnumerable<MigrationsFolder?> expected,
@@ -109,7 +103,7 @@ public class FolderConfiguration_
 
         Assert.Multiple(() =>
         {
-            Assert.AreEqual(expectedArr.Length, actualArr.Length);
+            actualArr.Length.Should().Be(expectedArr.Length);
             for (var i = 0; i < expectedArr.Length; i++)
             {
                 AssertEquivalent(expectedArr[i], actualArr[i]);
@@ -130,14 +124,15 @@ public class FolderConfiguration_
     }
 
 
-    private static async Task<GrateConfiguration?> ParseGrateConfiguration(string commandline)
+    private static async Task<GrateConfiguration?> ParseGrateConfiguration(params string[] commandline)
     {
         GrateConfiguration? cfg = null;
         var cmd = CommandHandler.Create((GrateConfiguration config) => cfg = config);
 
-        ParseResult p =
-            new Parser(new MigrateCommand(null!)).Parse(commandline);
+        var migrateCommand = new MigrateCommand(null!);
+        ParseResult p = new Parser(migrateCommand).Parse(commandline);
         await cmd.InvokeAsync(new InvocationContext(p));
+        
         return cfg;
     }
 }

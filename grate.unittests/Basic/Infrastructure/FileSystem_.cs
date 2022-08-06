@@ -17,7 +17,7 @@ public class FileSystem_
     {
         var knownFolders = KnownFolders.In(TestConfig.CreateRandomTempDirectory());
 
-        var path = knownFolders.Up!.Path;
+        var path = knownFolders.Up!.Path!;
         
         var folder1 = new DirectoryInfo(path.ToString());
         
@@ -38,7 +38,7 @@ public class FileSystem_
     {
         var knownFolders = KnownFolders.In(TestConfig.CreateRandomTempDirectory());
 
-        var path = knownFolders.Up!.Path;
+        var path = knownFolders.Up!.Path!;
         
         var folder1 = new DirectoryInfo(Path.Combine(path.ToString(), "01_sub", "folder", "long", "way"));
         var folder2 = new DirectoryInfo(Path.Combine(path.ToString(), "02_sub", "folder", "long", "way"));

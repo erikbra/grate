@@ -13,15 +13,17 @@ namespace grate.Configuration;
 public record GrateConfiguration
 {
     private readonly string? _adminConnectionString;
-    private readonly IFoldersConfiguration? _knownFolders;
+    private readonly IFoldersConfiguration? _folders;
 
-    public IFoldersConfiguration KnownFolders
+    public IFoldersConfiguration? Folders
     {
-        get => _knownFolders ?? grate.Configuration.KnownFolders.In(SqlFilesDirectory, Folders);
-        init => _knownFolders = value;
+        get
+        {
+            _folders?.SetRoot(SqlFilesDirectory);
+            return _folders;
+        }
+        init => _folders = value;
     }
-
-    public IKnownFolderNames? Folders { get; init; }
 
     public DatabaseType DatabaseType { get; init; } // = DatabaseType.sqlserver;
 

@@ -11,33 +11,43 @@ namespace grate.Commands;
 
 public static class CustomFoldersCommand
 {
-    public static IFoldersConfiguration? Parse(string arg)
+    public static IFoldersConfiguration Parse(string? arg)
     {
         if (IsFile(arg))
         {
             arg = File.Exists(arg) ? File.ReadAllText(arg) : "{}";
         }
         
-        string content = arg switch
+        string? content = arg switch
         {
-            null => "{}",
-            { Length: 0 } => "{}",
+            { Length: 0 } => null,
             { } a when IsFile(a) => File.ReadAllText(a),
             _ => arg
         };
-        
+
+        return content switch
+        {
+            { } c when IsJson(c) => ParseCustomFoldersConfiguration(c),
+            _ => KnownFolders.UnRooted(KnownFolderNamesArgument.Parse(arg))
+        };
+    }
+
+    private static bool IsJson(string s) => s?.Trim()?.StartsWith("{") ?? false;
+
+    private static IFoldersConfiguration ParseCustomFoldersConfiguration(string content)
+    {
         var parsed = JsonSerializer.Deserialize<ParseableFolderConfiguration>(content, SerializerOptions);
         return (parsed, parsed?.Root) switch
         {
             (null, _) => CustomFoldersConfiguration.Empty,
-            ({}, null) => new CustomFoldersConfiguration(parsed.MigrationsFolders),
+            ({ }, null) => new CustomFoldersConfiguration(parsed.MigrationsFolders),
             _ => new CustomFoldersConfiguration(new DirectoryInfo(parsed.Root), parsed.MigrationsFolders)
         };
     }
 
-    private static bool IsFile(string s)
+    private static bool IsFile(string? s)
     {
-        return File.Exists(s) || s.StartsWith("/") ;
+        return s is not null && (File.Exists(s) || s.StartsWith("/")) ;
     }
 
     public static readonly JsonSerializerOptions SerializerOptions;

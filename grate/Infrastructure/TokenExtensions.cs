@@ -8,7 +8,7 @@ public static class TokenExtensions
 
     public static string? ToToken(this MigrationsFolder? folder)
     {
-        return folder?.Path.Name;
+        return folder?.Path?.Name;
     }
 
 }

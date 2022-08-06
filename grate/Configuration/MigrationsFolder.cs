@@ -5,13 +5,12 @@ namespace grate.Configuration;
 
 public record MigrationsFolder(
         string Name,
-        DirectoryInfo Path,
+        DirectoryInfo? Path,
         MigrationType Type,
         ConnectionType ConnectionType = ConnectionType.Default,
         TransactionHandling TransactionHandling = TransactionHandling.Default)
     : Folder(Name, Path)
 {
-
     public MigrationsFolder(
         DirectoryInfo root,
         string name,
@@ -28,7 +27,18 @@ public record MigrationsFolder(
         ConnectionType connectionType = ConnectionType.Default,
         TransactionHandling transactionHandling = TransactionHandling.Default
     ) : this(name, Wrap(root, folderName), type, connectionType, transactionHandling) { }
-    
+
+    public MigrationsFolder(
+        string name,
+        string folderName,
+        MigrationType type,
+        ConnectionType connectionType = ConnectionType.Default,
+        TransactionHandling transactionHandling = TransactionHandling.Default
+    ) : this(name, default(DirectoryInfo?), type, connectionType, transactionHandling)
+    {
+        RelativePath = folderName;
+    }
+
     private static DirectoryInfo Wrap(DirectoryInfo root, string subFolder)
     {
         var folder = System.IO.Path.Combine(root.FullName, subFolder);

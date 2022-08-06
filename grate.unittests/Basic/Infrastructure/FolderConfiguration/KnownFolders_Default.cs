@@ -55,7 +55,7 @@ public class KnownFolders_Default
         
         Assert.Multiple(() =>
         {
-            folder.Path.ToString().Should().Be(Path.Combine(root, expectedName));
+            folder.Path?.ToString().Should().Be(Path.Combine(root, expectedName));
             folder.Type.Should().Be(expectedType);
             folder.ConnectionType.Should().Be(expectedConnectionType);
             folder.TransactionHandling.Should().Be(transactionHandling);

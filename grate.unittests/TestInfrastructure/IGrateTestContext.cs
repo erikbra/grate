@@ -50,7 +50,7 @@ public interface IGrateTestContext
         DefaultConfiguration with
         {
             ConnectionString = ConnectionString(db),
-            KnownFolders = knownFolders
+            Folders = knownFolders
         };
 
     public GrateMigrator GetMigrator(GrateConfiguration config)
@@ -87,7 +87,7 @@ public interface IGrateTestContext
         var config = DefaultConfiguration with
         {
             ConnectionString = ConnectionString(databaseName),
-            KnownFolders = knownFolders,
+            Folders = knownFolders,
             Environment = env != null ? new GrateEnvironment(env) : null,
             Transaction = runInTransaction
         };

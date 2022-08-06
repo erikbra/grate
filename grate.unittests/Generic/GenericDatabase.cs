@@ -159,7 +159,7 @@ public abstract class GenericDatabase
             CreateDatabase = createDatabase, 
             ConnectionString = Context.ConnectionString(databaseName),
             AdminConnectionString = adminConnectionString ?? Context.AdminConnectionString,
-            KnownFolders = KnownFolders.In(TestConfig.CreateRandomTempDirectory()),
+            Folders = KnownFolders.In(TestConfig.CreateRandomTempDirectory()),
             NonInteractive = true,
             DatabaseType = Context.DatabaseType
         };

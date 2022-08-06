@@ -33,7 +33,7 @@ public class GrateMigrator : IAsyncDisposable
         var silent = dbMigrator.Configuration.Silent;
         var database = dbMigrator.Database;
         var config = dbMigrator.Configuration;
-        IFoldersConfiguration knownFolders = config.KnownFolders ?? throw new ArgumentException(nameof(config.KnownFolders));
+        IFoldersConfiguration knownFolders = config.Folders ?? throw new ArgumentException(nameof(config.Folders));
 
 
         _logger.LogInformation("Running grate v{Version} against {ServerName} - {DatabaseName}.",
@@ -42,7 +42,7 @@ public class GrateMigrator : IAsyncDisposable
             database.DatabaseName
         );
 
-        _logger.LogInformation("Looking in {UpFolder} for scripts to run.", knownFolders.Root);
+        _logger.LogInformation("Looking in {UpFolder} for scripts to run.", config.SqlFilesDirectory);
 
         PressEnterWhenReady(silent);
 

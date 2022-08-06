@@ -111,7 +111,7 @@ public class CustomFoldersCommand_
     private static readonly object?[] FileFoldersCommandLines =
     {
         GetTestCase("File - NonExistant file", "/tmp/this/does/not/exist" , CustomFoldersConfiguration.Empty),
-        GetTestCase("File - Empty file", CreateFile(""), CustomFoldersConfiguration.Empty),
+        GetTestCase("File - Empty file", CreateFile(""), KnownFolders.UnRooted(KnownFolderNames.Default)),
         GetTestCase("File - Empty Json", CreateFile("{}"), CustomFoldersConfiguration.Empty),
         GetTestCase("File - Only Root", CreateFile("{ \"root\": \"/tmp/jallajalla\" }"),
             new CustomFoldersConfiguration(new DirectoryInfo("/tmp/jallajalla"))),

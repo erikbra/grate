@@ -50,12 +50,43 @@ public class KnownFolders: Dictionary<string, MigrationsFolder?>, IFoldersConfig
             { KnownFolderKeys.AfterMigration, new MigrationsFolder("AfterMigration", Wrap(folderNames.AfterMigration), EveryTime, TransactionHandling: TransactionHandling.Autonomous) }
         };
     }
+    
+     public static KnownFolders UnRooted(IKnownFolderNames? folderNames = null)
+    {
+        folderNames ??= KnownFolderNames.Default;
 
-    private KnownFolders(DirectoryInfo root)
+        return new KnownFolders
+        {
+            { KnownFolderKeys.BeforeMigration, new MigrationsFolder("BeforeMigration", folderNames.BeforeMigration, EveryTime, ConnectionType.Default, TransactionHandling.Autonomous) },
+            { KnownFolderKeys.AlterDatabase , new MigrationsFolder("AlterDatabase", folderNames.AlterDatabase, AnyTime, ConnectionType.Admin, TransactionHandling.Autonomous) },
+            { KnownFolderKeys.RunAfterCreateDatabase, new MigrationsFolder("Run After Create Database", folderNames.RunAfterCreateDatabase, AnyTime) },
+            { KnownFolderKeys.RunBeforeUp,  new MigrationsFolder("Run Before Update", folderNames.RunBeforeUp, AnyTime) },
+            { KnownFolderKeys.Up, new MigrationsFolder("Update", (folderNames.Up), Once) },
+            { KnownFolderKeys.RunFirstAfterUp, new MigrationsFolder("Run First After Update", (folderNames.RunFirstAfterUp), Once) },
+            { KnownFolderKeys.Functions, new MigrationsFolder("Functions", (folderNames.Functions), AnyTime) },
+            { KnownFolderKeys.Views, new MigrationsFolder("Views", (folderNames.Views), AnyTime) },
+            { KnownFolderKeys.Sprocs, new MigrationsFolder("Stored Procedures", (folderNames.Sprocs), AnyTime) },
+            { KnownFolderKeys.Triggers, new MigrationsFolder("Triggers", folderNames.Triggers, AnyTime) },
+            { KnownFolderKeys.Indexes, new MigrationsFolder("Indexes", (folderNames.Indexes), AnyTime) },
+            { KnownFolderKeys.RunAfterOtherAnyTimeScripts, new MigrationsFolder("Run after Other Anytime Scripts", (folderNames.RunAfterOtherAnyTimeScripts), AnyTime) },
+            { KnownFolderKeys.Permissions, new MigrationsFolder("Permissions", folderNames.Permissions, EveryTime, ConnectionType.Default, TransactionHandling.Autonomous) },
+            { KnownFolderKeys.AfterMigration, new MigrationsFolder("AfterMigration", folderNames.AfterMigration, EveryTime, ConnectionType.Default, TransactionHandling.Autonomous) }
+        };
+    }
+
+    private KnownFolders(DirectoryInfo? root = default)
     {
         Root = root;
     }
 
+    public DirectoryInfo? Root { get; private set; }
 
-    public DirectoryInfo Root { get; }
+    public void SetRoot(DirectoryInfo root)
+    {
+        Root = root;
+        foreach (var value in Values)
+        {
+            value?.SetRoot(root);
+        }
+    }
 }

@@ -85,15 +85,16 @@ public sealed class MigrateCommand : RootCommand
 
 
     private static Option Folders() =>
-        new Option<IKnownFolderNames>(
+        new Option<IFoldersConfiguration>(
             new[] { "--folders" },
-            result => KnownFolderNamesArgument.Parse(result.Tokens[0].ToString()),
+            result => CustomFoldersCommand.Parse(result?.Tokens?.FirstOrDefault()?.ToString()),
             description: 
 @"Folder configuration, if you wish to override any of the default folder names.
 Supply a comma separated list of mappings, e.g
 --folders up:ddl,views:projections,beforemigration:preparefordeploy
 
-"
+",
+            isDefault: true
         );
     
 
