@@ -12,7 +12,7 @@ using static grate.Migration.ConnectionType;
 namespace grate.unittests.Basic.Infrastructure.FolderConfiguration;
 
 [TestFixture]
-[TestOf(nameof(KnownFolders))]
+[TestOf(nameof(FoldersConfiguration))]
 [Category("Basic")]
 // ReSharper disable once InconsistentNaming
 public class Fully_Customised_Folders

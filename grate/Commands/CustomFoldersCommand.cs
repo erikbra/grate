@@ -28,7 +28,7 @@ public static class CustomFoldersCommand
         return content switch
         {
             { } c when IsJson(c) => ParseCustomFoldersConfiguration(c),
-            _ => KnownFolders.In(KnownFolderNamesArgument.Parse(arg))
+            _ => FoldersConfiguration.Default(KnownFolderNamesArgument.Parse(arg))
         };
     }
 

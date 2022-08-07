@@ -85,8 +85,6 @@ public record GrateConfiguration
     /// </summary>
     public bool WarnAndIgnoreOnOneTimeScriptChanges { get; init; }
 
-    //private static KnownFolders InCurrentDirectory() => KnownFolders.In(CurrentDirectory);
-
     /// <summary>
     /// The set of user-provided "key=value" pairs for use in token replacement.
     /// </summary>

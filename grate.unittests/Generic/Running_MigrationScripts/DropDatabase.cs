@@ -17,7 +17,7 @@ public abstract class DropDatabase : MigrationsScriptsBase
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Sprocs]);
             
         var dropConfig = Context.GetConfiguration(db, parent, knownFolders) with

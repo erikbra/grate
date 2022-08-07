@@ -20,7 +20,7 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
         var db = TestConfig.RandomDatabase();
 
         var parent = TestConfig.CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
         GrateMigrator? migrator;
 
         var folder = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.RelativePath, "sub", "folder", "long", "way"));
@@ -51,7 +51,7 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
         
         GrateMigrator? migrator;
 
@@ -86,7 +86,7 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
         var db = TestConfig.RandomDatabase();
 
         var parent = TestConfig.CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
         GrateMigrator? migrator;
         
         string filename = "any_filename.sql";

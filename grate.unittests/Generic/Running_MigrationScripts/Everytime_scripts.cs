@@ -22,7 +22,7 @@ public abstract class Everytime_scripts : MigrationsScriptsBase
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Permissions]);
 
         for (var i = 0; i < 3; i++)
@@ -44,7 +44,7 @@ public abstract class Everytime_scripts : MigrationsScriptsBase
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Permissions]);
 
         var config = Context.GetConfiguration(db, parent, knownFolders) with
@@ -82,7 +82,7 @@ public abstract class Everytime_scripts : MigrationsScriptsBase
         GrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
 
         var folder = knownFolders[Up];// not an everytime folder
 
@@ -115,7 +115,7 @@ public abstract class Everytime_scripts : MigrationsScriptsBase
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
 
         var config = Context.GetConfiguration(db, parent, knownFolders) with
         {

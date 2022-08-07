@@ -14,7 +14,7 @@ using static grate.Migration.ConnectionType;
 namespace grate.unittests.Basic.Infrastructure.FolderConfiguration;
 
 [TestFixture]
-[TestOf(nameof(KnownFolders))]
+[TestOf(nameof(FoldersConfiguration))]
 [Category("Basic")]
 // ReSharper disable once InconsistentNaming
 public class KnownFolders_CustomNames
@@ -85,7 +85,7 @@ public class KnownFolders_CustomNames
     };
     
     private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
-    private static readonly IFoldersConfiguration Folders = KnownFolders.In(OverriddenFolderNames);
+    private static readonly IFoldersConfiguration Folders = FoldersConfiguration.Default(OverriddenFolderNames);
 
     private static readonly object?[] ExpectedKnownFolderNames =
     {

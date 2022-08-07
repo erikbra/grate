@@ -33,7 +33,7 @@ public class RestoreDatabase : SqlServerScriptsBase
         var db = TestConfig.RandomDatabase();
         
         var parent = CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[KnownFolderKeys.Sprocs]);
             
         var restoreConfig = Context.GetConfiguration(db, parent, knownFolders) with

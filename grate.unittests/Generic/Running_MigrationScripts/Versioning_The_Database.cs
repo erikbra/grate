@@ -21,7 +21,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         GrateMigrator? migrator;
         
         var parent = CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Sprocs]);
 
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
@@ -48,7 +48,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         var db = TestConfig.RandomDatabase();
         
         var parent = CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
 
         CreateDummySql(parent, knownFolders[Sprocs]); // make sure there's something that could be logged...
 

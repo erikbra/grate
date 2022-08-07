@@ -73,7 +73,7 @@ public abstract class Order_Of_Scripts: MigrationsScriptsBase
         {
             CreateDatabase = createDatabase, 
             ConnectionString = Context.ConnectionString(databaseName),
-            Folders = KnownFolders.In(),
+            Folders = FoldersConfiguration.Default(null),
             SqlFilesDirectory = scriptsDir
             
         };

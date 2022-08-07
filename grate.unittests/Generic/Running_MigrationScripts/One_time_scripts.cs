@@ -24,7 +24,7 @@ public abstract class One_time_scripts: MigrationsScriptsBase
         GrateMigrator? migrator;
             
         var parent = CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Up]);
             
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
@@ -55,7 +55,7 @@ public abstract class One_time_scripts: MigrationsScriptsBase
         GrateMigrator? migrator;
             
         var parent = CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Up]);
             
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
@@ -90,7 +90,7 @@ public abstract class One_time_scripts: MigrationsScriptsBase
         GrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Up]);
             
         var config = Context.GetConfiguration(db, parent, knownFolders) with
@@ -133,7 +133,7 @@ public abstract class One_time_scripts: MigrationsScriptsBase
         GrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
         var path = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]?.RelativePath ?? throw new Exception("Config Fail")));
 
         WriteSql(path, "token.sql", CreateView1);

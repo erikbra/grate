@@ -16,7 +16,7 @@ public class FileSystem_
     public void Sorts_enumerated_files_on_filename_when_no_subfolders()
     {
         var parent = TestConfig.CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
 
         var path = Wrap(parent, knownFolders[KnownFolderKeys.Up]!.RelativePath);
 
@@ -36,7 +36,7 @@ public class FileSystem_
     public void Sorts_enumerated_files_on_sub_path_when_subfolders_are_used()
     {
         var parent = TestConfig.CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
 
         var path = Wrap(parent, knownFolders[KnownFolderKeys.Up]!.RelativePath);
         

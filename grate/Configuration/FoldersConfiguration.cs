@@ -27,7 +27,7 @@ public class FoldersConfiguration: Dictionary<string, MigrationsFolder?>, IFolde
 
     public static FoldersConfiguration Empty => new();
     
-    public static IFoldersConfiguration In(IKnownFolderNames? folderNames = null)
+    public static IFoldersConfiguration Default(IKnownFolderNames? folderNames = null)
     {
         folderNames ??= KnownFolderNames.Default;
         

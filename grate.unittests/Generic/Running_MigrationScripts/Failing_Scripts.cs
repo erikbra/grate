@@ -28,7 +28,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
         GrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
         CreateInvalidSql(parent, knownFolders[Up]);
 
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
@@ -46,7 +46,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
         GrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
         CreateInvalidSql(parent, knownFolders[Up]);
 
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
@@ -84,7 +84,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         var db = TestConfig.RandomDatabase();
         var parent = CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
         var path = MakeSurePathExists(parent, knownFolders[Up]);
         WriteSql(path, "goodnight.sql", sql);
 
@@ -114,7 +114,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         var db = TestConfig.RandomDatabase();
         var parent = CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
         var path = MakeSurePathExists(parent, knownFolders[AlterDatabase]); //so it's run on the admin connection
         WriteSql(path, "goodnight.sql", sql);
 
@@ -199,7 +199,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
     }
 
     private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
-    private static readonly IFoldersConfiguration Folders = KnownFolders.In();
+    private static readonly IFoldersConfiguration Folders = FoldersConfiguration.Default(null);
 
     private static readonly object?[] ShouldStillBeRunOnRollback =
     {

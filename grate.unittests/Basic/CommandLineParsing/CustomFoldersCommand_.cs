@@ -94,7 +94,7 @@ public class CustomFoldersCommand_
     private static readonly object?[] FileFoldersCommandLines =
     {
         GetTestCase("File - NonExistant file", "/tmp/this/does/not/exist" , FoldersConfiguration.Empty),
-        GetTestCase("File - Empty file", CreateFile(""), KnownFolders.In(KnownFolderNames.Default)),
+        GetTestCase("File - Empty file", CreateFile(""), FoldersConfiguration.Default(KnownFolderNames.Default)),
         GetTestCase("File - Empty Json", CreateFile("{}"), FoldersConfiguration.Empty),
         GetTestCase("File - Mostly defaults",
             CreateFile(@"{ 

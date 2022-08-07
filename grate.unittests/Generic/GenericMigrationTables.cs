@@ -26,7 +26,7 @@ public abstract class GenericMigrationTables
         var fullTableName = Context.Syntax.TableWithSchema("grate", tableName);
 
         var parent = TestConfig.CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
 
         await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
         {
@@ -53,7 +53,7 @@ public abstract class GenericMigrationTables
         var fullTableName = Context.Syntax.TableWithSchema("grate", tableName);
 
         var parent = TestConfig.CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
         CreateInvalidSql(parent, knownFolders[KnownFolderKeys.Up]);
 
         await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
@@ -85,7 +85,7 @@ public abstract class GenericMigrationTables
         var db = "MonoBonoJono";
 
         var parent = TestConfig.CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
             
         await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
         {
@@ -105,7 +105,7 @@ public abstract class GenericMigrationTables
         var db = "BooYaTribe";
 
         var parent = TestConfig.CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
             
         await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
         {

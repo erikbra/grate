@@ -27,7 +27,7 @@ public class FolderConfiguration_
 
         var parent = cfg?.SqlFilesDirectory ?? new DirectoryInfo("/tmp");
 
-        var expected = KnownFolders.In();
+        var expected = FoldersConfiguration.Default(null);
         var actual = cfg?.Folders;
 
         AssertEquivalent(expected.Values, actual?.Values);
@@ -40,7 +40,7 @@ public class FolderConfiguration_
         var cfg = await ParseGrateConfiguration("--sqlfilesdirectory=/tmp", commandLine);
         var parent = cfg?.SqlFilesDirectory ?? new DirectoryInfo("/tmp");
         var folderConfig = applyExpectedOverrides(KnownFolderNames.Default);
-        var expected = KnownFolders.In(folderConfig);
+        var expected = FoldersConfiguration.Default(folderConfig);
         
         var actual = cfg?.Folders;
         

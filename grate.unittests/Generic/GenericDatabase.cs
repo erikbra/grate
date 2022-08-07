@@ -160,7 +160,7 @@ public abstract class GenericDatabase
             CreateDatabase = createDatabase, 
             ConnectionString = Context.ConnectionString(databaseName),
             AdminConnectionString = adminConnectionString ?? Context.AdminConnectionString,
-            Folders = KnownFolders.In(),
+            Folders = FoldersConfiguration.Default(null),
             NonInteractive = true,
             DatabaseType = Context.DatabaseType,
             SqlFilesDirectory = parent

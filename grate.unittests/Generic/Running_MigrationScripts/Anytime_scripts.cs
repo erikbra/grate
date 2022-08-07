@@ -23,7 +23,7 @@ public abstract class Anytime_scripts : MigrationsScriptsBase
         GrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Sprocs]);
 
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
@@ -54,7 +54,7 @@ public abstract class Anytime_scripts : MigrationsScriptsBase
         GrateMigrator? migrator;
         
         var parent = CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Sprocs]);
 
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
@@ -94,7 +94,7 @@ public abstract class Anytime_scripts : MigrationsScriptsBase
         GrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Sprocs]);
 
         var config = Context.GetConfiguration(db, parent, knownFolders) with
@@ -127,7 +127,7 @@ public abstract class Anytime_scripts : MigrationsScriptsBase
         GrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Sprocs]);
             
         var config = Context.GetConfiguration(db, parent, knownFolders) with
@@ -160,7 +160,7 @@ public abstract class Anytime_scripts : MigrationsScriptsBase
         GrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = KnownFolders.In();
+        var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Sprocs]);
             
         var config = Context.GetConfiguration(db, parent, knownFolders) with

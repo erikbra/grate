@@ -6,21 +6,6 @@ namespace grate.Configuration;
 // ReSharper disable once InconsistentNaming
 public static class DefaultConfiguration
 {
-    public static readonly string DefaultAlterDatabaseFolderName = "alterDatabase";
-    public static readonly string DefaultRunAfterCreateDatabaseFolderName = "runAfterCreateDatabase";
-    public static readonly string DefaultRunBeforeUpFolderName = "runBeforeUp";
-    public static readonly string DefaultUpFolderName = "up";
-    public static readonly string DefaultDownFolderName = "down";
-    public static readonly string DefaultRunFirstAfterUpFolderName = "runFirstAfterUp";
-    public static readonly string DefaultFunctionsFolderName = "functions";
-    public static readonly string DefaultViewsFolderName = "views";
-    public static readonly string DefaultSprocsFolderName = "sprocs";
-    public static readonly string DefaultTriggersFolderName = "triggers";
-    public static readonly string DefaultIndexesFolderName = "indexes";
-    public static readonly string DefaultRunAfterOtherAnyTimeFolderName = "runAfterOtherAnyTimeScripts";
-    public static readonly string DefaultPermissionsFolderName = "permissions";
-    public static readonly string DefaultBeforeMigrationFolderName = "beforeMigration";
-    public static readonly string DefaultAfterMigrationFolderName = "afterMigration";
     public static readonly string DefaultEnvironmentName = "LOCAL";
     public static readonly string DefaultGrateSchemaName = "grate";
     public static readonly string DefaultVersionTableName = "Version";
