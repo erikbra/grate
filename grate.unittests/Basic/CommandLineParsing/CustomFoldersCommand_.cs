@@ -3,6 +3,7 @@ using System.Linq;
 using FluentAssertions;
 using grate.Commands;
 using grate.Configuration;
+using grate.Migration;
 using NUnit.Framework;
 
 namespace grate.unittests.Basic.CommandLineParsing;
@@ -48,9 +49,49 @@ public class CustomFoldersCommand_
             actual?.TransactionHandling.Should().Be(expected?.TransactionHandling);
         });
     }
-
+    
     private static readonly object?[] FoldersCommandLines =
     {
+        GetTestCase("New, simpler format", 
+            "folder1=type:Once;folder2=type:EveryTime;folder3=type:AnyTime", 
+            new FoldersConfiguration(
+                new MigrationsFolder("folder1", MigrationType.Once),
+                new MigrationsFolder("folder2", MigrationType.EveryTime),
+                new MigrationsFolder("folder3", MigrationType.AnyTime)
+            )),
+        
+        GetTestCase("New, simpler format, only one folder", 
+            "folder1=type:Once", 
+            new FoldersConfiguration(
+                new MigrationsFolder("folder1", MigrationType.Once)
+            )),
+        
+        GetTestCase("Text - New, simpler format, more properties", 
+            "folder1=type:Once,connectionType:Admin;folder2=type:EveryTime;folder3=type:AnyTime", 
+            new FoldersConfiguration(
+                new MigrationsFolder("folder1", MigrationType.Once, ConnectionType.Admin),
+                new MigrationsFolder("folder2", MigrationType.EveryTime),
+                new MigrationsFolder("folder3", MigrationType.AnyTime)
+            )),
+        
+        GetTestCase("Text - New, simpler format, with newline separators", 
+@"folder1=type:Once
+folder2=type:EveryTime
+folder3=type:AnyTime", 
+            new FoldersConfiguration(
+                new MigrationsFolder("folder1", MigrationType.Once),
+                new MigrationsFolder("folder2", MigrationType.EveryTime),
+                new MigrationsFolder("folder3", MigrationType.AnyTime)
+            )),
+        
+        GetTestCase("Text - new, simpler format - With only migration type",
+            "folderA=Everytime;folderB=Once;folderC=AnyTime",
+            new FoldersConfiguration(
+                new MigrationsFolder("folderA", MigrationType.EveryTime),
+                new MigrationsFolder("folderB", MigrationType.Once),
+                new MigrationsFolder("folderC", MigrationType.AnyTime)
+            )),
+        
         GetTestCase("Text - Empty", "{}", FoldersConfiguration.Empty),
         GetTestCase("Text - Mostly defaults",
 @"{ 

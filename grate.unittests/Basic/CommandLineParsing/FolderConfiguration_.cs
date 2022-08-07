@@ -59,8 +59,8 @@ public class FolderConfiguration_
 
     private static readonly object?[] FoldersCommandLines =
     {
-        GetTestCase("--folders=up:tables", names => names with { Up = "tables" }),
-        GetTestCase("--folders=up:tables,views:projections", names => names with { Up = "tables", Views = "projections"})
+        GetTestCase("--folders=up=tables", names => names with { Up = "tables" }),
+        GetTestCase("--folders=up=tables;views=projections", names => names with { Up = "tables", Views = "projections"})
     };
     
     private static readonly object?[] FullyCustomFoldersCommandLines =

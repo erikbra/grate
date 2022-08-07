@@ -24,8 +24,8 @@ public class KnownFolderNamesArgument_
 
     private static readonly object?[] FoldersCommandLines =
     {
-        GetTestCase("up:tables", names => names with { Up = "tables" }),
-        GetTestCase("up:tables,views:projections", names => names with { Up = "tables", Views = "projections"})
+        GetTestCase("up=tables", names => names with { Up = "tables" }),
+        GetTestCase("up=tables;views=projections", names => names with { Up = "tables", Views = "projections"})
     };
 
     private static TestCaseData GetTestCase(

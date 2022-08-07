@@ -2,6 +2,6 @@
 
 namespace grate.Configuration;
 
-public interface IFoldersConfiguration: IReadOnlyDictionary<string, MigrationsFolder?>
+public interface IFoldersConfiguration: IDictionary<string, MigrationsFolder?>
 {
 }
