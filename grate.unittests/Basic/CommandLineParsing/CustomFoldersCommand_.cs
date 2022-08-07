@@ -51,9 +51,15 @@ public class CustomFoldersCommand_
         });
     }
 
-    private static readonly List<(string name, string config, FoldersConfiguration expected)> TestCases =
+    private static readonly List<(string name, string config, IFoldersConfiguration expected)> TestCases =
         new()
         {
+            ("Default, with overrides", 
+                "up=blup;afterMigration=æfter",
+                FoldersConfiguration.Default(
+                    KnownFolderNames.Default with{ Up = "blup", AfterMigration = "æfter"})
+                ),
+            
             ("New, simpler format", 
              "folder1=type:Once;folder2=type:EveryTime;folder3=type:AnyTime",
              new FoldersConfiguration(
