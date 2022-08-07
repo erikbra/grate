@@ -3,12 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using grate.Configuration;
 using grate.Exceptions;
-using grate.Migration;
 
 namespace grate.Commands;
 
@@ -31,17 +27,13 @@ public static class CustomFoldersCommand
         string? content = arg switch
         {
             { Length: 0 } => null,
-            { } a when IsFile(a) => File.ReadAllText(a),
             _ => arg
         };
 
         return content switch
         {
-            //{ } c when IsJson(c) => ParseCustomFoldersConfiguration(c),
-            { } c => ParseNewCustomFoldersConfiguration(c),
+            { } => ParseNewCustomFoldersConfiguration(content),
             _ => FoldersConfiguration.Default()
-            //{ } c when IsNewCustomFolderFormat(c) => ParseNewCustomFoldersConfiguration(c),
-            //_ => FoldersConfiguration.Default(KnownFolderNamesArgument.Parse(arg))
         };
     }
 
@@ -160,109 +152,8 @@ public static class CustomFoldersCommand
             return (key, value);
     }
 
-    private static bool IsJson(string s) => s?.Trim()?.StartsWith("{") ?? false;
-    private static bool IsNewCustomFolderFormat(string s) => s?.Trim()?.Contains(";") ?? false;
-    
-    
-
-    private static IFoldersConfiguration ParseCustomFoldersConfiguration(string content)
-    {
-        var parsed = JsonSerializer.Deserialize<ParseableFolderConfiguration>(content, SerializerOptions);
-        return (parsed) switch
-        {
-            null => FoldersConfiguration.Empty,
-            { } => new FoldersConfiguration(parsed.MigrationsFolders),
-        };
-    }
-
     private static bool IsFile(string? s)
     {
         return s is not null && (File.Exists(s) || s.StartsWith("/")) ;
     }
-
-    public static readonly JsonSerializerOptions SerializerOptions;
-
-    static CustomFoldersCommand()
-    {
-        SerializerOptions = CreateSerializerOptions();
-        SerializerOptions.Converters
-            .Add(new ParseableMigrationsFolderJsonConverter());
-    }
-
-    private static JsonSerializerOptions CreateSerializerOptions()
-    {
-        var options = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true,
-            ReadCommentHandling = JsonCommentHandling.Skip,
-            AllowTrailingCommas = true
-        };
-        options.Converters
-            .Add(new JsonStringEnumConverter());
-
-        return options;
-    }
-
-    private class ParseableFolderConfiguration: Dictionary<string, ParseableMigrationsFolder> 
-    {
-        [JsonIgnore]
-        public IDictionary<string, MigrationsFolder> MigrationsFolders =>
-            this.ToDictionary(
-                item => item.Key,
-                item =>
-                {
-                    var (path, migrationType, connectionType, transactionHandling) = item.Value;
-                    return new MigrationsFolder(
-                        item.Key,
-                        path ?? item.Key, 
-                        migrationType,
-                        connectionType, transactionHandling);
-                });
-    }
-
-    // ReSharper disable once ClassNeverInstantiated.Local
-    private record ParseableMigrationsFolder(
-        string? Path,
-        MigrationType Type,
-        ConnectionType ConnectionType = ConnectionType.Default,
-        TransactionHandling TransactionHandling = TransactionHandling.Default
-    );
-
-    /// <summary>
-    /// Deserialized either a proper JSON representing a MigrationsFolder, or a string specifying
-    /// just the MigrationType, in which case the rest of the values are filled out with default values.
-    /// </summary>
-    private class ParseableMigrationsFolderJsonConverter : JsonConverter<ParseableMigrationsFolder>
-    {
-        private static readonly JsonSerializerOptions OptionsWithoutMe = CreateSerializerOptions();
-
-        static ParseableMigrationsFolderJsonConverter()
-        {
-        }
-
-        public override ParseableMigrationsFolder? Read(
-            ref Utf8JsonReader reader,
-            Type typeToConvert,
-            JsonSerializerOptions options)
-        {
-            string stringValue = "";
-            if (reader.TokenType == JsonTokenType.String)
-            {
-                stringValue = reader.GetString() ?? "";
-
-                if (Enum.TryParse<MigrationType>(stringValue, true, out var migrationType))
-                {
-                    return new ParseableMigrationsFolder(null, migrationType);
-                }
-            }
-
-            return JsonSerializer.Deserialize<ParseableMigrationsFolder>(ref reader, OptionsWithoutMe);
-        }
-
-        public override void Write(Utf8JsonWriter writer, ParseableMigrationsFolder value, JsonSerializerOptions options)
-        {
-            JsonSerializer.Serialize(writer, value, OptionsWithoutMe);
-        }
-    }
-    
 }
