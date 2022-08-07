@@ -18,7 +18,14 @@ public static class CustomFoldersCommand
     {
         if (IsFile(arg))
         {
-            arg = File.Exists(arg) ? File.ReadAllText(arg) : "{}";
+            arg = File.Exists(arg) ? File.ReadAllText(arg) : "";
+            
+            // Makes more sense to supply an empty config than the default if you actually supply a file,
+            // but that file is either non-existant or empty
+            if (string.IsNullOrEmpty(arg))
+            {
+                return FoldersConfiguration.Empty;
+            }
         }
         
         string? content = arg switch
@@ -30,7 +37,7 @@ public static class CustomFoldersCommand
 
         return content switch
         {
-            { } c when IsJson(c) => ParseCustomFoldersConfiguration(c),
+            //{ } c when IsJson(c) => ParseCustomFoldersConfiguration(c),
             { } c => ParseNewCustomFoldersConfiguration(c),
             _ => FoldersConfiguration.Default()
             //{ } c when IsNewCustomFolderFormat(c) => ParseNewCustomFoldersConfiguration(c),

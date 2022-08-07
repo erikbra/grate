@@ -68,7 +68,7 @@ public class FolderConfiguration_
         GetCustomisedTestCase(
         "Mostly defaults",
         "/tmp/jalla",
-@"--folders={ ""folder1"": { ""type"": ""Once"" }, ""folder2"": { ""type"": ""EveryTime"" }, ""folder3"": { ""type"": ""AnyTime"" } }",
+@"--folders=folder1=type:Once;folder2=type:EveryTime;folder3=type:AnyTime",
         new FoldersConfiguration(
             new MigrationsFolder("folder1", MigrationType.Once),
             new MigrationsFolder("folder2", MigrationType.EveryTime),
