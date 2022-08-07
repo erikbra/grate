@@ -72,13 +72,11 @@ public static class CustomFoldersCommand
         return options;
     }
 
-    private record ParseableFolderConfiguration
+    private class ParseableFolderConfiguration: Dictionary<string, ParseableMigrationsFolder> 
     {
-        public Dictionary<string, ParseableMigrationsFolder> Folders { get; set; } = new();
-
         [JsonIgnore]
         public IDictionary<string, MigrationsFolder> MigrationsFolders =>
-            Folders.ToDictionary(
+            this.ToDictionary(
                 item => item.Key,
                 item =>
                 {

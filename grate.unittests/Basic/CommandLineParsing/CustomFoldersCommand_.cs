@@ -54,11 +54,9 @@ public class CustomFoldersCommand_
         GetTestCase("Text - Empty", "{}", FoldersConfiguration.Empty),
         GetTestCase("Text - Mostly defaults",
 @"{ 
-    ""folders"": {
         ""folder1"": { ""type"": ""Once"" },
         ""folder2"": { ""type"": ""EveryTime"" },
         ""folder3"": { ""type"": ""AnyTime"" }
-    }
 }", 
             new FoldersConfiguration(
                 new MigrationsFolder("folder1", MigrationType.Once),
@@ -67,11 +65,9 @@ public class CustomFoldersCommand_
                 )),
         GetTestCase("Text - With only migration type",
 @"{
-    ""folders"": {
         ""folderA"": ""Everytime"",
         ""folderB"": ""Once"",
         ""folderC"": ""AnyTime""
-    }
 }",
             new FoldersConfiguration(
                 new MigrationsFolder("folderA", MigrationType.EveryTime),
@@ -81,9 +77,7 @@ public class CustomFoldersCommand_
         
         GetTestCase("Text - Without root - relative folders",
             @"{
-    ""folders"": {
         ""folderA"": ""Everytime""
-    }
 }",
             new FoldersConfiguration(
                 new MigrationsFolder("folderA", MigrationType.EveryTime)
@@ -98,11 +92,9 @@ public class CustomFoldersCommand_
         GetTestCase("File - Empty Json", CreateFile("{}"), FoldersConfiguration.Empty),
         GetTestCase("File - Mostly defaults",
             CreateFile(@"{ 
-    ""folders"": {
         ""folder1"": { ""type"": ""Once"" },
         ""folder2"": { ""type"": ""EveryTime"" },
         ""folder3"": { ""type"": ""AnyTime"" }
-    }
 }"),
             new FoldersConfiguration(
                 new MigrationsFolder("folder1", MigrationType.Once),
@@ -111,11 +103,9 @@ public class CustomFoldersCommand_
             )),
         GetTestCase("File - With only migration type",
             CreateFile(@"{
-    ""folders"": {
         ""folderA"": ""Everytime"",
         ""folderB"": ""Once"",
         ""folderC"": ""AnyTime""
-    }
 }"),
             new FoldersConfiguration(
                 new MigrationsFolder("folderA", MigrationType.EveryTime),
