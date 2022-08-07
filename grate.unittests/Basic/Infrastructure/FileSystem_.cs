@@ -18,7 +18,7 @@ public class FileSystem_
         var parent = TestConfig.CreateRandomTempDirectory();
         var knownFolders = KnownFolders.In();
 
-        var path = Wrap(parent, knownFolders.Up!.RelativePath);
+        var path = Wrap(parent, knownFolders[KnownFolderKeys.Up]!.RelativePath);
 
         string filename1 = "01_any_filename.sql";
         string filename2 = "02_any_filename.sql";
@@ -38,7 +38,7 @@ public class FileSystem_
         var parent = TestConfig.CreateRandomTempDirectory();
         var knownFolders = KnownFolders.In();
 
-        var path = Wrap(parent, knownFolders.Up!.RelativePath);
+        var path = Wrap(parent, knownFolders[KnownFolderKeys.Up]!.RelativePath);
         
         var folder1 = new DirectoryInfo(Path.Combine(path.ToString(), "01_sub", "folder", "long", "way"));
         var folder2 = new DirectoryInfo(Path.Combine(path.ToString(), "02_sub", "folder", "long", "way"));

@@ -7,6 +7,7 @@ using grate.Configuration;
 using grate.Migration;
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
+using static grate.Configuration.KnownFolderKeys;
 
 namespace grate.unittests.Generic.Running_MigrationScripts;
 
@@ -22,7 +23,7 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
         var knownFolders = KnownFolders.In();
         GrateMigrator? migrator;
 
-        var folder = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders.Up!.RelativePath, "sub", "folder", "long", "way"));
+        var folder = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.RelativePath, "sub", "folder", "long", "way"));
         
         string filename = "any_filename.sql";
 
@@ -56,7 +57,7 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
 
         string filename = "any_filename.sql";
         
-        CreateDummySql(parent, knownFolders.Up, filename);
+        CreateDummySql(parent, knownFolders[Up], filename);
 
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
@@ -89,8 +90,8 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
         GrateMigrator? migrator;
         
         string filename = "any_filename.sql";
-        var folder1 = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders.Up!.RelativePath, "dub", "folder", "long", "way"));
-        var folder2 = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders.Up!.RelativePath, "sub", "dolder", "gong", "way"));
+        var folder1 = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.RelativePath, "dub", "folder", "long", "way"));
+        var folder2 = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.RelativePath, "sub", "dolder", "gong", "way"));
 
         CreateDummySql(folder1, filename);
         WriteSomeOtherSql(folder2, filename);

@@ -5,6 +5,7 @@ using FluentAssertions;
 using grate.Configuration;
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
+using static grate.Configuration.KnownFolderKeys;
 
 namespace grate.unittests.Generic.Running_MigrationScripts;
 
@@ -17,7 +18,7 @@ public abstract class DropDatabase : MigrationsScriptsBase
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = KnownFolders.In();
-        CreateDummySql(parent, knownFolders.Sprocs);
+        CreateDummySql(parent, knownFolders[Sprocs]);
             
         var dropConfig = Context.GetConfiguration(db, parent, knownFolders) with
         {
@@ -29,7 +30,7 @@ public abstract class DropDatabase : MigrationsScriptsBase
             await migrator.Migrate();
         }
 
-        WriteSomeOtherSql(parent, knownFolders.Sprocs);
+        WriteSomeOtherSql(parent, knownFolders[Sprocs]);
 
         await using (var migrator = Context.GetMigrator(dropConfig))
         {

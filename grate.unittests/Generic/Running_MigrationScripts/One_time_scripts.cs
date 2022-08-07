@@ -8,6 +8,7 @@ using grate.Configuration;
 using grate.Migration;
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
+using static grate.Configuration.KnownFolderKeys;
 
 namespace grate.unittests.Generic.Running_MigrationScripts;
 
@@ -24,7 +25,7 @@ public abstract class One_time_scripts: MigrationsScriptsBase
             
         var parent = CreateRandomTempDirectory();
         var knownFolders = KnownFolders.In();
-        CreateDummySql(parent, knownFolders.Up);
+        CreateDummySql(parent, knownFolders[Up]);
             
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
@@ -55,14 +56,14 @@ public abstract class One_time_scripts: MigrationsScriptsBase
             
         var parent = CreateRandomTempDirectory();
         var knownFolders = KnownFolders.In();
-        CreateDummySql(parent, knownFolders.Up);
+        CreateDummySql(parent, knownFolders[Up]);
             
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             await migrator.Migrate();
         }
             
-        WriteSomeOtherSql(parent, knownFolders.Up);
+        WriteSomeOtherSql(parent, knownFolders[Up]);
             
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
@@ -90,7 +91,7 @@ public abstract class One_time_scripts: MigrationsScriptsBase
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = KnownFolders.In();
-        CreateDummySql(parent, knownFolders.Up);
+        CreateDummySql(parent, knownFolders[Up]);
             
         var config = Context.GetConfiguration(db, parent, knownFolders) with
         {
@@ -102,7 +103,7 @@ public abstract class One_time_scripts: MigrationsScriptsBase
             await migrator.Migrate();
         }
 
-        WriteSomeOtherSql(parent, knownFolders.Up);
+        WriteSomeOtherSql(parent, knownFolders[Up]);
 
         await using (migrator = Context.GetMigrator(config))
         {
@@ -133,7 +134,7 @@ public abstract class One_time_scripts: MigrationsScriptsBase
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = KnownFolders.In();
-        var path = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders.Up?.RelativePath ?? throw new Exception("Config Fail")));
+        var path = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]?.RelativePath ?? throw new Exception("Config Fail")));
 
         WriteSql(path, "token.sql", CreateView1);
 

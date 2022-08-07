@@ -51,7 +51,7 @@ public class CustomFoldersCommand_
 
     private static readonly object?[] FoldersCommandLines =
     {
-        GetTestCase("Text - Empty", "{}", CustomFoldersConfiguration.Empty),
+        GetTestCase("Text - Empty", "{}", FoldersConfiguration.Empty),
         GetTestCase("Text - Mostly defaults",
 @"{ 
     ""folders"": {
@@ -60,7 +60,7 @@ public class CustomFoldersCommand_
         ""folder3"": { ""type"": ""AnyTime"" }
     }
 }", 
-            new CustomFoldersConfiguration(
+            new FoldersConfiguration(
                 new MigrationsFolder("folder1", MigrationType.Once),
                 new MigrationsFolder("folder2", MigrationType.EveryTime),
                 new MigrationsFolder("folder3", MigrationType.AnyTime)
@@ -73,7 +73,7 @@ public class CustomFoldersCommand_
         ""folderC"": ""AnyTime""
     }
 }",
-            new CustomFoldersConfiguration(
+            new FoldersConfiguration(
                 new MigrationsFolder("folderA", MigrationType.EveryTime),
                 new MigrationsFolder("folderB", MigrationType.Once),
                 new MigrationsFolder("folderC", MigrationType.AnyTime)
@@ -85,7 +85,7 @@ public class CustomFoldersCommand_
         ""folderA"": ""Everytime""
     }
 }",
-            new CustomFoldersConfiguration(
+            new FoldersConfiguration(
                 new MigrationsFolder("folderA", MigrationType.EveryTime)
             )),
         
@@ -93,9 +93,9 @@ public class CustomFoldersCommand_
 
     private static readonly object?[] FileFoldersCommandLines =
     {
-        GetTestCase("File - NonExistant file", "/tmp/this/does/not/exist" , CustomFoldersConfiguration.Empty),
-        GetTestCase("File - Empty file", CreateFile(""), KnownFolders.UnRooted(KnownFolderNames.Default)),
-        GetTestCase("File - Empty Json", CreateFile("{}"), CustomFoldersConfiguration.Empty),
+        GetTestCase("File - NonExistant file", "/tmp/this/does/not/exist" , FoldersConfiguration.Empty),
+        GetTestCase("File - Empty file", CreateFile(""), KnownFolders.In(KnownFolderNames.Default)),
+        GetTestCase("File - Empty Json", CreateFile("{}"), FoldersConfiguration.Empty),
         GetTestCase("File - Mostly defaults",
             CreateFile(@"{ 
     ""folders"": {
@@ -104,7 +104,7 @@ public class CustomFoldersCommand_
         ""folder3"": { ""type"": ""AnyTime"" }
     }
 }"),
-            new CustomFoldersConfiguration(
+            new FoldersConfiguration(
                 new MigrationsFolder("folder1", MigrationType.Once),
                 new MigrationsFolder("folder2", MigrationType.EveryTime),
                 new MigrationsFolder("folder3", MigrationType.AnyTime)
@@ -117,7 +117,7 @@ public class CustomFoldersCommand_
         ""folderC"": ""AnyTime""
     }
 }"),
-            new CustomFoldersConfiguration(
+            new FoldersConfiguration(
                 new MigrationsFolder("folderA", MigrationType.EveryTime),
                 new MigrationsFolder("folderB", MigrationType.Once),
                 new MigrationsFolder("folderC", MigrationType.AnyTime)

@@ -10,6 +10,7 @@ using grate.Exceptions;
 using grate.Migration;
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
+using static grate.Configuration.KnownFolderKeys;
 
 namespace grate.unittests.Generic.Running_MigrationScripts;
 
@@ -28,7 +29,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = KnownFolders.In();
-        CreateInvalidSql(parent, knownFolders.Up);
+        CreateInvalidSql(parent, knownFolders[Up]);
 
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
@@ -46,7 +47,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = KnownFolders.In();
-        CreateInvalidSql(parent, knownFolders.Up);
+        CreateInvalidSql(parent, knownFolders[Up]);
 
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
@@ -84,7 +85,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
         var db = TestConfig.RandomDatabase();
         var parent = CreateRandomTempDirectory();
         var knownFolders = KnownFolders.In();
-        var path = MakeSurePathExists(parent, knownFolders.Up);
+        var path = MakeSurePathExists(parent, knownFolders[Up]);
         WriteSql(path, "goodnight.sql", sql);
 
         // run it with a timeout shorter than the 1 second sleep, should timeout
@@ -114,7 +115,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
         var db = TestConfig.RandomDatabase();
         var parent = CreateRandomTempDirectory();
         var knownFolders = KnownFolders.In();
-        var path = MakeSurePathExists(parent, knownFolders.AlterDatabase); //so it's run on the admin connection
+        var path = MakeSurePathExists(parent, knownFolders[AlterDatabase]); //so it's run on the admin connection
         WriteSql(path, "goodnight.sql", sql);
 
         // run it with a timeout shorter than the 1 second sleep, should timeout
@@ -167,7 +168,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         var knownFolders = Folders;
         CreateDummySql(root, folder, filename);
-        CreateInvalidSql(root, knownFolders.Up);
+        CreateInvalidSql(root, knownFolders[Up]);
 
         await using (migrator = Context.GetMigrator(db, root, knownFolders, true))
         {
@@ -198,20 +199,20 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
     }
 
     private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
-    private static readonly KnownFolders Folders = KnownFolders.In();
+    private static readonly IFoldersConfiguration Folders = KnownFolders.In();
 
     private static readonly object?[] ShouldStillBeRunOnRollback =
     {
-        GetTestCase(Folders.BeforeMigration), GetTestCase(Folders.AlterDatabase), GetTestCase(Folders.Permissions),
-        GetTestCase(Folders.AfterMigration),
+        GetTestCase(Folders[BeforeMigration]), GetTestCase(Folders[AlterDatabase]), GetTestCase(Folders[Permissions]),
+        GetTestCase(Folders[AfterMigration]),
     };
 
     private static readonly object?[] ShouldNotBeRunOnRollback =
     {
-        GetTestCase(Folders.RunAfterCreateDatabase), GetTestCase(Folders.RunBeforeUp), GetTestCase(Folders.Up),
-        GetTestCase(Folders.RunFirstAfterUp), GetTestCase(Folders.Functions), GetTestCase(Folders.Views),
-        GetTestCase(Folders.Sprocs), GetTestCase(Folders.Triggers), GetTestCase(Folders.Indexes),
-        GetTestCase(Folders.RunAfterOtherAnyTimeScripts),
+        GetTestCase(Folders[RunAfterCreateDatabase]), GetTestCase(Folders[RunBeforeUp]), GetTestCase(Folders[Up]),
+        GetTestCase(Folders[RunFirstAfterUp]), GetTestCase(Folders[Functions]), GetTestCase(Folders[Views]),
+        GetTestCase(Folders[Sprocs]), GetTestCase(Folders[Triggers]), GetTestCase(Folders[Indexes]),
+        GetTestCase(Folders[RunAfterOtherAnyTimeScripts]),
     };
 
     private static TestCaseData GetTestCase(

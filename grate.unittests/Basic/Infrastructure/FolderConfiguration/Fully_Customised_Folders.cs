@@ -55,7 +55,7 @@ public class Fully_Customised_Folders
     
     private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
 
-    private static readonly IFoldersConfiguration Folders = new CustomFoldersConfiguration(
+    private static readonly IFoldersConfiguration Folders = new FoldersConfiguration(
         new MigrationsFolder("structure", Once),
         new MigrationsFolder("randomstuff", AnyTime, Admin, TransactionHandling.Autonomous),
         new MigrationsFolder("procedures", "procs", AnyTime),

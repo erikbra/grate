@@ -47,7 +47,7 @@ public interface IGrateTestContext
         DatabaseType = DatabaseType
     };
 
-    public GrateConfiguration GetConfiguration(string db, DirectoryInfo sqlFilesDirectory, KnownFolders knownFolders) =>
+    public GrateConfiguration GetConfiguration(string db, DirectoryInfo sqlFilesDirectory, IFoldersConfiguration knownFolders) =>
         DefaultConfiguration with
         {
             ConnectionString = ConnectionString(db),
@@ -68,23 +68,23 @@ public interface IGrateTestContext
         return migrator;
     }
 
-    public GrateMigrator GetMigrator(string databaseName, DirectoryInfo sqlFilesDirectory, KnownFolders knownFolders)
+    public GrateMigrator GetMigrator(string databaseName, DirectoryInfo sqlFilesDirectory, IFoldersConfiguration knownFolders)
     {
         return GetMigrator(databaseName, sqlFilesDirectory, knownFolders, null, false);
     }
     
-    public GrateMigrator GetMigrator(string databaseName, DirectoryInfo sqlFilesDirectory, KnownFolders knownFolders, bool runInTransaction)
+    public GrateMigrator GetMigrator(string databaseName, DirectoryInfo sqlFilesDirectory, IFoldersConfiguration knownFolders, bool runInTransaction)
     {
         return GetMigrator(databaseName, sqlFilesDirectory, knownFolders, null, runInTransaction);
     }
     
     
-    public GrateMigrator GetMigrator(string databaseName, DirectoryInfo sqlFilesDirectory, KnownFolders knownFolders, string? env)
+    public GrateMigrator GetMigrator(string databaseName, DirectoryInfo sqlFilesDirectory, IFoldersConfiguration knownFolders, string? env)
     {
         return GetMigrator(databaseName, sqlFilesDirectory, knownFolders, env, false);
     }
 
-    public GrateMigrator GetMigrator(string databaseName, DirectoryInfo sqlFilesDirectory, KnownFolders knownFolders, string? env, bool runInTransaction)
+    public GrateMigrator GetMigrator(string databaseName, DirectoryInfo sqlFilesDirectory, IFoldersConfiguration knownFolders, string? env, bool runInTransaction)
     {
         var config = DefaultConfiguration with
         {

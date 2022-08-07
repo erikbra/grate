@@ -28,7 +28,7 @@ public static class CustomFoldersCommand
         return content switch
         {
             { } c when IsJson(c) => ParseCustomFoldersConfiguration(c),
-            _ => KnownFolders.UnRooted(KnownFolderNamesArgument.Parse(arg))
+            _ => KnownFolders.In(KnownFolderNamesArgument.Parse(arg))
         };
     }
 
@@ -39,8 +39,8 @@ public static class CustomFoldersCommand
         var parsed = JsonSerializer.Deserialize<ParseableFolderConfiguration>(content, SerializerOptions);
         return (parsed) switch
         {
-            null => CustomFoldersConfiguration.Empty,
-            { } => new CustomFoldersConfiguration(parsed.MigrationsFolders),
+            null => FoldersConfiguration.Empty,
+            { } => new FoldersConfiguration(parsed.MigrationsFolders),
         };
     }
 

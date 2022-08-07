@@ -8,6 +8,7 @@ using grate.Configuration;
 using grate.Migration;
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
+using static grate.Configuration.KnownFolderKeys;
 
 namespace grate.unittests.Generic.Running_MigrationScripts;
 
@@ -22,7 +23,7 @@ public abstract class Everytime_scripts : MigrationsScriptsBase
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = KnownFolders.In();
-        CreateDummySql(parent, knownFolders.Permissions);
+        CreateDummySql(parent, knownFolders[Permissions]);
 
         for (var i = 0; i < 3; i++)
         {
@@ -44,7 +45,7 @@ public abstract class Everytime_scripts : MigrationsScriptsBase
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = KnownFolders.In();
-        CreateDummySql(parent, knownFolders.Permissions);
+        CreateDummySql(parent, knownFolders[Permissions]);
 
         var config = Context.GetConfiguration(db, parent, knownFolders) with
         {
@@ -83,7 +84,7 @@ public abstract class Everytime_scripts : MigrationsScriptsBase
         var parent = CreateRandomTempDirectory();
         var knownFolders = KnownFolders.In();
 
-        var folder = knownFolders.Up;// not an everytime folder
+        var folder = knownFolders[Up];// not an everytime folder
 
         CreateDummySql(parent, folder);
         CreateEveryTimeScriptFile(parent, folder);
@@ -121,7 +122,7 @@ public abstract class Everytime_scripts : MigrationsScriptsBase
             Baseline = true, // this is important!
         };
 
-        var path = Wrap(parent, knownFolders?.Views?.RelativePath ?? throw new Exception("Config Fail"));
+        var path = Wrap(parent, knownFolders[Views]?.RelativePath ?? throw new Exception("Config Fail"));
 
         WriteSql(path, "view.sql", "create view grate as select '1' as col");
 

@@ -69,7 +69,7 @@ public class FolderConfiguration_
         "Mostly defaults",
         "/tmp/jalla",
 @"--folders={ ""folders"": { ""folder1"": { ""type"": ""Once"" }, ""folder2"": { ""type"": ""EveryTime"" }, ""folder3"": { ""type"": ""AnyTime"" } }}",
-        new CustomFoldersConfiguration(
+        new FoldersConfiguration(
             new MigrationsFolder("folder1", MigrationType.Once),
             new MigrationsFolder("folder2", MigrationType.EveryTime),
             new MigrationsFolder("folder3", MigrationType.AnyTime)

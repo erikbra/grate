@@ -54,7 +54,7 @@ public abstract class GenericMigrationTables
 
         var parent = TestConfig.CreateRandomTempDirectory();
         var knownFolders = KnownFolders.In();
-        CreateInvalidSql(parent, knownFolders.Up);
+        CreateInvalidSql(parent, knownFolders[KnownFolderKeys.Up]);
 
         await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
         {

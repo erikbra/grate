@@ -6,6 +6,7 @@ using grate.Configuration;
 using grate.Migration;
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
+using static grate.Configuration.KnownFolderKeys;
 
 namespace grate.unittests.Generic.Running_MigrationScripts;
 
@@ -23,7 +24,7 @@ public abstract class Environment_scripts : MigrationsScriptsBase
         var parent = CreateRandomTempDirectory();
         var knownFolders = KnownFolders.In();
 
-        CreateDummySql(parent, knownFolders.Up, "1_.OTHER.filename.ENV.sql");
+        CreateDummySql(parent, knownFolders[Up], "1_.OTHER.filename.ENV.sql");
 
         await using (migrator = Context.GetMigrator(db, parent, knownFolders, "TEST"))
         {
@@ -51,7 +52,7 @@ public abstract class Environment_scripts : MigrationsScriptsBase
         var parent = CreateRandomTempDirectory();
         var knownFolders = KnownFolders.In();
 
-        CreateDummySql(parent, knownFolders.Up, "1_.OTHER.filename.ENV.sql");
+        CreateDummySql(parent, knownFolders[Up], "1_.OTHER.filename.ENV.sql");
 
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
@@ -78,8 +79,8 @@ public abstract class Environment_scripts : MigrationsScriptsBase
         var parent = CreateRandomTempDirectory();
         var knownFolders = KnownFolders.In();
 
-        CreateDummySql(parent, knownFolders.Up, "1_.TEST.filename.ENV.sql");
-        CreateDummySql(parent, knownFolders.Up, "2_.TEST.ENV.otherfilename.sql");
+        CreateDummySql(parent, knownFolders[Up], "1_.TEST.filename.ENV.sql");
+        CreateDummySql(parent, knownFolders[Up], "2_.TEST.ENV.otherfilename.sql");
 
         await using (migrator = Context.GetMigrator(db, parent, knownFolders, "TEST"))
         {
@@ -107,9 +108,9 @@ public abstract class Environment_scripts : MigrationsScriptsBase
         var parent = CreateRandomTempDirectory();
         var knownFolders = KnownFolders.In();
         
-        CreateDummySql(parent,knownFolders.Up, "1_.filename.sql");
-        CreateDummySql(parent,knownFolders.Up, "2_.TEST.ENV.otherfilename.sql");
-        CreateDummySql(parent,knownFolders.Up, "2_.TEST.ENV.somethingelse.sql");
+        CreateDummySql(parent,knownFolders[Up], "1_.filename.sql");
+        CreateDummySql(parent,knownFolders[Up], "2_.TEST.ENV.otherfilename.sql");
+        CreateDummySql(parent,knownFolders[Up], "2_.TEST.ENV.somethingelse.sql");
 
         await using (migrator = Context.GetMigrator(db, parent, knownFolders, "PROD"))
         {

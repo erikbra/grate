@@ -5,6 +5,7 @@ using grate.Configuration;
 using grate.Migration;
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
+using static grate.Configuration.KnownFolderKeys;
 
 namespace grate.unittests.Generic.Running_MigrationScripts;
 
@@ -21,7 +22,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         
         var parent = CreateRandomTempDirectory();
         var knownFolders = KnownFolders.In();
-        CreateDummySql(parent, knownFolders.Sprocs);
+        CreateDummySql(parent, knownFolders[Sprocs]);
 
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
@@ -49,7 +50,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         var parent = CreateRandomTempDirectory();
         var knownFolders = KnownFolders.In();
 
-        CreateDummySql(parent, knownFolders.Sprocs); // make sure there's something that could be logged...
+        CreateDummySql(parent, knownFolders[Sprocs]); // make sure there's something that could be logged...
 
         var grateConfig = Context.GetConfiguration(db, parent, knownFolders) with
         {

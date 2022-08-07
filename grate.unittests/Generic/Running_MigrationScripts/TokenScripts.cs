@@ -6,6 +6,7 @@ using FluentAssertions;
 using grate.Configuration;
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
+using static grate.Configuration.KnownFolderKeys;
 
 namespace grate.unittests.Generic.Running_MigrationScripts;
 
@@ -23,7 +24,7 @@ public abstract class TokenScripts : MigrationsScriptsBase
         
         var parent = CreateRandomTempDirectory();
         var knownFolders = KnownFolders.In();
-        var path = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders.Views?.RelativePath ?? throw new Exception("Config Fail")));
+        var path = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Views]?.RelativePath ?? throw new Exception("Config Fail")));
 
         WriteSql(path, "token.sql", CreateDatabaseName);
 
@@ -46,7 +47,7 @@ public abstract class TokenScripts : MigrationsScriptsBase
         
         var parent = CreateRandomTempDirectory();
         var knownFolders = KnownFolders.In();
-        var path = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders.Views?.RelativePath ?? throw new Exception("Config Fail")));
+        var path = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Views]?.RelativePath ?? throw new Exception("Config Fail")));
 
         WriteSql(path, "token.sql", CreateViewMyCustomToken);
             

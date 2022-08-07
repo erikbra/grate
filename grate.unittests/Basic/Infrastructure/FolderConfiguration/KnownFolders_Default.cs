@@ -6,6 +6,7 @@ using grate.Configuration;
 using grate.Migration;
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
+using static grate.Configuration.KnownFolderKeys;
 using static grate.Configuration.MigrationType;
 using static grate.Migration.ConnectionType;
 
@@ -24,20 +25,20 @@ public class KnownFolders_Default
         
         Assert.Multiple(() =>
         {
-            items[0].Should().Be(Folders.BeforeMigration);
-            items[1].Should().Be(Folders.AlterDatabase);
-            items[2].Should().Be(Folders.RunAfterCreateDatabase);
-            items[3].Should().Be(Folders.RunBeforeUp);
-            items[4].Should().Be(Folders.Up);
-            items[5].Should().Be(Folders.RunFirstAfterUp);
-            items[6].Should().Be(Folders.Functions);
-            items[7].Should().Be(Folders.Views);
-            items[8].Should().Be(Folders.Sprocs);
-            items[9].Should().Be(Folders.Triggers);
-            items[10].Should().Be(Folders.Indexes);
-            items[11].Should().Be(Folders.RunAfterOtherAnyTimeScripts);
-            items[12].Should().Be(Folders.Permissions);
-            items[13].Should().Be(Folders.AfterMigration);
+            items[0].Should().Be(Folders[BeforeMigration]);
+            items[1].Should().Be(Folders[AlterDatabase]);
+            items[2].Should().Be(Folders[RunAfterCreateDatabase]);
+            items[3].Should().Be(Folders[RunBeforeUp]);
+            items[4].Should().Be(Folders[Up]);
+            items[5].Should().Be(Folders[RunFirstAfterUp]);
+            items[6].Should().Be(Folders[Functions]);
+            items[7].Should().Be(Folders[Views]);
+            items[8].Should().Be(Folders[Sprocs]);
+            items[9].Should().Be(Folders[Triggers]);
+            items[10].Should().Be(Folders[Indexes]);
+            items[11].Should().Be(Folders[RunAfterOtherAnyTimeScripts]);
+            items[12].Should().Be(Folders[Permissions]);
+            items[13].Should().Be(Folders[AfterMigration]);
         });
     }
 
@@ -63,24 +64,24 @@ public class KnownFolders_Default
     }
 
     private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
-    private static readonly KnownFolders Folders = KnownFolders.In();
+    private static readonly IFoldersConfiguration Folders = KnownFolders.In();
 
     private static readonly object?[] ExpectedKnownFolderNames =
     {
-        GetTestCase(Folders.BeforeMigration ,"beforeMigration", EveryTime, Default, TransactionHandling.Autonomous),
-        GetTestCase(Folders.AlterDatabase ,"alterDatabase", AnyTime, Admin, TransactionHandling.Autonomous),
-        GetTestCase(Folders.RunAfterCreateDatabase ,"runAfterCreateDatabase", AnyTime, Default, TransactionHandling.Default),
-        GetTestCase(Folders.RunBeforeUp ,"runBeforeUp", AnyTime, Default, TransactionHandling.Default),
-        GetTestCase(Folders.Up ,"up", Once, Default, TransactionHandling.Default),
-        GetTestCase(Folders.RunFirstAfterUp ,"runFirstAfterUp", Once, Default, TransactionHandling.Default),
-        GetTestCase(Folders.Functions ,"functions", AnyTime, Default, TransactionHandling.Default),
-        GetTestCase(Folders.Views ,"views", AnyTime, Default, TransactionHandling.Default),
-        GetTestCase(Folders.Sprocs ,"sprocs", AnyTime, Default, TransactionHandling.Default),
-        GetTestCase(Folders.Triggers ,"triggers", AnyTime, Default, TransactionHandling.Default),
-        GetTestCase(Folders.Indexes ,"indexes", AnyTime, Default, TransactionHandling.Default),
-        GetTestCase(Folders.RunAfterOtherAnyTimeScripts ,"runAfterOtherAnyTimeScripts", AnyTime, Default, TransactionHandling.Default),
-        GetTestCase(Folders.Permissions ,"permissions", EveryTime, Default, TransactionHandling.Autonomous),
-        GetTestCase(Folders.AfterMigration ,"afterMigration", EveryTime, Default, TransactionHandling.Autonomous),
+        GetTestCase(Folders[BeforeMigration] ,"beforeMigration", EveryTime, Default, TransactionHandling.Autonomous),
+        GetTestCase(Folders[AlterDatabase] ,"alterDatabase", AnyTime, Admin, TransactionHandling.Autonomous),
+        GetTestCase(Folders[RunAfterCreateDatabase] ,"runAfterCreateDatabase", AnyTime, Default, TransactionHandling.Default),
+        GetTestCase(Folders[RunBeforeUp] ,"runBeforeUp", AnyTime, Default, TransactionHandling.Default),
+        GetTestCase(Folders[Up] ,"up", Once, Default, TransactionHandling.Default),
+        GetTestCase(Folders[RunFirstAfterUp] ,"runFirstAfterUp", Once, Default, TransactionHandling.Default),
+        GetTestCase(Folders[Functions] ,"functions", AnyTime, Default, TransactionHandling.Default),
+        GetTestCase(Folders[Views] ,"views", AnyTime, Default, TransactionHandling.Default),
+        GetTestCase(Folders[Sprocs] ,"sprocs", AnyTime, Default, TransactionHandling.Default),
+        GetTestCase(Folders[Triggers] ,"triggers", AnyTime, Default, TransactionHandling.Default),
+        GetTestCase(Folders[Indexes] ,"indexes", AnyTime, Default, TransactionHandling.Default),
+        GetTestCase(Folders[RunAfterOtherAnyTimeScripts] ,"runAfterOtherAnyTimeScripts", AnyTime, Default, TransactionHandling.Default),
+        GetTestCase(Folders[Permissions] ,"permissions", EveryTime, Default, TransactionHandling.Autonomous),
+        GetTestCase(Folders[AfterMigration] ,"afterMigration", EveryTime, Default, TransactionHandling.Autonomous),
     };
     
     private static TestCaseData GetTestCase(
