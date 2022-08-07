@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,10 +24,11 @@ public abstract class GenericMigrationTables
     {
         var db = "MonoBonoJono";
         var fullTableName = Context.Syntax.TableWithSchema("grate", tableName);
-            
-        var knownFolders = KnownFolders.In(TestConfig.CreateRandomTempDirectory());
 
-        await using (var migrator = Context.GetMigrator(db, knownFolders))
+        var parent = TestConfig.CreateRandomTempDirectory();
+        var knownFolders = KnownFolders.In();
+
+        await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             await migrator.Migrate();
         }
@@ -51,11 +51,12 @@ public abstract class GenericMigrationTables
     {
         var db = "DatabaseWithFailingScripts";
         var fullTableName = Context.Syntax.TableWithSchema("grate", tableName);
-            
-        var knownFolders = KnownFolders.In(TestConfig.CreateRandomTempDirectory());
-        CreateInvalidSql(knownFolders.Up);
 
-        await using (var migrator = Context.GetMigrator(db, knownFolders))
+        var parent = TestConfig.CreateRandomTempDirectory();
+        var knownFolders = KnownFolders.In();
+        CreateInvalidSql(parent, knownFolders.Up);
+
+        await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             try
             {
@@ -83,15 +84,16 @@ public abstract class GenericMigrationTables
     {
         var db = "MonoBonoJono";
 
-        var knownFolders = KnownFolders.In(TestConfig.CreateRandomTempDirectory());
+        var parent = TestConfig.CreateRandomTempDirectory();
+        var knownFolders = KnownFolders.In();
             
-        await using (var migrator = Context.GetMigrator(db, knownFolders))
+        await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             await migrator.Migrate();
         }
             
         // Run migration again - make sure it does not throw an exception
-        await using (var migrator = Context.GetMigrator(db, knownFolders))
+        await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             Assert.DoesNotThrowAsync(() => migrator.Migrate());
         }
@@ -102,9 +104,10 @@ public abstract class GenericMigrationTables
     {
         var db = "BooYaTribe";
 
-        var knownFolders = KnownFolders.In(TestConfig.CreateRandomTempDirectory());
+        var parent = TestConfig.CreateRandomTempDirectory();
+        var knownFolders = KnownFolders.In();
             
-        await using (var migrator = Context.GetMigrator(db, knownFolders))
+        await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             await migrator.Migrate();
         }
@@ -123,10 +126,10 @@ public abstract class GenericMigrationTables
         versions.FirstOrDefault().Should().Be("a.b.c.d");
     }
       
-    private static void CreateInvalidSql(MigrationsFolder? folder)
+    private static void CreateInvalidSql(DirectoryInfo root, MigrationsFolder? folder)
     {
         var dummySql = "SELECT TOP";
-        var path = MakeSurePathExists(folder);
+        var path = MakeSurePathExists(root, folder);
         WriteSql(path, "2_failing.sql", dummySql);
     }
 
@@ -135,8 +138,8 @@ public abstract class GenericMigrationTables
         File.WriteAllText(Path.Combine(path.ToString(), filename), sql);
     }
 
-    private static DirectoryInfo MakeSurePathExists(MigrationsFolder? folder)
-        => MakeSurePathExists(folder?.Path);
+    private static DirectoryInfo MakeSurePathExists(DirectoryInfo root, MigrationsFolder? folder)
+        => MakeSurePathExists(Wrap(root, folder?.RelativePath));
         
     protected static DirectoryInfo MakeSurePathExists(DirectoryInfo? path)
     {
@@ -148,5 +151,7 @@ public abstract class GenericMigrationTables
         return path;
     }
 
-        
+    private static DirectoryInfo Wrap(DirectoryInfo root, string? relativePath) =>
+        new(Path.Combine(root.ToString(), relativePath ?? ""));
+
 }

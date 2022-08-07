@@ -37,11 +37,10 @@ public static class CustomFoldersCommand
     private static IFoldersConfiguration ParseCustomFoldersConfiguration(string content)
     {
         var parsed = JsonSerializer.Deserialize<ParseableFolderConfiguration>(content, SerializerOptions);
-        return (parsed, parsed?.Root) switch
+        return (parsed) switch
         {
-            (null, _) => CustomFoldersConfiguration.Empty,
-            ({ }, null) => new CustomFoldersConfiguration(parsed.MigrationsFolders),
-            _ => new CustomFoldersConfiguration(new DirectoryInfo(parsed.Root), parsed.MigrationsFolders)
+            null => CustomFoldersConfiguration.Empty,
+            { } => new CustomFoldersConfiguration(parsed.MigrationsFolders),
         };
     }
 
@@ -75,7 +74,6 @@ public static class CustomFoldersCommand
 
     private record ParseableFolderConfiguration
     {
-        public string? Root { get; init; }
         public Dictionary<string, ParseableMigrationsFolder> Folders { get; set; } = new();
 
         [JsonIgnore]
@@ -86,7 +84,6 @@ public static class CustomFoldersCommand
                 {
                     var (path, migrationType, connectionType, transactionHandling) = item.Value;
                     return new MigrationsFolder(
-                        new DirectoryInfo(Root ?? Directory.GetCurrentDirectory()),
                         item.Key,
                         path ?? item.Key, 
                         migrationType,

@@ -15,10 +15,11 @@ public abstract class DropDatabase : MigrationsScriptsBase
     {
         var db = TestConfig.RandomDatabase();
 
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        CreateDummySql(knownFolders.Sprocs);
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = KnownFolders.In();
+        CreateDummySql(parent, knownFolders.Sprocs);
             
-        var dropConfig = Context.GetConfiguration(db, knownFolders) with
+        var dropConfig = Context.GetConfiguration(db, parent, knownFolders) with
         {
             Drop = true, // This is important!
         };
@@ -28,7 +29,7 @@ public abstract class DropDatabase : MigrationsScriptsBase
             await migrator.Migrate();
         }
 
-        WriteSomeOtherSql(knownFolders.Sprocs);
+        WriteSomeOtherSql(parent, knownFolders.Sprocs);
 
         await using (var migrator = Context.GetMigrator(dropConfig))
         {

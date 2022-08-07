@@ -45,7 +45,7 @@ public class Fully_Customised_Folders
 
         Assert.Multiple(() =>
         {
-            folder.Path?.ToString().Should().Be(Path.Combine(root, expectedFolderName));
+            folder.RelativePath?.Should().Be(expectedFolderName);
             folder.Type.Should().Be(expectedType);
             folder.ConnectionType.Should().Be(expectedConnectionType);
             folder.TransactionHandling.Should().Be(transactionHandling);
@@ -56,11 +56,10 @@ public class Fully_Customised_Folders
     private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
 
     private static readonly IFoldersConfiguration Folders = new CustomFoldersConfiguration(
-        Root, 
-        new MigrationsFolder(Root, "structure", Once),
-        new MigrationsFolder(Root, "randomstuff", AnyTime, Admin, TransactionHandling.Autonomous),
-        new MigrationsFolder(Root, "procedures", "procs", AnyTime),
-        new MigrationsFolder(Root, "security", "secret", AnyTime)
+        new MigrationsFolder("structure", Once),
+        new MigrationsFolder("randomstuff", AnyTime, Admin, TransactionHandling.Autonomous),
+        new MigrationsFolder("procedures", "procs", AnyTime),
+        new MigrationsFolder("security", "secret", AnyTime)
     );
 
     private static readonly object?[] ExpectedKnownFolderNames =

@@ -18,7 +18,6 @@ public class CustomFoldersCommand_
         var actual = CustomFoldersCommand.Parse(argument);
 
         actual.Should().NotBeNull();
-        actual?.Root?.ToString().Should().Be(expected.Root?.ToString());
 
         var expectedArr = expected.ToArray();
         var actualArr = actual?.ToArray();
@@ -43,7 +42,7 @@ public class CustomFoldersCommand_
         Assert.Multiple(() =>
         {
             actual?.Name.Should().Be(expected?.Name);
-            actual?.Path?.ToString().Should().Be(expected?.Path?.ToString());
+            actual?.RelativePath?.Should().Be(expected?.RelativePath);
             actual?.Type.Should().Be(expected?.Type);
             actual?.ConnectionType.Should().Be(expected?.ConnectionType);
             actual?.TransactionHandling.Should().Be(expected?.TransactionHandling);
@@ -53,10 +52,8 @@ public class CustomFoldersCommand_
     private static readonly object?[] FoldersCommandLines =
     {
         GetTestCase("Text - Empty", "{}", CustomFoldersConfiguration.Empty),
-        GetTestCase("Text - Only Root", "{ \"root\": \"/tmp/jallajalla\" }", new CustomFoldersConfiguration(new DirectoryInfo("/tmp/jallajalla"))),
         GetTestCase("Text - Mostly defaults",
 @"{ 
-    ""root"": ""/tmp/jalla"",
     ""folders"": {
         ""folder1"": { ""type"": ""Once"" },
         ""folder2"": { ""type"": ""EveryTime"" },
@@ -64,14 +61,12 @@ public class CustomFoldersCommand_
     }
 }", 
             new CustomFoldersConfiguration(
-                new DirectoryInfo("/tmp/jalla"),
-                new MigrationsFolder(new DirectoryInfo("/tmp/jalla"), "folder1", MigrationType.Once),
-                new MigrationsFolder(new DirectoryInfo("/tmp/jalla"), "folder2", MigrationType.EveryTime),
-                new MigrationsFolder(new DirectoryInfo("/tmp/jalla"), "folder3", MigrationType.AnyTime)
+                new MigrationsFolder("folder1", MigrationType.Once),
+                new MigrationsFolder("folder2", MigrationType.EveryTime),
+                new MigrationsFolder("folder3", MigrationType.AnyTime)
                 )),
         GetTestCase("Text - With only migration type",
 @"{
-    ""root"": ""/tmp/somewhere"",
     ""folders"": {
         ""folderA"": ""Everytime"",
         ""folderB"": ""Once"",
@@ -79,10 +74,9 @@ public class CustomFoldersCommand_
     }
 }",
             new CustomFoldersConfiguration(
-                new DirectoryInfo("/tmp/somewhere"),
-                new MigrationsFolder(new DirectoryInfo("/tmp/somewhere"), "folderA", MigrationType.EveryTime),
-                new MigrationsFolder(new DirectoryInfo("/tmp/somewhere"), "folderB", MigrationType.Once),
-                new MigrationsFolder(new DirectoryInfo("/tmp/somewhere"), "folderC", MigrationType.AnyTime)
+                new MigrationsFolder("folderA", MigrationType.EveryTime),
+                new MigrationsFolder("folderB", MigrationType.Once),
+                new MigrationsFolder("folderC", MigrationType.AnyTime)
                 )),
         
         GetTestCase("Text - Without root - relative folders",
@@ -92,20 +86,9 @@ public class CustomFoldersCommand_
     }
 }",
             new CustomFoldersConfiguration(
-                null,
-                new MigrationsFolder(new DirectoryInfo(Directory.GetCurrentDirectory()), "folderA", MigrationType.EveryTime)
+                new MigrationsFolder("folderA", MigrationType.EveryTime)
             )),
         
-        GetTestCase("Text - Without root - absolute folders",
-            @"{
-    ""folders"": {
-        ""folderA"": { ""path"": ""/tmp/gorilla"", ""type"": ""Everytime"" },
-    }
-}",
-            new CustomFoldersConfiguration(
-                null,
-                new MigrationsFolder("folderA", new DirectoryInfo("/tmp/gorilla"), MigrationType.EveryTime)
-            )),
     };
 
     private static readonly object?[] FileFoldersCommandLines =
@@ -113,11 +96,8 @@ public class CustomFoldersCommand_
         GetTestCase("File - NonExistant file", "/tmp/this/does/not/exist" , CustomFoldersConfiguration.Empty),
         GetTestCase("File - Empty file", CreateFile(""), KnownFolders.UnRooted(KnownFolderNames.Default)),
         GetTestCase("File - Empty Json", CreateFile("{}"), CustomFoldersConfiguration.Empty),
-        GetTestCase("File - Only Root", CreateFile("{ \"root\": \"/tmp/jallajalla\" }"),
-            new CustomFoldersConfiguration(new DirectoryInfo("/tmp/jallajalla"))),
         GetTestCase("File - Mostly defaults",
             CreateFile(@"{ 
-    ""root"": ""/tmp/jalla"",
     ""folders"": {
         ""folder1"": { ""type"": ""Once"" },
         ""folder2"": { ""type"": ""EveryTime"" },
@@ -125,14 +105,12 @@ public class CustomFoldersCommand_
     }
 }"),
             new CustomFoldersConfiguration(
-                new DirectoryInfo("/tmp/jalla"),
-                new MigrationsFolder(new DirectoryInfo("/tmp/jalla"), "folder1", MigrationType.Once),
-                new MigrationsFolder(new DirectoryInfo("/tmp/jalla"), "folder2", MigrationType.EveryTime),
-                new MigrationsFolder(new DirectoryInfo("/tmp/jalla"), "folder3", MigrationType.AnyTime)
+                new MigrationsFolder("folder1", MigrationType.Once),
+                new MigrationsFolder("folder2", MigrationType.EveryTime),
+                new MigrationsFolder("folder3", MigrationType.AnyTime)
             )),
         GetTestCase("File - With only migration type",
             CreateFile(@"{
-    ""root"": ""/tmp/somewhere"",
     ""folders"": {
         ""folderA"": ""Everytime"",
         ""folderB"": ""Once"",
@@ -140,10 +118,9 @@ public class CustomFoldersCommand_
     }
 }"),
             new CustomFoldersConfiguration(
-                new DirectoryInfo("/tmp/somewhere"),
-                new MigrationsFolder(new DirectoryInfo("/tmp/somewhere"), "folderA", MigrationType.EveryTime),
-                new MigrationsFolder(new DirectoryInfo("/tmp/somewhere"), "folderB", MigrationType.Once),
-                new MigrationsFolder(new DirectoryInfo("/tmp/somewhere"), "folderC", MigrationType.AnyTime)
+                new MigrationsFolder("folderA", MigrationType.EveryTime),
+                new MigrationsFolder("folderB", MigrationType.Once),
+                new MigrationsFolder("folderC", MigrationType.AnyTime)
             )),
     };
 

@@ -8,11 +8,11 @@ public abstract class MigrationsScriptsBase
 {
     protected static DirectoryInfo CreateRandomTempDirectory() => TestConfig.CreateRandomTempDirectory();
 
-    protected void CreateDummySql(MigrationsFolder? folder, string filename = "1_jalla.sql")
-        => CreateDummySql(folder?.Path, filename);
+    protected void CreateDummySql(DirectoryInfo root, MigrationsFolder? folder, string filename = "1_jalla.sql")
+        => CreateDummySql(Wrap(root, folder?.RelativePath), filename);
 
-    protected void WriteSomeOtherSql(MigrationsFolder? folder, string filename = "1_jalla.sql")
-        => WriteSomeOtherSql(folder?.Path, filename);
+    protected void WriteSomeOtherSql(DirectoryInfo root, MigrationsFolder? folder, string filename = "1_jalla.sql")
+        => WriteSomeOtherSql(Wrap(root,folder?.RelativePath), filename);
         
     protected void CreateDummySql(DirectoryInfo? path, string filename = "1_jalla.sql")
     {
@@ -25,11 +25,19 @@ public abstract class MigrationsScriptsBase
         var dummySql = Context.Syntax.CurrentDatabase;
         WriteSql(path, filename, dummySql);
     }
+    
+    protected static void WriteSql(DirectoryInfo root, string path, string filename, string? sql) =>
+        TestConfig.WriteContent(Wrap(root, path) , filename, sql);
 
     protected static void WriteSql(DirectoryInfo? path, string filename, string? sql) =>
         TestConfig.WriteContent(path, filename, sql);
 
-    protected static DirectoryInfo MakeSurePathExists(MigrationsFolder? folder) => TestConfig.MakeSurePathExists(folder?.Path);
+    protected static DirectoryInfo MakeSurePathExists(DirectoryInfo root, MigrationsFolder? folder) 
+        => TestConfig.MakeSurePathExists(Wrap(root, folder?.RelativePath));
 
     protected abstract IGrateTestContext Context { get; }
+
+    protected static DirectoryInfo Wrap(DirectoryInfo root, string? subFolder) =>
+        new DirectoryInfo(Path.Combine(root.ToString(), subFolder ?? ""));
+
 }

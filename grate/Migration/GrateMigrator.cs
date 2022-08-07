@@ -123,14 +123,14 @@ public class GrateMigrator : IAsyncDisposable
                 try {
                     if (processingFolderInDefaultTransaction)
                     {
-                        await LogAndProcess(folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
+                        await LogAndProcess(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
                     }
                     else
                     {
                         using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
                         using (await dbMigrator.OpenNewActiveConnection())
                         {
-                            await LogAndProcess(folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
+                            await LogAndProcess(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
                         }
                         s.Complete();
                     }
@@ -244,7 +244,9 @@ public class GrateMigrator : IAsyncDisposable
         await dbMigrator.RestoreDatabase(backupPath);
     }
 
-    private async Task LogAndProcess(MigrationsFolder folder, string changeDropFolder, long versionId, ConnectionType connectionType, TransactionHandling transactionHandling)
+    private DirectoryInfo Wrap(DirectoryInfo root, string subFolder) => new(Path.Combine(root.ToString(), subFolder));
+
+    private async Task LogAndProcess(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId, ConnectionType connectionType, TransactionHandling transactionHandling)
     {
         if (!folder.Path.Exists)
         {
@@ -270,25 +272,26 @@ public class GrateMigrator : IAsyncDisposable
 
         _logger.LogInformation("Looking for {FolderName} scripts in \"{Path}\".{Message}",
             folder.Name,
-            folder.Path,
+            Wrap(root, folder.RelativePath),
             msg);
 
         Separator('-');
-        await Process(folder, changeDropFolder, versionId, connectionType, transactionHandling);
+        await Process(root, folder, changeDropFolder, versionId, connectionType, transactionHandling);
         Separator('-');
         Separator(' ');
     }
 
-    private async Task Process(MigrationsFolder folder, string changeDropFolder, long versionId,
+    private async Task Process(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId,
         ConnectionType connectionType, TransactionHandling transactionHandling)
     {
-        //if (transactionHandling != TransactionHandling.Autonomous)
+        var path = Wrap(root, folder.RelativePath);
+        
         {
             await EnsureConnectionIsOpen(connectionType);
         }
         
         var pattern = "*.sql";
-        var files = FileSystem.GetFiles(folder.Path, pattern);
+        var files = FileSystem.GetFiles(path, pattern);
 
         var anySqlRun = false;
 
@@ -298,7 +301,7 @@ public class GrateMigrator : IAsyncDisposable
 
             // Normalize file names to log, so that results won't vary if you run on *nix VS Windows
             var fileNameToLog = string.Join('/',
-                Path.GetRelativePath(folder.Path.ToString(), file.FullName).Split(Path.DirectorySeparatorChar));
+                Path.GetRelativePath(path.ToString(), file.FullName).Split(Path.DirectorySeparatorChar));
 
             bool theSqlRan = await _migrator.RunSql(sql, fileNameToLog, folder.Type, versionId, _migrator.Configuration.Environment,
                 connectionType, transactionHandling);
@@ -308,7 +311,7 @@ public class GrateMigrator : IAsyncDisposable
                 anySqlRun = true;
                 try
                 {
-                    CopyToChangeDropFolder(folder.Path.Parent!, file, changeDropFolder);
+                    CopyToChangeDropFolder(path.Parent!, file, changeDropFolder);
                 }
                 catch (Exception ex)
                 {

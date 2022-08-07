@@ -19,11 +19,13 @@ public abstract class Environment_scripts : MigrationsScriptsBase
         var db = TestConfig.RandomDatabase();
 
         GrateMigrator? migrator;
+        
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = KnownFolders.In();
 
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        CreateDummySql(knownFolders.Up, "1_.OTHER.filename.ENV.sql");
+        CreateDummySql(parent, knownFolders.Up, "1_.OTHER.filename.ENV.sql");
 
-        await using (migrator = Context.GetMigrator(db, knownFolders, "TEST"))
+        await using (migrator = Context.GetMigrator(db, parent, knownFolders, "TEST"))
         {
             await migrator.Migrate();
         }
@@ -45,11 +47,13 @@ public abstract class Environment_scripts : MigrationsScriptsBase
         var db = TestConfig.RandomDatabase();
 
         GrateMigrator? migrator;
+        
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = KnownFolders.In();
 
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        CreateDummySql(knownFolders.Up, "1_.OTHER.filename.ENV.sql");
+        CreateDummySql(parent, knownFolders.Up, "1_.OTHER.filename.ENV.sql");
 
-        await using (migrator = Context.GetMigrator(db, knownFolders))
+        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             await migrator.Migrate();
         }
@@ -71,12 +75,13 @@ public abstract class Environment_scripts : MigrationsScriptsBase
         var db = TestConfig.RandomDatabase();
 
         GrateMigrator? migrator;
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = KnownFolders.In();
 
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        CreateDummySql(knownFolders.Up, "1_.TEST.filename.ENV.sql");
-        CreateDummySql(knownFolders.Up, "2_.TEST.ENV.otherfilename.sql");
+        CreateDummySql(parent, knownFolders.Up, "1_.TEST.filename.ENV.sql");
+        CreateDummySql(parent, knownFolders.Up, "2_.TEST.ENV.otherfilename.sql");
 
-        await using (migrator = Context.GetMigrator(db, knownFolders, "TEST"))
+        await using (migrator = Context.GetMigrator(db, parent, knownFolders, "TEST"))
         {
             await migrator.Migrate();
         }
@@ -99,12 +104,14 @@ public abstract class Environment_scripts : MigrationsScriptsBase
 
         GrateMigrator? migrator;
 
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        CreateDummySql(knownFolders.Up, "1_.filename.sql");
-        CreateDummySql(knownFolders.Up, "2_.TEST.ENV.otherfilename.sql");
-        CreateDummySql(knownFolders.Up, "2_.TEST.ENV.somethingelse.sql");
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = KnownFolders.In();
+        
+        CreateDummySql(parent,knownFolders.Up, "1_.filename.sql");
+        CreateDummySql(parent,knownFolders.Up, "2_.TEST.ENV.otherfilename.sql");
+        CreateDummySql(parent,knownFolders.Up, "2_.TEST.ENV.somethingelse.sql");
 
-        await using (migrator = Context.GetMigrator(db, knownFolders, "PROD"))
+        await using (migrator = Context.GetMigrator(db, parent, knownFolders, "PROD"))
         {
             await migrator.Migrate();
         }

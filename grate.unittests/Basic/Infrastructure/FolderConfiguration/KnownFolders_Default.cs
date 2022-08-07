@@ -55,7 +55,7 @@ public class KnownFolders_Default
         
         Assert.Multiple(() =>
         {
-            folder.Path?.ToString().Should().Be(Path.Combine(root, expectedName));
+            folder.RelativePath?.Should().Be(expectedName);
             folder.Type.Should().Be(expectedType);
             folder.ConnectionType.Should().Be(expectedConnectionType);
             folder.TransactionHandling.Should().Be(transactionHandling);
@@ -63,7 +63,7 @@ public class KnownFolders_Default
     }
 
     private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
-    private static readonly KnownFolders Folders = KnownFolders.In(Root);
+    private static readonly KnownFolders Folders = KnownFolders.In();
 
     private static readonly object?[] ExpectedKnownFolderNames =
     {

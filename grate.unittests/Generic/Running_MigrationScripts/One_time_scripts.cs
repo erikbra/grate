@@ -22,14 +22,15 @@ public abstract class One_time_scripts: MigrationsScriptsBase
 
         GrateMigrator? migrator;
             
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        CreateDummySql(knownFolders.Up);
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = KnownFolders.In();
+        CreateDummySql(parent, knownFolders.Up);
             
-        await using (migrator = Context.GetMigrator(db, knownFolders))
+        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             await migrator.Migrate();
         }
-        await using (migrator = Context.GetMigrator(db, knownFolders))
+        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             await migrator.Migrate();
         }
@@ -52,17 +53,18 @@ public abstract class One_time_scripts: MigrationsScriptsBase
 
         GrateMigrator? migrator;
             
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        CreateDummySql(knownFolders.Up);
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = KnownFolders.In();
+        CreateDummySql(parent, knownFolders.Up);
             
-        await using (migrator = Context.GetMigrator(db, knownFolders))
+        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             await migrator.Migrate();
         }
             
-        WriteSomeOtherSql(knownFolders.Up);
+        WriteSomeOtherSql(parent, knownFolders.Up);
             
-        await using (migrator = Context.GetMigrator(db, knownFolders))
+        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             Assert.ThrowsAsync<OneTimeScriptChanged>(() => migrator.Migrate());
         }
@@ -86,10 +88,11 @@ public abstract class One_time_scripts: MigrationsScriptsBase
 
         GrateMigrator? migrator;
 
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        CreateDummySql(knownFolders.Up);
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = KnownFolders.In();
+        CreateDummySql(parent, knownFolders.Up);
             
-        var config = Context.GetConfiguration(db, knownFolders) with
+        var config = Context.GetConfiguration(db, parent, knownFolders) with
         {
             WarnOnOneTimeScriptChanges = true, // this is important!
         };
@@ -99,7 +102,7 @@ public abstract class One_time_scripts: MigrationsScriptsBase
             await migrator.Migrate();
         }
 
-        WriteSomeOtherSql(knownFolders.Up);
+        WriteSomeOtherSql(parent, knownFolders.Up);
 
         await using (migrator = Context.GetMigrator(config))
         {
@@ -128,12 +131,13 @@ public abstract class One_time_scripts: MigrationsScriptsBase
 
         GrateMigrator? migrator;
 
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        var path = knownFolders.Up?.Path ?? throw new Exception("Config Fail");
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = KnownFolders.In();
+        var path = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders.Up?.RelativePath ?? throw new Exception("Config Fail")));
 
         WriteSql(path, "token.sql", CreateView1);
 
-        var config = Context.GetConfiguration(db, knownFolders) with
+        var config = Context.GetConfiguration(db, parent, knownFolders) with
         {
             WarnAndIgnoreOnOneTimeScriptChanges = true, // this is important!
         };

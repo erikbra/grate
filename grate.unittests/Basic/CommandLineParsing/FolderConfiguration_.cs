@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.CommandLine;
-using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
@@ -13,8 +11,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using grate.Commands;
 using grate.Configuration;
-using grate.Infrastructure;
-using grate.Migration;
 using NUnit.Framework;
 
 namespace grate.unittests.Basic.CommandLineParsing;
@@ -31,7 +27,7 @@ public class FolderConfiguration_
 
         var parent = cfg?.SqlFilesDirectory ?? new DirectoryInfo("/tmp");
 
-        var expected = KnownFolders.In(parent);
+        var expected = KnownFolders.In();
         var actual = cfg?.Folders;
 
         AssertEquivalent(expected.Values, actual?.Values);
@@ -44,7 +40,7 @@ public class FolderConfiguration_
         var cfg = await ParseGrateConfiguration("--sqlfilesdirectory=/tmp", commandLine);
         var parent = cfg?.SqlFilesDirectory ?? new DirectoryInfo("/tmp");
         var folderConfig = applyExpectedOverrides(KnownFolderNames.Default);
-        var expected = KnownFolders.In(parent, folderConfig);
+        var expected = KnownFolders.In(folderConfig);
         
         var actual = cfg?.Folders;
         
@@ -72,12 +68,11 @@ public class FolderConfiguration_
         GetCustomisedTestCase(
         "Mostly defaults",
         "/tmp/jalla",
-@"--folders={ ""root"": ""/tmp/jalla"", ""folders"": { ""folder1"": { ""type"": ""Once"" }, ""folder2"": { ""type"": ""EveryTime"" }, ""folder3"": { ""type"": ""AnyTime"" } }}",
+@"--folders={ ""folders"": { ""folder1"": { ""type"": ""Once"" }, ""folder2"": { ""type"": ""EveryTime"" }, ""folder3"": { ""type"": ""AnyTime"" } }}",
         new CustomFoldersConfiguration(
-            new DirectoryInfo("/tmp/jalla"),
-            new MigrationsFolder(new DirectoryInfo("/tmp/jalla"), "folder1", MigrationType.Once),
-            new MigrationsFolder(new DirectoryInfo("/tmp/jalla"), "folder2", MigrationType.EveryTime),
-            new MigrationsFolder(new DirectoryInfo("/tmp/jalla"), "folder3", MigrationType.AnyTime)
+            new MigrationsFolder("folder1", MigrationType.Once),
+            new MigrationsFolder("folder2", MigrationType.EveryTime),
+            new MigrationsFolder("folder3", MigrationType.AnyTime)
         )),
     };
 
@@ -116,7 +111,7 @@ public class FolderConfiguration_
         Assert.Multiple(() =>
         {
             actual?.Name.Should().Be(expected?.Name);
-            actual?.Path?.ToString().Should().Be(expected?.Path?.ToString());
+            actual?.RelativePath?.Should().Be(expected?.RelativePath);
             actual?.Type.Should().Be(expected?.Type);
             actual?.ConnectionType.Should().Be(expected?.ConnectionType);
             actual?.TransactionHandling.Should().Be(expected?.TransactionHandling);
