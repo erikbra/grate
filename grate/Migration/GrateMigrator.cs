@@ -272,7 +272,7 @@ public class GrateMigrator : IAsyncDisposable
 
         _logger.LogInformation("Looking for {FolderName} scripts in \"{Path}\".{Message}",
             folder.Name,
-            Wrap(root, folder.RelativePath),
+            Wrap(root, folder.Path),
             msg);
 
         Separator('-');
@@ -284,7 +284,7 @@ public class GrateMigrator : IAsyncDisposable
     private async Task Process(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId,
         ConnectionType connectionType, TransactionHandling transactionHandling)
     {
-        var path = Wrap(root, folder.RelativePath);
+        var path = Wrap(root, folder.Path);
         
         {
             await EnsureConnectionIsOpen(connectionType);

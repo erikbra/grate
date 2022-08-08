@@ -122,7 +122,7 @@ public abstract class Everytime_scripts : MigrationsScriptsBase
             Baseline = true, // this is important!
         };
 
-        var path = Wrap(parent, knownFolders[Views]?.RelativePath ?? throw new Exception("Config Fail"));
+        var path = Wrap(parent, knownFolders[Views]?.Path ?? throw new Exception("Config Fail"));
 
         WriteSql(path, "view.sql", "create view grate as select '1' as col");
 

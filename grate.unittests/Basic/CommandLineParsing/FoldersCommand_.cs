@@ -10,19 +10,20 @@ using NUnit.Framework;
 namespace grate.unittests.Basic.CommandLineParsing;
 
 // ReSharper disable once InconsistentNaming
-public class CustomFoldersCommand_
+[TestOf(nameof(FoldersCommand))]
+public class FoldersCommand_
 {
     [Test]
     [TestCaseSource(nameof(FoldersCommandLines))]
     [TestCaseSource(nameof(FileFoldersCommandLines))]
     public void Can_Parse(string argument, IFoldersConfiguration expected)
     {
-        var actual = CustomFoldersCommand.Parse(argument);
+        var actual = FoldersCommand.Parse(argument);
 
         actual.Should().NotBeNull();
 
         var expectedArr = expected.ToArray();
-        var actualArr = actual?.ToArray();
+        var actualArr = actual.ToArray();
 
         actualArr.Should().HaveCount(expectedArr.Length);
         
@@ -44,7 +45,7 @@ public class CustomFoldersCommand_
         Assert.Multiple(() =>
         {
             actual?.Name.Should().Be(expected?.Name);
-            actual?.RelativePath?.Should().Be(expected?.RelativePath);
+            actual?.Path.Should().Be(expected?.Path);
             actual?.Type.Should().Be(expected?.Type);
             actual?.ConnectionType.Should().Be(expected?.ConnectionType);
             actual?.TransactionHandling.Should().Be(expected?.TransactionHandling);
@@ -60,7 +61,7 @@ public class CustomFoldersCommand_
                     KnownFolderNames.Default with{ Up = "blup", AfterMigration = "æfter"})
                 ),
             
-            ("New, simpler format", 
+            ("Fully customised", 
              "folder1=type:Once;folder2=type:EveryTime;folder3=type:AnyTime",
              new FoldersConfiguration(
                 new MigrationsFolder("folder1", MigrationType.Once),
@@ -68,21 +69,21 @@ public class CustomFoldersCommand_
                 new MigrationsFolder("folder3", MigrationType.AnyTime)
              )),
             
-            ("New, simpler format, only one folder", 
+            ("Fully customised, only one folder", 
                 "folder1=type:Once", 
                 new FoldersConfiguration(
                     new MigrationsFolder("folder1", MigrationType.Once)
                 )),
             
-            ("New, simpler format, more properties", 
-                "folder1=type:Once,connectionType:Admin;folder2=type:EveryTime;folder3=type:AnyTime", 
+            ("Fully customised, more properties", 
+                "folder1=path:a/sub/folder/here,type:Once,connectionType:Admin;folder2=type:EveryTime;folder3=type:AnyTime", 
                 new FoldersConfiguration(
-                    new MigrationsFolder("folder1", MigrationType.Once, ConnectionType.Admin),
+                    new MigrationsFolder("folder1", "a/sub/folder/here", MigrationType.Once, ConnectionType.Admin),
                     new MigrationsFolder("folder2", MigrationType.EveryTime),
                     new MigrationsFolder("folder3", MigrationType.AnyTime)
                 )),
             
-            ("New, simpler format, with newline separators", 
+            ("Fully customised, with newline separators", 
 @"folder1=type:Once
 folder2=type:EveryTime
 folder3=type:AnyTime", 
@@ -92,7 +93,7 @@ folder3=type:AnyTime",
                     new MigrationsFolder("folder3", MigrationType.AnyTime)
                 )),
             
-            ("New, simpler format - With only migration type",
+            ("Fully customised - With only migration type",
                 "folderA=Everytime;folderB=Once;folderC=AnyTime",
                 new FoldersConfiguration(
                     new MigrationsFolder("folderA", MigrationType.EveryTime),
@@ -100,7 +101,7 @@ folder3=type:AnyTime",
                     new MigrationsFolder("folderC", MigrationType.AnyTime)
                 )),
         
-            ("New, simpler format - With only folder name",
+            ("Fully customised - With only folder name",
                 "folderA=hello;folderB=you;folderC=fool",
                 new FoldersConfiguration(
                     new MigrationsFolder("folderA", "hello", MigrationType.Once),
@@ -114,7 +115,7 @@ folder3=type:AnyTime",
 
     private static readonly TestCaseData[] FileFoldersCommandLines =
     new []{
-        GetTestCase("File - NonExistant file", "/tmp/this/does/not/exist" , FoldersConfiguration.Empty),
+        GetTestCase("File - NonExistent file", "/tmp/this/does/not/exist" , FoldersConfiguration.Empty),
         GetTestCase("File - Empty file", CreateFile(""), FoldersConfiguration.Empty),
     }.Concat(TestCases.Select( c => GetTestCase("File - " + c.name, CreateFile(c.config), c.expected))).ToArray();
 

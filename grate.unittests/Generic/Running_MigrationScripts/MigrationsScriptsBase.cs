@@ -9,10 +9,10 @@ public abstract class MigrationsScriptsBase
     protected static DirectoryInfo CreateRandomTempDirectory() => TestConfig.CreateRandomTempDirectory();
 
     protected void CreateDummySql(DirectoryInfo root, MigrationsFolder? folder, string filename = "1_jalla.sql")
-        => CreateDummySql(Wrap(root, folder?.RelativePath), filename);
+        => CreateDummySql(Wrap(root, folder?.Path), filename);
 
     protected void WriteSomeOtherSql(DirectoryInfo root, MigrationsFolder? folder, string filename = "1_jalla.sql")
-        => WriteSomeOtherSql(Wrap(root,folder?.RelativePath), filename);
+        => WriteSomeOtherSql(Wrap(root,folder?.Path), filename);
         
     protected void CreateDummySql(DirectoryInfo? path, string filename = "1_jalla.sql")
     {
@@ -33,7 +33,7 @@ public abstract class MigrationsScriptsBase
         TestConfig.WriteContent(path, filename, sql);
 
     protected static DirectoryInfo MakeSurePathExists(DirectoryInfo root, MigrationsFolder? folder) 
-        => TestConfig.MakeSurePathExists(Wrap(root, folder?.RelativePath));
+        => TestConfig.MakeSurePathExists(Wrap(root, folder?.Path));
 
     protected abstract IGrateTestContext Context { get; }
 

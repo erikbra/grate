@@ -111,7 +111,7 @@ public class FolderConfiguration_
         Assert.Multiple(() =>
         {
             actual?.Name.Should().Be(expected?.Name);
-            actual?.RelativePath?.Should().Be(expected?.RelativePath);
+            actual?.Path?.Should().Be(expected?.Path);
             actual?.Type.Should().Be(expected?.Type);
             actual?.ConnectionType.Should().Be(expected?.ConnectionType);
             actual?.TransactionHandling.Should().Be(expected?.TransactionHandling);

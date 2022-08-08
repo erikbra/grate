@@ -2,9 +2,19 @@
 
 namespace grate.Configuration;
 
+/// <summary>
+/// A folder to migrate
+/// </summary>
+/// <param name="Name">A name you wish to give the migration folder (e.g. "The first one")</param>
+/// <param name="Path">The _relative_ path of the folder (relative to the SqlFilesDirectory).
+/// Defaults to <paramref name="Name"/></param>
+/// <param name="Type">The migration type (decides what happens on subsequent runs of the folder</param>
+/// <param name="ConnectionType">Whether you need an admin connection or not</param>
+/// <param name="TransactionHandling">Whether to roll back this folder if something fails, or run these
+/// scripts in a separate, autonomous transactions, which makes them run no matter if other stuff errors.</param>
 public record MigrationsFolder(
         string Name,
-        string RelativePath,
+        string Path,
         MigrationType Type = MigrationType.Once,
         ConnectionType ConnectionType = ConnectionType.Default,
         TransactionHandling TransactionHandling = TransactionHandling.Default)

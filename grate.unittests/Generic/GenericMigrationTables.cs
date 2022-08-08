@@ -139,7 +139,7 @@ public abstract class GenericMigrationTables
     }
 
     private static DirectoryInfo MakeSurePathExists(DirectoryInfo root, MigrationsFolder? folder)
-        => MakeSurePathExists(Wrap(root, folder?.RelativePath));
+        => MakeSurePathExists(Wrap(root, folder?.Path));
         
     protected static DirectoryInfo MakeSurePathExists(DirectoryInfo? path)
     {

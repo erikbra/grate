@@ -45,7 +45,7 @@ public class Fully_Customised_Folders
 
         Assert.Multiple(() =>
         {
-            folder.RelativePath?.Should().Be(expectedFolderName);
+            folder.Path?.Should().Be(expectedFolderName);
             folder.Type.Should().Be(expectedType);
             folder.ConnectionType.Should().Be(expectedConnectionType);
             folder.TransactionHandling.Should().Be(transactionHandling);

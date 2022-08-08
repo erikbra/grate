@@ -86,11 +86,48 @@ public sealed class MigrateCommand : RootCommand
     private static Option Folders() =>
         new Option<IFoldersConfiguration>(
             new[] { "--folders" },
-            result => CustomFoldersCommand.Parse(result?.Tokens?.FirstOrDefault()?.ToString()),
+            result => FoldersCommand.Parse(result?.Tokens?.FirstOrDefault()?.ToString()),
             description: 
-@"Folder configuration, if you wish to override any of the default folder names.
-Supply a comma separated list of mappings, e.g
---folders up:ddl,views:projections,beforemigration:preparefordeploy
+@"Folder configuration.
+
+If you wish to override any of the default folder names, supply a semicolon separated list of mappings.
+
+Example:
+
+--folders up=ddl,views=projections,beforemigration=preparefordeploy
+
+this will keep the default folder configuration, ubt change the names of the folders you supply.
+
+If you want to fully customise the folders, you can do this by specifying a list of folders with keys
+that are not among the default folders. Then none of the default folders will be configured, just the ones you supply.
+
+Example:
+
+--folders folder1=path:a/sub/folder/here,type:Once,connectionType:Admin;folder2=type:EveryTime;folder3=type:AnyTime
+
+The properties you can set per folder, are:
+
+* Name - the key/name you wish to give to the folder (doesn't matter if path is specified)
+* Path - the relative path of the folder, relative to the --sqlfilesdirectory parameter.
+         Defaults to the name given above.
+* type - the type of the migration (Once, EveryTime, Anytime), defaults to Once,
+* ConnectionType - whether to run on the default connection, or on the admin (defaults to Default),
+                   Allowed values: default, admin
+* TransactionHandling - whether to be part of the transaction, or run the script even on a rollback, 
+                        defaults to Default
+                        Allowed values: default, autonomous
+
+There are also short forms, if you just wish to supply the folder name or the migration type.
+
+Example:
+
+--folders folder1=my/first/scripts;folder2=the/last/ones;folder3=something/i/forgot
+
+or
+
+--folders folder1=Once;folder2=Everytime;folder3=Anytime
+
+the last one will expect the folders to be named 'folder1', 'folder2', and 'folder3', in the sqlfilesdirectory.
 
 ",
             isDefault: true

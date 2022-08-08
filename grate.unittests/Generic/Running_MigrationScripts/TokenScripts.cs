@@ -24,7 +24,7 @@ public abstract class TokenScripts : MigrationsScriptsBase
         
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
-        var path = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Views]?.RelativePath ?? throw new Exception("Config Fail")));
+        var path = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Views]?.Path ?? throw new Exception("Config Fail")));
 
         WriteSql(path, "token.sql", CreateDatabaseName);
 
@@ -47,7 +47,7 @@ public abstract class TokenScripts : MigrationsScriptsBase
         
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
-        var path = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Views]?.RelativePath ?? throw new Exception("Config Fail")));
+        var path = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Views]?.Path ?? throw new Exception("Config Fail")));
 
         WriteSql(path, "token.sql", CreateViewMyCustomToken);
             

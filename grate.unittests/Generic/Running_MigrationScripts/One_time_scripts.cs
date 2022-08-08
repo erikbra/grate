@@ -134,7 +134,7 @@ public abstract class One_time_scripts: MigrationsScriptsBase
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
-        var path = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]?.RelativePath ?? throw new Exception("Config Fail")));
+        var path = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]?.Path ?? throw new Exception("Config Fail")));
 
         WriteSql(path, "token.sql", CreateView1);
 

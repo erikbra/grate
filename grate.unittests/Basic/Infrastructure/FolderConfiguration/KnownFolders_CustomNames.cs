@@ -59,7 +59,7 @@ public class KnownFolders_CustomNames
 
         Assert.Multiple(() =>
         {
-            folder.RelativePath.Should().Be(expectedName);
+            folder.Path.Should().Be(expectedName);
             folder.Type.Should().Be(expectedType);
             folder.ConnectionType.Should().Be(expectedConnectionType);
             folder.TransactionHandling.Should().Be(transactionHandling);

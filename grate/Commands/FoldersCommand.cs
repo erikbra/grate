@@ -8,7 +8,7 @@ using grate.Exceptions;
 
 namespace grate.Commands;
 
-public static class CustomFoldersCommand
+public static class FoldersCommand
 {
     public static IFoldersConfiguration Parse(string? arg)
     {
@@ -103,7 +103,7 @@ public static class CustomFoldersCommand
             }
             else
             {
-                var (setter, _) = GetProperty(nameof(MigrationsFolder.RelativePath));
+                var (setter, _) = GetProperty(nameof(MigrationsFolder.Path));
                 setter!.Invoke(folder, new object?[] { folderConfig });
             }
 
