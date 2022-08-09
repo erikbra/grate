@@ -14,7 +14,7 @@ public record GrateConfiguration
 {
     private readonly string? _adminConnectionString;
 
-    public IFoldersConfiguration? Folders { get; init; }
+    public IFoldersConfiguration? Folders { get; init; } = FoldersConfiguration.Default();
 
     public DatabaseType DatabaseType { get; init; } // = DatabaseType.sqlserver;
 
