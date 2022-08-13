@@ -69,8 +69,7 @@ If you want to specify an entirely different folder structure, this is no proble
 to the `--folders` argument, and grate will run them in the specified order, with the specified configuration for 
 each folder.
 
-The list of folder should consist of  keys
-that are not among the default folders. Then none of the default folders will be configured, just the ones you supply.
+The list of folder should consist of some keys that are not among the default folders. Then none of the default folders will be configured, just the ones you supply. If all the keys are some of the default ones, e.g. only `up`, `views` and `sprocs`, grate will assume that you want the default configuration, with the adjustments you have specified.
 
 Example:
 

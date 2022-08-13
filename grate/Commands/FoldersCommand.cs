@@ -46,14 +46,14 @@ public static class FoldersCommand
 
         IEnumerable<(string key, string config)> configs = tokens.Select(token => SplitInTwo(token, '=')).ToArray();
 
-        // Check to see if any of the folders specified was one of the default ones.
-        // If it was, assume that the intent is so have the default folder configuration, but just
+        // Check to see if each and every of the folders specified was one of the default ones.
+        // If they were, assume that the intent is so have the default folder configuration, but just
         // adjust some of the folders.
         // 
-        // If none of the folders are any of the default folders, we assume the intent is a totally 
+        // If one of the folders is none of the default folders, we assume the intent is a totally
         // customised folder configuration.
         IFoldersConfiguration foldersConfiguration =
-            configs.Select(c => c.key).Any(key => KnownFolderKeys.Keys.Contains(key, StringComparer.InvariantCultureIgnoreCase))
+            configs.Select(c => c.key).All(key => KnownFolderKeys.Keys.Contains(key, StringComparer.InvariantCultureIgnoreCase))
                 ? FoldersConfiguration.Default()
                 : FoldersConfiguration.Empty;
 

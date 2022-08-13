@@ -136,9 +136,17 @@ public class GrateMigrator : IAsyncDisposable
                     }
                 }catch (DbException ex)
                 {
-                    // Catch exceptions, so that we run the rest of the scripts, that should always be run.
-                    exceptions.Add(ex);
-                    exceptionOccured = true;
+                    if (runInTransaction)
+                    {
+                        // Catch exceptions, so that we run the rest of the scripts, that should always be run.
+                        exceptions.Add(ex);
+                        exceptionOccured = true;
+                    }
+                    else
+                    {
+                        // Throw exceptions, to stop running any more scripts, if not running in a transaction.
+                        throw new MigrationFailed(ex);
+                    }
                 }
             }
             

@@ -75,6 +75,20 @@ public class FoldersCommand_
                     new MigrationsFolder("folder1", MigrationType.Once)
                 )),
             
+            ("Fully customised, one folder with standard name",
+                "folder1=type:Once;up=tables",
+                new FoldersConfiguration(
+                    new MigrationsFolder("folder1", MigrationType.Once),
+                    new MigrationsFolder("up", "tables", MigrationType.Once)
+                )),
+
+            ("Fully customised, only folder names, should have defaults",
+                "folder1;up",
+                new FoldersConfiguration(
+                    new MigrationsFolder("folder1"),
+                    new MigrationsFolder("up")
+                )),
+
             ("Fully customised, more properties", 
                 "folder1=path:a/sub/folder/here,type:Once,connectionType:Admin;folder2=type:EveryTime;folder3=type:AnyTime", 
                 new FoldersConfiguration(
