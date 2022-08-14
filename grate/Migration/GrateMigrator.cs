@@ -241,11 +241,11 @@ public class GrateMigrator : IAsyncDisposable
             return;
         }
 
-        if (!folder.Path.EnumerateFiles().Any())
+        if (!folder.Path.EnumerateFileSystemInfos().Any()) // Ensure we check for subdirectories as well as files
         {
             _logger.LogInformation("Skipping '{FolderName}', {Path} is empty.", folder.Name, folder.Path);
             return;
-        } 
+        }
 
         Separator(' ');
 
