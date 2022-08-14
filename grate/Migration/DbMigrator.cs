@@ -78,7 +78,7 @@ public class DbMigrator : IDbMigrator
 
         async Task<bool> LogAndRunSql()
         {
-            _logger.LogInformation(" Running {ScriptName} on {ServerName} - {DatabaseName}.", scriptName, Database.ServerName, Database.DatabaseName);
+            _logger.LogInformation("  Running '{ScriptName}'.", scriptName);
 
             if (Configuration.DryRun)
             {

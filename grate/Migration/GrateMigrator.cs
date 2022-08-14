@@ -76,7 +76,7 @@ public class GrateMigrator : IAsyncDisposable
 
         TransactionScope? scope = null;
         await dbMigrator.OpenConnection();
-            
+
         // Run these first without a transaction, to make sure the tables are created even on a potential rollback
         await CreateGrateStructure(dbMigrator);
 
@@ -99,7 +99,7 @@ public class GrateMigrator : IAsyncDisposable
         await dbMigrator.CloseConnection();
 
         Exception? exception = default;
-            
+
         try
         {
             // Start the transaction, if configured
@@ -123,11 +123,12 @@ public class GrateMigrator : IAsyncDisposable
             await LogAndProcess(knownFolders.Triggers!, changeDropFolder, versionId, ConnectionType.Default);
             await LogAndProcess(knownFolders.Indexes!, changeDropFolder, versionId, ConnectionType.Default);
             await LogAndProcess(knownFolders.RunAfterOtherAnyTimeScripts!, changeDropFolder, versionId, ConnectionType.Default);
-            
+
             await dbMigrator.CloseConnection();
 
             scope?.Complete();
-        }catch (DbException ex)
+        }
+        catch (DbException ex)
         {
             // Catch exceptions, so that we run the rest of the scripts, that should always be run.
             exception = ex;
@@ -137,26 +138,26 @@ public class GrateMigrator : IAsyncDisposable
             scope?.Dispose();
         }
 
-            using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
-            {
+        using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+        {
             await dbMigrator.OpenConnection();
-                await LogAndProcess(knownFolders.Permissions!, changeDropFolder, versionId, ConnectionType.Default);
-                await LogAndProcess(knownFolders.AfterMigration!, changeDropFolder, versionId, ConnectionType.Default);
-            }
+            await LogAndProcess(knownFolders.Permissions!, changeDropFolder, versionId, ConnectionType.Default);
+            await LogAndProcess(knownFolders.AfterMigration!, changeDropFolder, versionId, ConnectionType.Default);
+        }
 
         if (exception is not null)
         {
             throw exception;
         }
 
-            _logger.LogInformation(
-                "\n\ngrate v{Version} has grated your database ({DatabaseName})! You are now at version {NewVersion}. All changes and backups can be found at \"{ChangeDropFolder}\".",
-                ApplicationInfo.Version,
-                dbMigrator.Database.DatabaseName,
-                newVersion,
-                changeDropFolder);
+        _logger.LogInformation(
+            "\n\ngrate v{Version} has grated your database ({DatabaseName})! You are now at version {NewVersion}. All changes and backups can be found at \"{ChangeDropFolder}\".",
+            ApplicationInfo.Version,
+            dbMigrator.Database.DatabaseName,
+            newVersion,
+            changeDropFolder);
 
-            Separator(' ');
+        Separator(' ');
 
 
     }
@@ -234,6 +235,18 @@ public class GrateMigrator : IAsyncDisposable
 
     private async Task LogAndProcess(MigrationsFolder folder, string changeDropFolder, long versionId, ConnectionType connectionType)
     {
+        if (!folder.Path.Exists)
+        {
+            _logger.LogInformation("Skipping '{FolderName}', {Path} does not exist.", folder.Name, folder.Path);
+            return;
+        }
+
+        if (!folder.Path.EnumerateFiles().Any())
+        {
+            _logger.LogInformation("Skipping '{FolderName}', {Path} is empty.", folder.Name, folder.Path);
+            return;
+        } 
+
         Separator(' ');
 
         var msg = folder.Type switch
@@ -257,14 +270,10 @@ public class GrateMigrator : IAsyncDisposable
 
     private async Task Process(MigrationsFolder folder, string changeDropFolder, long versionId, ConnectionType connectionType)
     {
-        if (!folder.Path.Exists)
-        {
-            _logger.LogDebug("{Path} does not exist. Skipping.", folder.Path);
-            return;
-        }
-
         var pattern = "*.sql";
         var files = FileSystem.GetFiles(folder.Path, pattern);
+
+        var anySqlRun = false;
 
         foreach (var file in files)
         {
@@ -279,6 +288,7 @@ public class GrateMigrator : IAsyncDisposable
 
             if (theSqlRan)
             {
+                anySqlRun = true;
                 try
                 {
                     CopyToChangeDropFolder(folder.Path.Parent!, file, changeDropFolder);
@@ -288,6 +298,11 @@ public class GrateMigrator : IAsyncDisposable
                     _logger.LogWarning(ex, "Unable to copy {File} to {ChangeDropFolder}. \n{Exception}", file, changeDropFolder, ex.Message);
                 }
             }
+        }
+
+        if (!anySqlRun)
+        {
+            _logger.LogDebug("  No sql run, either an empty folder, or all files run against destination previously.");
         }
 
     }
