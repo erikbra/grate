@@ -104,11 +104,9 @@ public class GrateMigrator : IAsyncDisposable
             {
                 var processingFolderInDefaultTransaction = folder?.TransactionHandling == TransactionHandling.Default;
                 
-                // Don't run any more folders that runs in the transaction, if the transaction is already aborted
+                // Don't run any more folders that runs in the default transaction, if the transaction is already aborted
                 // (due to an error in a script, or something else)
-                if (
-                    runInTransaction && exceptionOccured
-                    && processingFolderInDefaultTransaction)
+                if (exceptionOccured && processingFolderInDefaultTransaction)
                 {
                     continue;
                 }
@@ -136,17 +134,9 @@ public class GrateMigrator : IAsyncDisposable
                     }
                 }catch (DbException ex)
                 {
-                    if (runInTransaction)
-                    {
-                        // Catch exceptions, so that we run the rest of the scripts, that should always be run.
-                        exceptions.Add(ex);
-                        exceptionOccured = true;
-                    }
-                    else
-                    {
-                        // Throw exceptions, to stop running any more scripts, if not running in a transaction.
-                        throw new MigrationFailed(ex);
-                    }
+                    // Catch exceptions, so that we run the rest of the scripts, that should always be run.
+                    exceptions.Add(ex);
+                    exceptionOccured = true;
                 }
             }
             

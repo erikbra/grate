@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
@@ -9,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using grate.Commands;
 using grate.Configuration;
+using grate.Exceptions;
 using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,7 +28,7 @@ public static class Program
         // Temporarily parse the configuration, to get the verbosity level
         var cfg = await ParseGrateConfiguration(args);
         _serviceProvider = BuildServiceProvider(cfg);
-            
+
         var rootCommand = Create<MigrateCommand>();
         rootCommand.Add(Verbosity());
 
@@ -45,8 +47,18 @@ public static class Program
             .UseExceptionHandler()
             .CancelOnProcessTermination()
             .Build();
-            
-        var result = await parser.InvokeAsync(args);
+
+        int result = -1;
+
+        try
+        {
+            result = await parser.InvokeAsync(args);
+        }
+        catch (MigrationFailed ex)
+        {
+            var logger = _serviceProvider.GetRequiredService<ILogger<GrateMigrator>>();
+            logger.LogError(ex.Message);
+        }
 
         await WaitForLoggerToFinish();
 
@@ -105,7 +117,7 @@ public static class Program
         services.AddSingleton(config);
         services.AddTransient<IDbMigrator, DbMigrator>();
         services.AddTransient<IHashGenerator, HashGenerator>();
-            
+
         services.AddTransient<GrateMigrator, GrateMigrator>();
 
         services.AddTransient<MariaDbDatabase>();
@@ -132,7 +144,7 @@ public static class Program
     }
 
     private static Option<LogLevel> Verbosity() => new(
-        new[] { "-v", "--verbosity" }, 
+        new[] { "-v", "--verbosity" },
         "Verbosity level (as defined here: https://docs.microsoft.com/dotnet/api/Microsoft.Extensions.Logging.LogLevel)");
 
     private static T Create<T>() where T : notnull => _serviceProvider.GetRequiredService<T>();

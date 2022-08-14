@@ -250,7 +250,12 @@ public class DbMigrator : IDbMigrator
             }
             catch (Exception ex)
             {
-                Database.Rollback();
+                _logger.LogError("Error running script \"{ScriptName}\": {ErrorMessage}", scriptName, ex.Message);
+
+                if (Transaction.Current is not null) {
+                    Database.Rollback();
+                }
+
                 await Database.CloseConnection();
                 Transaction.Current?.Dispose();
 
