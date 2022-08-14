@@ -34,7 +34,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             var ex = Assert.ThrowsAsync<MigrationFailed>(migrator.Migrate);
-            ex?.Message.Should().Be($"Migration failed due to errors ({ExpectedErrorMessageForInvalidSql})");
+            ex?.Message.Should().Be($"Migration failed due to errors:\n * {ExpectedErrorMessageForInvalidSql}");
         }
     }
 
