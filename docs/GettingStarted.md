@@ -46,7 +46,9 @@ These scripts are run (you guessed it) **every time** grate executes :)  More in
 ## Directory run order
 
 By default, grate processes the files in a standard set of directories in a fixed order for deterministic processing.  
-As of grate 1.4, the folder structure is [fully customisable](ConfigurationOptions/FolderConfiguration.md).
+As of grate 1.4, the folder structure is [fully customisable](ConfigurationOptions/FolderConfiguration.md). However,
+if you don't have any special requirements (e.g. an existing set of SQL scripts in an existing, set folder structure),
+we would recommend you going with the defaults.
 
 The default folders are run in the following order:
 
