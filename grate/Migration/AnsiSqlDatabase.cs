@@ -184,6 +184,7 @@ public abstract class AnsiSqlDatabase : IDatabase
             await CreateScriptsRunTable();
             await CreateScriptsRunErrorsTable();
             await CreateVersionTable();
+            await AddStatusColumnToVersionTable();
     }
 
     private async Task CreateRunSchema()
@@ -265,9 +266,22 @@ CREATE TABLE {VersionTable}(
         }
     }
 
+    protected virtual async Task AddStatusColumnToVersionTable()
+    {
+        string createSql = $@"
+            ALTER TABLE {VersionTable}
+	        ADD status {_syntax.VarcharType}(50) NULL";
+
+        if (!await StatusColumnInVersionTableExists())
+        {
+            await ExecuteNonQuery(Connection, createSql, Config?.CommandTimeout);
+        }
+    }
+
     protected async Task<bool> ScriptsRunTableExists() => await TableExists(SchemaName, "ScriptsRun");
     protected async Task<bool> ScriptsRunErrorsTableExists() => await TableExists(SchemaName, "ScriptsRunErrors");
     public async Task<bool> VersionTableExists() => await TableExists(SchemaName, "Version");
+    protected async Task<bool> StatusColumnInVersionTableExists() => await ColumnExists(SchemaName, "Version", "status");
 
     public async Task<bool> TableExists(string schemaName, string tableName)
     {
@@ -280,6 +294,17 @@ CREATE TABLE {VersionTable}(
         return !DBNull.Value.Equals(res) && res is not null;
     }
 
+    private async Task<bool> ColumnExists(string schemaName, string tableName, string columnName)
+    {
+        var fullTableName = SupportsSchemas ? tableName : _syntax.TableWithSchema(schemaName, tableName);
+        var tableSchema = SupportsSchemas ? schemaName : DatabaseName;
+
+        string existsSql = ExistsSql(tableSchema, fullTableName, columnName);
+
+        var res = await ExecuteScalarAsync<object>(Connection, existsSql);
+        return !DBNull.Value.Equals(res) && res is not null;
+    }
+
     protected virtual string ExistsSql(string tableSchema, string fullTableName)
     {
         return $@"
@@ -287,6 +312,17 @@ SELECT * FROM information_schema.tables
 WHERE 
 table_schema = '{tableSchema}' AND
 table_name = '{fullTableName}'
+";
+    }
+
+    protected virtual string ExistsSql(string tableSchema, string fullTableName, string columnName)
+    {
+        return $@"
+SELECT * FROM information_schema.columns 
+WHERE 
+table_schema = '{tableSchema}' AND
+table_name = '{fullTableName}' AND
+column_name = '{columnName}' 
 ";
     }
 
@@ -317,8 +353,8 @@ ORDER BY id DESC", 1)}
     {
         var sql = Parameterize($@"
 INSERT INTO {VersionTable}
-(version, entry_date, modified_date, entered_by)
-VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
+(version, entry_date, modified_date, entered_by, status)
+VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy, @status)
 
 {_syntax.ReturnId}
 ");
@@ -329,12 +365,26 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy)
                 newVersion,
                 entryDate = DateTime.UtcNow,
                 modifiedDate = DateTime.UtcNow,
-                enteredBy = ClaimsPrincipal.Current?.Identity?.Name ?? Environment.UserName
+                enteredBy = ClaimsPrincipal.Current?.Identity?.Name ?? Environment.UserName,
+                status = MigrationStatus.InProgress
             });
 
         Logger.LogInformation(" Versioning {DbName} database with version {Version}.", DatabaseName, newVersion);
 
         return res;
+    }
+
+    public virtual async Task ChangeVersionStatus(string status, long versionId)
+    {
+        var updateSql = Parameterize($@"
+            UPDATE {VersionTable}
+            SET status = @status
+            WHERE id = @versionId");
+
+        using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+        await ExecuteAsync(Connection, updateSql, new { status, versionId });
+
+        s.Complete();
     }
 
     public void Rollback()

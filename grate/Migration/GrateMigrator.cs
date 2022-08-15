@@ -149,7 +149,13 @@ public class GrateMigrator : IAsyncDisposable
             throw exception;
         }
 
-            _logger.LogInformation(
+        if (!config.DryRun)
+        {
+            //If we get here this means no exceptions are thrown above, so we can conclude the migration was successfull!
+            await _migrator.Database.ChangeVersionStatus(MigrationStatus.Finished, versionId);
+        }
+
+        _logger.LogInformation(
                 "\n\ngrate v{Version} has grated your database ({DatabaseName})! You are now at version {NewVersion}. All changes and backups can be found at \"{ChangeDropFolder}\".",
                 ApplicationInfo.Version,
                 dbMigrator.Database.DatabaseName,
