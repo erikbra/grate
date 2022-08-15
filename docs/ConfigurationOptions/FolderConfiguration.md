@@ -28,7 +28,7 @@ grate works with three different folder types:
 
 If you want to specify a custom folder configuration, you have two options:
 
-1. Start with the [default grate folder configuration](#default-folder-configuration), and make adjusments
+1. Start with the [default grate folder configuration](#default-folder-configuration), and make adjustments
 1. Specify a fully customised set of folders to use
 
 **Note:** you can either:
