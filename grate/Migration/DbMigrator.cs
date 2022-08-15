@@ -246,11 +246,14 @@ public class DbMigrator : IDbMigrator
             catch (Exception ex)
             {
                 Database.Rollback();
+                await Database.CloseConnection();
                 Transaction.Current?.Dispose();
 
+                using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+                await Database.OpenConnection();
                 await RecordScriptInScriptsRunErrorsTable(scriptName, sql, statement, ex.Message, versionId);
-
                 await Database.CloseConnection();
+                
                 throw;
             }
         }
@@ -277,7 +280,11 @@ public class DbMigrator : IDbMigrator
     private async Task OneTimeScriptChanged(string sql, string scriptName, long versionId)
     {
         Database.Rollback();
+        await Database.CloseConnection();
         Transaction.Current?.Dispose();
+
+        using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+        await Database.OpenConnection();
 
         string errorMessage =
             $"{scriptName} has changed since the last time it was run. By default this is not allowed - scripts that run once should never change. To change this behavior to a warning, please set warnOnOneTimeScriptChanges to true and run again. Stopping execution.";

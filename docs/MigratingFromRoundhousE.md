@@ -27,6 +27,8 @@ grate is built using the new [`System.CommandLine`](https://github.com/dotnet/co
 
 - The `--verbose` flag has been changed to a `--verbosity` flag, accepting the values of `<Critical|Debug|Error|Information|None|Trace|Warning>` (see [the MS docs](https://docs.microsoft.com/dotnet/api/Microsoft.Extensions.Logging.LogLevel) for details)
 
+- The `Allow User Variables` connection string option for MySQL connections (used in SPROCs) is no longer set by default.
+
 
 ## RH Features that aren't yet in grate
 

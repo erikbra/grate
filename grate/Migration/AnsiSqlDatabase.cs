@@ -21,8 +21,7 @@ public abstract class AnsiSqlDatabase : IDatabase
     protected GrateConfiguration? Config { get; private set; }
 
     protected ILogger Logger { get; }
-    // ReSharper disable once InconsistentNaming
-    protected DbConnection? _connection;
+    private DbConnection? _connection;
     private DbConnection? _adminConnection;
     private readonly ISyntax _syntax;
 
@@ -72,11 +71,34 @@ public abstract class AnsiSqlDatabase : IDatabase
 
     public async Task OpenConnection() => await Open(Connection);
     // Don't use the properties, they can open a connection just to dispose it!
-    public async Task CloseConnection() => await Close(_connection);
+    public async Task CloseConnection()
+    {
+        await Close(_connection);
+        _connection = null;
+    }
 
     public async Task OpenAdminConnection() => await Open(AdminConnection);
     // Don't use the properties, they can open a connection just to dispose it!
-    public async Task CloseAdminConnection() => await Close(_adminConnection);
+    public async Task CloseAdminConnection()
+    {
+        await Close(_adminConnection);
+        _adminConnection = null;
+    }
+    
+    protected async Task<DbConnection> OpenNewConnection()
+    {
+        var conn = GetSqlConnection(ConnectionString);
+        await Open(conn);
+        return conn;
+    }
+
+    protected async Task<DbConnection> OpenNewAdminConnection()
+    {
+        var conn = GetSqlConnection(AdminConnectionString);
+        await Open(conn);
+        return conn;
+    }
+
 
     public async Task CreateDatabase()
     {
@@ -85,9 +107,10 @@ public abstract class AnsiSqlDatabase : IDatabase
             Logger.LogTrace("Creating database {DatabaseName}", DatabaseName);
 
             using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+            await using var conn = await OpenNewAdminConnection();
             var sql = _syntax.CreateDatabase(DatabaseName, Password);
 
-            await ExecuteNonQuery(AdminConnection, sql, Config?.AdminCommandTimeout);
+            await ExecuteNonQuery(conn, sql, Config?.AdminCommandTimeout);
             s.Complete();
         }
 
@@ -99,11 +122,10 @@ public abstract class AnsiSqlDatabase : IDatabase
     {
         if (await DatabaseExists())
         {
-            using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
             await CloseConnection(); // try and ensure there's nobody else in there...
-            await OpenAdminConnection();
-            await ExecuteNonQuery(AdminConnection, _syntax.DropDatabase(DatabaseName), Config?.AdminCommandTimeout);
-            s.Complete();
+            using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+            await using var conn = await OpenNewAdminConnection();
+            await ExecuteNonQuery(conn, _syntax.DropDatabase(DatabaseName), Config?.AdminCommandTimeout);
         }
     }
 
@@ -118,7 +140,6 @@ public abstract class AnsiSqlDatabase : IDatabase
 
         try
         {
-            await OpenConnection();
             var databases = (await Connection.QueryAsync<string>(sql)).ToArray();
 
             Logger.LogTrace("Current databases: ");
@@ -133,10 +154,6 @@ public abstract class AnsiSqlDatabase : IDatabase
         {
             Logger.LogDebug(e, "Got error: {ErrorMessage}", e.Message);
             return false;
-        }
-        finally
-        {
-            await CloseConnection();
         }
     }
 
@@ -163,15 +180,10 @@ public abstract class AnsiSqlDatabase : IDatabase
 
     public async Task RunSupportTasks()
     {
-        using (var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
-        {
             await CreateRunSchema();
             await CreateScriptsRunTable();
             await CreateScriptsRunErrorsTable();
             await CreateVersionTable();
-            s.Complete();
-        }
-        await CloseConnection();
     }
 
     private async Task CreateRunSchema()
@@ -473,10 +485,7 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
             usr = Environment.UserName,
         };
 
-        using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
         await ExecuteAsync(Connection, insertSql, scriptRunErrors);
-
-        s.Complete();
     }
 
     private static async Task Close(DbConnection? conn)
