@@ -22,7 +22,7 @@ public class CommandLineParsing
     public void ParserIsConfiguredCorrectly()
     {
         // Test that the parser configuration is valid, see https://github.com/dotnet/command-line-api/issues/1613
-        var command = new MigrateCommand(null!); 
+        var command = new MigrateCommand(null!);
         var configuration = new CommandLineConfiguration(command);
         configuration.ThrowIfInvalid();
     }
@@ -231,6 +231,15 @@ public class CommandLineParsing
     {
         var cfg = await ParseGrateConfiguration(args);
         cfg?.DryRun.Should().Be(expected);
+    }
+
+    [TestCase("", true)]
+    [TestCase("--create=false", false)]
+    [TestCase("--createdatabase=false", false)]
+    public async Task CreateDatabase(string args, bool expected)
+    {
+        var cfg = await ParseGrateConfiguration(args);
+        cfg?.CreateDatabase.Should().Be(expected);
     }
 
     [TestCase("", false)]

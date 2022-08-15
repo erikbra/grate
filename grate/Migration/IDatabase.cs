@@ -40,4 +40,6 @@ public interface IDatabase : IAsyncDisposable
     Task<bool> HasRun(string scriptName);
     Task InsertScriptRun(string scriptName, string? sql, string hash, bool runOnce, long versionId);
     Task InsertScriptRunError(string scriptName, string? sql, string errorSql, string errorMessage, long versionId);
+    Task<bool> VersionTableExists();
+    Task ChangeVersionStatus(string status, long versionId);
 }

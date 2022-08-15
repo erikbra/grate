@@ -14,7 +14,7 @@ class SqlServerGrateTestContext : TestContextBase, IGrateTestContext, IDockerTes
     public int? Port { get; set; }
 
     public string DockerCommand(string serverName, string adminPassword) =>
-        $"run -d --name {serverName} -e ACCEPT_EULA=Y -e SA_PASSWORD={adminPassword} -e MSSQL_PID=Developer -e MSSQL_COLLATION=Danish_Norwegian_CI_AS -P mcr.microsoft.com/mssql/server:latest";
+        $"run -d --name {serverName} -e ACCEPT_EULA=Y -e SA_PASSWORD={adminPassword} -e MSSQL_PID=Developer -e MSSQL_COLLATION=Danish_Norwegian_CI_AS -P mcr.microsoft.com/mssql/server:2019-latest";
 
     public string AdminConnectionString => $"Data Source=localhost,{Port};Initial Catalog=master;User Id=sa;Password={AdminPassword};Encrypt=false;Pooling=false";
     public string ConnectionString(string database) => $"Data Source=localhost,{Port};Initial Catalog={database};User Id=sa;Password={AdminPassword};Encrypt=false;Pooling=false";
@@ -34,6 +34,7 @@ class SqlServerGrateTestContext : TestContextBase, IGrateTestContext, IDockerTes
     public SqlStatements Sql => new()
     {
         SelectVersion = "SELECT @@VERSION",
+        SleepTwoSeconds = "WAITFOR DELAY '00:00:02'"
     };
 
     public string ExpectedVersionPrefix => "Microsoft SQL Server 2019";

@@ -52,7 +52,19 @@ public class DbMigrator : IDbMigrator
 
     public Task RunSupportTasks() => Database.RunSupportTasks();
     public Task<string> GetCurrentVersion() => Database.GetCurrentVersion();
-    public Task<long> VersionTheDatabase(string newVersion) => Database.VersionTheDatabase(newVersion);
+    public Task<long> VersionTheDatabase(string newVersion)
+    {
+        if (Configuration.DryRun)
+        {
+            _logger.LogDebug("Skipping writing database version row due to --dryrun");
+            return Task.FromResult(-1L);
+        }
+        else
+        {
+            return Database.VersionTheDatabase(newVersion);
+        }
+    }
+
     public Task OpenAdminConnection() => Database.OpenAdminConnection();
     public Task CloseAdminConnection() => Database.CloseAdminConnection();
 
@@ -234,11 +246,14 @@ public class DbMigrator : IDbMigrator
             catch (Exception ex)
             {
                 Database.Rollback();
-                Transaction.Current?.Dispose();
-                    
-                await RecordScriptInScriptsRunErrorsTable(scriptName, sql, statement, ex.Message, versionId);
-
                 await Database.CloseConnection();
+                Transaction.Current?.Dispose();
+
+                using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+                await Database.OpenConnection();
+                await RecordScriptInScriptsRunErrorsTable(scriptName, sql, statement, ex.Message, versionId);
+                await Database.CloseConnection();
+                
                 throw;
             }
         }
@@ -265,7 +280,11 @@ public class DbMigrator : IDbMigrator
     private async Task OneTimeScriptChanged(string sql, string scriptName, long versionId)
     {
         Database.Rollback();
+        await Database.CloseConnection();
         Transaction.Current?.Dispose();
+
+        using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+        await Database.OpenConnection();
 
         string errorMessage =
             $"{scriptName} has changed since the last time it was run. By default this is not allowed - scripts that run once should never change. To change this behavior to a warning, please set warnOnOneTimeScriptChanges to true and run again. Stopping execution.";
@@ -279,14 +298,23 @@ public class DbMigrator : IDbMigrator
         var hash = _hashGenerator.Hash(sql);
         var sqlToStore = Configuration.DoNotStoreScriptsRunText ? null : sql;
 
-        _logger.LogTrace("Recording {ScriptName} script ran on {ServerName} - {DatabaseName}.", scriptName, Database.ServerName, Database.DatabaseName);
-        return Database.InsertScriptRun(scriptName, sqlToStore, hash, migrationType == MigrationType.Once, versionId);
+        if (Configuration.DryRun)
+        {
+            _logger.LogTrace("Skipping recording {ScriptName} script ran on {ServerName} - {DatabaseName}, --dryrun prevents sql writes", scriptName, Database.ServerName, Database.DatabaseName);
+            return Task.CompletedTask;
+        }
+        else
+        {
+            _logger.LogTrace("Recording {ScriptName} script ran on {ServerName} - {DatabaseName}.", scriptName, Database.ServerName, Database.DatabaseName);
+            return Database.InsertScriptRun(scriptName, sqlToStore, hash, migrationType == MigrationType.Once, versionId);
+        }
     }
 
-    private Task RecordScriptInScriptsRunErrorsTable(string scriptName, string sql, string errorSql, string errorMessage, long versionId)
+    private async Task RecordScriptInScriptsRunErrorsTable(string scriptName, string sql, string errorSql, string errorMessage, long versionId)
     {
         var sqlToStore = Configuration.DoNotStoreScriptsRunText ? null : sql;
-        return Database.InsertScriptRunError(scriptName, sqlToStore, errorSql, errorMessage, versionId);
+        await Database.InsertScriptRunError(scriptName, sqlToStore, errorSql, errorMessage, versionId);
+        await Database.ChangeVersionStatus(MigrationStatus.Error, versionId);
     }
 
     public async ValueTask DisposeAsync()

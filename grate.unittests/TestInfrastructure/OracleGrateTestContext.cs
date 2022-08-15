@@ -34,6 +34,7 @@ internal class OracleGrateTestContext : TestContextBase, IGrateTestContext, IDoc
     public SqlStatements Sql => new()
     {
         SelectVersion = "SELECT * FROM v$version WHERE banner LIKE 'Oracle%'",
+        SleepTwoSeconds = "sys.dbms_session.sleep(2);"
     };
 
     public string ExpectedVersionPrefix => "Oracle Database 11g Express Edition Release 11.2.0.2.0 - 64bit Production";

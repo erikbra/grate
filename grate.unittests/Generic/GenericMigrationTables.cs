@@ -108,18 +108,20 @@ public abstract class GenericMigrationTables
             await migrator.Migrate();
         }
 
-        IEnumerable<string> entries;
-        var fullTableName = Context.Syntax.TableWithSchema("grate", "Version");
-        string sql = $"SELECT version FROM {fullTableName}";
-            
+        IEnumerable<(string version, string status)> entries;
+        string sql = $"SELECT version, status FROM {Context.Syntax.TableWithSchema("grate", "Version")}";
+
         await using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
         {
-            entries = await conn.QueryAsync<string>(sql);
+            entries = await conn.QueryAsync<(string version, string status)>(sql);
         }
 
         var versions = entries.ToList();
         versions.Should().HaveCount(1);
-        versions.FirstOrDefault().Should().Be("a.b.c.d");
+        var version = versions.Single();
+        version.version.Should().Be("a.b.c.d");
+        // Validate the version is finished after running without errors
+        version.status.Should().Be(MigrationStatus.Finished);
     }
       
     private static void CreateInvalidSql(MigrationsFolder? folder)

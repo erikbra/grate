@@ -26,7 +26,11 @@ SELECT name FROM sqlite_master
 WHERE type ='table' AND 
 name = '{fullTableName}';
 ";
-        
+
+    protected override string ExistsSql(string tableSchema, string fullTableName, string columnName) =>
+    $@"SELECT * FROM pragma_table_info('{fullTableName}')
+WHERE name='{columnName}'";
+
     public override string DatabaseName => GetDatabaseName(Connection);
 
     /// <summary>
@@ -35,7 +39,7 @@ name = '{fullTableName}';
     /// <returns></returns>
     public override Task DropDatabase()
     {
-        var db = _connection?.DataSource;
+        var db = Connection.DataSource;
 
         SqliteConnection.ClearAllPools();
 
