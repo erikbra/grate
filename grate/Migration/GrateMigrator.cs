@@ -302,7 +302,7 @@ public class GrateMigrator : IAsyncDisposable
 
         if (!anySqlRun)
         {
-            _logger.LogDebug("  No sql run, either an empty folder, or all files run against destination previously.");
+            _logger.LogDebug("No sql run, either an empty folder, or all files run against destination previously.");
         }
 
     }
