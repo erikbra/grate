@@ -40,7 +40,7 @@ public static class FoldersCommand
     private static IFoldersConfiguration ParseNewCustomFoldersConfiguration(string s)
     {
         // Combine lines into a semicolon-separated string, if there were multiple lines
-        var lines = (s.Split('\n', StringSplitOptions.RemoveEmptyEntries));
+        var lines = (s.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
         var oneLine = string.Join(';', lines);
         var tokens = oneLine.Split(';', StringSplitOptions.RemoveEmptyEntries);
 

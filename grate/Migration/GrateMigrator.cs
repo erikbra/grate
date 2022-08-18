@@ -246,13 +246,15 @@ public class GrateMigrator : IAsyncDisposable
 
     private async Task LogAndProcess(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId, ConnectionType connectionType, TransactionHandling transactionHandling)
     {
-        if (!folder.Path.Exists)
+        var path = Wrap(root, folder.Path);
+
+        if (!path.Exists)
         {
             _logger.LogInformation("Skipping '{FolderName}', {Path} does not exist.", folder.Name, folder.Path);
             return;
         }
 
-        if (!folder.Path.EnumerateFileSystemInfos().Any()) // Ensure we check for subdirectories as well as files
+        if (!path.EnumerateFileSystemInfos().Any()) // Ensure we check for subdirectories as well as files
         {
             _logger.LogInformation("Skipping '{FolderName}', {Path} is empty.", folder.Name, folder.Path);
             return;
@@ -283,11 +285,9 @@ public class GrateMigrator : IAsyncDisposable
         ConnectionType connectionType, TransactionHandling transactionHandling)
     {
         var path = Wrap(root, folder.Path);
-        
-        {
-            await EnsureConnectionIsOpen(connectionType);
-        }
-        
+
+        await EnsureConnectionIsOpen(connectionType);
+
         var pattern = "*.sql";
         var files = FileSystem.GetFiles(path, pattern);
 
