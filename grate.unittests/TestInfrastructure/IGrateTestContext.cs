@@ -96,4 +96,6 @@ public interface IGrateTestContext
     }
 
     bool SupportsCreateDatabase { get; }
+
+    bool DatabaseNamingCaseSensitive { get; }
 }

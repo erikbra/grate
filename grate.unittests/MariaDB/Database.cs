@@ -1,12 +1,21 @@
-using grate.unittests.TestInfrastructure;
+﻿using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
 
 namespace grate.unittests.MariaDB;
 
-[TestFixture]
-[Category("MariaDB")]
-public class Database: Generic.GenericDatabase
+public class Database
 {
-    protected override IGrateTestContext Context => GrateTestContext.MariaDB;
-        
+    [TestFixture]
+    [Category("MariaDB")]
+    public class Default : Generic.GenericDatabase
+    {
+        protected override IGrateTestContext Context => GrateTestContext.MariaDB;
+    }
+
+    [TestFixture]
+    [Category("MariaDBCaseInsensitive")]
+    public class CaseInsensitive : Generic.GenericDatabase
+    {
+        protected override IGrateTestContext Context => GrateTestContext.MariaDBCaseInsensitive;
+    }
 }

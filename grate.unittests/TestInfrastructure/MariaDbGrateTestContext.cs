@@ -10,11 +10,18 @@ namespace grate.unittests.TestInfrastructure;
 
 class MariaDbGrateTestContext : TestContextBase, IGrateTestContext, IDockerTestContext
 {
+    public MariaDbGrateTestContext(bool databaseNamingCaseSensitive)
+    {
+        DatabaseNamingCaseSensitive = databaseNamingCaseSensitive;
+    }
+
     public string AdminPassword { get; set; } = default!;
     public int? Port { get; set; }
 
     public string DockerCommand(string serverName, string adminPassword) =>
-        $"run -d --name {serverName} -e MYSQL_ROOT_PASSWORD={adminPassword} -P mariadb:10.5.9";
+        DatabaseNamingCaseSensitive
+            ? $"run -d --name {serverName} -e MYSQL_ROOT_PASSWORD={adminPassword} -P mariadb:10.5.9"
+            : $"run -d --name {serverName} -e MYSQL_ROOT_PASSWORD={adminPassword} -P mariadb:10.5.9 --lower_case_table_names=1";
 
     public string AdminConnectionString => $"Server=localhost;Port={Port};Database=mysql;Uid=root;Pwd={AdminPassword}";
     public string ConnectionString(string database) => $"Server=localhost;Port={Port};Database={database};Uid=root;Pwd={AdminPassword}";
@@ -37,7 +44,7 @@ class MariaDbGrateTestContext : TestContextBase, IGrateTestContext, IDockerTestC
         SleepTwoSeconds = "SELECT SLEEP(2);"
     };
 
-
     public string ExpectedVersionPrefix => "10.5.9-MariaDB";
     public bool SupportsCreateDatabase => true;
+    public bool DatabaseNamingCaseSensitive { get; }
 }

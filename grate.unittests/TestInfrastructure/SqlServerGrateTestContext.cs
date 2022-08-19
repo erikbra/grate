@@ -39,4 +39,5 @@ class SqlServerGrateTestContext : TestContextBase, IGrateTestContext, IDockerTes
 
     public string ExpectedVersionPrefix => "Microsoft SQL Server 2019";
     public bool SupportsCreateDatabase => true;
+    public bool DatabaseNamingCaseSensitive => false;
 }

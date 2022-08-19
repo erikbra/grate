@@ -40,4 +40,5 @@ internal class PostgreSqlGrateTestContext : TestContextBase, IGrateTestContext, 
 
     public string ExpectedVersionPrefix => "PostgreSQL 14.";
     public bool SupportsCreateDatabase => true;
+    public bool DatabaseNamingCaseSensitive => true;
 }
