@@ -30,10 +30,10 @@ public class TokenProvider
 
             // I'm not sure some of them make sense (eg Debug), but if they're avail ¯\_(ツ)_/¯
 
-            ["AfterMigrationFolderName"] = _config.KnownFolders?.AfterMigration.ToToken(),
-            ["AlterDatabaseFolderName"] = _config.KnownFolders?.AlterDatabase.ToToken(),
+            ["AfterMigrationFolderName"] = GetFolder(KnownFolderKeys.AfterMigration).ToToken(),
+            ["AlterDatabaseFolderName"] = GetFolder(KnownFolderKeys.AlterDatabase).ToToken(),
             ["Baseline"] = _config.Baseline.ToString(),
-            ["BeforeMigrationFolderName"] = _config.KnownFolders?.BeforeMigration.ToToken(),
+            ["BeforeMigrationFolderName"] = GetFolder(KnownFolderKeys.BeforeMigration).ToToken(),
             ["CommandTimeout"] = _config.CommandTimeout.ToString(),
             ["CommandTimeoutAdmin"] = _config.AdminCommandTimeout.ToString(),
             //["ConfigurationFile"] = ConfigurationFile.to_string(),
@@ -48,40 +48,40 @@ public class TokenProvider
             ["DoNotAlterDatabase"] = (!_config.AlterDatabase).ToString(),
             ["DoNotCreateDatabase"] = (!_config.CreateDatabase).ToString(),
             ["DoNotStoreScriptsRunText"] = _config.DoNotStoreScriptsRunText.ToString(),
-            ["DownFolderName"] = _config.KnownFolders?.Down.ToToken(),
+            //["DownFolderName"] = _config.Folders?.Down.ToToken(),
             ["Drop"] = _config.Drop.ToString(),
             ["DryRun"] = _config.DryRun.ToString(),
             ["EnvironmentName"] = _config.Environment?.Current,
             ["EnvironmentNames"] = _config.Environment?.Current,  //string.Join(",", EnvironmentNames),
-            ["FunctionsFolderName"] = _config.KnownFolders?.Functions.ToToken(),
-            ["IndexesFolderName"] = _config.KnownFolders?.Indexes.ToToken(),
+            ["FunctionsFolderName"] = GetFolder(KnownFolderKeys.Functions).ToToken(),
+            ["IndexesFolderName"] = GetFolder(KnownFolderKeys.Indexes).ToToken(),
             //["Initialize"] = Initialize.to_string(),
             ["OutputPath"] = _config.OutputPath.FullName, //TODO: Does RH use name or full path?
-            ["PermissionsFolderName"] = _config.KnownFolders?.Permissions.ToToken(),
+            ["PermissionsFolderName"] = GetFolder(KnownFolderKeys.Permissions).ToToken(),
             //["RecoveryMode"] = RecoveryMode.to_string(),
             //["RepositoryPath"] = RepositoryPath.to_string(),
             ["Restore"] = _config.Restore,
             //["RestoreTimeout"] = RestoreTimeout.to_string(),
-            ["RunAfterCreateDatabaseFolderName"] = _config.KnownFolders?.RunAfterCreateDatabase.ToToken(),
-            ["RunAfterOtherAnyTimeScriptsFolderName"] = _config.KnownFolders?.RunAfterOtherAnyTimeScripts.ToToken(),
+            ["RunAfterCreateDatabaseFolderName"] = GetFolder(KnownFolderKeys.RunAfterCreateDatabase).ToToken(),
+            ["RunAfterOtherAnyTimeScriptsFolderName"] = GetFolder(KnownFolderKeys.RunAfterOtherAnyTimeScripts).ToToken(),
             ["RunAllAnyTimeScripts"] = _config.RunAllAnyTimeScripts.ToString(),
-            ["RunBeforeUpFolderName"] = _config.KnownFolders?.RunBeforeUp.ToToken(),
-            ["RunFirstAfterUpFolderName"] = _config.KnownFolders?.RunFirstAfterUp.ToToken(),
+            ["RunBeforeUpFolderName"] = GetFolder(KnownFolderKeys.RunBeforeUp).ToToken(),
+            ["RunFirstAfterUpFolderName"] = GetFolder(KnownFolderKeys.RunFirstAfterUp).ToToken(),
             ["SchemaName"] = _config.SchemaName,
             ["ScriptsRunErrorsTableName"] = _db.ScriptsRunErrorsTable,
             ["ScriptsRunTableName"] = _db.ScriptsRunTable,
             //["SearchAllSubdirectoriesInsteadOfTraverse"] = SearchAllSubdirectoriesInsteadOfTraverse.to_string(),
             ["ServerName"] = _db.ServerName,
             ["Silent"] = _config.Silent.ToString(),
-            ["SprocsFolderName"] = _config.KnownFolders?.Sprocs.ToToken(),
+            ["SprocsFolderName"] = GetFolder(KnownFolderKeys.Sprocs).ToToken(),
             ["SqlFilesDirectory"] = _config.SqlFilesDirectory.FullName, //TODO: Does RH do full path or just dir name?
-            ["TriggersFolderName"] = _config.KnownFolders?.Triggers.ToToken(),
-            ["UpFolderName"] = _config.KnownFolders?.Up.ToToken(),
+            ["TriggersFolderName"] = GetFolder(KnownFolderKeys.Triggers).ToToken(),
+            ["UpFolderName"] = GetFolder(KnownFolderKeys.Up).ToToken(),
             ["Version"] = _config.Version,
             //["VersionFile"] = VersionFile.to_string(),
             ["VersionTableName"] = _db.VersionTable,
             //["VersionXPath"] = VersionXPath.to_string(),
-            ["ViewsFolderName"] = _config.KnownFolders?.Views.ToToken(),
+            ["ViewsFolderName"] = GetFolder(KnownFolderKeys.Views).ToToken(),
             ["WarnAndIgnoreOnOneTimeScriptChanges"] = _config.WarnAndIgnoreOnOneTimeScriptChanges.ToString(),
             ["WarnOnOneTimeScriptChanges"] = _config.WarnOnOneTimeScriptChanges.ToString(),
             ["WithTransaction"] = _config.Transaction.ToString()
@@ -94,6 +94,13 @@ public class TokenProvider
         }
 
         return tokens;
+    }
+
+    private MigrationsFolder? GetFolder(string folderKey)
+    {
+        MigrationsFolder? folder = default;
+        _config.Folders?.TryGetValue(folderKey, value: out folder);
+        return folder;
     }
 
 

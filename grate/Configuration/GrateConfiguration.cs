@@ -13,13 +13,8 @@ namespace grate.Configuration;
 public record GrateConfiguration
 {
     private readonly string? _adminConnectionString;
-    private readonly KnownFolders? _knownFolders;
 
-    public KnownFolders? KnownFolders
-    {
-        get => _knownFolders ?? KnownFolders.In(SqlFilesDirectory);
-        init => _knownFolders = value;
-    }
+    public IFoldersConfiguration? Folders { get; init; } = FoldersConfiguration.Default();
 
     public DatabaseType DatabaseType { get; init; } // = DatabaseType.sqlserver;
 
@@ -89,8 +84,6 @@ public record GrateConfiguration
     /// If true grate will issue a warning, update the dbase hash but NOT RUN any one time scripts that have changed.
     /// </summary>
     public bool WarnAndIgnoreOnOneTimeScriptChanges { get; init; }
-
-    //private static KnownFolders InCurrentDirectory() => KnownFolders.In(CurrentDirectory);
 
     /// <summary>
     /// The set of user-provided "key=value" pairs for use in token replacement.

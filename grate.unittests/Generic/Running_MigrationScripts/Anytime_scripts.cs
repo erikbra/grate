@@ -7,6 +7,7 @@ using grate.Configuration;
 using grate.Migration;
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
+using static grate.Configuration.KnownFolderKeys;
 
 namespace grate.unittests.Generic.Running_MigrationScripts;
 
@@ -21,14 +22,15 @@ public abstract class Anytime_scripts : MigrationsScriptsBase
 
         GrateMigrator? migrator;
 
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        CreateDummySql(knownFolders.Sprocs);
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+        CreateDummySql(parent, knownFolders[Sprocs]);
 
-        await using (migrator = Context.GetMigrator(db, knownFolders))
+        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             await migrator.Migrate();
         }
-        await using (migrator = Context.GetMigrator(db, knownFolders))
+        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             await migrator.Migrate();
         }
@@ -50,18 +52,19 @@ public abstract class Anytime_scripts : MigrationsScriptsBase
         var db = TestConfig.RandomDatabase();
 
         GrateMigrator? migrator;
+        
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+        CreateDummySql(parent, knownFolders[Sprocs]);
 
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        CreateDummySql(knownFolders.Sprocs);
-
-        await using (migrator = Context.GetMigrator(db, knownFolders))
+        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             await migrator.Migrate();
         }
 
-        WriteSomeOtherSql(knownFolders.Sprocs);
+        WriteSomeOtherSql(parent, knownFolders[Sprocs]);
 
-        await using (migrator = Context.GetMigrator(db, knownFolders))
+        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             await migrator.Migrate();
         }
@@ -90,10 +93,11 @@ public abstract class Anytime_scripts : MigrationsScriptsBase
 
         GrateMigrator? migrator;
 
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        CreateDummySql(knownFolders.Sprocs);
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+        CreateDummySql(parent, knownFolders[Sprocs]);
 
-        var config = Context.GetConfiguration(db, knownFolders) with
+        var config = Context.GetConfiguration(db, parent, knownFolders) with
         {
             DoNotStoreScriptsRunText = true, // important
         };
@@ -122,10 +126,11 @@ public abstract class Anytime_scripts : MigrationsScriptsBase
 
         GrateMigrator? migrator;
 
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        CreateDummySql(knownFolders.Sprocs);
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+        CreateDummySql(parent, knownFolders[Sprocs]);
             
-        var config = Context.GetConfiguration(db, knownFolders) with
+        var config = Context.GetConfiguration(db, parent, knownFolders) with
         {
             DoNotStoreScriptsRunText = false, // important
         };
@@ -154,10 +159,11 @@ public abstract class Anytime_scripts : MigrationsScriptsBase
 
         GrateMigrator? migrator;
 
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        CreateDummySql(knownFolders.Sprocs);
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+        CreateDummySql(parent, knownFolders[Sprocs]);
             
-        var config = Context.GetConfiguration(db, knownFolders) with
+        var config = Context.GetConfiguration(db, parent, knownFolders) with
         {
             RunAllAnyTimeScripts = true, // important
         };

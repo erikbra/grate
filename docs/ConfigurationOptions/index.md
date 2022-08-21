@@ -23,6 +23,7 @@ grate --connectionstring="Server=(localdb)\MSSQLLocalDB;Integrated Security=true
 | -c<br>-cs<br>--connectionstring<br>--connstring &lt;connectionstring&gt; | - | **REQUIRED** You now provide an entire connection string. ServerName and Database are obsolete. |
 | -a<br>-acs<br>-csa<br>--adminconnectionstring<br>--adminconnstring &lt;adminconnectionstring&gt; | Same as --connectionstring | The connection string for connecting to master, if you want to create the database. |
 | -f<br>--files<br>--sqlfilesdirectory &lt;sqlfilesdirectory&gt; | . (current directory) | The directory where your SQL scripts are located |
+| --folders | Default folders as described in [Getting started](../GettingStarted.md) | Folder configuration, see [Folder configuration](FolderConfiguration.md) for details. | 
 | -o<br>--output<br>--outputPath &lt;outputPath&gt; | %LOCALAPPDATA%/grate | This is where everything related to the migration is stored. This includes any backups, all items that ran, permission dumps, logs, etc. |
 | --accesstoken &lt;token&gt; | - | Specify an access token to use when connecting to SQL Server. |
 | -ct<br>--commandtimeout &lt;commandtimeout&gt; | 60s | This is the timeout when commands are run. This is not for admin commands or restore. |

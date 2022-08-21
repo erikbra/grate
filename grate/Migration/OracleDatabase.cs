@@ -97,7 +97,7 @@ RETURNING id into :id
         var dynParams = new DynamicParameters(parameters);
         dynParams.Add(":id", dbType: DbType.Int64, direction: ParameterDirection.Output);
 
-        await Connection.ExecuteAsync(
+        await ActiveConnection.ExecuteAsync(
             sql,
             dynParams);
 
@@ -130,7 +130,7 @@ RETURNING id into :id
     private async Task CreateIdSequence(string table)
     {
         var sql = $"CREATE SEQUENCE {table}_seq";
-        await ExecuteNonQuery(Connection, sql, Config?.CommandTimeout);
+        await ExecuteNonQuery(ActiveConnection, sql, Config?.CommandTimeout);
     }
 
     private async Task CreateIdInsertTrigger(string table)
@@ -142,6 +142,6 @@ FOR EACH ROW
 BEGIN
   SELECT {table}_seq.nextval INTO :new.id FROM dual;
 END;";
-        await ExecuteNonQuery(Connection, sql, Config?.CommandTimeout);
+        await ExecuteNonQuery(ActiveConnection, sql, Config?.CommandTimeout);
     }
 }
