@@ -202,7 +202,7 @@ public abstract class AnsiSqlDatabase : IDatabase
 
         try
         {
-            await Connection.OpenAsync();
+            await OpenConnection();
             var databases = (await Connection.QueryAsync<string>(sql)).ToArray();
 
             Logger.LogTrace("Current databases: ");
