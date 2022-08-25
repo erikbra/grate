@@ -86,7 +86,7 @@ public abstract class GenericDatabase
         // Change the admin connection string to rubbish and run the migration
         var config = GetConfiguration(true, Context.UserConnectionString(db), adminConnectionString);
         await using var migrator = GetMigrator(config);
-            
+
         // There should be no errors running the migration
         Assert.DoesNotThrowAsync(() => migrator.Migrate());
     }
@@ -109,7 +109,7 @@ public abstract class GenericDatabase
         Assert.DoesNotThrowAsync(() => migrator.Migrate());
     }
 
-    protected virtual Task CreateDatabase(string db) => CreateDatabaseFromConnectionString(db, Context.ConnectionString(db));
+    protected Task CreateDatabase(string db) => CreateDatabaseFromConnectionString(db, Context.ConnectionString(db));
 
     protected virtual async Task CreateDatabaseFromConnectionString(string db, string connectionString)
     {
@@ -147,7 +147,7 @@ public abstract class GenericDatabase
             }
         }
     }
-        
+
     protected virtual async Task<IEnumerable<string>> GetDatabases()
     {
         IEnumerable<string> databases =Enumerable.Empty<string>();

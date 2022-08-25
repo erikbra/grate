@@ -75,15 +75,10 @@ public class SqlServerDatabase : AnsiSqlDatabase
 
     public override async Task<bool> DatabaseExists()
     {
-        // For Bug #167.  Sql Server is causing issues when the database name passed in differs only in case from one already existing on the server.
-        // There's currently no point adding to ISyntax for this as all the other DBMS's would just be a NOP.
-
-        // This should also mean that a SQL server running a Case Sensitive collation _also_ works as expected
-        var sql = $"select name from sys.databases where [name] = '{DatabaseName}'";
         try
         {
-            var results = await ActiveConnection.QueryAsync<string>(sql, commandType: Text);
-            return results.Any();
+            await OpenActiveConnection();
+            return true;
         }
         catch (DbException ex)
         {
