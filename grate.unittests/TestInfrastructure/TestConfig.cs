@@ -27,9 +27,13 @@ public static class TestConfig
         var scriptsDir = Directory.CreateDirectory(dummyFile);
         return scriptsDir;
     }
+    
+    public static string? Username(string connectionString) => connectionString.Split(";", TrimEntries | RemoveEmptyEntries)
+        .SingleOrDefault(entry => entry.StartsWith("Uid"))?
+        .Split("=", TrimEntries | RemoveEmptyEntries).Last();
         
     public static string? Password(string connectionString) => connectionString.Split(";", TrimEntries | RemoveEmptyEntries)
-        .SingleOrDefault(entry => entry.StartsWith("Password"))?
+        .SingleOrDefault(entry => entry.StartsWith("Password") || entry.StartsWith("Pwd"))?
         .Split("=", TrimEntries | RemoveEmptyEntries).Last();
     
     private static LogLevel GetLogLevel()

@@ -56,32 +56,36 @@ public abstract class GenericDatabase
         var db = "DAATAA";
             
         // Create the database manually before running the migration
-        await CreateDatabase(db);
+        await CreateDatabaseFromConnectionString(db, Context.UserConnectionString(db));
             
         // Check that the database has been created
         IEnumerable<string> databasesBeforeMigration = await GetDatabases();
         databasesBeforeMigration.Should().Contain(db);
-            
-        await using var migrator = GetMigrator(GetConfiguration(db, true));
+        
+        var config = GetConfiguration(true, Context.UserConnectionString(db), Context.AdminConnectionString);
+        await using var migrator = GetMigrator(config);
             
         // There should be no errors running the migration
         Assert.DoesNotThrowAsync(() => migrator.Migrate());
     }
         
+    [TestCase("Invalid stuff")]
+    [TestCase(null)]
     [Test]
-    public async Task Does_not_need_admin_connection_if_database_already_exists()
+    public async Task Does_not_need_admin_connection_if_database_already_exists(string adminConnectionString)
     {
         var db = "DATADATADATABASE";
             
         // Create the database manually before running the migration
-        await CreateDatabase(db);
+        await CreateDatabaseFromConnectionString(db, Context.UserConnectionString(db));
             
         // Check that the database has been created
         IEnumerable<string> databasesBeforeMigration = await GetDatabases();
         databasesBeforeMigration.Should().Contain(db);
             
         // Change the admin connection string to rubbish and run the migration
-        await using var migrator = GetMigrator(GetConfiguration(db, true, "Invalid stuff"));
+        var config = GetConfiguration(true, Context.UserConnectionString(db), adminConnectionString);
+        await using var migrator = GetMigrator(config);
             
         // There should be no errors running the migration
         Assert.DoesNotThrowAsync(() => migrator.Migrate());
@@ -105,8 +109,13 @@ public abstract class GenericDatabase
         Assert.DoesNotThrowAsync(() => migrator.Migrate());
     }
 
-    protected virtual async Task CreateDatabase(string db)
+    protected virtual Task CreateDatabase(string db) => CreateDatabaseFromConnectionString(db, Context.ConnectionString(db));
+
+    protected virtual async Task CreateDatabaseFromConnectionString(string db, string connectionString)
     {
+        var uid = TestConfig.Username(connectionString);
+        var pwd = TestConfig.Password(connectionString);
+        
         using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
             for (var i = 0; i < 5; i++)
@@ -116,8 +125,22 @@ public abstract class GenericDatabase
                     await using var conn = Context.CreateAdminDbConnection();
                     await conn.OpenAsync();
                     await using var cmd = conn.CreateCommand();
-                    cmd.CommandText = Context.Syntax.CreateDatabase(db, TestConfig.Password(Context.ConnectionString(db)));
+                    
+                    cmd.CommandText = Context.Syntax.CreateDatabase(db, pwd);
                     await cmd.ExecuteNonQueryAsync();
+
+                    if (!string.IsNullOrWhiteSpace(Context.Sql.CreateUser))
+                    {
+                        cmd.CommandText = string.Format(Context.Sql.CreateUser, uid, pwd);
+                        await cmd.ExecuteNonQueryAsync();
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(Context.Sql.GrantAccess))
+                    {
+                        cmd.CommandText = string.Format(Context.Sql.GrantAccess, db, uid);
+                        await cmd.ExecuteNonQueryAsync();
+                    }
+
                     break;
                 }
                 catch (DbException) { }
@@ -150,20 +173,28 @@ public abstract class GenericDatabase
 
 
     private GrateMigrator GetMigrator(GrateConfiguration config) => Context.GetMigrator(config);
+
+    private GrateConfiguration GetConfiguration(string databaseName, bool createDatabase)
+        => GetConfiguration(databaseName, createDatabase, Context.AdminConnectionString);
     
 
-    private GrateConfiguration GetConfiguration(string databaseName, bool createDatabase, string? adminConnectionString = null)
+    private GrateConfiguration GetConfiguration(string databaseName, bool createDatabase, string? adminConnectionString)
+        => GetConfiguration(createDatabase, Context.ConnectionString(databaseName), adminConnectionString);
+    
+    
+    private GrateConfiguration GetConfiguration(bool createDatabase, string? connectionString, string? adminConnectionString)
     {
         var parent = TestConfig.CreateRandomTempDirectory();
         return new()
         {
             CreateDatabase = createDatabase, 
-            ConnectionString = Context.ConnectionString(databaseName),
-            AdminConnectionString = adminConnectionString ?? Context.AdminConnectionString,
+            ConnectionString = connectionString,
+            AdminConnectionString = adminConnectionString,
             Folders = FoldersConfiguration.Default(null),
             NonInteractive = true,
             DatabaseType = Context.DatabaseType,
             SqlFilesDirectory = parent
         };
     }
+    
 }

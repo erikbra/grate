@@ -29,6 +29,7 @@ class SqlServerGrateTestContext : TestContextBase, IGrateTestContext, IDockerTes
 
     public string AdminConnectionString => $"Data Source=localhost,{Port};Initial Catalog=master;User Id=sa;Password={AdminPassword};Encrypt=false;Pooling=false";
     public string ConnectionString(string database) => $"Data Source=localhost,{Port};Initial Catalog={database};User Id=sa;Password={AdminPassword};Encrypt=false;Pooling=false";
+    public string UserConnectionString(string database) => $"Data Source=localhost,{Port};Initial Catalog={database};User Id=sa;Password={AdminPassword};Encrypt=false;Pooling=false";
 
     public DbConnection GetDbConnection(string connectionString) => new SqlConnection(connectionString);
 
