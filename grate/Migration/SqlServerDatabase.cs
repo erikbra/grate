@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Data.Common;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
-using Dapper;
 using grate.Configuration;
 using grate.Infrastructure;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
-
-using static System.Data.CommandType;
 
 namespace grate.Migration;
 
@@ -73,19 +69,6 @@ public class SqlServerDatabase : AnsiSqlDatabase
         Logger.LogInformation("Database {DbName} successfully restored from path {Path}.", DatabaseName, backupPath);
     }
 
-    public override async Task<bool> DatabaseExists()
-    {
-        try
-        {
-            await OpenActiveConnection();
-            return true;
-        }
-        catch (DbException ex)
-        {
-            Logger.LogDebug(ex, "An unexpected error occurred performing the CheckDatabaseExists check: {ErrorMessage}", ex.Message);
-            return false; // base method also returns false on any DbException
-        }
-    }
     
     protected override string HasRunSql =>
         $@"
