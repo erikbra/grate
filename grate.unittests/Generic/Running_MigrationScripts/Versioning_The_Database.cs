@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -8,6 +8,7 @@ using grate.Configuration;
 using grate.Migration;
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
+using static grate.Configuration.KnownFolderKeys;
 
 namespace grate.unittests.Generic.Running_MigrationScripts;
 
@@ -21,11 +22,12 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         var db = TestConfig.RandomDatabase();
 
         GrateMigrator? migrator;
+        
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+        CreateDummySql(parent, knownFolders[Sprocs]);
 
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        CreateDummySql(knownFolders.Sprocs);
-
-        await using (migrator = Context.GetMigrator(db, knownFolders))
+        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             await migrator.Migrate();
 
@@ -47,11 +49,13 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
     {
         //for bug #204 - when running --baseline and --dryrun on a new db it shouldn't create the grate schema's etc
         var db = TestConfig.RandomDatabase();
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
+        
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
 
-        CreateDummySql(knownFolders.Sprocs); // make sure there's something that could be logged...
+        CreateDummySql(parent, knownFolders[Sprocs]); // make sure there's something that could be logged...
 
-        var grateConfig = Context.GetConfiguration(db, knownFolders) with
+        var grateConfig = Context.GetConfiguration(db, parent, knownFolders) with
         {
             Baseline = true, // don't run the sql
             DryRun = true // and don't actually _touch_ the DB in any way

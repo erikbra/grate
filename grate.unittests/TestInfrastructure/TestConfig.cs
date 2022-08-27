@@ -14,7 +14,8 @@ public static class TestConfig
         
     public static readonly ILoggerFactory LogFactory = LoggerFactory.Create(builder =>
     {
-        builder.AddProvider(new NUnitLoggerProvider())
+        builder
+            .AddProvider(new NUnitLoggerProvider(GetLogLevel()))
             .SetMinimumLevel(GetLogLevel());
     });
         

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using FluentAssertions;
 using grate.Configuration;
 using grate.Infrastructure;
@@ -41,8 +40,8 @@ public class TokenReplacerTests
     [Test]
     public void EnsureConfigMakesItToTokens()
     {
-        var folders = KnownFolders.In(new DirectoryInfo(Path.GetTempPath()));
-        var config = new GrateConfiguration() { SchemaName = "Test", KnownFolders = folders };
+        var folders = FoldersConfiguration.Default(null);
+        var config = new GrateConfiguration() { SchemaName = "Test", Folders = folders };
         var provider = new TokenProvider(config, GrateTestContext.SqlServer.DatabaseMigrator);
         var tokens = provider.GetTokens();
 
@@ -59,7 +58,7 @@ public class TokenReplacerTests
         var config = new GrateConfiguration()
         {
             ConnectionString = "Server=(LocalDb)\\mssqllocaldb;Database=TestDb;",
-            KnownFolders = KnownFolders.In(new DirectoryInfo(Path.GetTempPath()))
+            Folders = FoldersConfiguration.Default(null)
         };
 
 

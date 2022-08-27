@@ -154,14 +154,16 @@ public abstract class GenericDatabase
 
     private GrateConfiguration GetConfiguration(string databaseName, bool createDatabase, string? adminConnectionString = null)
     {
+        var parent = TestConfig.CreateRandomTempDirectory();
         return new()
         {
             CreateDatabase = createDatabase, 
             ConnectionString = Context.ConnectionString(databaseName),
             AdminConnectionString = adminConnectionString ?? Context.AdminConnectionString,
-            KnownFolders = KnownFolders.In(TestConfig.CreateRandomTempDirectory()),
+            Folders = FoldersConfiguration.Default(null),
             NonInteractive = true,
-            DatabaseType = Context.DatabaseType
+            DatabaseType = Context.DatabaseType,
+            SqlFilesDirectory = parent
         };
     }
 }

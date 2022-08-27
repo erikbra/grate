@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 using grate.unittests.TestInfrastructure;
 using Microsoft.Data.Sqlite;
 using NUnit.Framework;

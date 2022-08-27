@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -7,6 +8,7 @@ using grate.Configuration;
 using grate.Migration;
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
+using static grate.Configuration.KnownFolderKeys;
 
 namespace grate.unittests.Generic.Running_MigrationScripts;
 
@@ -19,12 +21,13 @@ public abstract class Everytime_scripts : MigrationsScriptsBase
     {
         var db = TestConfig.RandomDatabase();
 
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        CreateDummySql(knownFolders.Permissions);
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+        CreateDummySql(parent, knownFolders[Permissions]);
 
         for (var i = 0; i < 3; i++)
         {
-            await using var migrator = Context.GetMigrator(db, knownFolders);
+            await using var migrator = Context.GetMigrator(db, parent, knownFolders);
             await migrator.Migrate();
         }
 
@@ -40,18 +43,35 @@ public abstract class Everytime_scripts : MigrationsScriptsBase
     {
         var db = TestConfig.RandomDatabase();
 
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        CreateDummySql(knownFolders.Permissions);
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+        CreateDummySql(parent, knownFolders[Permissions]);
 
-        var config = Context.GetConfiguration(db, knownFolders) with
+        var config = Context.GetConfiguration(db, parent, knownFolders) with
         {
             DryRun = true, // this is important!
         };
 
         await using var migrator = Context.GetMigrator(config);
         await migrator.Migrate();
-        // this helper takes into account whether the grate versioning table exists or not.
-        Assert.False(await migrator.DbMigrator.Database.HasRun("1_jalla.sql"));
+        
+        string[] scripts;
+        string sql = $"SELECT 1 FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")} " +
+                     $"WHERE script_name = '1_jalla.sql'";
+
+        await using (var conn = Context.CreateDbConnection(db))
+        {
+            try
+            {
+                scripts = (await conn.QueryAsync<string>(sql)).ToArray();
+            }
+            catch (Exception) when (config.DryRun)
+            {
+                scripts = Array.Empty<string>();
+            }
+        }
+
+        scripts.Should().BeEmpty();
     }
 
     [Test]
@@ -61,17 +81,18 @@ public abstract class Everytime_scripts : MigrationsScriptsBase
 
         GrateMigrator? migrator;
 
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
 
-        var folder = knownFolders.Up;// not an everytime folder
+        var folder = knownFolders[Up];// not an everytime folder
 
-        CreateDummySql(folder);
-        CreateEveryTimeScriptFile(folder);
-        CreateOtherEveryTimeScriptFile(folder);
+        CreateDummySql(parent, folder);
+        CreateEveryTimeScriptFile(parent, folder);
+        CreateOtherEveryTimeScriptFile(parent, folder);
 
         for (var i = 0; i < 3; i++)
         {
-            await using (migrator = Context.GetMigrator(db, knownFolders))
+            await using (migrator = Context.GetMigrator(db, parent, knownFolders))
             {
                 await migrator.Migrate();
             }
@@ -93,14 +114,15 @@ public abstract class Everytime_scripts : MigrationsScriptsBase
     {
         var db = TestConfig.RandomDatabase();
 
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
 
-        var config = Context.GetConfiguration(db, knownFolders) with
+        var config = Context.GetConfiguration(db, parent, knownFolders) with
         {
             Baseline = true, // this is important!
         };
 
-        var path = knownFolders?.Views?.Path ?? throw new Exception("Config Fail");
+        var path = Wrap(parent, knownFolders[Views]?.Path ?? throw new Exception("Config Fail"));
 
         WriteSql(path, "view.sql", "create view grate as select '1' as col");
 
@@ -119,17 +141,17 @@ public abstract class Everytime_scripts : MigrationsScriptsBase
         Assert.ThrowsAsync(Context.DbExceptionType, async () => await conn.QueryAsync<string>("select * from grate"));
     }
 
-    private void CreateEveryTimeScriptFile(MigrationsFolder? folder)
+    private void CreateEveryTimeScriptFile(DirectoryInfo root, MigrationsFolder? folder)
     {
         var dummySql = Context.Syntax.CurrentDatabase;
-        var path = MakeSurePathExists(folder);
+        var path = MakeSurePathExists(root, folder);
         WriteSql(path, "everytime.1_jalla.sql", dummySql);
     }
 
-    private void CreateOtherEveryTimeScriptFile(MigrationsFolder? folder)
+    private void CreateOtherEveryTimeScriptFile(DirectoryInfo root, MigrationsFolder? folder)
     {
         var dummySql = Context.Syntax.CurrentDatabase;
-        var path = MakeSurePathExists(folder);
+        var path = MakeSurePathExists(root, folder);
         WriteSql(path, "1_jalla.everytime.and.always.sql", dummySql);
     }
 
