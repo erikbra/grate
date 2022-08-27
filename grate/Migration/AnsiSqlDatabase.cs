@@ -340,7 +340,7 @@ CREATE TABLE {VersionTable}(
 
         if (!await StatusColumnInVersionTableExists())
         {
-            await ExecuteNonQuery(Connection, createSql, Config?.CommandTimeout);
+            await ExecuteNonQuery(ActiveConnection, createSql, Config?.CommandTimeout);
         }
     }
 

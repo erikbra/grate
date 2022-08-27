@@ -178,7 +178,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
             {
                 await migrator.Migrate();
             }
-            catch (DbException)
+            catch (MigrationFailed)
             {
             }
         }
