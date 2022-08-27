@@ -75,12 +75,13 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
 
         GrateMigrator? migrator;
 
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        CreateDummySql(knownFolders.Up);
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+        CreateDummySql(parent, knownFolders[Up]);
 
         long newVersionId = 0;
-
-        await using (migrator = Context.GetMigrator(db, knownFolders))
+        
+        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             //Calling migrate here to setup the database and such.
             await migrator.Migrate();

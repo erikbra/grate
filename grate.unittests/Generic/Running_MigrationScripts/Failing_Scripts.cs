@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Data.Common;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -162,10 +163,11 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         GrateMigrator? migrator;
 
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        CreateInvalidSql(knownFolders.Up);
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+        CreateInvalidSql(parent, knownFolders[Up]);
 
-        var config = Context.GetConfiguration(db, knownFolders) with
+        var config = Context.GetConfiguration(db, parent, knownFolders) with
         {
             Transaction = false
         };
