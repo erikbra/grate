@@ -44,6 +44,7 @@ public interface IDatabase : IAsyncDisposable
         TransactionHandling transactionHandling);
     Task InsertScriptRunError(string scriptName, string? sql, string errorSql, string errorMessage, long versionId);
     Task<bool> VersionTableExists();
+    Task ChangeVersionStatus(string status, long versionId);
     void SetDefaultConnectionActive();
     Task<IDisposable> OpenNewActiveConnection();
     Task OpenActiveConnection();

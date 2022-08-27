@@ -1,4 +1,7 @@
-﻿using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Dapper;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using grate.Configuration;
@@ -62,5 +65,39 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         await migrator.Migrate(); // shouldn't touch anything because of --dryrun
         var addedTable = await migrator.DbMigrator.Database.VersionTableExists();
         Assert.False(addedTable); // we didn't even add the grate infrastructure
+    }
+
+    [Test]
+    public async Task Creates_A_New_Version_In_Progress()
+    {
+        var db = TestConfig.RandomDatabase();
+        var dbVersion = "1.2.3.4";
+
+        GrateMigrator? migrator;
+
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+        CreateDummySql(parent, knownFolders[Up]);
+
+        long newVersionId = 0;
+        
+        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
+        {
+            //Calling migrate here to setup the database and such.
+            await migrator.Migrate();
+            newVersionId = await migrator.DbMigrator.VersionTheDatabase(dbVersion);
+        }
+
+        IEnumerable<(string version, string status)> entries;
+        string sql = $"SELECT version, status FROM {Context.Syntax.TableWithSchema("grate", "Version")}";
+
+        await using (var conn = Context.CreateDbConnection(db))
+        {
+            entries = await conn.QueryAsync<(string version, string status)>(sql);
+        }
+
+        entries.Should().HaveCount(2);
+        var version = entries.Single(x => x.version == dbVersion);
+        version.status.Should().Be(MigrationStatus.InProgress);
     }
 }

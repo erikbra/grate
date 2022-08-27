@@ -330,10 +330,11 @@ public class DbMigrator : IDbMigrator
         }
     }
 
-    private Task RecordScriptInScriptsRunErrorsTable(string scriptName, string sql, string errorSql, string errorMessage, long versionId)
+    private async Task RecordScriptInScriptsRunErrorsTable(string scriptName, string sql, string errorSql, string errorMessage, long versionId)
     {
         var sqlToStore = Configuration.DoNotStoreScriptsRunText ? null : sql;
-        return Database.InsertScriptRunError(scriptName, sqlToStore, errorSql, errorMessage, versionId);
+        await Database.InsertScriptRunError(scriptName, sqlToStore, errorSql, errorMessage, versionId);
+        await Database.ChangeVersionStatus(MigrationStatus.Error, versionId);
     }
 
     public async ValueTask DisposeAsync()
