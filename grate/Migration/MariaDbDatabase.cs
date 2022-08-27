@@ -39,7 +39,8 @@ FROM information_schema.processlist WHERE DB = '{DatabaseName}'";
         var killStatements = await ExecuteScalarAsync<object>(AdminConnection, sql);
         if (killStatements != null && !DBNull.Value.Equals(killStatements))
         {
-            await ExecuteNonQuery(AdminConnection, killStatements.ToString(), null);
+            string killSql = killStatements.ToString() ?? ""; // Just to keel warnings happy
+            await ExecuteNonQuery(AdminConnection, killSql, null);
         }
 
         var databaseExists = await DatabaseExists();

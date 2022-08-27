@@ -38,7 +38,6 @@ class MariaDbGrateTestContext : TestContextBase, IGrateTestContext, IDockerTestC
         SleepTwoSeconds = "SELECT SLEEP(2);",
         CreateUser = "CREATE USER '{0}'@'%' IDENTIFIED BY '{1}';",
         GrantAccess = "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, DROP, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES ON {0}.* TO '{1}'@'%';FLUSH PRIVILEGES;"
-        //GrantAccess = "GRANT ALL PRIVILEGES, ON {0}.* TO '{1}'@'%';FLUSH PRIVILEGES;"
     };
 
 
