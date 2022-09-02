@@ -15,6 +15,7 @@ class SqliteGrateTestContext : TestContextBase, IGrateTestContext
 
     public string AdminConnectionString => $"Data Source=grate-sqlite.db";
     public string ConnectionString(string database) => $"Data Source={database}.db";
+    public string UserConnectionString(string database) => $"Data Source={database}.db";
 
     public DbConnection GetDbConnection(string connectionString) => new SqliteConnection(connectionString);
 

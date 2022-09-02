@@ -16,6 +16,7 @@ public interface IGrateTestContext
 
     string AdminConnectionString { get; }
     string ConnectionString(string database);
+    string UserConnectionString(string database);
 
     DbConnection GetDbConnection(string connectionString);
 

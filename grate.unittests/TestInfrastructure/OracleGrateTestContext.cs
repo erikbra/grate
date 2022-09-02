@@ -20,6 +20,7 @@ internal class OracleGrateTestContext : TestContextBase, IGrateTestContext, IDoc
 
     public string AdminConnectionString => $@"Data Source=localhost:{Port}/XE;User ID=SYSTEM;Password=oracle;Pooling=False";
     public string ConnectionString(string database) => $@"Data Source=localhost:{Port}/XE;User ID={database.ToUpper()};Password=oracle;Pooling=False";
+    public string UserConnectionString(string database) => $@"Data Source=localhost:{Port}/XE;User ID={database.ToUpper()};Password=oracle;Pooling=False";
 
     public DbConnection GetDbConnection(string connectionString) => new OracleConnection(connectionString);
 

@@ -198,19 +198,10 @@ public abstract class AnsiSqlDatabase : IDatabase
     /// <returns></returns>
     public virtual async Task<bool> DatabaseExists()
     {
-        var sql = _syntax.ListDatabases;
-
         try
         {
-            var databases = (await Connection.QueryAsync<string>(sql)).ToArray();
-
-            Logger.LogTrace("Current databases: ");
-            foreach (var db in databases)
-            {
-                Logger.LogTrace(" * {Database}", db);
-            }
-
-            return databases.Contains(DatabaseName);
+            await OpenActiveConnection();
+            return true;
         }
         catch (DbException e)
         {
