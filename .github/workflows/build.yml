@@ -244,13 +244,15 @@ jobs:
 
         Import-Module Appx
 
-        # Download and install C++ Runtime framework package.
-        iwr https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx -OutFile $vcLibsBundleFile
-        Add-AppxPackage $vcLibsBundleFile
+        # # Download and install C++ Runtime framework package.
+        # iwr https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx -OutFile $vcLibsBundleFile
+        # Add-AppxPackage $vcLibsBundleFile
 
-        # Download Winget-Create msixbundle, install, and execute update.
-        iwr https://aka.ms/wingetcreate/latest/msixbundle -OutFile $appxBundleFile
-        Add-AppxPackage $appxBundleFil
+        # # Download Winget-Create msixbundle, install, and execute update.
+        # iwr https://aka.ms/wingetcreate/latest/msixbundle -OutFile $appxBundleFile
+        # Add-AppxPackage $appxBundleFil
+
+        iwr https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
 
         #$version = "${{ needs.set-version-number.outputs.nuGetVersion }}"
         $version = "1.4.0"
@@ -260,7 +262,9 @@ jobs:
         "packageUrl: ${packageUrl}"
         "pat: $($env:SUPER_SECRET)"
 
-        #wingetcreate update Microsoft.WingetCreate -u $packageUrl -v $version -t "$env:SUPER_SECRET" --submit
+        echo "./wingetcreate.exe update erikbra.grate -u $packageUrl -v $version -t `"$env:SUPER_SECRET`" --submit"
+
+        #./wingetcreate.exe update erikbra.grate -u $packageUrl -v $version -t "$env:SUPER_SECRET" --submit
       env:
         WINGET_GH_PAT: ${{ secrets.WINGET_GH_PAT }}
         vcLibsBundleFile: "Microsoft.VCLibs.x64.14.00.Desktop.appx"
