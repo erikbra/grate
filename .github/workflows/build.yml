@@ -231,9 +231,9 @@ jobs:
     name: Winget - Update package manifest in the OWC
     needs:
      - set-version-number
-     #- build-msi
+     - build-msi
     runs-on: windows-latest
-    #if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+    if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
 
     steps:
     - name: Winget-Create
@@ -246,16 +246,12 @@ jobs:
 
         $packageUrl="https://github.com/erikbra/grate/releases/download/$version/grate-$version.msi"
 
-        "version: ${version}"
-        "packageUrl: ${packageUrl}"
-        "pat: $($env:WINGET_GH_PAT)"
-
-        echo "./wingetcreate.exe update erikbra.grate -u $packageUrl -v $version -t `"$env:WINGET_GH_PAT`" --submit"
+        echo "Running ./wingetcreate.exe update erikbra.grate -u $packageUrl -v $version -t `"$env:WINGET_GH_PAT`" --submit"
         ./wingetcreate.exe update erikbra.grate -u $packageUrl -v $version -t "$env:WINGET_GH_PAT" --submit
       env:
         WINGET_GH_PAT: ${{ secrets.WINGET_GH_PAT }}
-        version: "1.4.0"
-        #version: "${{ needs.set-version-number.outputs.nuGetVersion }}"
+        #version: "1.4.0"
+        version: "${{ needs.set-version-number.outputs.nuGetVersion }}"
 
 
   test:
