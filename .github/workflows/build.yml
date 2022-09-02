@@ -258,11 +258,11 @@ jobs:
 
         "version: ${version}"
         "packageUrl: ${packageUrl}"
-        "pat: $($env:SUPER_SECRET)"
+        "pat: $($env:WINGET_GH_PAT)"
 
-        echo "./wingetcreate.exe update erikbra.grate -u $packageUrl -v $version -t `"$env:SUPER_SECRET`" --submit"
+        echo "./wingetcreate.exe update erikbra.grate -u $packageUrl -v $version -t `"$env:WINGET_GH_PAT`" --submit"
 
-        #./wingetcreate.exe update erikbra.grate -u $packageUrl -v $version -t "$env:SUPER_SECRET" --submit
+        #./wingetcreate.exe update erikbra.grate -u $packageUrl -v $version -t "$env:WINGET_GH_PAT" --submit
       env:
         WINGET_GH_PAT: ${{ secrets.WINGET_GH_PAT }}
         vcLibsBundleFile: "Microsoft.VCLibs.x64.14.00.Desktop.appx"
