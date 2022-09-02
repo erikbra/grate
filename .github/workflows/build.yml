@@ -227,6 +227,32 @@ jobs:
         name: grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch}}.deb
         path: ./installers/deb/grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch }}.deb
 
+  build-winget:
+    name: Winget - Update package manifest in the OWC
+    needs:
+     - set-version-number
+     - build-msi
+    runs-on: windows-latest
+    if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+
+    steps:
+    - name: Winget-Create
+      run: |
+
+        $version = "$($env:version)"
+
+        # Download wingetcreate
+        iwr https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
+
+        $packageUrl="https://github.com/erikbra/grate/releases/download/$version/grate-$version.msi"
+
+        echo "Running ./wingetcreate.exe update erikbra.grate -u $packageUrl -v $version -t `"$env:WINGET_GH_PAT`" --submit"
+        ./wingetcreate.exe update erikbra.grate -u $packageUrl -v $version -t "$env:WINGET_GH_PAT" --submit
+      env:
+        WINGET_GH_PAT: ${{ secrets.WINGET_GH_PAT }}
+        #version: "1.4.0"
+        version: "${{ needs.set-version-number.outputs.nuGetVersion }}"
+
 
   test:
     name: Run tests
