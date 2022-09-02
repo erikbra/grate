@@ -242,8 +242,6 @@ jobs:
         $vcLibsBundeFile="$($env:vcLibsBundeFile)"
         $appxBundleFile="$($env:appxBundleFile)"
 
-        Import-Module Appx
-
         # # Download and install C++ Runtime framework package.
         # iwr https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx -OutFile $vcLibsBundleFile
         # Add-AppxPackage $vcLibsBundleFile
