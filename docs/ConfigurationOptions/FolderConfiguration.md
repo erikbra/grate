@@ -1,9 +1,7 @@
 ---
-layout: default
-title: Configuration options
-permalink: /configuration-options/
-nav_order: 5
-has_children: true
+title: Folder configuration
+permalink: /folder-configuration/
+parent: Configuration options
 ---
 
 # Folder configuration
