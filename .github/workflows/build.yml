@@ -238,13 +238,16 @@ jobs:
     steps:
     - name: Winget-Create
       run: |
+
+        $vcLibsBundeFile="$($env:vcLibsBundeFile)"
+        $appxBundleFile="$($env:appxBundleFile)"
         # Download and install C++ Runtime framework package.
-        iwr https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx -OutFile $(vcLibsBundleFile)
-        Add-AppxPackage $(vcLibsBundleFile)
+        iwr https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx -OutFile $vcLibsBundleFile
+        Add-AppxPackage $vcLibsBundleFile
 
         # Download Winget-Create msixbundle, install, and execute update.
-        iwr https://aka.ms/wingetcreate/latest/msixbundle -OutFile $(appxBundleFile)
-        Add-AppxPackage $(appxBundleFile)
+        iwr https://aka.ms/wingetcreate/latest/msixbundle -OutFile $appxBundleFile
+        Add-AppxPackage $appxBundleFil
         #wingetcreate update Microsoft.WingetCreate -u $(packageUrl) -v $(manifestVersion) -t $(GITHUB_PAT) --submit
 
         #$version = "${{ needs.set-version-number.outputs.nuGetVersion }}"
@@ -258,6 +261,8 @@ jobs:
         #wingetcreate update Microsoft.WingetCreate -u $packageUrl -v $version -t "$env:SUPER_SECRET" --submit
       env:
         WINGET_GH_PAT: ${{ secrets.WINGET_GH_PAT }}
+        vcLibsBundleFile: "Microsoft.VCLibs.x64.14.00.Desktop.appx"
+        appxBundleFile: Microsoft.WindowsPackageManagerManifestCreator_1.1.2.0_8wekyb3d8bbwe.msixbundle
 
 
   test:
