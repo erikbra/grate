@@ -227,6 +227,38 @@ jobs:
         name: grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch}}.deb
         path: ./installers/deb/grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch }}.deb
 
+  build-winget:
+    name: Winget - Update package manifest in the OWC
+    needs:
+     - set-version-number
+     #- build-msi
+    runs-on: windows-latest
+    #if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+
+    steps:
+    - name: Winget-Create
+      run: |
+        # Download and install C++ Runtime framework package.
+        iwr https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx -OutFile $(vcLibsBundleFile)
+        Add-AppxPackage $(vcLibsBundleFile)
+
+        # Download Winget-Create msixbundle, install, and execute update.
+        iwr https://aka.ms/wingetcreate/latest/msixbundle -OutFile $(appxBundleFile)
+        Add-AppxPackage $(appxBundleFile)
+        #wingetcreate update Microsoft.WingetCreate -u $(packageUrl) -v $(manifestVersion) -t $(GITHUB_PAT) --submit
+
+        #$version = "${{ needs.set-version-number.outputs.nuGetVersion }}"
+        $version = "1.4.0"
+        $packageUrl="https://github.com/erikbra/grate/releases/download/$version/grate-$version.msi"
+
+        "version: ${version}"
+        "packageUrl: ${packageUrl}"
+        "pat: $($env:SUPER_SECRET)"
+
+        #wingetcreate update Microsoft.WingetCreate -u $packageUrl -v $version -t "$env:SUPER_SECRET" --submit
+      env:
+        WINGET_GH_PAT: ${{ secrets.WINGET_GH_PAT }}
+
 
   test:
     name: Run tests
