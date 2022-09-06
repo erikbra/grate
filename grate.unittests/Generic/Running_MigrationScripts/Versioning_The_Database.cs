@@ -62,4 +62,33 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         var addedTable = await migrator.DbMigrator.Database.VersionTableExists();
         Assert.False(addedTable); // we didn't even add the grate infrastructure
     }
+
+    [Test]
+    public async Task Uses_Server_Casing_Rules_For_Schema()
+    {
+        //for bug #230 - when targeting an existing schema use the servers casing rules, not .Net's
+        var db = TestConfig.RandomDatabase();
+        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
+
+        CreateDummySql(knownFolders.Sprocs); // make sure there's something that could be logged...
+
+        var grateConfig = Context.GetConfiguration(db, knownFolders);
+        await using (var migrator = Context.GetMigrator(grateConfig))
+        {
+            await migrator.Migrate();
+
+            Assert.True(await migrator.DbMigrator.Database.VersionTableExists()); // we migrated into the `grate` schema.
+        }
+        // Now we'll run again with the same name but different cased schema
+        grateConfig = Context.GetConfiguration(db, knownFolders) with
+        {
+            SchemaName = "GRATE"
+        };
+
+        await using (var migrator = Context.GetMigrator(grateConfig))
+        {
+            await migrator.Migrate(); // should either reuse the existing schema if a case-insensitive server, or create a new second schema for use if case-sensitive.
+            Assert.True(await migrator.DbMigrator.Database.VersionTableExists()); // we migrated into the `grate` schema.
+        }
+    }
 }
