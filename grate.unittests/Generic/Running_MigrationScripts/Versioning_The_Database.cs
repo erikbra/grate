@@ -76,7 +76,6 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         await using (var migrator = Context.GetMigrator(grateConfig))
         {
             await migrator.Migrate();
-
             Assert.True(await migrator.DbMigrator.Database.VersionTableExists()); // we migrated into the `grate` schema.
         }
         // Now we'll run again with the same name but different cased schema
@@ -88,7 +87,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         await using (var migrator = Context.GetMigrator(grateConfig))
         {
             await migrator.Migrate(); // should either reuse the existing schema if a case-insensitive server, or create a new second schema for use if case-sensitive.
-            Assert.True(await migrator.DbMigrator.Database.VersionTableExists()); // we migrated into the `grate` schema.
+            Assert.True(await migrator.DbMigrator.Database.VersionTableExists()); // we migrated into the `GRATE` schema, which may be the same as 'grate' depending on server settings.
         }
     }
 }

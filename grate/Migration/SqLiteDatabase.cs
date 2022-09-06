@@ -10,9 +10,9 @@ namespace grate.Migration;
 public class SqliteDatabase : AnsiSqlDatabase
 {
     private static readonly SqliteSyntax Syntax = new();
-            
-        
-    public SqliteDatabase(ILogger<SqliteDatabase> logger) 
+
+
+    public SqliteDatabase(ILogger<SqliteDatabase> logger)
         : base(logger, Syntax)
     { }
 
@@ -24,9 +24,9 @@ public class SqliteDatabase : AnsiSqlDatabase
         $@"
 SELECT name FROM sqlite_master 
 WHERE type ='table' AND 
-name = '{fullTableName}';
-";
-        
+name = '{fullTableName}' COLLATE NOCASE;
+"; // #230: Correct mismatched schema casing, sqllite is case-insensitive but the string comparisons in queries _are_ case sensitive by default
+
     public override string DatabaseName => GetDatabaseName(Connection);
 
     /// <summary>
@@ -43,7 +43,7 @@ name = '{fullTableName}';
         {
             File.Delete(db);
         }
-            
+
         return Task.CompletedTask;
     }
 

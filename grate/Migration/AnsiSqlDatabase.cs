@@ -84,7 +84,7 @@ public abstract class AnsiSqlDatabase : IDatabase
         await Close(_adminConnection);
         _adminConnection = null;
     }
-    
+
     protected async Task<DbConnection> OpenNewConnection()
     {
         var conn = GetSqlConnection(ConnectionString);
@@ -180,10 +180,10 @@ public abstract class AnsiSqlDatabase : IDatabase
 
     public async Task RunSupportTasks()
     {
-            await CreateRunSchema();
-            await CreateScriptsRunTable();
-            await CreateScriptsRunErrorsTable();
-            await CreateVersionTable();
+        await CreateRunSchema();
+        await CreateScriptsRunTable();
+        await CreateScriptsRunErrorsTable();
+        await CreateVersionTable();
     }
 
     private async Task CreateRunSchema()
@@ -198,7 +198,7 @@ public abstract class AnsiSqlDatabase : IDatabase
     {
         string sql = $"SELECT s.schema_name FROM information_schema.schemata s WHERE s.schema_name = '{SchemaName}'";
         var res = await ExecuteScalarAsync<string>(Connection, sql);
-        return res == SchemaName;
+        return res != null; // if the server found a row matching by name, that's good enough for us
     }
 
     // TODO: Change MySQL/MariaDB from using schemas to using grate_ prefix
