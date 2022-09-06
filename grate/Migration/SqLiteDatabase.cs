@@ -27,6 +27,10 @@ WHERE type ='table' AND
 name = '{fullTableName}' COLLATE NOCASE;
 "; // #230: Correct mismatched schema casing, sqllite is case-insensitive but the string comparisons in queries _are_ case sensitive by default
 
+    protected override string ExistsSql(string tableSchema, string fullTableName, string columnName) =>
+    $@"SELECT * FROM pragma_table_info('{fullTableName}')
+WHERE name='{columnName}'";
+
     public override string DatabaseName => GetDatabaseName(Connection);
 
     /// <summary>

@@ -50,6 +50,10 @@ public class DbMigrator : IDbMigrator
     public Task OpenConnection() => Database.OpenConnection();
     public Task CloseConnection() => Database.CloseConnection();
 
+    public void SetDefaultConnectionActive() => Database.SetDefaultConnectionActive();
+    public Task<IDisposable> OpenNewActiveConnection() => Database.OpenNewActiveConnection();
+    public Task OpenActiveConnection() => Database.OpenActiveConnection();
+
     public Task RunSupportTasks() => Database.RunSupportTasks();
     public Task<string> GetCurrentVersion() => Database.GetCurrentVersion();
     public Task<long> VersionTheDatabase(string newVersion)
@@ -72,13 +76,13 @@ public class DbMigrator : IDbMigrator
 
     public async Task<bool> RunSql(string sql, string scriptName, MigrationType migrationType, long versionId,
         GrateEnvironment? environment,
-        ConnectionType connectionType)
+        ConnectionType connectionType, TransactionHandling transactionHandling)
     {
         var theSqlWasRun = false;
 
         async Task<bool> LogAndRunSql()
         {
-            _logger.LogInformation(" Running {ScriptName} on {ServerName} - {DatabaseName}.", scriptName, Database.ServerName, Database.DatabaseName);
+            _logger.LogInformation("  Running '{ScriptName}'.", scriptName);
 
             if (Configuration.DryRun)
             {
@@ -86,7 +90,7 @@ public class DbMigrator : IDbMigrator
             }
             else
             {
-                await RunTheActualSql(sql, scriptName, migrationType, versionId, connectionType);
+                await RunTheActualSql(sql, scriptName, migrationType, versionId, connectionType, transactionHandling);
                 return true;
             }
         }
@@ -104,11 +108,11 @@ public class DbMigrator : IDbMigrator
 
         if (Configuration.Baseline)
         {
-            await RecordScriptInScriptsRunTable(scriptName, sql, migrationType, versionId);
+            await RecordScriptInScriptsRunTable(scriptName, sql, migrationType, versionId, transactionHandling);
             return false;
         }
 
-        if (await ThisScriptIsAlreadyRun(scriptName) && !IsEverytimeScript(scriptName, migrationType))
+        if (await ThisScriptIsAlreadyRun(scriptName, transactionHandling) && !IsEverytimeScript(scriptName, migrationType))
         {
             if (AnyTimeScriptForcedToRun(migrationType, Configuration) || await ScriptHasChanged(scriptName, sql))
             {
@@ -129,7 +133,7 @@ public class DbMigrator : IDbMigrator
                     case MigrationType.Once when changeHandling == ChangedScriptHandling.WarnAndIgnore:
                         LogScriptChangedWarning(scriptName);
                         _logger.LogDebug("Ignoring script but marking as run due to WarnAndIgnoreOnOneTimeScriptChanges option being set.");
-                        await RecordScriptInScriptsRunTable(scriptName, sql, migrationType, versionId);
+                        await RecordScriptInScriptsRunTable(scriptName, sql, migrationType, versionId, transactionHandling);
                         break;
 
                     case MigrationType.AnyTime:
@@ -205,7 +209,7 @@ public class DbMigrator : IDbMigrator
         return _hashGenerator.Hash(sql);
     }
 
-    private Task<bool> ThisScriptIsAlreadyRun(string scriptName) => Database.HasRun(scriptName);
+    private async Task<bool> ThisScriptIsAlreadyRun(string scriptName, TransactionHandling transactionHandling) => await Database.HasRun(scriptName, transactionHandling);
 
 
     /// <summary>
@@ -229,36 +233,45 @@ public class DbMigrator : IDbMigrator
     /// <param name="migrationType"></param>
     /// <param name="versionId"></param>
     /// <param name="connectionType"></param>
+    /// <param name="transactionHandling"></param>
     /// <returns></returns>
-    private async Task RunTheActualSql(
-        string sql,
+    private async Task RunTheActualSql(string sql,
         string scriptName,
         MigrationType migrationType,
         long versionId,
-        ConnectionType connectionType)
+        ConnectionType connectionType, 
+        TransactionHandling transactionHandling)
     {
         foreach (var statement in GetStatements(sql))
         {
             try
             {
-                await Database.RunSql(statement, connectionType);
+                await Database.RunSql(statement, connectionType, transactionHandling);
             }
             catch (Exception ex)
             {
-                Database.Rollback();
+                _logger.LogError("Error running script \"{ScriptName}\": {ErrorMessage}", scriptName, ex.Message);
+
+                if (Transaction.Current is not null) {
+                    Database.Rollback();
+                }
+
                 await Database.CloseConnection();
                 Transaction.Current?.Dispose();
 
                 using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
-                await Database.OpenConnection();
-                await RecordScriptInScriptsRunErrorsTable(scriptName, sql, statement, ex.Message, versionId);
-                await Database.CloseConnection();
+                using (await OpenNewActiveConnection())
+                {
+                    await RecordScriptInScriptsRunErrorsTable(scriptName, sql, statement, ex.Message, versionId);
+                }
+                s.Complete();
                 
+                SetDefaultConnectionActive();
                 throw;
             }
         }
 
-        await RecordScriptInScriptsRunTable(scriptName, sql, migrationType, versionId);
+        await RecordScriptInScriptsRunTable(scriptName, sql, migrationType, versionId, transactionHandling);
     }
 
     private IEnumerable<string> GetStatements(string sql) => StatementSplitter.Split(sql);
@@ -283,17 +296,24 @@ public class DbMigrator : IDbMigrator
         await Database.CloseConnection();
         Transaction.Current?.Dispose();
 
-        using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
-        await Database.OpenConnection();
-
         string errorMessage =
             $"{scriptName} has changed since the last time it was run. By default this is not allowed - scripts that run once should never change. To change this behavior to a warning, please set warnOnOneTimeScriptChanges to true and run again. Stopping execution.";
-        await RecordScriptInScriptsRunErrorsTable(scriptName, sql, sql, errorMessage, versionId);
-        await Database.CloseConnection();
+
+        using (var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+        {
+            using (await OpenNewActiveConnection())
+            {
+                await RecordScriptInScriptsRunErrorsTable(scriptName, sql, sql, errorMessage, versionId);
+            }
+            s.Complete();
+        }
+        SetDefaultConnectionActive();
+        
         throw new OneTimeScriptChanged(errorMessage);
     }
 
-    private Task RecordScriptInScriptsRunTable(string scriptName, string sql, MigrationType migrationType, long versionId)
+    private Task RecordScriptInScriptsRunTable(string scriptName, string sql, MigrationType migrationType,
+        long versionId, TransactionHandling transactionHandling)
     {
         var hash = _hashGenerator.Hash(sql);
         var sqlToStore = Configuration.DoNotStoreScriptsRunText ? null : sql;
@@ -306,14 +326,15 @@ public class DbMigrator : IDbMigrator
         else
         {
             _logger.LogTrace("Recording {ScriptName} script ran on {ServerName} - {DatabaseName}.", scriptName, Database.ServerName, Database.DatabaseName);
-            return Database.InsertScriptRun(scriptName, sqlToStore, hash, migrationType == MigrationType.Once, versionId);
+            return Database.InsertScriptRun(scriptName, sqlToStore, hash, migrationType == MigrationType.Once, versionId, transactionHandling);
         }
     }
 
-    private Task RecordScriptInScriptsRunErrorsTable(string scriptName, string sql, string errorSql, string errorMessage, long versionId)
+    private async Task RecordScriptInScriptsRunErrorsTable(string scriptName, string sql, string errorSql, string errorMessage, long versionId)
     {
         var sqlToStore = Configuration.DoNotStoreScriptsRunText ? null : sql;
-        return Database.InsertScriptRunError(scriptName, sqlToStore, errorSql, errorMessage, versionId);
+        await Database.InsertScriptRunError(scriptName, sqlToStore, errorSql, errorMessage, versionId);
+        await Database.ChangeVersionStatus(MigrationStatus.Error, versionId);
     }
 
     public async ValueTask DisposeAsync()

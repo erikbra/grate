@@ -14,12 +14,19 @@ public class Database: Generic.GenericDatabase
 {
     protected override IGrateTestContext Context => GrateTestContext.Sqlite;
 
-    protected override async Task CreateDatabase(string db)
+    protected override async Task CreateDatabaseFromConnectionString(string db, string connectionString)
     {
-        await using var conn = new SqliteConnection(Context.ConnectionString(db));
+        await using var conn = new SqliteConnection(connectionString);
         conn.Open();
         await using var cmd = conn.CreateCommand();
+
+        // Create a table to actually create the .sqlite file
         var sql = "CREATE TABLE dummy(name VARCHAR(1))";
+        cmd.CommandText = sql;
+        await cmd.ExecuteNonQueryAsync();
+
+        // Remove the table to avoid polluting the database with dummy tables :)
+        sql = "DROP TABLE dummy";
         cmd.CommandText = sql;
         await cmd.ExecuteNonQueryAsync();
     }

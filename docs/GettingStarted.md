@@ -45,7 +45,12 @@ These scripts are run (you guessed it) **every time** grate executes :)  More in
 
 ## Directory run order
 
-grate processes the files in a standard set of directories in a fixed order for deterministic processing.  Folders are run in the following order:
+By default, grate processes the files in a standard set of directories in a fixed order for deterministic processing.  
+As of grate 1.4, the folder structure is [fully customisable](ConfigurationOptions/FolderConfiguration.md). However,
+if you don't have any special requirements (e.g. an existing set of SQL scripts in an existing, set folder structure),
+we would recommend you going with the defaults.
+
+The default folders are run in the following order:
 
 ### 1. beforeMigration (Everytime scripts)
 If you have particular tasks you want to perform prior to any database migrations (custom logging? database backups? disable replication?) you can do it here.
@@ -90,4 +95,4 @@ Permissions may contain auto-wiring of permissions, so they are run every time r
 If you have particular tasks you want to perform prior to any database migrations (custom logging? database backups?) you can do it here.
 
 ### Notes
-- You are not required to have every one of these folders...i.e. if you don't use triggers there's no need to have an empty     `triggers` directory.
+- You are not required to have every one of these folders...i.e. if you don't use triggers there's no need to have an empty `triggers` directory.

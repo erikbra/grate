@@ -31,11 +31,12 @@ public class RestoreDatabase : SqlServerScriptsBase
     public async Task Ensure_database_gets_restored()
     {
         var db = TestConfig.RandomDatabase();
-
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        CreateDummySql(knownFolders.Sprocs);
+        
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+        CreateDummySql(parent, knownFolders[KnownFolderKeys.Sprocs]);
             
-        var restoreConfig = Context.GetConfiguration(db, knownFolders) with
+        var restoreConfig = Context.GetConfiguration(db, parent, knownFolders) with
         {
             Restore = _backupPath
         };

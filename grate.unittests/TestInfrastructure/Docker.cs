@@ -8,10 +8,17 @@ namespace grate.unittests.TestInfrastructure;
 
 public static class Docker
 {
-    public static async Task<(string containerId, int port)> StartDockerContainer(string serverName, string adminPassword, Func<string, string, string> getStartArgs)
+    public static async Task<(string containerId, int port)> StartDockerContainer(string serverName, string adminPassword, int? containerPort,  Func<string, string, string> getStartArgs)
     {
         var containerId = await RunDockerCommand(getStartArgs(serverName, adminPassword));
-        var findPortArgs = "inspect --format=\"{{range $p, $conf := .NetworkSettings.Ports}} {{(index $conf 0).HostPort}} {{end}}\" " + containerId;
+        var findPortArgs = containerPort switch
+        {
+            { } val => "inspect --format=\"{{(index (index .NetworkSettings.Ports \\\"" + val + "/tcp\\\") 0).HostPort}}\" " +
+                       containerId,
+            _ =>
+                "inspect --format=\"{{range $p, $conf := .NetworkSettings.Ports}} {{(index $conf 0).HostPort}} {{end}}\" " +
+                containerId
+        };
 
         //TestContext.Progress.WriteLine("find port: " + findPortArgs);
 
@@ -20,38 +27,11 @@ public static class Docker
         return (serverName, int.Parse(hostPort));
     }
 
-    public static async Task<(string containerId, int port)> StartSqlServer(string serverName, string adminPassword)
-    {
-        var startArgs =
-            $"run -d --name {serverName} -e ACCEPT_EULA=Y -e SA_PASSWORD={adminPassword} -e MSSQL_PID=Developer -e MSSQL_COLLATION=Danish_Norwegian_CI_AS -P microsoft/mssql-server-linux:2017-latest";
-
-        return await StartDockerContainer(serverName, adminPassword, (_, _) => startArgs);
-    }
-
-    public static async Task<(string containerId, int port)> StartOracle(string serverName, string adminPassword)
-    {
-        var startArgs =
-            $"run -d --name {serverName} -e ORACLE_PWD={adminPassword} -e ORACLE_ALLOW_REMOTE=true -P store/oracle/database-enterprise:12.2.0.1";
-
-        return await StartDockerContainer(serverName, adminPassword, (_, _) => startArgs);
-    }
-
-    // ReSharper disable once InconsistentNaming
-    public static async Task<(string containerId, int port)> StartPostgreSQL(string serverName, string adminPassword)
-    {
-        var startArgs =
-            $"run -d --name {serverName} -e POSTGRES_PASSWORD={adminPassword} -P postgres:latest";
-
-        return await StartDockerContainer(serverName, adminPassword, (_, _) => startArgs);
-    }
-
-
     public static async Task<string> Delete(string container)
     {
         await RunDockerCommand($"stop {container}");
         return await RunDockerCommand($"rm {container}");
     }
-
 
     private static async Task<string> RunDockerCommand(string args)
     {

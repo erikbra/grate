@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using FluentAssertions;
 using grate.Configuration;
+using grate.Exceptions;
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
 
@@ -24,10 +24,11 @@ public abstract class GenericMigrationTables
     {
         var db = "MonoBonoJono";
         var fullTableName = Context.Syntax.TableWithSchema("grate", tableName);
-            
-        var knownFolders = KnownFolders.In(TestConfig.CreateRandomTempDirectory());
 
-        await using (var migrator = Context.GetMigrator(db, knownFolders))
+        var parent = TestConfig.CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+
+        await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             await migrator.Migrate();
         }
@@ -50,17 +51,18 @@ public abstract class GenericMigrationTables
     {
         var db = "DatabaseWithFailingScripts";
         var fullTableName = Context.Syntax.TableWithSchema("grate", tableName);
-            
-        var knownFolders = KnownFolders.In(TestConfig.CreateRandomTempDirectory());
-        CreateInvalidSql(knownFolders.Up);
 
-        await using (var migrator = Context.GetMigrator(db, knownFolders))
+        var parent = TestConfig.CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+        CreateInvalidSql(parent, knownFolders[KnownFolderKeys.Up]);
+
+        await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             try
             {
                 await migrator.Migrate();
             }
-            catch (DbException)
+            catch (MigrationFailed)
             {
             }
         }
@@ -82,15 +84,16 @@ public abstract class GenericMigrationTables
     {
         var db = "MonoBonoJono";
 
-        var knownFolders = KnownFolders.In(TestConfig.CreateRandomTempDirectory());
+        var parent = TestConfig.CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
             
-        await using (var migrator = Context.GetMigrator(db, knownFolders))
+        await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             await migrator.Migrate();
         }
             
         // Run migration again - make sure it does not throw an exception
-        await using (var migrator = Context.GetMigrator(db, knownFolders))
+        await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             Assert.DoesNotThrowAsync(() => migrator.Migrate());
         }
@@ -101,31 +104,34 @@ public abstract class GenericMigrationTables
     {
         var db = "BooYaTribe";
 
-        var knownFolders = KnownFolders.In(TestConfig.CreateRandomTempDirectory());
+        var parent = TestConfig.CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
             
-        await using (var migrator = Context.GetMigrator(db, knownFolders))
+        await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             await migrator.Migrate();
         }
 
-        IEnumerable<string> entries;
-        var fullTableName = Context.Syntax.TableWithSchema("grate", "Version");
-        string sql = $"SELECT version FROM {fullTableName}";
-            
+        IEnumerable<(string version, string status)> entries;
+        string sql = $"SELECT version, status FROM {Context.Syntax.TableWithSchema("grate", "Version")}";
+
         await using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
         {
-            entries = await conn.QueryAsync<string>(sql);
+            entries = await conn.QueryAsync<(string version, string status)>(sql);
         }
 
         var versions = entries.ToList();
         versions.Should().HaveCount(1);
-        versions.FirstOrDefault().Should().Be("a.b.c.d");
+        var version = versions.Single();
+        version.version.Should().Be("a.b.c.d");
+        // Validate the version is finished after running without errors
+        version.status.Should().Be(MigrationStatus.Finished);
     }
       
-    private static void CreateInvalidSql(MigrationsFolder? folder)
+    private static void CreateInvalidSql(DirectoryInfo root, MigrationsFolder? folder)
     {
         var dummySql = "SELECT TOP";
-        var path = MakeSurePathExists(folder);
+        var path = MakeSurePathExists(root, folder);
         WriteSql(path, "2_failing.sql", dummySql);
     }
 
@@ -134,8 +140,8 @@ public abstract class GenericMigrationTables
         File.WriteAllText(Path.Combine(path.ToString(), filename), sql);
     }
 
-    private static DirectoryInfo MakeSurePathExists(MigrationsFolder? folder)
-        => MakeSurePathExists(folder?.Path);
+    private static DirectoryInfo MakeSurePathExists(DirectoryInfo root, MigrationsFolder? folder)
+        => MakeSurePathExists(Wrap(root, folder?.Path));
         
     protected static DirectoryInfo MakeSurePathExists(DirectoryInfo? path)
     {
@@ -147,5 +153,7 @@ public abstract class GenericMigrationTables
         return path;
     }
 
-        
+    private static DirectoryInfo Wrap(DirectoryInfo root, string? relativePath) =>
+        new(Path.Combine(root.ToString(), relativePath ?? ""));
+
 }

@@ -27,4 +27,11 @@ public class PostgreSqlDatabase : AnsiSqlDatabase
         // Ensure the table check uses the lowercase version of anything we're passed, as that's what we would have created.
         return base.ExistsSql(tableSchema.ToLower(), fullTableName);
     }
+
+    protected override string ExistsSql(string tableSchema, string fullTableName, string columnName)
+    {
+        // For #230.  Postgres tables are lowercase by default unless you quote them when created, which we do.  We _don't_ quote the schema though, so it will always be lowercase
+        // Ensure the table check uses the lowercase version of anything we're passed, as that's what we would have created.
+        return base.ExistsSql(tableSchema.ToLower(), fullTableName, columnName);
+    }
 }

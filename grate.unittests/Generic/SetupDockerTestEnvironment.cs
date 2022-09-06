@@ -39,8 +39,7 @@ public abstract class SetupDockerTestEnvironment
             _random.GetString(10, Digits);
 
         //await TestContext.Out.WriteAsync($"Starting {GrateTestContext.DatabaseTypeName} docker container: ");
-        int port;
-        (_containerId, port) = await Docker.StartDockerContainer(_serverName, password, DockerTestContext.DockerCommand);
+        (_containerId, var port) = await Docker.StartDockerContainer(_serverName, password, DockerTestContext.ContainerPort, DockerTestContext.DockerCommand);
 
         GrateTestContext.AdminPassword = password;
         GrateTestContext.Port = port;

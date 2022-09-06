@@ -5,7 +5,9 @@ using System.Data.Common;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Transactions;
 using Dapper;
+using grate.Configuration;
 using grate.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Oracle.ManagedDataAccess.Client;
@@ -30,6 +32,14 @@ public class OracleDatabase : AnsiSqlDatabase
 SELECT * FROM user_tables
 WHERE 
 lower(table_name) = '{fullTableName.ToLowerInvariant()}'
+";
+
+    protected override string ExistsSql(string tableSchema, string fullTableName, string columnName) =>
+$@"
+SELECT * FROM user_tab_columns
+WHERE 
+lower(table_name) = '{fullTableName.ToLowerInvariant()}' AND
+lower(column_name) = '{columnName.ToLowerInvariant()}'
 ";
 
     protected override string CurrentVersionSql => $@"
@@ -83,8 +93,8 @@ WHERE  version_row_number <= 1
     {
         var sql = (string)$@"
 INSERT INTO {VersionTable}
-(version, entry_date, modified_date, entered_by)
-VALUES(:newVersion, :entryDate, :modifiedDate, :enteredBy)
+(version, entry_date, modified_date, entered_by, status)
+VALUES(:newVersion, :entryDate, :modifiedDate, :enteredBy, :status)
 RETURNING id into :id
 ";
         var parameters = new
@@ -93,11 +103,12 @@ RETURNING id into :id
             entryDate = DateTime.UtcNow,
             modifiedDate = DateTime.UtcNow,
             enteredBy = ClaimsPrincipal.Current?.Identity?.Name ?? Environment.UserName,
+            status = MigrationStatus.InProgress
         };
         var dynParams = new DynamicParameters(parameters);
         dynParams.Add(":id", dbType: DbType.Int64, direction: ParameterDirection.Output);
 
-        await Connection.ExecuteAsync(
+        await ActiveConnection.ExecuteAsync(
             sql,
             dynParams);
 
@@ -117,6 +128,24 @@ RETURNING id into :id
         }
     }
 
+    public override async Task ChangeVersionStatus(string status, long versionId)
+    {
+        var sql = (string)$@"
+            UPDATE {VersionTable}
+            SET status = :status
+            WHERE id = :versionId";
+
+        var parameters = new
+        {
+            status,
+            versionId,
+        };
+
+        await Connection.ExecuteAsync(
+            sql,
+            parameters);
+    }
+
     private static IDictionary<string, string?> Tokenize(string? connectionString)
     {
         var tokens = connectionString?.Split(";", RemoveEmptyEntries | TrimEntries) ?? Enumerable.Empty<string>();
@@ -130,7 +159,7 @@ RETURNING id into :id
     private async Task CreateIdSequence(string table)
     {
         var sql = $"CREATE SEQUENCE {table}_seq";
-        await ExecuteNonQuery(Connection, sql, Config?.CommandTimeout);
+        await ExecuteNonQuery(ActiveConnection, sql, Config?.CommandTimeout);
     }
 
     private async Task CreateIdInsertTrigger(string table)
@@ -142,6 +171,6 @@ FOR EACH ROW
 BEGIN
   SELECT {table}_seq.nextval INTO :new.id FROM dual;
 END;";
-        await ExecuteNonQuery(Connection, sql, Config?.CommandTimeout);
+        await ExecuteNonQuery(ActiveConnection, sql, Config?.CommandTimeout);
     }
 }

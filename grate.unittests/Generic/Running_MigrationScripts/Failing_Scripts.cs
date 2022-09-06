@@ -7,9 +7,11 @@ using System.Transactions;
 using Dapper;
 using FluentAssertions;
 using grate.Configuration;
+using grate.Exceptions;
 using grate.Migration;
 using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
+using static grate.Configuration.KnownFolderKeys;
 
 namespace grate.unittests.Generic.Running_MigrationScripts;
 
@@ -26,13 +28,14 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         GrateMigrator? migrator;
 
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        CreateInvalidSql(knownFolders.Up);
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+        CreateInvalidSql(parent, knownFolders[Up]);
 
-        await using (migrator = Context.GetMigrator(db, knownFolders))
+        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
-            var ex = Assert.ThrowsAsync(Context.DbExceptionType, migrator.Migrate);
-            ex?.Message.Should().Be(ExpectedErrorMessageForInvalidSql);
+            var ex = Assert.ThrowsAsync<MigrationFailed>(migrator.Migrate);
+            ex?.Message.Should().Be($"Migration failed due to errors:\n * {ExpectedErrorMessageForInvalidSql}");
         }
     }
 
@@ -43,16 +46,17 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         GrateMigrator? migrator;
 
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        CreateInvalidSql(knownFolders.Up);
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+        CreateInvalidSql(parent, knownFolders[Up]);
 
-        await using (migrator = Context.GetMigrator(db, knownFolders))
+        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             try
             {
                 await migrator.Migrate();
             }
-            catch (DbException)
+            catch (MigrationFailed)
             {
             }
         }
@@ -80,12 +84,13 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
         }
 
         var db = TestConfig.RandomDatabase();
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        var path = MakeSurePathExists(knownFolders.Up);
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+        var path = MakeSurePathExists(parent, knownFolders[Up]);
         WriteSql(path, "goodnight.sql", sql);
 
         // run it with a timeout shorter than the 1 second sleep, should timeout
-        var config = Context.GetConfiguration(db, knownFolders) with
+        var config = Context.GetConfiguration(db, parent, knownFolders) with
         {
             CommandTimeout = 1, // shorter than the script runs for
         };
@@ -109,12 +114,13 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
         }
 
         var db = TestConfig.RandomDatabase();
-        var knownFolders = KnownFolders.In(CreateRandomTempDirectory());
-        var path = MakeSurePathExists(knownFolders.AlterDatabase); //so it's run on the admin connection
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+        var path = MakeSurePathExists(parent, knownFolders[AlterDatabase]); //so it's run on the admin connection
         WriteSql(path, "goodnight.sql", sql);
 
         // run it with a timeout shorter than the 1 second sleep, should timeout
-        var config = Context.GetConfiguration(db, knownFolders) with
+        var config = Context.GetConfiguration(db, parent, knownFolders) with
         {
             AdminCommandTimeout = 1, // shorter than the script runs for
         };
@@ -144,11 +150,52 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
         {
             Assert.Ignore("DDL transactions not supported, skipping tests");
         }
-
-        var scripts = await RunMigration(folder, folder.Name + "_jalla1.sql");
-        scripts.Should().BeEmpty();
+        
+        var filename = folder.Name + "_jalla1.sql";
+        var scripts = await RunMigration(folder, filename);
+        scripts.Should().NotContain(filename);
     }
 
+    [Test]
+    public async Task Create_a_version_in_error_if_ran_without_transaction()
+    {
+        var db = TestConfig.RandomDatabase();
+
+        GrateMigrator? migrator;
+
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+        CreateInvalidSql(parent, knownFolders[Up]);
+
+        var config = Context.GetConfiguration(db, parent, knownFolders) with
+        {
+            Transaction = false
+        };
+
+        await using (migrator = Context.GetMigrator(config))
+        {
+            try
+            {
+                await migrator.Migrate();
+            }
+            catch (MigrationFailed)
+            {
+            }
+        }
+
+
+        string[] versions;
+        string sql = $"SELECT status FROM {Context.Syntax.TableWithSchema("grate", "Version")}";
+
+        using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+        {
+            await using var conn = Context.CreateDbConnection(db);
+            versions = (await conn.QueryAsync<string>(sql)).ToArray();
+        }
+
+        versions.Should().HaveCount(1);
+        versions.Single().Should().Be(MigrationStatus.Error);
+    }
 
     private async Task<string[]> RunMigration(MigrationsFolder folder, string filename)
     {
@@ -158,17 +205,19 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         GrateMigrator? migrator;
 
-        var knownFolders = Folders;
-        CreateDummySql(folder, filename);
-        CreateInvalidSql(knownFolders.Up);
+        var root = CreateRandomTempDirectory();
 
-        await using (migrator = Context.GetMigrator(db, knownFolders, true))
+        var knownFolders = Folders;
+        CreateDummySql(root, folder, filename);
+        CreateInvalidSql(root, knownFolders[Up]);
+
+        await using (migrator = Context.GetMigrator(db, root, knownFolders, true))
         {
             try
             {
                 await migrator.Migrate();
             }
-            catch (DbException)
+            catch (MigrationFailed)
             {
             }
         }
@@ -183,28 +232,28 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
         return scripts;
     }
 
-    protected static void CreateInvalidSql(MigrationsFolder? folder)
+    protected static void CreateInvalidSql(DirectoryInfo root, MigrationsFolder? folder)
     {
         var dummySql = "SELECT TOP";
-        var path = MakeSurePathExists(folder);
+        var path = MakeSurePathExists(root, folder);
         WriteSql(path, "2_failing.sql", dummySql);
     }
 
     private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
-    private static readonly KnownFolders Folders = KnownFolders.In(Root);
+    private static readonly IFoldersConfiguration Folders = FoldersConfiguration.Default(null);
 
     private static readonly object?[] ShouldStillBeRunOnRollback =
     {
-        GetTestCase(Folders.BeforeMigration), GetTestCase(Folders.AlterDatabase), GetTestCase(Folders.Permissions),
-        GetTestCase(Folders.AfterMigration),
+        GetTestCase(Folders[BeforeMigration]), GetTestCase(Folders[AlterDatabase]), GetTestCase(Folders[Permissions]),
+        GetTestCase(Folders[AfterMigration]),
     };
 
     private static readonly object?[] ShouldNotBeRunOnRollback =
     {
-        GetTestCase(Folders.RunAfterCreateDatabase), GetTestCase(Folders.RunBeforeUp), GetTestCase(Folders.Up),
-        GetTestCase(Folders.RunFirstAfterUp), GetTestCase(Folders.Functions), GetTestCase(Folders.Views),
-        GetTestCase(Folders.Sprocs), GetTestCase(Folders.Triggers), GetTestCase(Folders.Indexes),
-        GetTestCase(Folders.RunAfterOtherAnyTimeScripts),
+        GetTestCase(Folders[RunAfterCreateDatabase]), GetTestCase(Folders[RunBeforeUp]), GetTestCase(Folders[Up]),
+        GetTestCase(Folders[RunFirstAfterUp]), GetTestCase(Folders[Functions]), GetTestCase(Folders[Views]),
+        GetTestCase(Folders[Sprocs]), GetTestCase(Folders[Triggers]), GetTestCase(Folders[Indexes]),
+        GetTestCase(Folders[RunAfterOtherAnyTimeScripts]),
     };
 
     private static TestCaseData GetTestCase(
