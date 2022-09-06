@@ -279,7 +279,7 @@ public abstract class AnsiSqlDatabase : IDatabase
     {
         string sql = $"SELECT s.SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA s WHERE s.SCHEMA_NAME = '{SchemaName}'";
         var res = await ExecuteScalarAsync<string>(ActiveConnection, sql);
-        return res == SchemaName;
+        return res != null; // #230: If the server found a record that's good enough for us
     }
 
     // TODO: Change MySQL/MariaDB from using schemas to using grate_ prefix
