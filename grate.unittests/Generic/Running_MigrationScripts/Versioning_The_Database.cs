@@ -22,7 +22,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         var db = TestConfig.RandomDatabase();
 
         GrateMigrator? migrator;
-        
+
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Sprocs]);
@@ -49,7 +49,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
     {
         //for bug #204 - when running --baseline and --dryrun on a new db it shouldn't create the grate schema's etc
         var db = TestConfig.RandomDatabase();
-        
+
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
 
@@ -80,7 +80,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         CreateDummySql(parent, knownFolders[Up]);
 
         long newVersionId = 0;
-        
+
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             //Calling migrate here to setup the database and such.
@@ -99,5 +99,34 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         entries.Should().HaveCount(2);
         var version = entries.Single(x => x.version == dbVersion);
         version.status.Should().Be(MigrationStatus.InProgress);
+    }
+
+    [Test]
+    public async Task Bug230_Uses_Server_Casing_Rules_For_Schema()
+    {
+        //for bug #230 - when targeting an existing schema use the servers casing rules, not .Net's
+        var db = TestConfig.RandomDatabase();
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+
+        CreateDummySql(parent, knownFolders[Sprocs]); // make sure there's something that could be logged...
+
+        await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
+        {
+            await migrator.Migrate();
+            Assert.True(await migrator.DbMigrator.Database.VersionTableExists()); // we migrated into the `grate` schema.
+        }
+
+        // Now we'll run again with the same name but different cased schema
+        var grateConfig = Context.GetConfiguration(db, parent, knownFolders) with
+        {
+            SchemaName = "GRATE"
+        };
+
+        await using (var migrator = Context.GetMigrator(grateConfig))
+        {
+            await migrator.Migrate(); // should either reuse the existing schema if a case-insensitive server, or create a new second schema for use if case-sensitive.
+            Assert.True(await migrator.DbMigrator.Database.VersionTableExists()); // we migrated into the `GRATE` schema, which may be the same as 'grate' depending on server settings.
+        }
     }
 }

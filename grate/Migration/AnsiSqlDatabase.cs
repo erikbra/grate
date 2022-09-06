@@ -69,7 +69,7 @@ public abstract class AnsiSqlDatabase : IDatabase
     protected abstract DbConnection GetSqlConnection(string? connectionString);
 
     protected DbConnection AdminConnection => _adminConnection ??= GetSqlConnection(AdminConnectionString);
-    
+
     protected DbConnection Connection => _connection ??= GetSqlConnection(ConnectionString);
 
     public DbConnection ActiveConnection { protected get; set; } = default!;
@@ -110,8 +110,8 @@ public abstract class AnsiSqlDatabase : IDatabase
     {
         TResult res;
         using (var s = new TransactionScope(
-                   TransactionScopeOption.Suppress, 
-                   new TransactionOptions() { IsolationLevel = IsolationLevel.ReadUncommitted} , 
+                   TransactionScopeOption.Suppress,
+                   new TransactionOptions() { IsolationLevel = IsolationLevel.ReadUncommitted },
                    TransactionScopeAsyncFlowOption.Enabled))
         {
             await using (var connection = GetSqlConnection(connectionString))
@@ -124,7 +124,7 @@ public abstract class AnsiSqlDatabase : IDatabase
         }
         return res;
     }
-    
+
     protected async Task RunInAutonomousTransaction(string? connectionString, Func<DbConnection, Task> func)
     {
         using (var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
@@ -138,7 +138,7 @@ public abstract class AnsiSqlDatabase : IDatabase
             s.Complete();
         }
     }
-    
+
     public async Task OpenActiveConnection()
     {
         await Open(ActiveConnection);
@@ -170,9 +170,9 @@ public abstract class AnsiSqlDatabase : IDatabase
         if (!await DatabaseExists())
         {
             Logger.LogTrace("Creating database {DatabaseName}", DatabaseName);
-            
+
             await OpenAdminConnection();
-            
+
             var sql = _syntax.CreateDatabase(DatabaseName, Password);
             await ExecuteNonQuery(AdminConnection, sql, Config?.AdminCommandTimeout);
         }
@@ -256,7 +256,7 @@ public abstract class AnsiSqlDatabase : IDatabase
     {
         string sql = $"SELECT s.schema_name FROM information_schema.schemata s WHERE s.schema_name = '{SchemaName}'";
         var res = await ExecuteScalarAsync<string>(ActiveConnection, sql);
-        return res == SchemaName;
+        return res != null; // #230: If the server found a record that's good enough for us
     }
 
     // TODO: Change MySQL/MariaDB from using schemas to using grate_ prefix
@@ -348,7 +348,7 @@ CREATE TABLE {VersionTable}(
         string existsSql = ExistsSql(tableSchema, fullTableName);
 
         var res = await ExecuteScalarAsync<object>(ActiveConnection, existsSql);
-        
+
         return !DBNull.Value.Equals(res) && res is not null;
     }
 
@@ -453,27 +453,27 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy, @status)
 
     public async Task RunSql(string sql, ConnectionType connectionType, TransactionHandling transactionHandling)
     {
-        Logger.LogTrace("[SQL] Running (on connection '{ConnType}', transaction handling '{TransactionHandling}'): \n{Sql}", 
-                            connectionType.ToString(), 
+        Logger.LogTrace("[SQL] Running (on connection '{ConnType}', transaction handling '{TransactionHandling}'): \n{Sql}",
+                            connectionType.ToString(),
                             transactionHandling,
                             sql);
 
         int? timeout = GetTimeout(connectionType);
         var connection = GetDbConnection(connectionType);
-       
+
         await ExecuteNonQuery(connection, sql, timeout);
     }
 
-    
-    private DbConnection GetDbConnection(ConnectionType connectionType) => 
+
+    private DbConnection GetDbConnection(ConnectionType connectionType) =>
         connectionType switch
         {
             ConnectionType.Default => ActiveConnection,
             ConnectionType.Admin => AdminConnection,
             _ => throw new UnknownConnectionType(connectionType)
         };
-    
-    private int? GetTimeout(ConnectionType connectionType) => 
+
+    private int? GetTimeout(ConnectionType connectionType) =>
         connectionType switch
         {
             ConnectionType.Default => Config?.CommandTimeout,
