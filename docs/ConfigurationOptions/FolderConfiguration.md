@@ -16,11 +16,11 @@ which might be a good starting point if you have no special requirements.
 grate works with three different folder types:
 
 
-| Folder/script type | Explanation | More info |
-| ------ | ------- |------- |
-| One-time scripts | These are scripts that are run **exactly once** per database, and never again. | [One time scripts](../ScriptTypes/OneTimeScripts.md#one-time-scripts) |
-| Anytime Scripts | These scripts are run **any time they're changed** | [Anytime scripts](../ScriptTypes/AnytimeScripts.md#anytime-scripts) |
-| Everytime Scripts | These scripts are run (you guessed it) **every time** grate executes :) |  [Everytime scripts](../ScriptTypes/EverytimeScripts.md#everytime-scripts) |
+| Folder/script type | Name | Explanation | More info |
+| ------ |----|  ------- |------- |
+| One-time scripts | Once | These are scripts that are run **exactly once** per database, and never again. | [One time scripts](../ScriptTypes/OneTimeScripts.md#one-time-scripts) |
+| Anytime Scripts | AnyTime | These scripts are run **any time they're changed** | [Anytime scripts](../ScriptTypes/AnytimeScripts.md#anytime-scripts) |
+| Everytime Scripts | EveryTime | These scripts are run (you guessed it) **every time** grate executes :) |  [Everytime scripts](../ScriptTypes/EverytimeScripts.md#everytime-scripts) |
 
 ## Specifying a custom folder configuration
 
@@ -81,7 +81,7 @@ The properties you can set per folder, are:
 | ------ | ------- | ------- | ------- |
 | Name   | the key/name you wish to give to the folder | (doesn't matter if path is specified) | _(none)_ |
 | Path   | the relative path of the folder, relative to the --sqlfilesdirectory parameter. | Any relative path | the **Name** specified above.
-| Type   | the type of the migration | Once, EveryTime, Anytime | Once |
+| Type   | the type of the migration | Once, EveryTime, AnyTime | Once |
 | ConnectionType | whether to run on the default connection, or on the admin | Default, Admin | Default |
 | TransactionHandling | whether to be part of the transaction (if running the migration in a transaction), or run the script in an autonomous transaction, so that it is always run, even on a rollback | Default, Autonomous | Default |
 
@@ -96,7 +96,7 @@ Example:
 or
 
 ```
---folders folder1=Once;folder2=Everytime;folder3=Anytime
+--folders folder1=Once;folder2=EveryTime;folder3=AnyTime
 ```
 
 the last one will expect the folders to be named `folder1`, `folder2`, and `folder3`, 
@@ -116,7 +116,7 @@ folders, should you wish so.
 Simply specify the folders you want to override in the `--folders` parameter. The ones you don't mention, will remain configured
 as default. 
 
-An example, if you want to use a folder `tables` to keeep you `up` scripts in, use the following argument to grate:
+An example, if you want to use a folder `tables` to keep you `up` scripts in, use the following argument to grate:
 
 ```bash
 $ grate --folders up=tables
