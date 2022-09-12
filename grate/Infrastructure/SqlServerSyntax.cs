@@ -14,25 +14,24 @@ public class SqlServerSyntax : ISyntax
         }
     }
 
-    public string CurrentDatabase => "SELECT DB_NAME()";
-    public string ListDatabases => "SELECT name FROM sys.databases";
-    public string VarcharType => "nvarchar";
-    public string TextType => "ntext";
-    public string BigintType => "BIGINT";
-    public string BooleanType => "bit";
-    public string PrimaryKeyColumn(string columnName) => $"{columnName} bigint IDENTITY(1,1) NOT NULL";
-    public string CreateSchema(string schemaName) => @$"CREATE SCHEMA ""{schemaName}"";";
-    public string CreateDatabase(string databaseName, string? _) => @$"CREATE DATABASE ""{databaseName}""";
-    public string DropDatabase(string databaseName) => @$"USE master; 
-                        IF EXISTS(SELECT * FROM sysdatabases WHERE [name] = '{databaseName}') 
-                        BEGIN 
-                            ALTER DATABASE [{databaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE                            
-                            DROP DATABASE [{databaseName}] 
-                        END";
-    public string TableWithSchema(string schemaName, string tableName) => $"{schemaName}.\"{tableName}\"";
-    public string ReturnId => ";SELECT @@IDENTITY";
-    public string TimestampType => "datetime";
-    public string Quote(string text) => $"\"{text}\"";
-    public string PrimaryKeyConstraint(string tableName, string column) => $",\nCONSTRAINT PK_{tableName}_{column} PRIMARY KEY CLUSTERED ({column})";
-    public string LimitN(string sql, int n) => $"TOP {n}\n" + sql;
+    public string CurrentDatabase => "Select Db_Name()";
+    public string ListDatabases => "Select name From sys.databases Where database_id >= 5 And State = 0 And Is_In_Standby = 0 And Is_ReadOnly = 0;";
+    public string VarcharType => "NVarChar";
+    public string TextType => "NVarChar(Max)";
+    public string BigintType => "BigInt";
+    public string BooleanType => "Bit";
+    public string PrimaryKeyColumn(string columnName) => $"{columnName} Int Identity(1, 1) Not Null";
+    public string CreateSchema(string schemaName) => @$"Create Schema [{schemaName}];";
+    public string CreateDatabase(string databaseName, string? _) => @$"Create Database [{databaseName}]";
+    public string DropDatabase(string databaseName) => @$"Use master; 
+If Db_Id('{databaseName}') Is Not Null; Begin 
+    Alter Database [{databaseName}] Set Single_User With Rollback Immediate;                                
+    Drop Database [{databaseName}]; 
+End";
+    public string TableWithSchema(string schemaName, string tableName) => $"[{schemaName}].{tableName}";
+    public string ReturnId => ";Select Scope_Identity()";
+    public string TimestampType => "DateTime2(0)";
+    public string Quote(string text) => $"'{text}'";
+    public string PrimaryKeyConstraint(string tableName, string column) => $",\nConstraint [PK_{tableName}_{column}] Primary Key Clustered ({column})";
+    public string LimitN(string sql, int n) => $"Top ({n})\n" + sql;
 }
