@@ -15,7 +15,7 @@ public class SqlServerSyntax : ISyntax
     }
 
     public string CurrentDatabase => "Select Db_Name()";
-    public string ListDatabases => "Select name From sys.databases Where database_id >= 5 And State = 0 And Is_In_Standby = 0 And Is_ReadOnly = 0;";
+    public string ListDatabases => "Select name From sys.databases Where database_id >= 5 And State = 0 And Is_In_Standby = 0 And Is_Read_Only = 0;";
     public string VarcharType => "NVarChar";
     public string TextType => "NVarChar(Max)";
     public string BigintType => "BigInt";
@@ -24,7 +24,7 @@ public class SqlServerSyntax : ISyntax
     public string CreateSchema(string schemaName) => @$"Create Schema [{schemaName}];";
     public string CreateDatabase(string databaseName, string? _) => @$"Create Database [{databaseName}]";
     public string DropDatabase(string databaseName) => @$"Use master; 
-If Db_Id('{databaseName}') Is Not Null; Begin 
+If Db_Id('{databaseName}') Is Not Null Begin 
     Alter Database [{databaseName}] Set Single_User With Rollback Immediate;                                
     Drop Database [{databaseName}]; 
 End";
