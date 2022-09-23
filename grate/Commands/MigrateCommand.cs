@@ -32,6 +32,7 @@ public sealed class MigrateCommand : RootCommand
         Add(Version());
         Add(Drop());
         Add(CreateDatabase());
+        Add(CreateDatabaseCustomScript());
         Add(Tokens());
         Add(WarnAndRunOnScriptChange());
         Add(WarnAndIgnoreOnScriptChange());
@@ -201,6 +202,13 @@ the last one will expect the folders to be named 'folder1', 'folder2', and 'fold
         new(new[] { "--createdatabase", "--create" },
             () => true,
             "Create - This instructs grate to create the target database if it does not exist.  Defaults to true.  Set to false to emulate the --donotcreatedatabase flag in roundhouse."
+        );
+
+    private static Option CreateDatabaseCustomScript() =>
+        new Option<string?>(
+            new[] { "--createdatabasecustomscript", "-cds"},
+            () => null,
+            "Tells grate to use this script for creating a database instead of the default based on the DatabaseType."
         );
 
 

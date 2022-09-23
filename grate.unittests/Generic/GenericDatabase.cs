@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -25,6 +27,28 @@ public abstract class GenericDatabase
         await using var migrator = GetMigrator(GetConfiguration(db, true));
         await migrator.Migrate();
 
+        IEnumerable<string> databases = await GetDatabases();
+        databases.Should().Contain(db);
+    }
+
+    [Test]
+    public async Task Is_created_with_custom_script_if_confed_and_it_does_not_exist()
+    {
+        var db = "SCRIPTDATABASE";
+
+        var config = GetConfiguration(db, true, "createDatabase.sql");
+
+    var password = Context.AdminConnectionString
+        .Split(";", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+        .SingleOrDefault(entry => entry.StartsWith("Password") || entry.StartsWith("Pwd"))?
+        .Split("=", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+        .Last();
+
+        TestConfig.WriteContent(config.SqlFilesDirectory, "createDatabase.sql", Context.Syntax.CreateDatabase(db, password));
+
+        await using var migrator = GetMigrator(config);
+        await migrator.Migrate();
+        
         IEnumerable<string> databases = await GetDatabases();
         databases.Should().Contain(db);
     }
@@ -62,7 +86,7 @@ public abstract class GenericDatabase
         IEnumerable<string> databasesBeforeMigration = await GetDatabases();
         databasesBeforeMigration.Should().Contain(db);
         
-        var config = GetConfiguration(true, Context.UserConnectionString(db), Context.AdminConnectionString);
+        var config = GetConfiguration(true, Context.UserConnectionString(db), Context.AdminConnectionString, null);
         await using var migrator = GetMigrator(config);
             
         // There should be no errors running the migration
@@ -84,7 +108,7 @@ public abstract class GenericDatabase
         databasesBeforeMigration.Should().Contain(db);
             
         // Change the admin connection string to rubbish and run the migration
-        var config = GetConfiguration(true, Context.UserConnectionString(db), adminConnectionString);
+        var config = GetConfiguration(true, Context.UserConnectionString(db), adminConnectionString, null);
         await using var migrator = GetMigrator(config);
 
         // There should be no errors running the migration
@@ -175,19 +199,23 @@ public abstract class GenericDatabase
     private GrateMigrator GetMigrator(GrateConfiguration config) => Context.GetMigrator(config);
 
     private GrateConfiguration GetConfiguration(string databaseName, bool createDatabase)
-        => GetConfiguration(databaseName, createDatabase, Context.AdminConnectionString);
+        => GetConfiguration(databaseName, createDatabase, Context.AdminConnectionString, null);
+
+    private GrateConfiguration GetConfiguration(string databaseName, bool createDatabase, string? createDatabaseCustomScript)
+        => GetConfiguration(databaseName, createDatabase, Context.AdminConnectionString, createDatabaseCustomScript);
     
 
-    private GrateConfiguration GetConfiguration(string databaseName, bool createDatabase, string? adminConnectionString)
-        => GetConfiguration(createDatabase, Context.ConnectionString(databaseName), adminConnectionString);
+    private GrateConfiguration GetConfiguration(string databaseName, bool createDatabase, string? adminConnectionString, string? createDatabaseCustomScript)
+        => GetConfiguration(createDatabase, Context.ConnectionString(databaseName), adminConnectionString, createDatabaseCustomScript);
     
     
-    private GrateConfiguration GetConfiguration(bool createDatabase, string? connectionString, string? adminConnectionString)
+    private GrateConfiguration GetConfiguration(bool createDatabase, string? connectionString, string? adminConnectionString, string? createDatabaseCustomScript)
     {
         var parent = TestConfig.CreateRandomTempDirectory();
         return new()
         {
             CreateDatabase = createDatabase, 
+            CreateDatabaseCustomScript = createDatabaseCustomScript,
             ConnectionString = connectionString,
             AdminConnectionString = adminConnectionString,
             Folders = FoldersConfiguration.Default(null),

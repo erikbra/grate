@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.Common;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -10,6 +12,7 @@ using Dapper;
 using grate.Configuration;
 using grate.Exceptions;
 using grate.Infrastructure;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using static System.StringSplitOptions;
 using IsolationLevel = System.Transactions.IsolationLevel;
@@ -172,8 +175,24 @@ public abstract class AnsiSqlDatabase : IDatabase
             Logger.LogTrace("Creating database {DatabaseName}", DatabaseName);
             
             await OpenAdminConnection();
-            
-            var sql = _syntax.CreateDatabase(DatabaseName, Password);
+            string? sql = null;
+            var customScript = Config?.CreateDatabaseCustomScript;
+
+            if (!string.IsNullOrEmpty(customScript))
+            {
+                var fullPath = Path.Combine(Config?.SqlFilesDirectory.FullName ?? string.Empty, customScript);
+                
+                if (File.Exists(fullPath))
+                {
+                    sql = TokenReplacer.ReplaceTokens(new Dictionary<string, string?> {{"DatabaseName", DatabaseName}}, await File.ReadAllTextAsync(fullPath));
+                }
+            }
+
+            if (string.IsNullOrEmpty(sql))
+            {
+                sql = _syntax.CreateDatabase(DatabaseName, Password);
+            }
+
             await ExecuteNonQuery(AdminConnection, sql, Config?.AdminCommandTimeout);
         }
 

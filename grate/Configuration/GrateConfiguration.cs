@@ -24,6 +24,8 @@ public record GrateConfiguration
 
     public string? ConnectionString { get; init; } = null;
 
+    public string? CreateDatabaseCustomScript { get; init; } = null;
+
     public string SchemaName { get; init; } = "grate";
 
     public string? AdminConnectionString
