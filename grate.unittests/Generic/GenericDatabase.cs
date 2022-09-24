@@ -23,7 +23,7 @@ public abstract class GenericDatabase
     public async Task Is_created_if_confed_and_it_does_not_exist()
     {
         var db = "NEWDATABASE";
-            
+
         await using var migrator = GetMigrator(GetConfiguration(db, true));
         await migrator.Migrate();
 
@@ -31,38 +31,54 @@ public abstract class GenericDatabase
         databases.Should().Contain(db);
     }
 
+
+
     [Test]
     public async Task Is_created_with_custom_script_if_confed_and_it_does_not_exist()
     {
         var db = "SCRIPTDATABASE";
+        var scriptDatabase = "CUSTOMSCRIPTDATABASE";
 
         var config = GetConfiguration(db, true, "createDatabase.sql");
+        var password = Context.AdminConnectionString
+            .Split(";", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+            .SingleOrDefault(entry => entry.StartsWith("Password") || entry.StartsWith("Pwd"))?
+            .Split("=", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+            .Last();
 
-    var password = Context.AdminConnectionString
-        .Split(";", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-        .SingleOrDefault(entry => entry.StartsWith("Password") || entry.StartsWith("Pwd"))?
-        .Split("=", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-        .Last();
+        var customScript = Context.Syntax.CreateDatabase(db, password).Replace(db, scriptDatabase);
+        TestConfig.WriteContent(config.SqlFilesDirectory, "createDatabase.sql", customScript);
 
-        TestConfig.WriteContent(config.SqlFilesDirectory, "createDatabase.sql", Context.Syntax.CreateDatabase(db, password));
+        try
+        {
+            await using var migrator = GetMigrator(config);
+            await migrator.Migrate();
+        }
+        catch
+        {
+            //Do nothing because database name is wrong due to custom script
+        }
 
-        await using var migrator = GetMigrator(config);
-        await migrator.Migrate();
-        
+
         IEnumerable<string> databases = await GetDatabases();
-        databases.Should().Contain(db);
+
+        if (Context.DatabaseMigrator.SupportCreateCustomScript)
+        {
+            databases.Should().Contain(scriptDatabase);
+        }
+
     }
 
     [Test]
     public async Task Is_not_created_if_not_confed()
     {
         var db = "SOMEOTHERDATABASE";
-            
+
         IEnumerable<string> databasesBeforeMigration = await GetDatabases();
         databasesBeforeMigration.Should().NotContain(db);
-            
+
         await using var migrator = GetMigrator(GetConfiguration(db, false));
-            
+
         // The migration should throw an error, as the database does not exist.
         if (ThrowOnMissingDatabase)
         {
@@ -73,40 +89,40 @@ public abstract class GenericDatabase
         IEnumerable<string> databases = await GetDatabases();
         databases.Should().NotContain(db);
     }
-        
+
     [Test]
     public async Task Does_not_error_if_confed_to_create_but_already_exists()
     {
         var db = "DAATAA";
-            
+
         // Create the database manually before running the migration
         await CreateDatabaseFromConnectionString(db, Context.UserConnectionString(db));
-            
+
         // Check that the database has been created
         IEnumerable<string> databasesBeforeMigration = await GetDatabases();
         databasesBeforeMigration.Should().Contain(db);
-        
+
         var config = GetConfiguration(true, Context.UserConnectionString(db), Context.AdminConnectionString, null);
         await using var migrator = GetMigrator(config);
-            
+
         // There should be no errors running the migration
         Assert.DoesNotThrowAsync(() => migrator.Migrate());
     }
-        
+
     [TestCase("Invalid stuff")]
     [TestCase(null)]
     [Test]
     public async Task Does_not_need_admin_connection_if_database_already_exists(string adminConnectionString)
     {
         var db = "DATADATADATABASE";
-            
+
         // Create the database manually before running the migration
         await CreateDatabaseFromConnectionString(db, Context.UserConnectionString(db));
-            
+
         // Check that the database has been created
         IEnumerable<string> databasesBeforeMigration = await GetDatabases();
         databasesBeforeMigration.Should().Contain(db);
-            
+
         // Change the admin connection string to rubbish and run the migration
         var config = GetConfiguration(true, Context.UserConnectionString(db), adminConnectionString, null);
         await using var migrator = GetMigrator(config);
@@ -129,7 +145,7 @@ public abstract class GenericDatabase
         databasesBeforeMigration.Should().Contain(db);
 
         await using var migrator = GetMigrator(GetConfiguration(db.ToLower(), true)); // ToLower is important here, this reproduces the bug in #167
-        // There should be no errors running the migration
+                                                                                      // There should be no errors running the migration
         Assert.DoesNotThrowAsync(() => migrator.Migrate());
     }
 
@@ -139,7 +155,7 @@ public abstract class GenericDatabase
     {
         var uid = TestConfig.Username(connectionString);
         var pwd = TestConfig.Password(connectionString);
-        
+
         using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
             for (var i = 0; i < 5; i++)
@@ -149,7 +165,7 @@ public abstract class GenericDatabase
                     await using var conn = Context.CreateAdminDbConnection();
                     await conn.OpenAsync();
                     await using var cmd = conn.CreateCommand();
-                    
+
                     cmd.CommandText = Context.Syntax.CreateDatabase(db, pwd);
                     await cmd.ExecuteNonQueryAsync();
 
@@ -174,7 +190,7 @@ public abstract class GenericDatabase
 
     protected virtual async Task<IEnumerable<string>> GetDatabases()
     {
-        IEnumerable<string> databases =Enumerable.Empty<string>();
+        IEnumerable<string> databases = Enumerable.Empty<string>();
         string sql = Context.Syntax.ListDatabases;
 
         using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
@@ -203,18 +219,18 @@ public abstract class GenericDatabase
 
     private GrateConfiguration GetConfiguration(string databaseName, bool createDatabase, string? createDatabaseCustomScript)
         => GetConfiguration(databaseName, createDatabase, Context.AdminConnectionString, createDatabaseCustomScript);
-    
+
 
     private GrateConfiguration GetConfiguration(string databaseName, bool createDatabase, string? adminConnectionString, string? createDatabaseCustomScript)
         => GetConfiguration(createDatabase, Context.ConnectionString(databaseName), adminConnectionString, createDatabaseCustomScript);
-    
-    
+
+
     private GrateConfiguration GetConfiguration(bool createDatabase, string? connectionString, string? adminConnectionString, string? createDatabaseCustomScript)
     {
         var parent = TestConfig.CreateRandomTempDirectory();
         return new()
         {
-            CreateDatabase = createDatabase, 
+            CreateDatabase = createDatabase,
             CreateDatabaseCustomScript = createDatabaseCustomScript,
             ConnectionString = connectionString,
             AdminConnectionString = adminConnectionString,
@@ -224,5 +240,5 @@ public abstract class GenericDatabase
             SqlFilesDirectory = parent
         };
     }
-    
+
 }

@@ -10,6 +10,7 @@ public interface IDatabase : IAsyncDisposable
     string? ServerName { get; }
     string? DatabaseName { get; }
     bool SupportsDdlTransactions { get; }
+    bool SupportCreateCustomScript { get; }
 
     bool SplitBatchStatements { get; }
     string StatementSeparatorRegex { get; }

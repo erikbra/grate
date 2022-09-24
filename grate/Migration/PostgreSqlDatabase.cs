@@ -14,6 +14,7 @@ public class PostgreSqlDatabase : AnsiSqlDatabase
 
     public override bool SupportsDdlTransactions => true;
     protected override bool SupportsSchemas => true;
+    public override bool SupportCreateCustomScript => true;
     protected override DbConnection GetSqlConnection(string? connectionString) => new NpgsqlConnection(connectionString);
 
     public override Task RestoreDatabase(string backupPath)
