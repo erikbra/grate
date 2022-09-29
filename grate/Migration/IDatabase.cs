@@ -13,9 +13,9 @@ public interface IDatabase : IAsyncDisposable
 
     bool SplitBatchStatements { get; }
     string StatementSeparatorRegex { get; }
-    public string ScriptsRunTable { get; }
-    public string ScriptsRunErrorsTable { get; }
-    public string VersionTable { get; }
+    string ScriptsRunTable { get; }
+    string ScriptsRunErrorsTable { get; }
+    string VersionTable { get; }
     DbConnection ActiveConnection { set; }
 
     Task InitializeConnections(GrateConfiguration configuration);
