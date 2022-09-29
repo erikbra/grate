@@ -29,7 +29,7 @@ public class OracleDatabase : AnsiSqlDatabase
 
     protected override string ExistsSql(string tableSchema, string fullTableName) =>
         $@"
-SELECT * FROM user_tables
+SELECT table_name FROM user_tables
 WHERE 
 lower(table_name) = '{fullTableName.ToLowerInvariant()}'
 ";

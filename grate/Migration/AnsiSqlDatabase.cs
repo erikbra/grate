@@ -27,6 +27,8 @@ public abstract class AnsiSqlDatabase : IDatabase
     private DbConnection? _adminConnection;
     private readonly ISyntax _syntax;
 
+    protected bool LowercaseTableNames { get; set; }
+
     private IDictionary<string, string>? _scriptsRunCache;
 
     protected AnsiSqlDatabase(ILogger logger, ISyntax syntax)
@@ -48,9 +50,9 @@ public abstract class AnsiSqlDatabase : IDatabase
 
     public string StatementSeparatorRegex => _syntax.StatementSeparatorRegex;
 
-    public string ScriptsRunTable => _syntax.TableWithSchema(SchemaName, "ScriptsRun");
-    public string ScriptsRunErrorsTable => _syntax.TableWithSchema(SchemaName, "ScriptsRunErrors");
-    public string VersionTable => _syntax.TableWithSchema(SchemaName, "Version");
+    public string ScriptsRunTable => _syntax.TableWithSchema(SchemaName, ScriptsRunTableName);
+    public string ScriptsRunErrorsTable => _syntax.TableWithSchema(SchemaName, ScriptsRunErrorsTableName);
+    public string VersionTable => _syntax.TableWithSchema(SchemaName, VersionTableName);
 
     public virtual Task InitializeConnections(GrateConfiguration configuration)
     {
@@ -237,6 +239,8 @@ public abstract class AnsiSqlDatabase : IDatabase
 
     public async Task RunSupportTasks()
     {
+        LowercaseTableNames = await CheckIfExistingTablesAreLowercase();
+
         await CreateRunSchema();
         await CreateScriptsRunTable();
         await CreateScriptsRunErrorsTable();
@@ -274,7 +278,7 @@ CREATE TABLE {ScriptsRunTable}(
 	entry_date {_syntax.TimestampType} NULL,
 	modified_date {_syntax.TimestampType} NULL,
 	entered_by {_syntax.VarcharType}(50) NULL
-	{_syntax.PrimaryKeyConstraint("ScriptsRun", "id")}
+	{_syntax.PrimaryKeyConstraint(ScriptsRunTableName, "id")}
 )";
 
         if (!await ScriptsRunTableExists())
@@ -297,7 +301,7 @@ CREATE TABLE {ScriptsRunErrorsTable}(
 	entry_date {_syntax.TimestampType} NULL,
 	modified_date {_syntax.TimestampType} NULL,
 	entered_by {_syntax.VarcharType}(50) NULL
-	{_syntax.PrimaryKeyConstraint("ScriptsRunErrors", "id")}
+	{_syntax.PrimaryKeyConstraint(ScriptsRunErrorsTableName, "id")}
 )";
         if (!await ScriptsRunErrorsTableExists())
         {
@@ -315,7 +319,7 @@ CREATE TABLE {VersionTable}(
 	entry_date {_syntax.TimestampType} NULL,
 	modified_date {_syntax.TimestampType} NULL,
 	entered_by {_syntax.VarcharType}(50) NULL
-	{_syntax.PrimaryKeyConstraint("Version", "id")}
+	{_syntax.PrimaryKeyConstraint(VersionTableName, "id")}
 )";
         if (!await VersionTableExists())
         {
@@ -335,11 +339,17 @@ CREATE TABLE {VersionTable}(
         }
     }
 
-    protected async Task<bool> ScriptsRunTableExists() => await TableExists(SchemaName, "ScriptsRun");
-    protected async Task<bool> ScriptsRunErrorsTableExists() => await TableExists(SchemaName, "ScriptsRunErrors");
-    public async Task<bool> VersionTableExists() => await TableExists(SchemaName, "Version");
-    protected async Task<bool> StatusColumnInVersionTableExists() => await ColumnExists(SchemaName, "Version", "status");
+    protected async Task<bool> ScriptsRunTableExists() => await TableExists(SchemaName, ScriptsRunTableName);
+    protected async Task<bool> ScriptsRunErrorsTableExists() => await TableExists(SchemaName, ScriptsRunErrorsTableName);
+    public async Task<bool> VersionTableExists() => await TableExists(SchemaName, VersionTableName);
+    protected async Task<bool> StatusColumnInVersionTableExists() => await ColumnExists(SchemaName, VersionTableName, "status");
 
+    /// <summary>
+    /// Returns name in db if table exists.
+    /// </summary>
+    /// <param name="schemaName"></param>
+    /// <param name="tableName"></param>
+    /// <returns></returns>
     public async Task<bool> TableExists(string schemaName, string tableName)
     {
         var fullTableName = SupportsSchemas ? tableName : _syntax.TableWithSchema(schemaName, tableName);
@@ -347,9 +357,19 @@ CREATE TABLE {VersionTable}(
 
         string existsSql = ExistsSql(tableSchema, fullTableName);
 
-        var res = await ExecuteScalarAsync<object>(ActiveConnection, existsSql);
+        var res = await ExecuteScalarAsync<string>(ActiveConnection, existsSql);
         
         return !DBNull.Value.Equals(res) && res is not null;
+    }
+
+    public async Task<string?> GetExistingTableName(string schemaName, string tableName)
+    {
+        var fullTableName = SupportsSchemas ? tableName : _syntax.TableWithSchema(schemaName, tableName);
+        var tableSchema = SupportsSchemas ? schemaName : DatabaseName;
+
+        string existsSql = ExistsSql(tableSchema, fullTableName);
+
+        return await ExecuteScalarAsync<string?>(ActiveConnection, existsSql);
     }
 
     private async Task<bool> ColumnExists(string schemaName, string tableName, string columnName)
@@ -366,10 +386,10 @@ CREATE TABLE {VersionTable}(
     protected virtual string ExistsSql(string tableSchema, string fullTableName)
     {
         return $@"
-SELECT * FROM information_schema.tables 
+SELECT table_name FROM information_schema.tables 
 WHERE 
 table_schema = '{tableSchema}' AND
-table_name = '{fullTableName}'
+LOWER(table_name) = LOWER('{fullTableName}')
 ";
     }
 
@@ -615,6 +635,12 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
         await ExecuteAsync(ActiveConnection, insertSql, scriptRunErrors);
     }
 
+    private async Task<bool> CheckIfExistingTablesAreLowercase()
+    {
+        var tn = await GetExistingTableName(SchemaName, "ScriptsRun");
+        return tn == "scriptsrun";
+    }
+
     private static async Task Close(DbConnection? conn)
     {
         if (conn?.State == ConnectionState.Open)
@@ -674,4 +700,10 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
     }
 
     public abstract Task RestoreDatabase(string backupPath);
+
+    private string ScriptsRunTableName => TableName("ScriptsRun");
+    private string VersionTableName => TableName("Version");
+    private string ScriptsRunErrorsTableName => TableName("ScriptsRunErrors");
+
+    public virtual string TableName(string tableName) => LowercaseTableNames ? tableName.ToLowerInvariant() : tableName;
 }
