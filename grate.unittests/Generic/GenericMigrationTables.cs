@@ -120,9 +120,7 @@ public abstract class GenericMigrationTables
         await CheckTableCasing("ScriptsRunErrors", existingTable, (config, name) => config.ScriptsRunErrorsTableName = name);
     }
     
-
-
-    private async Task CheckTableCasing(string tableName, string funnyCasing, Action<GrateConfiguration, string> setTableName)
+    protected virtual async Task CheckTableCasing(string tableName, string funnyCasing, Action<GrateConfiguration, string> setTableName)
     {
         var db = TestConfig.RandomDatabase();
 
