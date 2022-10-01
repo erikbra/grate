@@ -98,7 +98,92 @@ public abstract class GenericMigrationTables
             Assert.DoesNotThrowAsync(() => migrator.Migrate());
         }
     }
+    
+    [TestCase("version")]
+    [TestCase("vErSiON")]
+    public async Task Does_not_create_Version_table_if_it_exists_with_another_casing(string existingTable)
+    {
+        await CheckTableCasing("Version", existingTable, (config, name) => config.VersionTableName = name);
+    }
+    
+    [TestCase("scriptsrun")]
+    [TestCase("SCRiptSrUN")]
+    public async Task Does_not_create_ScriptsRun_table_if_it_exists_with_another_casing(string existingTable)
+    {
+        await CheckTableCasing("ScriptsRun", existingTable, (config, name) => config.ScriptsRunTableName = name);
+    }
+    
+    [TestCase("scriptsrunerrors")]
+    [TestCase("ScripTSRunErrors")]
+    public async Task Does_not_create_ScriptsRunErrors_table_if_it_exists_with_another_casing(string existingTable)
+    {
+        await CheckTableCasing("ScriptsRunErrors", existingTable, (config, name) => config.ScriptsRunErrorsTableName = name);
+    }
+    
+
+
+    private async Task CheckTableCasing(string tableName, string funnyCasing, Action<GrateConfiguration, string> setTableName)
+    {
+        var db = TestConfig.RandomDatabase();
+
+        var parent = TestConfig.CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default();
+
+        // Set the version table name to be lower-case first, and run one migration.
+        var config = Context.GetConfiguration(db, parent, knownFolders);
         
+        setTableName(config, funnyCasing);
+            
+        await using (var migrator = Context.GetMigrator(config))
+        {
+            await migrator.Migrate();
+        }
+
+        // Check that the table is indeed created with lower-case
+        var errorCaseCountAfterFirstMigration = await TableCountIn(db, funnyCasing);
+        var normalCountAfterFirstMigration = await TableCountIn(db, tableName);
+        Assert.Multiple(() =>
+        {
+            errorCaseCountAfterFirstMigration.Should().Be(1);
+            normalCountAfterFirstMigration.Should().Be(0);
+        });
+
+        // Run migration again - make sure it does not create the table with different casing too
+        setTableName(config, tableName);
+        await using (var migrator = Context.GetMigrator(config))
+        {
+            await migrator.Migrate();
+        }
+        
+        var errorCaseCountAfterSecondMigration = await TableCountIn(db, funnyCasing);
+        var normalCountAfterSecondMigration = await TableCountIn(db, tableName);
+        Assert.Multiple(() =>
+        {
+            errorCaseCountAfterSecondMigration.Should().Be(1);
+            normalCountAfterSecondMigration.Should().Be(0);
+        });
+        
+    }
+
+    private async Task<int> TableCountIn(string db, string tableName)
+    {
+        var schemaName = Context.DefaultConfiguration.SchemaName;
+        var supportsSchemas = Context.DatabaseMigrator.SupportsSchemas;
+        
+        var fullTableName = supportsSchemas ? tableName : Context.Syntax.TableWithSchema(schemaName, tableName);
+        var tableSchema = supportsSchemas ? schemaName : db;
+        
+        int count;
+        string countSql = CountTableSql(tableSchema, fullTableName);
+
+        await using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
+        {
+            count = await conn.ExecuteScalarAsync<int>(countSql);
+        }
+        
+        return count;
+    }
+
     [Test()]
     public async Task Inserts_version_in_version_table()
     {
@@ -155,5 +240,15 @@ public abstract class GenericMigrationTables
 
     private static DirectoryInfo Wrap(DirectoryInfo root, string? relativePath) =>
         new(Path.Combine(root.ToString(), relativePath ?? ""));
+
+    protected virtual string CountTableSql(string schemaName, string tableName)
+    {
+        return $@"
+SELECT count(table_name) FROM information_schema.tables 
+WHERE 
+table_schema = '{schemaName}' AND
+table_name = '{tableName}'
+";
+    }
 
 }

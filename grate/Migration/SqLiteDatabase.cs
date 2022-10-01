@@ -17,14 +17,14 @@ public class SqliteDatabase : AnsiSqlDatabase
     { }
 
     public override bool SupportsDdlTransactions => false;
-    protected override bool SupportsSchemas => false;
+    public override bool SupportsSchemas => false;
     protected override DbConnection GetSqlConnection(string? connectionString) => new SqliteConnection(connectionString);
 
     protected override string ExistsSql(string tableSchema, string fullTableName) =>
         $@"
 SELECT name FROM sqlite_master 
 WHERE type ='table' AND 
-name = '{fullTableName}';
+LOWER(name) = LOWER('{fullTableName}');
 ";
 
     protected override string ExistsSql(string tableSchema, string fullTableName, string columnName) =>
