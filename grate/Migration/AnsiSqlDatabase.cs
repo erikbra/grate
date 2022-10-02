@@ -59,7 +59,7 @@ public abstract class AnsiSqlDatabase : IDatabase
     private string ScriptsRunErrorsTableName { get; set; }
     private string VersionTableName { get; set; }
 
-    public virtual async Task InitializeConnections(GrateConfiguration configuration)
+    public virtual Task InitializeConnections(GrateConfiguration configuration)
     {
         Logger.LogInformation("Initializing connections.");
 
@@ -73,6 +73,8 @@ public abstract class AnsiSqlDatabase : IDatabase
         ScriptsRunErrorsTableName = configuration.ScriptsRunErrorsTableName;
         
         Config = configuration;
+        
+        return Task.CompletedTask;
     }
 
     private async Task<string> ExistingOrDefault(string schemaName, string tableName) =>
@@ -281,6 +283,7 @@ public abstract class AnsiSqlDatabase : IDatabase
     protected virtual async Task CreateScriptsRunTable()
     {
         // Update scripts run table name with the correct casing, should it differ from the standard
+        
         ScriptsRunTableName = await ExistingOrDefault(SchemaName, ScriptsRunTableName);
         
         string createSql = $@"
@@ -373,7 +376,6 @@ CREATE TABLE {VersionTable}(
         var fullTableName = SupportsSchemas ? tableName : _syntax.TableWithSchema(schemaName, tableName);
         var tableSchema = SupportsSchemas ? schemaName : DatabaseName;
         
-
         string existsSql = ExistsSql(tableSchema, fullTableName);
 
         var res = await ExecuteScalarAsync<object>(ActiveConnection, existsSql);
