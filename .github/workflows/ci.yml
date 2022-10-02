@@ -92,7 +92,7 @@ jobs:
         dotnet-version: 6.0.x
         include-prerelease: false
     - name: Test
-      run: dotnet vstest --TestCaseFilter:"FullyQualifiedName~grate.unittests.${{ matrix.category }}" bin/grate.unittests.dll --logger:"trx;LogFileName=test-results-${{ matrix.category }}.xml"
+      run: dotnet test --TestCaseFilter:"FullyQualifiedName~grate.unittests.${{ matrix.category }}" bin/grate.unittests.dll --logger:"trx;LogFileName=test-results-${{ matrix.category }}.xml" -- -MaxCpuCount 2
       env:
         LogLevel: Warning
         TZ: UTC
