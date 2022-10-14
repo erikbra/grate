@@ -20,6 +20,8 @@ public static class DefaultConfiguration
     public static readonly int DefaultCommandTimeout = 60;
     public static readonly int DefaultAdminCommandTimeout = 300;
     public static readonly int DefaultRestoreTimeout = 900;
+    public static readonly string DefaultDependencyListRegularExpression = @"^(\-\-[ \t]*Dependencies[\t ]*:[\t ]*)(([\\*?#\w.]+\.sql[\t ]*)+)\r?$";
+    public static readonly string DefaultDependencyListSplitterRegularExpression = @"[\s]+";
 
     public static readonly bool DefaultDisableOutput = false;
 

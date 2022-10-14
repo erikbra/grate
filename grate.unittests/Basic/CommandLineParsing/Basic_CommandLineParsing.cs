@@ -1,10 +1,12 @@
-﻿using System.CommandLine;
+﻿using System;
+using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using grate.Commands;
 using grate.Configuration;
 using grate.Infrastructure;
@@ -284,7 +286,38 @@ public class Basic_CommandLineParsing
         cfg?.DatabaseType.Should().Be(expected);
     }
 
+    [TestCase("", false)] // default
+    [TestCase("--analyze=true", true)]
+    [TestCase("--analyze true", true)]
+    [TestCase("--analyze", true)]
+    [TestCase("--as", true)]
 
+    public async Task AnalyzeScriptsForDependencies(string args, bool expected)
+    {
+        var cfg = await ParseGrateConfiguration(args);
+        cfg?.AnalyzeScriptsForDependencies.Should().Be(expected);
+    }
+
+
+    [TestCase("", "")]
+    [TestCase("--dre=bob", "bob")]
+    [TestCase("--dre bob", "bob")]
+    public async Task DependencyListRegularExpression(string args, string expected)
+    {
+        var cfg = await ParseGrateConfiguration(args);
+        cfg?.RegexForDepCheck.Should().Be(string.IsNullOrEmpty(expected)? DefaultConfiguration.DefaultDependencyListRegularExpression:expected);
+
+    }
+
+    [TestCase("", "")] // default
+    [TestCase("--splitter=bob", "bob")]
+    [TestCase("--splitter bob", "bob")]
+
+    public async Task DependencyListSplitterRegularExpression(string args, string expected)
+    {
+        var cfg = await ParseGrateConfiguration(args);
+        cfg?.RegexForDepSplitter.Should().Be(string.IsNullOrEmpty(expected)? DefaultConfiguration.DefaultDependencyListSplitterRegularExpression:expected);
+    }
     private static async Task<GrateConfiguration?> ParseGrateConfiguration(string commandline)
     {
         GrateConfiguration? cfg = null;
@@ -295,4 +328,6 @@ public class Basic_CommandLineParsing
         await cmd.InvokeAsync(new InvocationContext(p));
         return cfg;
     }
+
+
 }

@@ -14,6 +14,7 @@ public record GrateConfiguration
 {
     private readonly string? _adminConnectionString;
 
+    public string? Wibble { get; init; }
     public IFoldersConfiguration? Folders { get; init; } = FoldersConfiguration.Default();
 
     public DatabaseType DatabaseType { get; init; } // = DatabaseType.sqlserver;
@@ -119,4 +120,19 @@ public record GrateConfiguration
     /// If specified, location of the backup file to use when restoring
     /// </summary>
     public string? Restore { get; init; }
+
+    /// <summary>
+    /// If specified, inform grate to look for dependencies in scripts to define the order they should be executed in
+    /// </summary>
+    public bool AnalyzeScriptsForDependencies { get; init; }
+
+    /// <summary>
+    /// If specified, specifies the regular expression to use to identify dependencies
+    /// </summary>
+    public string RegexForDepCheck { get; init; } = DefaultConfiguration.DefaultDependencyListRegularExpression;
+
+    /// <summary>
+    /// If specified, specifies the regular expression to use to separate each dependency
+    /// </summary>
+    public string RegexForDepSplitter { get; init; } = DefaultConfiguration.DefaultDependencyListSplitterRegularExpression;
 }

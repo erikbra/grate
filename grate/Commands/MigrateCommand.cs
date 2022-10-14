@@ -41,6 +41,9 @@ public sealed class MigrateCommand : RootCommand
         Add(RunAllAnyTimeScripts());
         Add(DryRun());
         Add(Restore());
+        Add(AnalyzeScriptsForDependencies());
+        Add(RegexForDepCheck());
+        Add(RegexForDepSplitter());
 
         Handler = CommandHandler.Create(
             async () =>
@@ -49,7 +52,6 @@ public sealed class MigrateCommand : RootCommand
             });
     }
 
-    //REQUIRED OPTIONS
     private static Option ConnectionString() =>
         new Option<string>(
                 new[] { "--connectionstring", "-c", "-cs", "--connstring" },
@@ -284,6 +286,24 @@ the last one will expect the folders to be named 'folder1', 'folder2', and 'fold
         new(
             new[] { "--version" },
             "Database Version - specify the version of the current migration directly on the command line."
+        );
+
+    //DEPENDENCY OPTIONS
+    private static Option AnalyzeScriptsForDependencies() =>
+        new Option<bool>(
+            new[] { "--AnalyzeScriptsForDependencies", "--analyze", "--as" },
+            "Analyze Scripts For Dependencies - This instructs grate that each script may contain declared dependencies."
+        );
+
+    private static Option RegexForDepCheck() =>
+        new Option<string>(
+            new[] { "--RegexForDepCheck", "--dre" },
+            "If --dependencies is set then this will modify the regular expression that grate will use to identify how dependencies are identified in each script.");
+
+    private static Option RegexForDepSplitter() =>
+        new Option <string>(
+            new[] { "--RegexForDepSplitter", "--splitter" },
+            "If --dependencies is set then this will modify the regular expression that grate will use to split each listed dependency."
         );
 
 

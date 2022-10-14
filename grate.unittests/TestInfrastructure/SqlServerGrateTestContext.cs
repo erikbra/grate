@@ -12,13 +12,6 @@ namespace grate.unittests.TestInfrastructure;
 
 class SqlServerGrateTestContext : TestContextBase, IGrateTestContext, IDockerTestContext
 {
-
-
-    public SqlServerGrateTestContext(string serverCollation) => ServerCollation = serverCollation;
-
-    public SqlServerGrateTestContext(): this("Danish_Norwegian_CI_AS")
-    {}
-
     public string AdminPassword { get; set; } = default!;
     public int? Port { get; set; }
     public override int? ContainerPort => 1433;
@@ -32,7 +25,7 @@ class SqlServerGrateTestContext : TestContextBase, IGrateTestContext, IDockerTes
     };
 
     public string DockerCommand(string serverName, string adminPassword) =>
-        $"run -d --name {serverName} -e ACCEPT_EULA=Y -e SA_PASSWORD={adminPassword} -e MSSQL_PID=Developer -e MSSQL_COLLATION={ServerCollation} -P {DockerImage}";
+        $"run -d --name {serverName} -e ACCEPT_EULA=Y -e SA_PASSWORD={adminPassword} -e MSSQL_PID=Developer -e MSSQL_COLLATION=Danish_Norwegian_CI_AS -P {DockerImage}";
 
     public string AdminConnectionString => $"Data Source=localhost,{Port};Initial Catalog=master;User Id=sa;Password={AdminPassword};Encrypt=false;Pooling=false";
     public string ConnectionString(string database) => $"Data Source=localhost,{Port};Initial Catalog={database};User Id=sa;Password={AdminPassword};Encrypt=false;Pooling=false";
@@ -64,6 +57,4 @@ class SqlServerGrateTestContext : TestContextBase, IGrateTestContext, IDockerTes
     };
     
     public bool SupportsCreateDatabase => true;
-
-    public string ServerCollation { get; }
 }

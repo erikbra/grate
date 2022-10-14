@@ -18,6 +18,8 @@ up using modern .NET 6.
     <RepositoryUrl>https://github.com/erikbra/grate</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>sql migration roundhouse</PackageTags>
+    <Configurations>Debug;Release</Configurations>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
   
   <ItemGroup>
@@ -38,6 +40,11 @@ up using modern .NET 6.
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
     <RuntimeIdentifiers>win-x64;win-x86;win-arm;win-arm64;alpine-x64;linux-x64;linux-arm;linux-arm64;osx.11.0-x64;osx.10.12-x64;osx-x64</RuntimeIdentifiers>
     <ToolCommandName>grate</ToolCommandName>
+    <DefineConstants>TRACE;FEATURE_DEPENDENCIES</DefineConstants>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DefineConstants>TRACE;FEATURE_DEPENDENCIES</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

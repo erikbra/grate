@@ -46,3 +46,6 @@ grate --connectionstring="Server=(localdb)\MSSQLLocalDB;Integrated Security=true
 | --version <version> | 1.0.0.0 | **Database Version** - specify the version of the current migration directly on the command line. |
 | -v<br>--verbosity &lt;Critical\|<br>Debug\|<br>Error\|<br>Information\|<br>None\|<br>Trace\|Warning&gt; | Information | **Verbosity level** (as defined here: https://docs.microsoft.com/dotnet/api/Microsoft.Extensions.Logging.LogLevel)
 | -?<br>-h<br>--help | - |  Show help and usage information | 
+| --dependencies | false | This instructs grate that each script may contain dependency specifications.<br><br>For more information, please see [Dependency Handling](DependencyHandling.md) |
+| --dependencyregex | Please see [Dependency Handling](DependencyHandling.md) | The [Regular Expression](https://en.wikipedia.org/wiki/Regular_expression) used to define how to detect Depencencies specified in a file. |
+| --dependencysplitterregex | Please see [Dependency Handling](DependencyHandling.md) | The [Regular Expression](https://en.wikipedia.org/wiki/Regular_expression) used to define how to seperate each depency. |

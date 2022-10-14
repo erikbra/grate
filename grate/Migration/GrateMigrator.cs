@@ -121,14 +121,16 @@ public class GrateMigrator : IAsyncDisposable
                 try {
                     if (processingFolderInDefaultTransaction)
                     {
-                        await LogAndProcess(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
+                        await LogAndProcess(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling,
+                            config.AnalyzeScriptsForDependencies, config.RegexForDepCheck, config.RegexForDepSplitter);
                     }
                     else
                     {
                         using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
                         using (await dbMigrator.OpenNewActiveConnection())
                         {
-                            await LogAndProcess(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
+                            await LogAndProcess(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling,
+                                config.AnalyzeScriptsForDependencies, config.RegexForDepCheck, config.RegexForDepSplitter);
                         }
                         s.Complete();
                     }
@@ -163,7 +165,7 @@ public class GrateMigrator : IAsyncDisposable
 
         if (!config.DryRun)
         {
-            //If we get here this means no exceptions are thrown above, so we can conclude the migration was successfull!
+            //If we get here this means no exceptions are thrown above, so we can conclude the migration was successful!
             await _migrator.Database.ChangeVersionStatus(MigrationStatus.Finished, versionId);
         }
 
@@ -250,7 +252,9 @@ public class GrateMigrator : IAsyncDisposable
 
     private DirectoryInfo Wrap(DirectoryInfo root, string subFolder) => new(Path.Combine(root.ToString(), subFolder));
 
-    private async Task LogAndProcess(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId, ConnectionType connectionType, TransactionHandling transactionHandling)
+    private async Task LogAndProcess(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId,
+        ConnectionType connectionType, TransactionHandling transactionHandling, bool analyzeScriptsForDependencies,
+        string dependencyRegexPattern, string dependencySplitterRegexPattern)
     {
         var path = Wrap(root, folder.Path);
 
@@ -282,21 +286,26 @@ public class GrateMigrator : IAsyncDisposable
             msg);
 
         Separator('-');
-        await Process(root, folder, changeDropFolder, versionId, connectionType, transactionHandling);
+        await Process(root, folder, changeDropFolder, versionId, connectionType, transactionHandling, analyzeScriptsForDependencies, dependencyRegexPattern, dependencySplitterRegexPattern);
         Separator('-');
         Separator(' ');
     }
 
     private async Task Process(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId,
-        ConnectionType connectionType, TransactionHandling transactionHandling)
+        ConnectionType connectionType, TransactionHandling transactionHandling,  bool analyzeScriptsForDependencies,
+        string dependencyRegexPattern, string dependencySplitterRegexPattern)
     {
         var path = Wrap(root, folder.Path);
+
 
         await EnsureConnectionIsOpen(connectionType);
 
         var pattern = "*.sql";
+#if FEATURE_DEPENDENCIES
+        var files = FileSystemEx.GetFiles(path, pattern, _logger, analyzeScriptsForDependencies, dependencyRegexPattern, dependencySplitterRegexPattern);
+#else
         var files = FileSystem.GetFiles(path, pattern);
-
+#endif
         var anySqlRun = false;
 
         foreach (var file in files)
@@ -309,7 +318,7 @@ public class GrateMigrator : IAsyncDisposable
 
             bool theSqlRan = await _migrator.RunSql(sql, fileNameToLog, folder.Type, versionId, _migrator.Configuration.Environment,
                 connectionType, transactionHandling);
-
+Console.WriteLine(fileNameToLog);
             if (theSqlRan)
             {
                 anySqlRun = true;

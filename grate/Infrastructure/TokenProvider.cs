@@ -84,7 +84,10 @@ public class TokenProvider
             ["ViewsFolderName"] = GetFolder(KnownFolderKeys.Views).ToToken(),
             ["WarnAndIgnoreOnOneTimeScriptChanges"] = _config.WarnAndIgnoreOnOneTimeScriptChanges.ToString(),
             ["WarnOnOneTimeScriptChanges"] = _config.WarnOnOneTimeScriptChanges.ToString(),
-            ["WithTransaction"] = _config.Transaction.ToString()
+            ["WithTransaction"] = _config.Transaction.ToString(),
+            ["AnalyzeScriptsForDependencies"] = _config.AnalyzeScriptsForDependencies.ToString(),
+            ["DependencyListRegularExpression"] = _config.RegexForDepCheck,
+            ["DependencyListSplitterRegularExpression"] = _config.RegexForDepSplitter
         };
 
         foreach (var s in _config.UserTokens.Safe()) // s is the original "key=value" value from the user
@@ -116,4 +119,3 @@ public class TokenProvider
         return (parts[0], parts[1]);
     }
 }
-
