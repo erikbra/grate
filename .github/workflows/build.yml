@@ -21,7 +21,7 @@ jobs:
     
     steps:
     - name: Setup .NET 6
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
         include-prerelease: false
@@ -30,12 +30,12 @@ jobs:
       with:
         fetch-depth: 0
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0.9.13
+      uses: gittools/actions/gitversion/setup@v0.9.14
       with:
         versionSpec: '5.x'
     - name: Determine Version
       id: gitversion
-      uses: gittools/actions/gitversion/execute@v0.9.13
+      uses: gittools/actions/gitversion/execute@v0.9.14
 
   build-netcore-tool:
     needs: set-version-number
@@ -46,7 +46,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Setup .NET 6
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
         include-prerelease: false
@@ -84,7 +84,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Setup .NET 6
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
         include-prerelease: false
@@ -164,7 +164,7 @@ jobs:
         
 
     - name: Log in to the Container registry
-      uses: docker/login-action@49ed152c8eca782a232dede0303416e8f356c37b
+      uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
       with:
         #registry: ${{ env.REGISTRY }}
         username: ${{ github.repository_owner}}
@@ -172,7 +172,7 @@ jobs:
 
     - name: Extract metadata (tags, labels) for Docker
       id: meta
-      uses: docker/metadata-action@69f6fc9d46f2f8bf0d5491e4aabe0bb8c6a4678a
+      uses: docker/metadata-action@12cce9efe0d49980455aaaca9b071c0befcdd702
       with:
         tags: |
           type=semver,pattern={{version}}
@@ -184,7 +184,7 @@ jobs:
 
 
     - name: Build and push Docker image
-      uses: docker/build-push-action@c84f38281176d4c9cdb1626ffafcd6b3911b5d94
+      uses: docker/build-push-action@c56af957549030174b10d6867f20e78cfd7debc5
       with:
         context: ./installers/docker/
         push: true
@@ -265,12 +265,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Setup .NET 6
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
         include-prerelease: false
     - name: Test
-      run: dotnet test --filter FullyQualifiedName~grate.unittests.${{ matrix.category }} -c Release --logger:"trx;LogFilePath=test-results-${{ matrix.category }}.xml"
+      run: dotnet test --filter FullyQualifiedName~grate.unittests.${{ matrix.category }} -c Release --logger:"trx;LogFilePath=test-results-${{ matrix.category }}.xml" -- -MaxCpuCount 2
 #      run:  dotnet test --verbosity Normal -c Release --logger "trx;LogFileName=/tmp/test-results/grate.unittests.trx"
       env:
         LogLevel: Warning
