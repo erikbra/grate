@@ -254,7 +254,7 @@ public abstract class AnsiSqlDatabase : IDatabase
 
     private async Task<bool> RunSchemaExists()
     {
-        string sql = $"SELECT s.schema_name FROM information_schema.schemata s WHERE s.schema_name = '{SchemaName}'";
+        string sql = $"SELECT s.SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA s WHERE s.SCHEMA_NAME = '{SchemaName}'";
         var res = await ExecuteScalarAsync<string>(ActiveConnection, sql);
         return res == SchemaName;
     }
@@ -366,21 +366,21 @@ CREATE TABLE {VersionTable}(
     protected virtual string ExistsSql(string tableSchema, string fullTableName)
     {
         return $@"
-SELECT * FROM information_schema.tables 
+SELECT * FROM INFORMATION_SCHEMA.TABLES 
 WHERE 
-table_schema = '{tableSchema}' AND
-table_name = '{fullTableName}'
+TABLE_SCHEMA = '{tableSchema}' AND
+TABLE_NAME = '{fullTableName}'
 ";
     }
 
     protected virtual string ExistsSql(string tableSchema, string fullTableName, string columnName)
     {
         return $@"
-SELECT * FROM information_schema.columns 
+SELECT * FROM INFORMATION_SCHEMA.COLUMNS 
 WHERE 
-table_schema = '{tableSchema}' AND
-table_name = '{fullTableName}' AND
-column_name = '{columnName}' 
+TABLE_SCHEMA = '{tableSchema}' AND
+TABLE_NAME = '{fullTableName}' AND
+COLUMN_NAME = '{columnName}' 
 ";
     }
 
