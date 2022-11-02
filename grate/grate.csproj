@@ -20,6 +20,7 @@ up using modern .NET 6.
     <PackageTags>sql migration roundhouse</PackageTags>
     <Configurations>Debug;Release</Configurations>
     <Platforms>AnyCPU</Platforms>
+    <AssemblyName>eGrate</AssemblyName>
   </PropertyGroup>
   
   <ItemGroup>

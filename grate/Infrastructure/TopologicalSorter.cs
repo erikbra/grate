@@ -60,6 +60,12 @@ internal class TopologicalSorter
             if (_dependencies[i].Dependencies == null) continue;
             foreach (var t in _dependencies[i].Dependencies)
             {
+                if (!indexes.ContainsKey(t.ToLower()))
+                {
+                    _logger.Log(LogLevel.Error, "{Name} refers to an undefined dependency of {Dependency}", _dependencies[i].Name, t);
+                    throw new ApplicationException($"{_dependencies[i].Name} refers to an undefined dependency of {t}");
+                }
+
                 AddEdge(i, indexes[t.ToLower()]);
             }
 
