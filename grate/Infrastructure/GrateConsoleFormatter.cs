@@ -52,11 +52,11 @@ public class GrateConsoleFormatter : ConsoleFormatter, IDisposable
         LogLevel logLevel = logEntry.LogLevel;
         ConsoleColors logLevelColors = GetLogLevelConsoleColors(logLevel);
 
-        textWriter.WriteColoredMessageLine(message, logLevelColors.Background, logLevelColors.Foreground);
+        textWriter.WriteColoredMessageLine(message, logLevelColors.Foreground);
 
         if (exception != null)
         {
-            textWriter.WriteColoredMessageLine(exception.ToString(), logLevelColors.Background, logLevelColors.Foreground);
+            textWriter.WriteColoredMessageLine(exception.ToString(), logLevelColors.Foreground);
         }
         textWriter.Flush();
     }

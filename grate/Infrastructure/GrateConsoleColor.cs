@@ -5,14 +5,12 @@ namespace grate.Infrastructure;
 public record GrateConsoleColor
 {
     public string AnsiColorCode { get; }
-    private ConsoleColor Fallback { get; }
 
-    private GrateConsoleColor(string ansiColorCode, ConsoleColor fallback)
+    private GrateConsoleColor(string ansiColorCode)
     {
         AnsiColorCode = ansiColorCode;
-        Fallback = fallback;
     }
-        
+
     public static class Foreground
     {
         private static class AnsiColors
@@ -34,31 +32,31 @@ public record GrateConsoleColor
             internal const string Magenta = "\x1B[1m\x1B[35m";
             internal const string Cyan = "\x1B[1m\x1B[36m";
             internal const string White = "\x1B[1m\x1B[37m";
-                
+
             internal static string Rgb(int r, int g, int b) => $"\x1b[38;2;{r};{g};{b}m";
             // ReSharper restore MemberHidesStaticFromOuterClass
         }
-            
-        public static readonly GrateConsoleColor Default = new GrateConsoleColor(AnsiColors.Default, ConsoleColor.White); 
-        public static readonly GrateConsoleColor Info = Rgb(23, 162, 184);
-        public static readonly GrateConsoleColor Black = new GrateConsoleColor(AnsiColors.Black, ConsoleColor.Black);
-        public static readonly GrateConsoleColor DarkRed = new GrateConsoleColor(AnsiColors.DarkRed, ConsoleColor.DarkRed);
-        public static readonly GrateConsoleColor DarkGreen = new GrateConsoleColor(AnsiColors.DarkGreen, ConsoleColor.DarkGreen);
-        public static readonly GrateConsoleColor DarkYellow = new GrateConsoleColor(AnsiColors.DarkYellow, ConsoleColor.DarkYellow);
-        public static readonly GrateConsoleColor DarkBlue = new GrateConsoleColor(AnsiColors.DarkBlue, ConsoleColor.DarkBlue);
-        public static readonly GrateConsoleColor DarkMagenta = new GrateConsoleColor(AnsiColors.DarkMagenta, ConsoleColor.DarkMagenta);
-        public static readonly GrateConsoleColor DarkCyan = new GrateConsoleColor(AnsiColors.DarkCyan, ConsoleColor.DarkCyan);
-        public static readonly GrateConsoleColor Gray = new GrateConsoleColor(AnsiColors.Gray, ConsoleColor.Gray);
-        public static readonly GrateConsoleColor DarkGray = Rgb(192,192,192);
-        public static readonly GrateConsoleColor Red = new GrateConsoleColor(AnsiColors.Red, ConsoleColor.Red);
-        public static readonly GrateConsoleColor Green = new GrateConsoleColor(AnsiColors.Green, ConsoleColor.Green);
-        public static readonly GrateConsoleColor Yellow = new GrateConsoleColor(AnsiColors.Yellow, ConsoleColor.Yellow);
-        public static readonly GrateConsoleColor Blue = new GrateConsoleColor(AnsiColors.Blue, ConsoleColor.Blue);
-        public static readonly GrateConsoleColor Magenta = new GrateConsoleColor(AnsiColors.Magenta, ConsoleColor.Magenta);
-        public static readonly GrateConsoleColor Cyan = new GrateConsoleColor(AnsiColors.Cyan, ConsoleColor.Cyan);
-        public static readonly GrateConsoleColor White = new GrateConsoleColor(AnsiColors.White, ConsoleColor.White);
 
-        private static GrateConsoleColor Rgb(int r, int g, int b) => new GrateConsoleColor(AnsiColors.Rgb(r, g, b), ConsoleColor.Gray);
+        public static readonly GrateConsoleColor Default = new(AnsiColors.Default);
+        public static readonly GrateConsoleColor Info = Rgb(23, 162, 184);
+        public static readonly GrateConsoleColor Black = new(AnsiColors.Black);
+        public static readonly GrateConsoleColor DarkRed = new(AnsiColors.DarkRed);
+        public static readonly GrateConsoleColor DarkGreen = new(AnsiColors.DarkGreen);
+        public static readonly GrateConsoleColor DarkYellow = new(AnsiColors.DarkYellow);
+        public static readonly GrateConsoleColor DarkBlue = new(AnsiColors.DarkBlue);
+        public static readonly GrateConsoleColor DarkMagenta = new(AnsiColors.DarkMagenta);
+        public static readonly GrateConsoleColor DarkCyan = new(AnsiColors.DarkCyan);
+        public static readonly GrateConsoleColor Gray = new(AnsiColors.Gray);
+        public static readonly GrateConsoleColor DarkGray = Rgb(192, 192, 192);
+        public static readonly GrateConsoleColor Red = new(AnsiColors.Red);
+        public static readonly GrateConsoleColor Green = new(AnsiColors.Green);
+        public static readonly GrateConsoleColor Yellow = new(AnsiColors.Yellow);
+        public static readonly GrateConsoleColor Blue = new(AnsiColors.Blue);
+        public static readonly GrateConsoleColor Magenta = new(AnsiColors.Magenta);
+        public static readonly GrateConsoleColor Cyan = new(AnsiColors.Cyan);
+        public static readonly GrateConsoleColor White = new(AnsiColors.White);
+
+        private static GrateConsoleColor Rgb(int r, int g, int b) => new(AnsiColors.Rgb(r, g, b));
 
     }
 
@@ -81,19 +79,19 @@ public record GrateConsoleColor
             internal static string Rgb(int r, int g, int b) => $"\x1b[48;2;{r};{g};{b}m";
             // ReSharper restore MemberHidesStaticFromOuterClass
         }
-            
-        public static readonly GrateConsoleColor Default = new GrateConsoleColor(AnsiColors.Default, ConsoleColor.Black); 
-        public static readonly GrateConsoleColor Info = Rgb(23, 162, 184);
-        public static readonly GrateConsoleColor Black = new GrateConsoleColor(AnsiColors.Black, ConsoleColor.Black);
-        public static readonly GrateConsoleColor DarkRed = new GrateConsoleColor(AnsiColors.DarkRed, ConsoleColor.DarkRed);
-        public static readonly GrateConsoleColor DarkGreen = new GrateConsoleColor(AnsiColors.DarkGreen, ConsoleColor.DarkGreen);
-        public static readonly GrateConsoleColor DarkYellow = new GrateConsoleColor(AnsiColors.DarkYellow, ConsoleColor.DarkYellow);
-        public static readonly GrateConsoleColor DarkBlue = new GrateConsoleColor(AnsiColors.DarkBlue, ConsoleColor.DarkBlue);
-        public static readonly GrateConsoleColor DarkMagenta = new GrateConsoleColor(AnsiColors.DarkMagenta, ConsoleColor.DarkMagenta);
-        public static readonly GrateConsoleColor DarkCyan = new GrateConsoleColor(AnsiColors.DarkCyan, ConsoleColor.DarkCyan);
-        public static readonly GrateConsoleColor Gray = new GrateConsoleColor(AnsiColors.Gray, ConsoleColor.Gray);
 
-        private static GrateConsoleColor Rgb(int r, int g, int b) => new GrateConsoleColor(AnsiColors.Rgb(r, g, b), ConsoleColor.Gray);
+        public static readonly GrateConsoleColor Default = new(AnsiColors.Default);
+        public static readonly GrateConsoleColor Info = Rgb(23, 162, 184);
+        public static readonly GrateConsoleColor Black = new(AnsiColors.Black);
+        public static readonly GrateConsoleColor DarkRed = new(AnsiColors.DarkRed);
+        public static readonly GrateConsoleColor DarkGreen = new(AnsiColors.DarkGreen);
+        public static readonly GrateConsoleColor DarkYellow = new(AnsiColors.DarkYellow);
+        public static readonly GrateConsoleColor DarkBlue = new(AnsiColors.DarkBlue);
+        public static readonly GrateConsoleColor DarkMagenta = new(AnsiColors.DarkMagenta);
+        public static readonly GrateConsoleColor DarkCyan = new(AnsiColors.DarkCyan);
+        public static readonly GrateConsoleColor Gray = new(AnsiColors.Gray);
+
+        private static GrateConsoleColor Rgb(int r, int g, int b) => new(AnsiColors.Rgb(r, g, b));
     }
 
 }

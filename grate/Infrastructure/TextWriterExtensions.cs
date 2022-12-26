@@ -7,26 +7,26 @@ internal static class TextWriterExtensions
 {
     private static bool? _supportsAnsiColors;
 
-    public static void WriteColoredMessage(this TextWriter textWriter, string message, GrateConsoleColor background, GrateConsoleColor foreground)
+    public static void WriteColoredMessage(this TextWriter textWriter, string message, GrateConsoleColor foreground)
     {
-        SetColorsIfEnabled(textWriter, background, foreground);
+        SetColorsIfEnabled(textWriter, foreground);
         textWriter.Write(message);
         ResetColorsIfEnabled(textWriter);
     }
         
-    public static void WriteColoredMessageLine(this TextWriter textWriter, string? message, GrateConsoleColor background, GrateConsoleColor foreground)
+    public static void WriteColoredMessageLine(this TextWriter textWriter, string? message, GrateConsoleColor foreground)
     {
-        SetColorsIfEnabled(textWriter, background, foreground);
+        SetColorsIfEnabled(textWriter, foreground);
         textWriter.WriteLine(message);
         ResetColorsIfEnabled(textWriter);
     }
         
             
-    private static void SetColorsIfEnabled(TextWriter textWriter, GrateConsoleColor background, GrateConsoleColor foreground)
+    private static void SetColorsIfEnabled(TextWriter textWriter, GrateConsoleColor foreground)
     {
         if (!DisableAnsiColors)
         {
-            SetColors(textWriter, background.AnsiColorCode, foreground.AnsiColorCode);
+            SetColors(textWriter, foreground.AnsiColorCode);
         }
     }
 
@@ -45,9 +45,9 @@ internal static class TextWriterExtensions
         textWriter.Write(GrateConsoleColor.Background.Default.AnsiColorCode); // reset to the background color
     }
 
-    private static void SetColors(TextWriter textWriter, string backgroundColorAnsiCode, string foregroundColorAnsiCode)
+    private static void SetColors(TextWriter textWriter, string foregroundColorAnsiCode)
     {
-        textWriter.Write(backgroundColorAnsiCode);
+        // Bug #282: Don't change the users terminal background.  If they can't read our output well so be it.
         textWriter.Write(foregroundColorAnsiCode);
     }
 
@@ -63,7 +63,7 @@ internal static class TextWriterExtensions
             lock (Console.Out)
             {
                 var (oldPosition, _) = Console.GetCursorPosition();
-                SetColors(Console.Out, GrateConsoleColor.Background.Gray.AnsiColorCode, GrateConsoleColor.Foreground.Blue.AnsiColorCode);
+                SetColors(Console.Out, GrateConsoleColor.Foreground.Blue.AnsiColorCode);
                 var (currentPosition, yPos) = Console.GetCursorPosition();
 
                 ResetColors(Console.Out);
