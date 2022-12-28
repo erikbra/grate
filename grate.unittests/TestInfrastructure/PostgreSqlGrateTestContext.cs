@@ -39,6 +39,6 @@ internal class PostgreSqlGrateTestContext : TestContextBase, IGrateTestContext, 
     };
 
 
-    public string ExpectedVersionPrefix => "PostgreSQL 14.";
+    public string ExpectedVersionPrefix => "PostgreSQL 15.";
     public bool SupportsCreateDatabase => true;
 }
