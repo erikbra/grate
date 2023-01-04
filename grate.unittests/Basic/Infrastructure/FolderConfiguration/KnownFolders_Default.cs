@@ -45,12 +45,12 @@ public class KnownFolders_Default
     [Test]
     [TestCaseSource(nameof(ExpectedKnownFolderNames))]
     public void Has_expected_folder_configuration(
-            MigrationsFolder folder, 
-            string expectedName, 
-            MigrationType expectedType,
-            ConnectionType expectedConnectionType,
-            TransactionHandling transactionHandling
-        )
+        MigrationsFolder folder, 
+        string expectedName, 
+        MigrationType expectedType,
+        ConnectionType expectedConnectionType,
+        TransactionHandling transactionHandling
+    )
     {
         var root = Root.ToString();
         
@@ -94,11 +94,11 @@ public class KnownFolders_Default
     ) =>
         new TestCaseData(folder, expectedName, expectedType, expectedConnectionType, transactionHandling)
             .SetArgDisplayNames(
-                    migrationsFolderDefinitionName, 
-                    expectedName,
-                    expectedType.ToString(),
-                    "conn: " + expectedConnectionType,
-                    "tran: " + transactionHandling
-                );
+                migrationsFolderDefinitionName, 
+                expectedName,
+                expectedType.ToString(),
+                "conn: " + expectedConnectionType,
+                "tran: " + transactionHandling
+            );
    
 }

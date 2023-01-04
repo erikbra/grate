@@ -3,6 +3,8 @@
 public interface IKnownFolderNames
 {
     string BeforeMigration { get; }
+    string CreateDatabase { get; }
+    string DropDatabase { get; }
     string AlterDatabase { get; }
     string RunAfterCreateDatabase { get; }
     string RunBeforeUp { get; }

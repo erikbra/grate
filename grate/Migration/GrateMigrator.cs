@@ -229,7 +229,7 @@ public class GrateMigrator : IAsyncDisposable
         return (versionId, newVersion);
     }
 
-    private static async Task<bool> CreateDatabaseIfItDoesNotExist(IDbMigrator dbMigrator)
+    private async Task<bool> CreateDatabaseIfItDoesNotExist(IDbMigrator dbMigrator)
     {
         bool databaseCreated;
         if (await dbMigrator.DatabaseExists())
@@ -238,7 +238,28 @@ public class GrateMigrator : IAsyncDisposable
         }
         else
         {
-            databaseCreated = await dbMigrator.CreateDatabase();
+            var config = dbMigrator.Configuration;
+            var createDatabaseFolder = config.Folders?.CreateDatabase;
+            var database = _migrator.Database;
+            
+            var path = Wrap(config.SqlFilesDirectory, createDatabaseFolder.Path);
+            
+            if (path.Exists)
+            {
+                //await LogAndProcess(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
+                var changeDropFolder = ChangeDropFolder(config, database.ServerName, database.DatabaseName);
+                databaseCreated = await ProcessWithoutLogging(
+                    config.SqlFilesDirectory,
+                    createDatabaseFolder,
+                    changeDropFolder,
+                    createDatabaseFolder.ConnectionType,
+                    createDatabaseFolder.TransactionHandling
+                );
+            }
+            else
+            {
+                databaseCreated = await dbMigrator.CreateDatabase();
+            }
         }
         return databaseCreated;
     }
@@ -330,6 +351,53 @@ public class GrateMigrator : IAsyncDisposable
         }
 
     }
+    
+    private async Task<bool> ProcessWithoutLogging(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder,
+        ConnectionType connectionType, TransactionHandling transactionHandling)
+    {
+        var path = Wrap(root, folder.Path);
+
+        await EnsureConnectionIsOpen(connectionType);
+
+        var pattern = "*.sql";
+        var files = FileSystem.GetFiles(path, pattern);
+
+        var anySqlRun = false;
+
+        foreach (var file in files)
+        {
+            var sql = await File.ReadAllTextAsync(file.FullName);
+
+            // Normalize file names to log, so that results won't vary if you run on *nix VS Windows
+            var fileNameToLog = string.Join('/',
+                Path.GetRelativePath(path.ToString(), file.FullName).Split(Path.DirectorySeparatorChar));
+
+            bool theSqlRan = await _migrator.RunSqlWithoutLogging(sql, fileNameToLog, _migrator.Configuration.Environment,
+                connectionType, transactionHandling);
+
+            if (theSqlRan)
+            {
+                anySqlRun = true;
+                try
+                {
+                    CopyToChangeDropFolder(path.Parent!, file, changeDropFolder);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Unable to copy {File} to {ChangeDropFolder}. \n{Exception}", file, changeDropFolder, ex.Message);
+                }
+            }
+        }
+
+        if (!anySqlRun)
+        {
+            _logger.LogInformation(" No sql run, either an empty folder, or all files run against destination previously.");
+        }
+
+        return anySqlRun;
+
+    }
+
 
     private void CopyToChangeDropFolder(DirectoryInfo migrationRoot, FileSystemInfo file, string changeDropFolder)
     {
