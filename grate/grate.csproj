@@ -27,7 +27,7 @@ up using modern .NET 6.
     <PackageReference Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-*" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.*" />
     <PackageReference Include="Dapper" Version="2.0.*" />
-    <PackageReference Include="Npgsql" Version="6.0.*" />
+    <PackageReference Include="Npgsql" Version="7.0.*" />
     <PackageReference Include="MySqlConnector" Version="2.2.*" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="7.0.*" />
     <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="3.21.*" />
