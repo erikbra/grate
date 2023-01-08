@@ -70,7 +70,7 @@ public abstract class Anytime_scripts : MigrationsScriptsBase
         }
 
         string[] scripts;
-        string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
+        string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")} ORDER BY id";
 
         await using (var conn = Context.CreateDbConnection(db))
         {
