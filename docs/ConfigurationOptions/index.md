@@ -21,7 +21,7 @@ grate --connectionstring="Server=(localdb)\MSSQLLocalDB;Integrated Security=true
 | Option | Default | Purpose |
 | ------ | ------- | ------- |
 | -c<br>-cs<br>--connectionstring<br>--connstring &lt;connectionstring&gt; | - | **REQUIRED** You now provide an entire connection string. ServerName and Database are obsolete. |
-| -a<br>-acs<br>-csa<br>--adminconnectionstring<br>--adminconnstring &lt;adminconnectionstring&gt; | Same as --connectionstring | The connection string for connecting to master, if you want to create the database. |
+| -a<br>-acs<br>-csa<br>--adminconnectionstring<br>--adminconnstring &lt;adminconnectionstring&gt; | The value provided via --connectionstring, with the target database replaced with "master" | Used when creating a new database, rather than migrating an existing one. Must be set manually when creating new databases on DBMSs where there isn't guaranteed to be a database called "master". |
 | -f<br>--files<br>--sqlfilesdirectory &lt;sqlfilesdirectory&gt; | . (current directory) | The directory where your SQL scripts are located |
 | --folders | Default folders as described in [Getting started](../GettingStarted.md) | Folder configuration, see [Folder configuration](FolderConfiguration.md) for details. | 
 | -o<br>--output<br>--outputPath &lt;outputPath&gt; | %LOCALAPPDATA%/grate | This is where everything related to the migration is stored. This includes any backups, all items that ran, permission dumps, logs, etc. |
