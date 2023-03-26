@@ -23,7 +23,14 @@ public static class Docker
         //TestContext.Progress.WriteLine("find port: " + findPortArgs);
 
         var hostPortList = await RunDockerCommand(findPortArgs);
-        var hostPort = hostPortList.Split(" ", StringSplitOptions.RemoveEmptyEntries).First();
+        var hostPort = hostPortList.Split(" ", StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+
+        if (hostPort is null)
+        {
+            throw new TestInfrastructureSetupException(
+                $"Unable to get host port from docker run output '${hostPortList}'");
+        }
+
         return (serverName, int.Parse(hostPort));
     }
 
