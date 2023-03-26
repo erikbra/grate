@@ -20,11 +20,10 @@ jobs:
       #is-release: 'true'
     
     steps:
-    - name: Setup .NET 6
+    - name: Setup .NET 7
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.0.x
-        include-prerelease: false
+        dotnet-version: 7.0.x
     - name: Checkout
       uses: actions/checkout@v3
       with:
@@ -45,11 +44,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Setup .NET 6
+    - name: Setup .NET 7
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.0.x
-        include-prerelease: false
+        dotnet-version: 7.0.x
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
@@ -78,23 +76,22 @@ jobs:
       matrix:
         arch: [ "win-x64", "win-x86", "win-arm", "win-arm64", 
                 "alpine-x64", "linux-x64", "linux-arm", "linux-arm64",
-                 "osx-x64"
+                "osx-x64", "osx.11.0-x64", "osx.11.0-arm64", "osx.12-x64", "osx.12-arm64", "osx.13-x64", "osx.13-arm64"
               ]
 
     steps:
     - uses: actions/checkout@v3
-    - name: Setup .NET 6
+    - name: Setup .NET 7
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.0.x
-        include-prerelease: false
+        dotnet-version: 7.0.x
 
     - name: Publish self-contained ${{ matrix.arch }}
       run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
 
-    - name: Publish .NET 6 dependent ${{ matrix.arch }}
+    - name: Publish .NET 6/7 dependent ${{ matrix.arch }}
       run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --no-self-contained  -o ./publish/${{ matrix.arch }}/dependent
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
@@ -122,7 +119,7 @@ jobs:
     if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
     strategy:
       matrix:
-        arch: [ "win-x64" ]
+        arch: [ "win-x64", "win-arm64" ]
 
     steps:
     - uses: actions/checkout@v3
@@ -264,11 +261,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Setup .NET 6
+    - name: Setup .NET 7
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.0.x
-        include-prerelease: false
+        dotnet-version: 7.0.x
     - name: Test
       run: dotnet test --filter FullyQualifiedName~grate.unittests.${{ matrix.category }} -c Release --logger:"trx;LogFilePath=test-results-${{ matrix.category }}.xml" -- -MaxCpuCount 2
 #      run:  dotnet test --verbosity Normal -c Release --logger "trx;LogFileName=/tmp/test-results/grate.unittests.trx"

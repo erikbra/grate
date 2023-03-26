@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
+    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
     <DebugType>Embedded</DebugType>
     <Nullable>enable</Nullable>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -12,7 +13,7 @@
 grate - sql for the 20s
     
 grate is a no-code, low-fi database migration tool, inspired heavily by RoundhousE. It's written from the ground
-up using modern .NET 6. 
+up using modern .NET 6/7. 
     </Description>
     <PackageProjectUrl>https://erikbra.github.io/grate/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/erikbra/grate</RepositoryUrl>
