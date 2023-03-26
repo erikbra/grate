@@ -21,11 +21,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Setup .NET 6
+    - name: Setup .NET 7
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.0.x
-        include-prerelease: false
+        dotnet-version: 7.0.x
     - name: Restore dependencies
       run: dotnet restore -r linux-x64 grate.unittests/grate.unittests.csproj
     - name: Build
@@ -52,18 +51,10 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Setup .NET 6
+    - name: Setup .NET 7
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.0.x
-        include-prerelease: false
-
-    # Initializes the CodeQL tools for scanning.
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
-      with:
-        languages: 'csharp' 
-
+        dotnet-version: 7.0.x
     - name: Autobuild
       uses: github/codeql-action/autobuild@v2
 
@@ -86,11 +77,10 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: binaries    
-    - name: Setup .NET 6
+    - name: Setup .NET 7
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.0.x
-        include-prerelease: false
+        dotnet-version: 7.0.x
     - name: Test
       run: dotnet test --TestCaseFilter:"FullyQualifiedName~grate.unittests.${{ matrix.category }}" bin/grate.unittests.dll --logger:"trx;LogFileName=test-results-${{ matrix.category }}.xml" -- -MaxCpuCount 2
       env:

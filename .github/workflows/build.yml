@@ -24,7 +24,6 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 7.0.x
-        include-prerelease: false
     - name: Checkout
       uses: actions/checkout@v3
       with:
@@ -49,7 +48,6 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 7.0.x
-        include-prerelease: false
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
@@ -78,7 +76,7 @@ jobs:
       matrix:
         arch: [ "win-x64", "win-x86", "win-arm", "win-arm64", 
                 "alpine-x64", "linux-x64", "linux-arm", "linux-arm64",
-                 "osx-x64", "osx.11.0-x64", "osx.11.0-arm64", "osx.12-x64", "osx.12-arm64", "osx.13-x64", "osx.13-arm64"
+                "osx-x64", "osx.11.0-x64", "osx.11.0-arm64", "osx.12-x64", "osx.12-arm64", "osx.13-x64", "osx.13-arm64"
               ]
 
     steps:
@@ -87,7 +85,6 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 7.0.x
-        include-prerelease: false
 
     - name: Publish self-contained ${{ matrix.arch }}
       run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
@@ -268,7 +265,6 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 7.0.x
-        include-prerelease: false
     - name: Test
       run: dotnet test --filter FullyQualifiedName~grate.unittests.${{ matrix.category }} -c Release --logger:"trx;LogFilePath=test-results-${{ matrix.category }}.xml" -- -MaxCpuCount 2
 #      run:  dotnet test --verbosity Normal -c Release --logger "trx;LogFileName=/tmp/test-results/grate.unittests.trx"
