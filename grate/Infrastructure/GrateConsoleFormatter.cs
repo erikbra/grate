@@ -52,11 +52,11 @@ public class GrateConsoleFormatter : ConsoleFormatter, IDisposable
         LogLevel logLevel = logEntry.LogLevel;
         ConsoleColors logLevelColors = GetLogLevelConsoleColors(logLevel);
 
-        textWriter.WriteColoredMessageLine(message, logLevelColors.Background, logLevelColors.Foreground);
+        textWriter.WriteColoredMessageLine(message, logLevelColors.Foreground);
 
         if (exception != null)
         {
-            textWriter.WriteColoredMessageLine(exception.ToString(), logLevelColors.Background, logLevelColors.Foreground);
+            textWriter.WriteColoredMessageLine(exception.ToString(), logLevelColors.Foreground);
         }
         textWriter.Flush();
     }
@@ -74,12 +74,12 @@ public class GrateConsoleFormatter : ConsoleFormatter, IDisposable
         // since just setting one can look bad on the users console.
         return logLevel switch
         {
-            LogLevel.Trace => new ConsoleColors(GrateConsoleColor.Foreground.DarkYellow, GrateConsoleColor.Background.Black),
-            LogLevel.Debug => new ConsoleColors(GrateConsoleColor.Foreground.DarkGray, GrateConsoleColor.Background.Black),
-            LogLevel.Information => new ConsoleColors(GrateConsoleColor.Foreground.Green, GrateConsoleColor.Background.Black),
-            LogLevel.Warning => new ConsoleColors(GrateConsoleColor.Foreground.Yellow, GrateConsoleColor.Background.Black),
-            LogLevel.Error => new ConsoleColors(GrateConsoleColor.Foreground.Black, GrateConsoleColor.Background.DarkRed),
-            LogLevel.Critical => new ConsoleColors(GrateConsoleColor.Foreground.White, GrateConsoleColor.Background.DarkRed),
+            LogLevel.Trace => new ConsoleColors(GrateConsoleColor.Foreground.DarkYellow),
+            LogLevel.Debug => new ConsoleColors(GrateConsoleColor.Foreground.DarkGray),
+            LogLevel.Information => new ConsoleColors(GrateConsoleColor.Foreground.Green),
+            LogLevel.Warning => new ConsoleColors(GrateConsoleColor.Foreground.Yellow),
+            LogLevel.Error => new ConsoleColors(GrateConsoleColor.Foreground.Black),
+            LogLevel.Critical => new ConsoleColors(GrateConsoleColor.Foreground.White),
             _ => ConsoleColors.None
         };
     }
@@ -87,14 +87,12 @@ public class GrateConsoleFormatter : ConsoleFormatter, IDisposable
 
     private readonly struct ConsoleColors
     {
-        public ConsoleColors(GrateConsoleColor foreground, GrateConsoleColor background)
+        public ConsoleColors(GrateConsoleColor foreground)
         {
             Foreground = foreground;
-            Background = background;
         }
 
         public GrateConsoleColor Foreground { get; }
-        public GrateConsoleColor Background { get; }
 
         public static ConsoleColors None => new();
     }
