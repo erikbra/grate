@@ -1,4 +1,8 @@
 ﻿using grate.unittests.TestInfrastructure;
+using NUnit.Framework;
+
+// The SQL server tests on macOS (using Azure SQL Edge server) doesn't work well with parallel threads
+[assembly: LevelOfParallelism(1)]
 
 namespace grate.unittests;
 

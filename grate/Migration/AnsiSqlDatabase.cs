@@ -10,6 +10,7 @@ using Dapper;
 using grate.Configuration;
 using grate.Exceptions;
 using grate.Infrastructure;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using static System.StringSplitOptions;
 using IsolationLevel = System.Transactions.IsolationLevel;
@@ -661,7 +662,23 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
             cmd.CommandTimeout = timeout.Value;
         }
 
-        await cmd.ExecuteNonQueryAsync();
+        var success = false;
+        const int maxRetries = 10;
+        var numRetries = 0;
+
+        do
+        {
+            try
+            {
+                await cmd.ExecuteNonQueryAsync();
+                success = true;
+            }
+            catch (SqlException e) when (e.IsTransient && ++numRetries < maxRetries)
+            {
+                await Task.Delay(150);
+            }
+        } while (!success);
+
     }
 
     public async ValueTask DisposeAsync()

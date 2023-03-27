@@ -19,8 +19,32 @@ public class SqlServerDatabase : AnsiSqlDatabase
     protected override bool SupportsSchemas => true;
     protected override DbConnection GetSqlConnection(string? connectionString)
     {
+        // Define the retry logic parameters
+        var options = new SqlRetryLogicOption()
+        {
+            // Tries 5 times before throwing an exception
+            NumberOfTries = 15,
+            
+            // Preferred gap time to delay before retry
+            DeltaTime = TimeSpan.FromMilliseconds(250),
+            
+            // Minimum gap time for each delay time before retry
+            MinTimeInterval = TimeSpan.FromMilliseconds(150),
+            
+            // Maximum gap time for each delay time before retry
+            MaxTimeInterval = TimeSpan.FromSeconds(5),
+            
+            TransientErrors = new []{ 1205, 3314, 3316, 3434, 3449 }
+        };
+        
+        // Create a retry logic provider
+        SqlRetryLogicBaseProvider provider = SqlConfigurableRetryFactory.CreateExponentialRetryProvider(options);
+        
         var conn = new SqlConnection(connectionString);
         conn.AccessToken = AccessToken;
+        
+        // Set the retry logic provider on the connection instance
+        conn.RetryLogicProvider = provider;
 
         return conn;
     }

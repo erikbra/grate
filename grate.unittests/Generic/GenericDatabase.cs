@@ -146,7 +146,10 @@ public abstract class GenericDatabase
                     databases = await conn.QueryAsync<string>(sql);
                     break;
                 }
-                catch (DbException) { }
+                catch (DbException)
+                {
+                    await Task.Delay(150);
+                }
             }
         }
         return databases;
