@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using grate.Infrastructure;
@@ -34,14 +35,15 @@ public record GrateConfiguration
 
     public string? AccessToken { get; set; } = null;
 
-    private static string? WithAdminDb(string? connectionString)
+    private string? WithAdminDb(string? connectionString)
     {
         if (string.IsNullOrEmpty(connectionString))
         {
             return connectionString;
         }
         var pattern = new Regex("(.*;\\s*(?:Initial Catalog|Database)=)([^;]*)(.*)");
-        var replaced = pattern.Replace(connectionString, "$1master$3");
+        var replacement = $"$1{GetMasterDbName(DatabaseType)}$3";
+        var replaced = pattern.Replace(connectionString, replacement);
         return replaced;
     }
 
@@ -119,4 +121,15 @@ public record GrateConfiguration
     /// If specified, location of the backup file to use when restoring
     /// </summary>
     public string? Restore { get; init; }
+
+    private static string GetMasterDbName(DatabaseType databaseType) => databaseType switch
+    {
+        DatabaseType.mariadb => "mysql",
+        DatabaseType.oracle => "oracle",
+        DatabaseType.postgresql => "postgres",
+        DatabaseType.sqlite => "master",
+        DatabaseType.sqlserver => "master",
+        _ => throw new ArgumentOutOfRangeException(nameof(databaseType), databaseType.ToString())
+    };
+
 }

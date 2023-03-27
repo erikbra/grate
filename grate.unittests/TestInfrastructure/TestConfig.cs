@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using grate.Configuration;
 using Microsoft.Extensions.Logging;
 using static System.StringSplitOptions;
 
@@ -67,5 +68,15 @@ public static class TestConfig
        
         return path;
     }
-        
+
+    public static IGrateTestContext GetTestContext(DatabaseType databaseType) => databaseType switch
+    {
+        DatabaseType.mariadb => new MariaDbGrateTestContext(),
+        DatabaseType.oracle => new OracleGrateTestContext(),
+        DatabaseType.postgresql => new PostgreSqlGrateTestContext(),
+        DatabaseType.sqlite => new SqliteGrateTestContext(),
+        DatabaseType.sqlserver => new SqlServerGrateTestContext(),
+        _ => throw new ArgumentOutOfRangeException(nameof(databaseType), databaseType.ToString())
+    };
+
 }
