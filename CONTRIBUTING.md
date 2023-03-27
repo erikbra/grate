@@ -28,7 +28,7 @@ git clone https://github.com/erikbra/grate.git
 
 ```
 > cd grate
-> dotnet test
+> dotnet test --framework net7.0
 ```
 
 ## Build a self-contained executable (if you want)

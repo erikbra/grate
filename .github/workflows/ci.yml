@@ -87,7 +87,7 @@ jobs:
       with:
         dotnet-version: 7.0.x
     - name: Test
-      run: dotnet test --TestCaseFilter:"FullyQualifiedName~grate.unittests.${{ matrix.category }}" bin/grate.unittests.dll --logger:"trx;LogFileName=test-results-${{ matrix.category }}.xml" -- -MaxCpuCount 2
+      run: dotnet test --filter "FullyQualifiedName~grate.unittests.${{ matrix.category }}" bin/grate.unittests.dll --logger:"trx;LogFileName=test-results-${{ matrix.category }}.xml" -- -MaxCpuCount 2
       env:
         LogLevel: Warning
         TZ: UTC
