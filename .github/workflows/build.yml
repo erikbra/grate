@@ -266,7 +266,7 @@ jobs:
       with:
         dotnet-version: 7.0.x
     - name: Test
-      run: dotnet test --filter FullyQualifiedName~grate.unittests.${{ matrix.category }} -c Release --logger:"trx;LogFilePath=test-results-${{ matrix.category }}.xml" -- -MaxCpuCount 2
+      run: dotnet test --filter "FullyQualifiedName~grate.unittests.${{ matrix.category }}"" -c Release --logger:"trx;LogFilePath=test-results-${{ matrix.category }}.xml" -- -MaxCpuCount 2
 #      run:  dotnet test --verbosity Normal -c Release --logger "trx;LogFileName=/tmp/test-results/grate.unittests.trx"
       env:
         LogLevel: Warning
