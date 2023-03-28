@@ -96,7 +96,7 @@ if you find it cumbersome to write all the folders on the command line.
 
 Example:
 
-  --folders up=ddl;views=projections;beforemigration=preparefordeploy
+  --folders 'up=ddl;views=projections;beforemigration=preparefordeploy'
 
 or 
 
