@@ -324,7 +324,7 @@ public class GrateMigrator : IAsyncDisposable
             }
         }
 
-        if (!anySqlRun)
+        if (!anySqlRun && !_migrator.Configuration.DryRun)
         {
             _logger.LogInformation(" No sql run, either an empty folder, or all files run against destination previously.");
         }
