@@ -44,8 +44,11 @@ This would use the [default folder configuration](#default-folder-configuration)
 `ddl` folder for **up** scripts, in the `projections` folder for **views**, and in the `preparefordeploy` folder for **beforemigration** scripts.
 
 ```
---folders up=ddl;views=projections;beforemigration=preparefordeploy
+--folders 'up=ddl;views=projections;beforemigration=preparefordeploy'
 ```
+
+**NOTE:** Be sure to use quotes when specifying multiple folders in the argument, as many shells treat `;` as
+a the "end this command" character, so everything after the `;` will not be part of the command line.
 
 or 
 
