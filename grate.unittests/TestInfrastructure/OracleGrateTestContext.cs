@@ -29,6 +29,7 @@ internal class OracleGrateTestContext : TestContextBase, IGrateTestContext, IDoc
 
     public DatabaseType DatabaseType => DatabaseType.oracle;
     public bool SupportsTransaction => false;
+
     public string DatabaseTypeName => "Oracle";
     public string MasterDatabase => "oracle";
 
