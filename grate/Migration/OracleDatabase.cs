@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using Dapper;
@@ -11,6 +12,7 @@ using grate.Configuration;
 using grate.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Oracle.ManagedDataAccess.Client;
+using Oracle.ManagedDataAccess.Types;
 using static System.StringSplitOptions;
 
 namespace grate.Migration;
@@ -88,6 +90,7 @@ WHERE  version_row_number <= 1
 
     protected override string Parameterize(string sql) => sql.Replace("@", ":");
     protected override object Bool(bool source) => source ? '1' : '0';
+    protected override object? Text(string? source) => source == null ? null : new OracleClobParameter(source);
 
     public override async Task<long> VersionTheDatabase(string newVersion)
     {
@@ -172,5 +175,40 @@ BEGIN
   SELECT {table}_seq.nextval INTO :new.id FROM dual;
 END;";
         await ExecuteNonQuery(ActiveConnection, sql, Config?.CommandTimeout);
+    }
+    
+    private class OracleClobParameter : SqlMapper.ICustomQueryParameter
+    {
+        private readonly string _value;
+
+        public OracleClobParameter(string value)
+        {
+            _value = value;
+        }
+
+        public void AddParameter(IDbCommand command, string name)
+        {
+            var clob = new OracleClob(command.Connection as OracleConnection);
+
+            // It should be Unicode Oracle throws an exception when
+            // the length is not even.
+            var bytes = Encoding.Unicode.GetBytes(_value);
+            var length = Encoding.Unicode.GetByteCount(_value);
+
+            int pos = 0;
+            int chunkSize = 32768;
+
+            while (pos < length)
+            {
+                chunkSize = chunkSize > (length - pos) ? length - pos : chunkSize;
+                clob.Write(bytes, pos, chunkSize);
+                pos += chunkSize;
+            }
+
+            var param = new OracleParameter(name, OracleDbType.Clob);
+            param.Value = clob;
+
+            command.Parameters.Add(param);
+        }
     }
 }

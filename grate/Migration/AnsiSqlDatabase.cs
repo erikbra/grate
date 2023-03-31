@@ -18,6 +18,9 @@ namespace grate.Migration;
 
 public abstract class AnsiSqlDatabase : IDatabase
 {
+    private const string Now = "now";
+    private const string User = "usr";
+    
     private string SchemaName { get; set; } = "";
 
     protected GrateConfiguration? Config { get; private set; }
@@ -564,6 +567,7 @@ SELECT 1 FROM  {ScriptsRunTable}
 WHERE script_name = @scriptName";
 
     protected virtual object Bool(bool source) => source;
+    protected virtual object? Text(string? source) => source;
 
     public async Task InsertScriptRun(string scriptName, string? sql, string hash, bool runOnce, long versionId,
         TransactionHandling transactionHandling)
@@ -576,16 +580,14 @@ INSERT INTO {ScriptsRunTable}
 (version_id, script_name, text_of_script, text_hash, one_time_script, entry_date, modified_date, entered_by)
 VALUES (@versionId, @scriptName, @sql, @hash, @runOnce, @now, @now, @usr)");
 
-        var scriptRun = new
-        {
-            versionId,
-            scriptName,
-            sql,
-            hash,
-            runOnce = Bool(runOnce),
-            now = DateTime.UtcNow,
-            usr = Environment.UserName
-        };
+        var scriptRun = new DynamicParameters();
+        scriptRun.Add(nameof(versionId), versionId);
+        scriptRun.Add(nameof(scriptName), scriptName);
+        scriptRun.Add(nameof(sql), Text(sql));
+        scriptRun.Add(nameof(hash), hash);
+        scriptRun.Add(nameof(runOnce), Bool(runOnce));
+        scriptRun.Add(Now, DateTime.UtcNow);
+        scriptRun.Add(User, Environment.UserName);
 
         await ExecuteAsync(ActiveConnection, insertSql, scriptRun);
     }
@@ -601,16 +603,14 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
 
         var version = await ExecuteScalarAsync<string>(ActiveConnection, versionSql, new { versionId });
 
-        var scriptRunErrors = new
-        {
-            version,
-            scriptName,
-            sql,
-            errorSql,
-            errorMessage,
-            now = DateTime.UtcNow,
-            usr = Environment.UserName,
-        };
+        var scriptRunErrors = new DynamicParameters();
+        scriptRunErrors.Add(nameof(version), version);
+        scriptRunErrors.Add(nameof(scriptName), scriptName);
+        scriptRunErrors.Add(nameof(sql), Text(sql));
+        scriptRunErrors.Add(nameof(errorSql), Text(errorSql));
+        scriptRunErrors.Add(nameof(errorMessage), Text(errorMessage));
+        scriptRunErrors.Add(Now, DateTime.UtcNow);
+        scriptRunErrors.Add(User, Environment.UserName);
 
         await ExecuteAsync(ActiveConnection, insertSql, scriptRunErrors);
     }
