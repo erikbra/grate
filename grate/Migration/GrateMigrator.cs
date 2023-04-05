@@ -139,7 +139,21 @@ public class GrateMigrator : IAsyncDisposable
                     // Catch exceptions, so that we run the rest of the scripts, that should always be run.
                     exceptions.Add(ex);
                     exceptionOccured = true;
-                }
+                }finally{
+                {
+                    if (folder!.CloseAfterRun)
+                    {
+                        switch (folder.ConnectionType)
+                        {
+                            case ConnectionType.Default:
+                                await _migrator.CloseConnection();
+                                break;
+                            case ConnectionType.Admin:
+                                await _migrator.CloseAdminConnection();
+                                break;
+                        }
+                    }
+                }}
             }
             
             await dbMigrator.CloseConnection();

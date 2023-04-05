@@ -17,14 +17,17 @@ public record MigrationsFolder(
         string Path,
         MigrationType Type = MigrationType.Once,
         ConnectionType ConnectionType = ConnectionType.Default,
-        TransactionHandling TransactionHandling = TransactionHandling.Default)
+        TransactionHandling TransactionHandling = TransactionHandling.Default,
+        bool CloseAfterRun = false)
 {
     public MigrationsFolder(
         string name,
         MigrationType type = MigrationType.Once,
         ConnectionType connectionType = ConnectionType.Default,
-        TransactionHandling transactionHandling = TransactionHandling.Default)
-        : this(name, name, type, connectionType, transactionHandling)
+        TransactionHandling transactionHandling = TransactionHandling.Default,
+        bool closeAfterRun = false
+        )
+        : this(name, name, type, connectionType, transactionHandling, closeAfterRun)
     { }
 
 }
