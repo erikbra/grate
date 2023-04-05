@@ -34,12 +34,12 @@ ALTER DATABASE {{DatabaseName}} SET READ_COMMITTED_SNAPSHOT ON;";
         var parent = CreateRandomTempDirectory();
         var configuration = GrateConfiguration.Default with { SqlFilesDirectory = parent };
         var path = new DirectoryInfo(Path.Combine(parent.ToString(),
-            configuration.KnownFolders!.AlterDatabase!.Path.ToString()));
+            configuration.KnownFolders!.RunAfterCreateDatabase!.Path.ToString()));
 
-        //WriteSql(path, "bothscripts.sql", Bug232Sql);
+        WriteSql(path, "bothscripts.sql", Bug232Sql);
         
-        WriteSql(path, "script1.sql", Bug232Sql_1);
-        WriteSql(path, "script2.sql", Bug232Sql_2);
+        //WriteSql(path, "script1.sql", Bug232Sql_1);
+        //WriteSql(path, "script2.sql", Bug232Sql_2);
 
         await using (var migrator = Context.GetMigrator(db, configuration.KnownFolders))
         {
