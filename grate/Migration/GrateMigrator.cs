@@ -242,9 +242,9 @@ public class GrateMigrator : IAsyncDisposable
             var createDatabaseFolder = config.Folders?.CreateDatabase;
             var database = _migrator.Database;
             
-            var path = Wrap(config.SqlFilesDirectory, createDatabaseFolder.Path);
+            var path = Wrap(config.SqlFilesDirectory, createDatabaseFolder?.Path  ?? "zz-xx-øø-definitely-does-not-exist");
             
-            if (path.Exists)
+            if (createDatabaseFolder is not null && path.Exists)
             {
                 //await LogAndProcess(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
                 var changeDropFolder = ChangeDropFolder(config, database.ServerName, database.DatabaseName);
