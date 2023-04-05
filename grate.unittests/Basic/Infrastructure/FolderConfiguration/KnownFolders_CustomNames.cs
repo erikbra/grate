@@ -69,6 +69,7 @@ public class KnownFolders_CustomNames
     private static readonly IKnownFolderNames OverriddenFolderNames = new KnownFolderNames()
     {
         BeforeMigration = "beforeMigration" + Random.GetString(8),
+        CreateDatabase = "createDatabase" + Random.GetString(8),
         AlterDatabase = "alterDatabase" + Random.GetString(8),
         RunAfterCreateDatabase = "runAfterCreateDatabase" + Random.GetString(8),
         RunBeforeUp = "runBeforeUp" + Random.GetString(8),

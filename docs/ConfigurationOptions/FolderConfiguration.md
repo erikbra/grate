@@ -131,6 +131,8 @@ grate processes the files in a standard set of directories in a fixed order for 
 
 | Folder | Script type | Explanation |
 | ------ | ------- |------- |
+| <nobr> (-1. dropDatabase)</nobr> | Anytime scripts | If you have the need for a custom `DROP DATABASE` script (used with the `--drop` command-line flag) |
+| <nobr> (0. createDatabase)</nobr> | Anytime scripts | If you have the need for a custom `CREATE DATABASE` script, put it here, and it will be used instead of the default. |
 | <nobr> 1. beforeMigration</nobr> | Everytime scripts | If you have particular tasks you want to perform prior to any database migrations (custom logging? database backups? disable replication?) you can do it here. |
 | <nobr>2. alterDatabase</nobr> | Anytime scripts | If you have scripts that need to alter the database config itself (rather than the _contents_ of the database) thjis is the place to do it.  For example setting recovery modes, enabling query stores, etc etc |
 | <nobr>3. runAfterCreateDatabase</nobr> | Anytime scripts | This directory is only processed if the database was created from scratch by grate.  Maybe you need to add user accounts or similar?

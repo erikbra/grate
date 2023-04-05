@@ -23,15 +23,17 @@ public class FoldersConfiguration: Dictionary<string, MigrationsFolder?>, IFolde
     
     public FoldersConfiguration() 
     { }
-
+    
+    public MigrationsFolder? CreateDatabase { get; set; }
+    public MigrationsFolder? DropDatabase { get; set; }
 
     public static FoldersConfiguration Empty => new();
     
     public static IFoldersConfiguration Default(IKnownFolderNames? folderNames = null)
     {
         folderNames ??= KnownFolderNames.Default;
-        
-        return new FoldersConfiguration()
+
+        var foldersConfiguration = new FoldersConfiguration()
         {
             { KnownFolderKeys.BeforeMigration, new MigrationsFolder("BeforeMigration", folderNames.BeforeMigration, EveryTime, TransactionHandling: TransactionHandling.Autonomous) },
             { KnownFolderKeys.AlterDatabase , new MigrationsFolder("AlterDatabase", folderNames.AlterDatabase, AnyTime, ConnectionType.Admin, TransactionHandling.Autonomous) },
@@ -46,8 +48,12 @@ public class FoldersConfiguration: Dictionary<string, MigrationsFolder?>, IFolde
             { KnownFolderKeys.Indexes, new MigrationsFolder("Indexes", folderNames.Indexes, AnyTime) },
             { KnownFolderKeys.RunAfterOtherAnyTimeScripts, new MigrationsFolder("Run after Other Anytime Scripts", folderNames.RunAfterOtherAnyTimeScripts, AnyTime) },
             { KnownFolderKeys.Permissions, new MigrationsFolder("Permissions", folderNames.Permissions, EveryTime, TransactionHandling: TransactionHandling.Autonomous) },
-            { KnownFolderKeys.AfterMigration, new MigrationsFolder("AfterMigration", folderNames.AfterMigration, EveryTime, TransactionHandling: TransactionHandling.Autonomous) }
+            { KnownFolderKeys.AfterMigration, new MigrationsFolder("AfterMigration", folderNames.AfterMigration, EveryTime, TransactionHandling: TransactionHandling.Autonomous) },
         };
+        foldersConfiguration.CreateDatabase = new MigrationsFolder("CreateDatabase", folderNames.CreateDatabase, AnyTime, ConnectionType.Admin, TransactionHandling.Autonomous);
+        foldersConfiguration.DropDatabase = new MigrationsFolder("DropDatabase", folderNames.DropDatabase, AnyTime, ConnectionType.Admin, TransactionHandling.Autonomous);
+        
+        return foldersConfiguration;
     }
 
 }

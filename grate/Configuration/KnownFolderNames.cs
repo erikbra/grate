@@ -3,6 +3,8 @@
 public record KnownFolderNames: IKnownFolderNames
 {
     public string BeforeMigration { get; init; } = "beforeMigration";
+    public string CreateDatabase { get; init; } = "createDatabase";
+    public string DropDatabase { get; init; } = "dropDatabase";
     public string AlterDatabase { get; init; } = "alterDatabase";
     public string RunAfterCreateDatabase { get; init; } = "runAfterCreateDatabase";
     public string RunBeforeUp { get; init; } = "runBeforeUp";

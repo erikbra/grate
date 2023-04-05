@@ -154,6 +154,42 @@ public class DbMigrator : IDbMigrator
 
         return theSqlWasRun;
     }
+    
+    public async Task<bool> RunSqlWithoutLogging(
+        string sql, 
+        string scriptName,
+        GrateEnvironment? environment,
+        ConnectionType connectionType, 
+        TransactionHandling transactionHandling)
+    {
+        async Task<bool> PrintLogAndRunSql()
+        {
+            _logger.LogInformation("  Running '{ScriptName}'.", scriptName);
+
+            if (Configuration.DryRun)
+            {
+                return false;
+            }
+            else
+            {
+                await RunTheActualSqlWithoutLogging(sql, scriptName, connectionType, transactionHandling);
+                return true;
+            }
+        }
+
+        if (!InCorrectEnvironment(scriptName, environment))
+        {
+            return false;
+        }
+
+        if (TokenReplacementEnabled)
+        {
+            sql = ReplaceTokensIn(sql);
+        }
+        
+        return await PrintLogAndRunSql();;
+    }
+
 
     public async Task RestoreDatabase(string backupPath)
     {
@@ -273,6 +309,34 @@ public class DbMigrator : IDbMigrator
 
         await RecordScriptInScriptsRunTable(scriptName, sql, migrationType, versionId, transactionHandling);
     }
+    
+    private async Task RunTheActualSqlWithoutLogging(
+        string sql,
+        string scriptName,
+        ConnectionType connectionType, 
+        TransactionHandling transactionHandling)
+    {
+        foreach (var statement in GetStatements(sql))
+        {
+            try
+            {
+                await Database.RunSql(statement, connectionType, transactionHandling);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error running script \"{ScriptName}\": {ErrorMessage}", scriptName, ex.Message);
+
+                if (Transaction.Current is not null) {
+                    Database.Rollback();
+                }
+
+                await Database.CloseConnection();
+                Transaction.Current?.Dispose();
+                throw;
+            }
+        }
+    }
+
 
     private IEnumerable<string> GetStatements(string sql) => StatementSplitter.Split(sql);
 

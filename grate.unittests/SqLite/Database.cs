@@ -42,5 +42,9 @@ public class Database: Generic.GenericDatabase
         return await ValueTask.FromResult(dbNames);
     }
 
+    [Ignore("SQLite does not support custom database creation script")]
+    public override Task Is_created_with_custom_script_if_custom_create_database_folder_exists() =>
+        Task.CompletedTask;
+
     protected override bool ThrowOnMissingDatabase => false;
 }
