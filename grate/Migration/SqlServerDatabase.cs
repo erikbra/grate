@@ -19,6 +19,15 @@ public class SqlServerDatabase : AnsiSqlDatabase
     protected override bool SupportsSchemas => true;
     protected override DbConnection GetSqlConnection(string? connectionString)
     {
+        // If pooling is not explicitly mentioned in the connection string, turn it off, as enabling it
+        // might lead to problems in more scenarios than it (potentially) solves, in the most
+        // common grate scenarios.
+        if (!(connectionString ?? "").Contains("Pooling", StringComparison.InvariantCultureIgnoreCase))
+        {
+            var builder = new SqlConnectionStringBuilder(connectionString) { Pooling = false };
+            connectionString = builder.ConnectionString;
+        }
+        
         var conn = new SqlConnection(connectionString);
         conn.AccessToken = AccessToken;
 

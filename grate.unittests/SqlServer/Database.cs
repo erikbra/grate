@@ -29,5 +29,4 @@ public class Database: Generic.GenericDatabase
         // There should be no errors running the migration
         Assert.DoesNotThrowAsync(() => migrator.Migrate());
     }
-
 }
