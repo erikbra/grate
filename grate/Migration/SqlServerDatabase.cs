@@ -30,7 +30,7 @@ public class SqlServerDatabase : AnsiSqlDatabase
         
         var conn = new SqlConnection(connectionString);
         conn.AccessToken = AccessToken;
-        
+
         return conn;
     }
     protected string? AccessToken { get; private set; }

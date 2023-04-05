@@ -1,12 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Data.Common;
 using System.Threading.Tasks;
 using FluentAssertions;
-using grate.Configuration;
-using grate.Migration;
 using grate.unittests.TestInfrastructure;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
 namespace grate.unittests.SqlServer;
