@@ -1,12 +1,15 @@
 #!/usr/bin/env pwsh
 
-# Feel free to rem this out once grate is installed to speed up the script
-winget install erikbra.grate
+
+dotnet tool uninstall grate -g
+#dotnet tool install grate -g --version 1.3.2
+dotnet tool install grate -g --version 1.4.0
+
 
 grate `
---files=.\db `
+--files=./db `
 --env=Local `
---connstring="Server=(localdb)\MSSQLLocalDB;Integrated Security=true;Database=grate_test" `
+--connstring="Server=tcp:localhost,32769;User Id=sa;Password=*****;Encrypt=false;Database=grate_test3;Pooling=false" `
 --version=1.0 `
---silent
-# add --drop if you want grate to drop the whole db and start again.
+--silent `
+--drop
