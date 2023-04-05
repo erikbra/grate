@@ -60,8 +60,9 @@ public abstract class GenericDatabase
         File.Delete(Path.Join(Wrap(config.SqlFilesDirectory, config.Folders?.CreateDatabase?.Path).ToString(), "createDatabase.sql"));
     
         // The database should have been created by the custom script
-        IEnumerable<string> databases = await GetDatabases();
+        IEnumerable<string> databases = (await GetDatabases()).ToList();
         databases.Should().Contain(scriptedDatabase);
+        databases.Should().NotContain(confedDatabase);
     }
 
     [Test]
