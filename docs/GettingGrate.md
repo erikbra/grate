@@ -41,6 +41,10 @@ please install [dotnet 6](https://dotnet.microsoft.com/download/dotnet/6.0)
 
 grate is available on [winget](https://docs.microsoft.com/en-us/windows/package-manager/winget/).  Simply `winget install erikbra.grate` for awesome!
 
+## Homebrew
+
+grate is available as a Homebrew cask. Simply `brew install --cask erikbra/cask/grate` for awesomeness!
+
 ## Notes
 
 Plans are afoot for more OS specific package managers, watch this space.
