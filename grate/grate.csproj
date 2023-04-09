@@ -56,4 +56,8 @@ up using modern .NET 6/7.
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(SelfContained)' == 'true' And $(RuntimeIdentifier.StartsWith('win-'))">
+    <PublishTrimmed>false</PublishTrimmed>
+  </PropertyGroup>
+
 </Project>
