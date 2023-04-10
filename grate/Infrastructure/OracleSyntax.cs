@@ -11,7 +11,7 @@ public class OracleSyntax : ISyntax
             const string strings = @"(?<KEEP1>'[^']*')";
             const string dashComments = @"(?<KEEP1>--.*$)";
             const string starComments = @"(?<KEEP1>/\*[\S\s]*?\*/)";
-            const string separator = @"(?<KEEP1>^|\s)(?<BATCHSPLITTER>GO)(?<KEEP2>\s|;|$)";
+            const string separator = @"(?<KEEP1>^|\s)(?<BATCHSPLITTER>GO|/)(?<KEEP2>\s|;|$)";
             return strings + "|" + dashComments + "|" + starComments + "|" + separator;
         }
     }
