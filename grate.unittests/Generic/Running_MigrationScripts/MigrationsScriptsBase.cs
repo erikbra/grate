@@ -30,15 +30,16 @@ public abstract class MigrationsScriptsBase
         WriteSql(path, filename, dummySql);
     }
 
-    private string CreateLongComment(int size)
+    protected string CreateLongComment(int size)
     {
-        const int lineLen = 80;
+        // Line comment plus blank, plus new line, plus text should be 80 together.
+        int lineLen = 80 - Context.Sql.LineComment.Length - 1 - Environment.NewLine.Length;
         var numLines = size / lineLen;
         var rest = size - (lineLen * numLines);
 
-        var filler = new string('A', Math.Min(lineLen, size));
+        var filler = new string('Æ', Math.Min(lineLen, size));
 
-        var builder = new StringBuilder((Context.Sql.LineComment.Length + 1 + lineLen + 2) * numLines + rest);
+        var builder = new StringBuilder(lineLen * numLines + rest);
         for (var i = 0; i < numLines; i++)
         {
             builder.Append(Context.Sql.LineComment);
@@ -49,7 +50,7 @@ public abstract class MigrationsScriptsBase
         {
             builder.Append(Context.Sql.LineComment);
             builder.Append(' ');
-            builder.AppendLine(new string('A', rest));
+            builder.AppendLine(new string('Ø', rest));
         }
 
         return builder.ToString();

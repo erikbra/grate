@@ -18,6 +18,9 @@ namespace grate.Migration;
 
 public abstract class AnsiSqlDatabase : IDatabase
 {
+    private const string Now = "now";
+    private const string User = "usr";
+
     private string SchemaName { get; set; } = "";
 
     protected GrateConfiguration? Config { get; private set; }
@@ -576,16 +579,14 @@ INSERT INTO {ScriptsRunTable}
 (version_id, script_name, text_of_script, text_hash, one_time_script, entry_date, modified_date, entered_by)
 VALUES (@versionId, @scriptName, @sql, @hash, @runOnce, @now, @now, @usr)");
 
-        var scriptRun = new
-        {
-            versionId,
-            scriptName,
-            sql,
-            hash,
-            runOnce = Bool(runOnce),
-            now = DateTime.UtcNow,
-            usr = Environment.UserName
-        };
+        var scriptRun = new DynamicParameters();
+        scriptRun.Add(nameof(versionId), versionId);
+        scriptRun.Add(nameof(scriptName), scriptName);
+        scriptRun.Add(nameof(sql), sql, DbType.String);
+        scriptRun.Add(nameof(hash), hash);
+        scriptRun.Add(nameof(runOnce), Bool(runOnce));
+        scriptRun.Add(Now, DateTime.UtcNow);
+        scriptRun.Add(User, Environment.UserName);
 
         await ExecuteAsync(ActiveConnection, insertSql, scriptRun);
     }
@@ -601,16 +602,14 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
 
         var version = await ExecuteScalarAsync<string>(ActiveConnection, versionSql, new { versionId });
 
-        var scriptRunErrors = new
-        {
-            version,
-            scriptName,
-            sql,
-            errorSql,
-            errorMessage,
-            now = DateTime.UtcNow,
-            usr = Environment.UserName,
-        };
+        var scriptRunErrors = new DynamicParameters();
+        scriptRunErrors.Add(nameof(version), version);
+        scriptRunErrors.Add(nameof(scriptName), scriptName);
+        scriptRunErrors.Add(nameof(sql), sql, DbType.String);
+        scriptRunErrors.Add(nameof(errorSql), errorSql, DbType.String);
+        scriptRunErrors.Add(nameof(errorMessage), errorMessage, DbType.String);
+        scriptRunErrors.Add(Now, DateTime.UtcNow);
+        scriptRunErrors.Add(User, Environment.UserName);
 
         await ExecuteAsync(ActiveConnection, insertSql, scriptRunErrors);
     }
