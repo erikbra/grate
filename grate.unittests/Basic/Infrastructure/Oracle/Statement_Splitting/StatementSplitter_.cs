@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Linq;
+using FluentAssertions;
 using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -15,7 +16,7 @@ public class StatementSplitter_
     private static readonly StatementSplitter Splitter = new(Database.StatementSeparatorRegex);
 
     [Test]
-    public void Splits_and_removes_GO_statements()
+    public void Splits_and_removes_slashes_and_semicolon()
     {
         var original = @"
 SELECT * FROM v$version WHERE banner LIKE 'Oracle%';
@@ -27,6 +28,20 @@ SELECT 1
         var batches = Splitter.Split(original);
 
         batches.Should().HaveCount(2);
+        batches.First().Should().NotEndWith(";");
+    }
+    
+    [Test]
+    public void Splits_and_removes_semicolon()
+    {
+        var original = @"
+SELECT * FROM v$version WHERE banner LIKE 'Oracle%';
+SELECT 1
+";
+        var batches = Splitter.Split(original).ToArray();
+        
+        batches.Should().HaveCount(2);
+        batches.First().Should().NotEndWith(";");
     }
 
 }

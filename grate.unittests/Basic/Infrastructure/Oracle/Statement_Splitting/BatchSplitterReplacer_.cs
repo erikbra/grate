@@ -264,8 +264,10 @@ select ''
         [Test]
         public void slash_with_semicolon_directly_after()
         {
-            string sql_to_match = "jalla /;";
-            string expected_scrubbed = "jalla " + Batch_terminator_replacement_string + ";";
+            string sql_to_match = @"jalla;
+/";
+            string expected_scrubbed = "jalla" + Batch_terminator_replacement_string + @"
+" + Batch_terminator_replacement_string;
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
             Assert.AreEqual(expected_scrubbed, sql_statement_scrubbed);
