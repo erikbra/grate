@@ -3,67 +3,67 @@
 
 namespace grate.unittests.TestInfrastructure;
 
-public static class SplitterContext
+public static class OracleSplitterContext
 {
 
     public static class FullSplitter
     {
-        public static string tsql_statement = @"
+        public static string PLSqlStatement = @"
 BOB1
-GO
+/
 
 /* COMMENT */
 BOB2
-GO
+/
 
--- GO
+-- /
 
-BOB3 GO
+BOB3 /
 
---`~!@#$%^&*()-_+=,.;:'""[]\/?<> GO
+--`~!@#$%^&*()-_+=,.;:'""[]\/?<> /
 
 BOB5
-   GO
+   /
 
 BOB6
-GO
+/
 
-/* GO */
+/* / */
 
 BOB7
 
 /* 
 
-GO
+/
 
 */
 
 BOB8
 
 --
-GO
+/
 
 BOB9
 
 -- `~!@#$%^&*()-_+=,.;:'""[]\/?<>
-GO
+/
 
-BOB10GO
+BOB10/
 
-CREATE TABLE POGO
+CREATE TABLE PO/
 {}
 
-INSERT INTO POGO (id,desc) VALUES (1,'GO')
+INSERT INTO PO/ (id,desc) VALUES (1,'/')
 
 BOB11
 
   -- TODO: To be good, there should be type column
 
--- dfgjhdfgdjkgk dfgdfg GO
+-- dfgjhdfgdjkgk dfgdfg /
 BOB12
 
-UPDATE Timmy SET id = 'something something go'
-UPDATE Timmy SET id = 'something something: go'
+UPDATE Timmy SET id = 'something something /'
+UPDATE Timmy SET id = 'something something: /'
 
 ALTER TABLE Inv.something ADD
 	gagagag decimal(20, 12) NULL,
@@ -74,7 +74,7 @@ ALTER TABLE Inv.something ADD
 	slsald varchar(15) NULL,
 	uhasdf varchar(15) NULL,
     daf_asdfasdf DECIMAL(20,6) NULL;
-GO
+/
 
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Daily job', 
 		@step_id=1, 
@@ -85,21 +85,21 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Daily jo
 		@on_fail_step_id=0, 
 		@retry_attempts=0, 
 		@retry_interval=0, 
-		@os_run_priority=0, @subsystem=N'TSQL', 
+		@os_run_priority=0, @subsystem=N'PLSQL', 
 		@command=N'
 dml statements
-GO  
+/  
 dml statements '
 
-GO
+/
 
 INSERT [dbo].[Foo] ([Bar]) VALUES (N'hello--world.
 Thanks!')
-INSERT [dbo].[Foo] ([Bar]) VALUES (N'Go speed racer, go speed racer, go speed racer go!!!!! ')
+INSERT [dbo].[Foo] ([Bar]) VALUES (N'/ speed racer, / speed racer, / speed racer /!!!!! ')
 
-GO";
+/";
 
-        public static string tsql_statement_scrubbed = @"
+        public static string PLSqlStatementScrubbed = @"
 BOB1
 " + StatementSplitter.BatchTerminatorReplacementString + @"
 
@@ -107,11 +107,11 @@ BOB1
 BOB2
 " + StatementSplitter.BatchTerminatorReplacementString + @"
 
--- GO
+-- /
 
 BOB3 " + StatementSplitter.BatchTerminatorReplacementString + @"
 
---`~!@#$%^&*()-_+=,.;:'""[]\/?<> GO
+--`~!@#$%^&*()-_+=,.;:'""[]\/?<> /
 
 BOB5
    " + StatementSplitter.BatchTerminatorReplacementString + @"
@@ -119,13 +119,13 @@ BOB5
 BOB6
 " + StatementSplitter.BatchTerminatorReplacementString + @"
 
-/* GO */
+/* / */
 
 BOB7
 
 /* 
 
-GO
+/
 
 */
 
@@ -139,22 +139,22 @@ BOB9
 -- `~!@#$%^&*()-_+=,.;:'""[]\/?<>
 " + StatementSplitter.BatchTerminatorReplacementString + @"
 
-BOB10GO
+BOB10/
 
-CREATE TABLE POGO
+CREATE TABLE PO/
 {}
 
-INSERT INTO POGO (id,desc) VALUES (1,'GO')
+INSERT INTO PO/ (id,desc) VALUES (1,'/')
 
 BOB11
 
   -- TODO: To be good, there should be type column
 
--- dfgjhdfgdjkgk dfgdfg GO
+-- dfgjhdfgdjkgk dfgdfg /
 BOB12
 
-UPDATE Timmy SET id = 'something something go'
-UPDATE Timmy SET id = 'something something: go'
+UPDATE Timmy SET id = 'something something /'
+UPDATE Timmy SET id = 'something something: /'
 
 ALTER TABLE Inv.something ADD
 	gagagag decimal(20, 12) NULL,
@@ -176,17 +176,17 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Daily jo
 		@on_fail_step_id=0, 
 		@retry_attempts=0, 
 		@retry_interval=0, 
-		@os_run_priority=0, @subsystem=N'TSQL', 
+		@os_run_priority=0, @subsystem=N'PLSQL', 
 		@command=N'
 dml statements
-GO  
+/  
 dml statements '
 
 " + StatementSplitter.BatchTerminatorReplacementString + @"
 
 INSERT [dbo].[Foo] ([Bar]) VALUES (N'hello--world.
 Thanks!')
-INSERT [dbo].[Foo] ([Bar]) VALUES (N'Go speed racer, go speed racer, go speed racer go!!!!! ')
+INSERT [dbo].[Foo] ([Bar]) VALUES (N'/ speed racer, / speed racer, / speed racer /!!!!! ')
 
 " + StatementSplitter.BatchTerminatorReplacementString + @"";
 
