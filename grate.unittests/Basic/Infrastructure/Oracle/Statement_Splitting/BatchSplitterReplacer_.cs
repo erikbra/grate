@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 // ReSharper disable InconsistentNaming
 
-namespace grate.unittests.Basic.Infrastructure.SqlServer.Statement_Splitting;
+namespace grate.unittests.Basic.Infrastructure.Oracle.Statement_Splitting;
 
 [TestFixture]
 [Category("Basic")]
@@ -17,7 +17,7 @@ public class BatchSplitterReplacer_
     private const string Symbols_to_check = "`~!@#$%^&*()-_+=,.;:'\"[]\\/?<>";
     private const string Words_to_check = "abcdefghijklmnopqrstuvwzyz0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    private static readonly IDatabase Database = new SqlServerDatabase(NullLogger<SqlServerDatabase>.Instance);
+    private static readonly IDatabase Database = new OracleDatabase(NullLogger<OracleDatabase>.Instance);
     private static BatchSplitterReplacer Replacer => new(Database.StatementSeparatorRegex, StatementSplitter.BatchTerminatorReplacementString);
 
     public class should_replace_on
@@ -25,16 +25,16 @@ public class BatchSplitterReplacer_
         [Test]
         public void full_statement_without_issue()
         {
-            string sql_to_match = SqlServerSplitterContext.FullSplitter.tsql_statement;
+            string sql_to_match = OracleSplitterContext.FullSplitter.PLSqlStatement;
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
-            Assert.AreEqual(SqlServerSplitterContext.FullSplitter.tsql_statement_scrubbed, sql_statement_scrubbed);
+            Assert.AreEqual(OracleSplitterContext.FullSplitter.PLSqlStatementScrubbed, sql_statement_scrubbed);
         }
 
         [Test]
-        public void go_with_space()
+        public void slash_with_space()
         {
-            const string sql_to_match = @" GO ";
+            const string sql_to_match = @" / ";
             string expected_scrubbed = @" " + Batch_terminator_replacement_string + @" ";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -42,9 +42,9 @@ public class BatchSplitterReplacer_
         }
 
         [Test]
-        public void go_with_tab()
+        public void slash_with_tab()
         {
-            string sql_to_match = @" GO" + "\t";
+            string sql_to_match = @" /" + "\t";
             string expected_scrubbed = @" " + Batch_terminator_replacement_string + "\t";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -52,9 +52,9 @@ public class BatchSplitterReplacer_
         }
 
         [Test]
-        public void go_by_itself()
+        public void slash_by_itself()
         {
-            const string sql_to_match = @"GO";
+            const string sql_to_match = @"/";
             string expected_scrubbed = Batch_terminator_replacement_string;
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -62,9 +62,9 @@ public class BatchSplitterReplacer_
         }
 
         [Test]
-        public void go_starting_file()
+        public void slash_starting_file()
         {
-            const string sql_to_match = @"GO
+            const string sql_to_match = @"/
 whatever";
             string expected_scrubbed = Batch_terminator_replacement_string + @"
 whatever";
@@ -74,9 +74,9 @@ whatever";
         }
 
         [Test]
-        public void go_with_new_line()
+        public void slash_with_new_line()
         {
-            const string sql_to_match = @" GO
+            const string sql_to_match = @" /
 ";
             string expected_scrubbed = @" " + Batch_terminator_replacement_string + @"
 ";
@@ -86,11 +86,11 @@ whatever";
         }
 
         [Test]
-        public void go_with_on_new_line_after_double_dash_comments()
+        public void slash_with_one_new_line_after_double_dash_comments()
         {
             const string sql_to_match =
                 @"--
-GO
+/
 ";
             string expected_scrubbed =
                 @"--
@@ -102,10 +102,10 @@ GO
         }
 
         [Test]
-        public void go_with_on_new_line_after_double_dash_comments_and_words()
+        public void slash_with_one_new_line_after_double_dash_comments_and_words()
         {
             string sql_to_match = @"-- " + Words_to_check + @"
-GO
+/
 ";
             string expected_scrubbed = @"-- " + Words_to_check + @"
 " + Batch_terminator_replacement_string + @"
@@ -116,10 +116,10 @@ GO
         }
 
         [Test]
-        public void go_with_new_line_after_double_dash_comments_and_symbols()
+        public void slash_with_new_line_after_double_dash_comments_and_symbols()
         {
             string sql_to_match = @"-- " + Symbols_to_check + @"
-GO
+/
 ";
             string expected_scrubbed = @"-- " + Symbols_to_check + @"
 " + Batch_terminator_replacement_string + @"
@@ -130,10 +130,10 @@ GO
         }
 
         [Test]
-        public void go_on_its_own_line()
+        public void slash_on_its_own_line()
         {
             const string sql_to_match = @" 
-GO
+/
 ";
             string expected_scrubbed = @" 
 " + Batch_terminator_replacement_string + @"
@@ -144,9 +144,9 @@ GO
         }
 
         [Test]
-        public void go_with_no_line_terminator()
+        public void slash_with_no_line_terminator()
         {
-            const string sql_to_match = @" GO ";
+            const string sql_to_match = @" / ";
             string expected_scrubbed = @" " + Batch_terminator_replacement_string + @" ";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -154,9 +154,9 @@ GO
         }
 
         [Test]
-        public void go_with_words_before()
+        public void slash_with_words_before()
         {
-            string sql_to_match = Words_to_check + @" GO
+            string sql_to_match = Words_to_check + @" /
 ";
             string expected_scrubbed = Words_to_check + @" " + Batch_terminator_replacement_string + @"
 ";
@@ -166,9 +166,9 @@ GO
         }
 
         [Test]
-        public void go_with_symbols_and_words_before()
+        public void slash_with_symbols_and_words_before()
         {
-            string sql_to_match = Symbols_to_check + Words_to_check + @" GO
+            string sql_to_match = Symbols_to_check + Words_to_check + @" /
 ";
             string expected_scrubbed = Symbols_to_check + Words_to_check + @" " +
                                        Batch_terminator_replacement_string + @"
@@ -179,9 +179,9 @@ GO
         }
 
         [Test]
-        public void go_with_words_and_symbols_before()
+        public void slash_with_words_and_symbols_before()
         {
-            string sql_to_match = Words_to_check + Symbols_to_check + @" GO
+            string sql_to_match = Words_to_check + Symbols_to_check + @" /
 ";
             string expected_scrubbed = Words_to_check + Symbols_to_check + @" " +
                                        Batch_terminator_replacement_string + @"
@@ -192,9 +192,9 @@ GO
         }
 
         [Test]
-        public void go_with_words_after_on_the_same_line()
+        public void slash_with_words_after_on_the_same_line()
         {
-            string sql_to_match = @" GO " + Words_to_check;
+            string sql_to_match = @" / " + Words_to_check;
             string expected_scrubbed = @" " + Batch_terminator_replacement_string + @" " + Words_to_check;
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -202,9 +202,9 @@ GO
         }
 
         [Test]
-        public void go_with_words_after_on_the_same_line_including_symbols()
+        public void slash_with_words_after_on_the_same_line_including_symbols()
         {
-            string sql_to_match = @" GO " + Words_to_check + Symbols_to_check;
+            string sql_to_match = @" / " + Words_to_check + Symbols_to_check;
             string expected_scrubbed = @" " + Batch_terminator_replacement_string + @" " + Words_to_check +
                                        Symbols_to_check;
             TestContext.WriteLine(sql_to_match);
@@ -213,9 +213,9 @@ GO
         }
 
         [Test]
-        public void go_with_words_before_and_after_on_the_same_line()
+        public void slash_with_words_before_and_after_on_the_same_line()
         {
-            string sql_to_match = Words_to_check + @" GO " + Words_to_check;
+            string sql_to_match = Words_to_check + @" / " + Words_to_check;
             string expected_scrubbed = Words_to_check + @" " + Batch_terminator_replacement_string + @" " +
                                        Words_to_check;
             TestContext.WriteLine(sql_to_match);
@@ -224,10 +224,10 @@ GO
         }
 
         [Test]
-        public void go_with_words_before_and_after_on_the_same_line_including_symbols()
+        public void slash_with_words_before_and_after_on_the_same_line_including_symbols()
         {
             string sql_to_match = Words_to_check + Symbols_to_check.Replace("'", "").Replace("\"", "") +
-                                  " GO BOB" + Symbols_to_check;
+                                  " / BOB" + Symbols_to_check;
             string expected_scrubbed = Words_to_check + Symbols_to_check.Replace("'", "").Replace("\"", "") +
                                        " " + Batch_terminator_replacement_string + " BOB" + Symbols_to_check;
             TestContext.WriteLine(sql_to_match);
@@ -236,12 +236,12 @@ GO
         }
 
         [Test]
-        public void go_after_double_dash_comment_with_single_quote_and_single_quote_after_go()
+        public void slash_after_double_dash_comment_with_single_quote_and_single_quote_after_slash()
         {
             string sql_to_match = Words_to_check + @" -- '
-GO
+/
 select ''
-go";
+/";
             string expected_scrubbed = Words_to_check + @" -- '
 " + Batch_terminator_replacement_string + @"
 select ''
@@ -252,9 +252,9 @@ select ''
         }
 
         [Test]
-        public void go_with_comment_after()
+        public void slash_with_comment_after()
         {
-            string sql_to_match = " GO -- comment";
+            string sql_to_match = " / -- comment";
             string expected_scrubbed = " " + Batch_terminator_replacement_string + " -- comment";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -262,9 +262,9 @@ select ''
         }
 
         [Test]
-        public void go_with_semicolon_directly_after()
+        public void slash_with_semicolon_directly_after()
         {
-            string sql_to_match = "jalla GO;";
+            string sql_to_match = "jalla /;";
             string expected_scrubbed = "jalla " + Batch_terminator_replacement_string + ";";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -275,12 +275,13 @@ select ''
 
     public class should_not_replace_on
     {
+
         [Test]
-        public void g()
+        public void slash_when_slash_is_the_last_part_of_the_last_word_on_a_line()
         {
-            const string sql_to_match = @" G
+            string sql_to_match = Words_to_check + @"/
 ";
-            const string expected_scrubbed = @" G
+            string expected_scrubbed = Words_to_check + @"/
 ";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -288,11 +289,11 @@ select ''
         }
 
         [Test]
-        public void o()
+        public void slash_with_double_dash_comment_starting_line()
         {
-            const string sql_to_match = @" O
+            string sql_to_match = @"--/
 ";
-            const string expected_scrubbed = @" O
+            string expected_scrubbed = @"--/
 ";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -300,11 +301,11 @@ select ''
         }
 
         [Test]
-        public void go_when_go_is_the_last_part_of_the_last_word_on_a_line()
+        public void slash_with_double_dash_comment_and_space_starting_line()
         {
-            string sql_to_match = Words_to_check + @"GO
+            string sql_to_match = @"-- /
 ";
-            string expected_scrubbed = Words_to_check + @"GO
+            string expected_scrubbed = @"-- /
 ";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -312,11 +313,11 @@ select ''
         }
 
         [Test]
-        public void go_with_double_dash_comment_starting_line()
+        public void slash_with_double_dash_comment_and_space_starting_line_and_words_after_slash()
         {
-            string sql_to_match = @"--GO
+            string sql_to_match = @"-- / " + Words_to_check + @"
 ";
-            string expected_scrubbed = @"--GO
+            string expected_scrubbed = @"-- / " + Words_to_check + @"
 ";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -324,11 +325,11 @@ select ''
         }
 
         [Test]
-        public void go_with_double_dash_comment_and_space_starting_line()
+        public void slash_with_double_dash_comment_and_space_starting_line_and_symbols_after_slash()
         {
-            string sql_to_match = @"-- GO
+            string sql_to_match = @"-- / " + Symbols_to_check + @"
 ";
-            string expected_scrubbed = @"-- GO
+            string expected_scrubbed = @"-- / " + Symbols_to_check + @"
 ";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -336,11 +337,11 @@ select ''
         }
 
         [Test]
-        public void go_with_double_dash_comment_and_space_starting_line_and_words_after_go()
+        public void slash_with_double_dash_comment_and_tab_starting_line()
         {
-            string sql_to_match = @"-- GO " + Words_to_check + @"
+            string sql_to_match = "--" + "\t" + @"/
 ";
-            string expected_scrubbed = @"-- GO " + Words_to_check + @"
+            string expected_scrubbed = @"--" + "\t" + @"/
 ";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -348,11 +349,11 @@ select ''
         }
 
         [Test]
-        public void go_with_double_dash_comment_and_space_starting_line_and_symbols_after_go()
+        public void slash_with_double_dash_comment_and_tab_starting_line_and_words_after_slash()
         {
-            string sql_to_match = @"-- GO " + Symbols_to_check + @"
+            string sql_to_match = @"--" + "\t" + @"/ " + Words_to_check + @"
 ";
-            string expected_scrubbed = @"-- GO " + Symbols_to_check + @"
+            string expected_scrubbed = @"--" + "\t" + @"/ " + Words_to_check + @"
 ";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -360,11 +361,11 @@ select ''
         }
 
         [Test]
-        public void go_with_double_dash_comment_and_tab_starting_line()
+        public void slash_with_double_dash_comment_and_tab_starting_line_and_symbols_after_slash()
         {
-            string sql_to_match = "--" + "\t" + @"GO
+            string sql_to_match = @"--" + "\t" + @"/ " + Symbols_to_check + @"
 ";
-            string expected_scrubbed = @"--" + "\t" + @"GO
+            string expected_scrubbed = @"--" + "\t" + @"/ " + Symbols_to_check + @"
 ";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -372,11 +373,11 @@ select ''
         }
 
         [Test]
-        public void go_with_double_dash_comment_and_tab_starting_line_and_words_after_go()
+        public void slash_with_double_dash_comment_starting_line_with_words_before_slash()
         {
-            string sql_to_match = @"--" + "\t" + @"GO " + Words_to_check + @"
+            string sql_to_match = @"-- " + Words_to_check + @" /
 ";
-            string expected_scrubbed = @"--" + "\t" + @"GO " + Words_to_check + @"
+            string expected_scrubbed = @"-- " + Words_to_check + @" /
 ";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -384,35 +385,11 @@ select ''
         }
 
         [Test]
-        public void go_with_double_dash_comment_and_tab_starting_line_and_symbols_after_go()
+        public void slash_when_between_tick_marks()
         {
-            string sql_to_match = @"--" + "\t" + @"GO " + Symbols_to_check + @"
-";
-            string expected_scrubbed = @"--" + "\t" + @"GO " + Symbols_to_check + @"
-";
-            TestContext.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
-            Assert.AreEqual(expected_scrubbed, sql_statement_scrubbed);
-        }
-
-        [Test]
-        public void go_with_double_dash_comment_starting_line_with_words_before_go()
-        {
-            string sql_to_match = @"-- " + Words_to_check + @" GO
-";
-            string expected_scrubbed = @"-- " + Words_to_check + @" GO
-";
-            TestContext.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
-            Assert.AreEqual(expected_scrubbed, sql_statement_scrubbed);
-        }
-
-        [Test]
-        public void go_when_between_tick_marks()
-        {
-            const string sql_to_match = @"' GO
+            const string sql_to_match = @"' /
             '";
-            const string expected_scrubbed = @"' GO
+            const string expected_scrubbed = @"' /
             '";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -421,22 +398,22 @@ select ''
 
         [Test]
         public void
-            go_when_between_tick_marks_with_symbols_and_words_before_ending_on_same_line()
+            slash_when_between_tick_marks_with_symbols_and_words_before_ending_on_same_line()
         {
-            string sql_to_match = @"' " + Symbols_to_check.Replace("'", string.Empty) + Words_to_check + @" GO'";
+            string sql_to_match = @"' " + Symbols_to_check.Replace("'", string.Empty) + Words_to_check + @" /'";
             string expected_scrubbed =
-                @"' " + Symbols_to_check.Replace("'", string.Empty) + Words_to_check + @" GO'";
+                @"' " + Symbols_to_check.Replace("'", string.Empty) + Words_to_check + @" /'";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
             Assert.AreEqual(expected_scrubbed, sql_statement_scrubbed);
         }
 
         [Test]
-        public void go_when_between_tick_marks_with_symbols_and_words_before()
+        public void slash_when_between_tick_marks_with_symbols_and_words_before()
         {
-            string sql_to_match = @"' " + Symbols_to_check.Replace("'", string.Empty) + Words_to_check + @" GO
+            string sql_to_match = @"' " + Symbols_to_check.Replace("'", string.Empty) + Words_to_check + @" /
             '";
-            string expected_scrubbed = @"' " + Symbols_to_check.Replace("'", string.Empty) + Words_to_check + @" GO
+            string expected_scrubbed = @"' " + Symbols_to_check.Replace("'", string.Empty) + Words_to_check + @" /
             '";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -444,11 +421,11 @@ select ''
         }
 
         [Test]
-        public void go_when_between_tick_marks_with_symbols_and_words_after()
+        public void slash_when_between_tick_marks_with_symbols_and_words_after()
         {
-            string sql_to_match = @"' GO
+            string sql_to_match = @"' /
             " + Symbols_to_check.Replace("'", string.Empty) + Words_to_check + @"'";
-            string expected_scrubbed = @"' GO
+            string expected_scrubbed = @"' /
             " + Symbols_to_check.Replace("'", string.Empty) + Words_to_check + @"'";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -456,11 +433,11 @@ select ''
         }
 
         [Test]
-        public void go_with_double_dash_comment_starting_line_with_symbols_before_go()
+        public void slash_with_double_dash_comment_starting_line_with_symbols_before_slash()
         {
-            string sql_to_match = @"--" + Symbols_to_check + @" GO
+            string sql_to_match = @"--" + Symbols_to_check + @" /
 ";
-            string expected_scrubbed = @"--" + Symbols_to_check + @" GO
+            string expected_scrubbed = @"--" + Symbols_to_check + @" /
 ";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -469,11 +446,11 @@ select ''
 
         [Test]
         public void
-            go_with_double_dash_comment_starting_line_with_words_and_symbols_before_go()
+            slash_with_double_dash_comment_starting_line_with_words_and_symbols_before_slash()
         {
-            string sql_to_match = @"--" + Symbols_to_check + Words_to_check + @" GO
+            string sql_to_match = @"--" + Symbols_to_check + Words_to_check + @" /
 ";
-            string expected_scrubbed = @"--" + Symbols_to_check + Words_to_check + @" GO
+            string expected_scrubbed = @"--" + Symbols_to_check + Words_to_check + @" /
 ";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -481,21 +458,21 @@ select ''
         }
 
         [Test]
-        public void go_inside_of_comments()
+        public void slash_inside_of_comments()
         {
-            string sql_to_match = @"/* GO */";
-            string expected_scrubbed = @"/* GO */";
+            string sql_to_match = @"/* / */";
+            string expected_scrubbed = @"/* / */";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
             Assert.AreEqual(expected_scrubbed, sql_statement_scrubbed);
         }
 
         [Test]
-        public void go_inside_of_comments_with_a_line_break()
+        public void slash_inside_of_comments_with_a_line_break()
         {
-            string sql_to_match = @"/* GO 
+            string sql_to_match = @"/* / 
 */";
-            string expected_scrubbed = @"/* GO 
+            string expected_scrubbed = @"/* / 
 */";
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
@@ -503,16 +480,16 @@ select ''
         }
 
         [Test]
-        public void go_inside_of_comments_with_words_before()
+        public void slash_inside_of_comments_with_words_before()
         {
             string sql_to_match =
                 @"/* 
-" + Words_to_check + @" GO
+" + Words_to_check + @" /
 
 */";
             string expected_scrubbed =
                 @"/* 
-" + Words_to_check + @" GO
+" + Words_to_check + @" /
 
 */";
             TestContext.WriteLine(sql_to_match);
@@ -521,18 +498,18 @@ select ''
         }
 
         [Test]
-        public void go_inside_of_comments_with_words_before_on_a_different_line()
+        public void slash_inside_of_comments_with_words_before_on_a_different_line()
         {
             string sql_to_match =
                 @"/* 
 " + Words_to_check + @" 
-GO
+/
 
 */";
             string expected_scrubbed =
                 @"/* 
 " + Words_to_check + @" 
-GO
+/
 
 */";
             TestContext.WriteLine(sql_to_match);
@@ -541,19 +518,19 @@ GO
         }
 
         [Test]
-        public void go_inside_of_comments_with_words_before_and_after_on_different_lines()
+        public void slash_inside_of_comments_with_words_before_and_after_on_different_lines()
         {
             string sql_to_match =
                 @"/* 
 " + Words_to_check + @" 
-GO
+/
 
 " + Words_to_check + @"
 */";
             string expected_scrubbed =
                 @"/* 
 " + Words_to_check + @" 
-GO
+/
 
 " + Words_to_check + @"
 */";
@@ -563,17 +540,17 @@ GO
         }
 
         [Test]
-        public void go_inside_of_comments_with_symbols_after_on_different_lines()
+        public void slash_inside_of_comments_with_symbols_after_on_different_lines()
         {
             string sql_to_match =
                 @"/* 
-GO
+/
 
 " + Symbols_to_check + @" 
 */";
             string expected_scrubbed =
                 @"/* 
-GO
+/
 
 " + Symbols_to_check + @" 
 */";
