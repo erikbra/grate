@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Text;
 using grate.Configuration;
 using grate.unittests.TestInfrastructure;
 
@@ -18,6 +20,39 @@ public abstract class MigrationsScriptsBase
     {
         var dummySql = Context.Sql.SelectVersion;
         WriteSql(path, filename, dummySql);
+    }
+    
+    protected void CreateLargeDummySql(DirectoryInfo? path, int size = 8192, string filename = "1_very_large_file.sql")
+    {
+        var longComment = CreateLongComment(size);
+        
+        var dummySql = longComment + Environment.NewLine + Context.Sql.SelectVersion;
+        WriteSql(path, filename, dummySql);
+    }
+
+    private string CreateLongComment(int size)
+    {
+        const int lineLen = 80;
+        var numLines = size / lineLen;
+        var rest = size - (lineLen * numLines);
+
+        var filler = new string('A', Math.Min(lineLen, size));
+
+        var builder = new StringBuilder((Context.Sql.LineComment.Length + 1 + lineLen + 2) * numLines + rest);
+        for (var i = 0; i < numLines; i++)
+        {
+            builder.Append(Context.Sql.LineComment);
+            builder.Append(' ');
+            builder.AppendLine(filler);
+        }
+        if (rest > 0)
+        {
+            builder.Append(Context.Sql.LineComment);
+            builder.Append(' ');
+            builder.AppendLine(new string('A', rest));
+        }
+
+        return builder.ToString();
     }
 
     protected void WriteSomeOtherSql(DirectoryInfo? path, string filename = "1_jalla.sql")
