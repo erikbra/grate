@@ -155,10 +155,11 @@ public class DbMigrator : IDbMigrator
         return theSqlWasRun;
     }
     
-    public async Task<bool> RunSqlWithoutLogging(string sql,
+    public async Task<bool> RunSqlWithoutLogging(
+        string sql, 
         string scriptName,
         GrateEnvironment? environment,
-        ConnectionType connectionType,
+        ConnectionType connectionType, 
         TransactionHandling transactionHandling)
     {
         async Task<bool> PrintLogAndRunSql()
