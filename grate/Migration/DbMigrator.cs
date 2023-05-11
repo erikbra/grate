@@ -160,7 +160,7 @@ public class DbMigrator : IDbMigrator
         GrateEnvironment? environment,
         ConnectionType connectionType,
         TransactionHandling transactionHandling, 
-        bool searchAllSubdirectoriesInsteadOfTraverse)
+        bool ignoreDirectoryNames)
     {
         async Task<bool> PrintLogAndRunSql()
         {

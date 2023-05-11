@@ -41,7 +41,7 @@ public sealed class MigrateCommand : RootCommand
         Add(RunAllAnyTimeScripts());
         Add(DryRun());
         Add(Restore());
-        Add(SearchAllSubdirectoriesInsteadOfTraverse());
+        Add(IgnoreDirectoryNames());
 
         Handler = CommandHandler.Create(
             async () =>
@@ -302,9 +302,9 @@ the last one will expect the folders to be named 'folder1', 'folder2', and 'fold
             "OBSOLETE: Please specify the connection string instead."
         );
 
-    private static Option<bool> SearchAllSubdirectoriesInsteadOfTraverse() =>
+    private static Option<bool> IgnoreDirectoryNames() =>
         new(
-            new[] { "--searchallinsteadoftraverse", "--searchallsubdirectoriesinsteadoftraverse" },
-            "SearchAllSubdirectoriesInsteadOfTraverse - By default, scripts are ordered by relative path including subdirectories. This option searches subdirectories, but order is based on filename alone."
+            new[] { "--ignoredirectorynames", "--searchallinsteadoftraverse", "--searchallsubdirectoriesinsteadoftraverse" },
+            "IgnoreDirectoryNames - By default, scripts are ordered by relative path including subdirectories. This option searches subdirectories, but order is based on filename alone."
         );
 }

@@ -125,7 +125,7 @@ public record GrateConfiguration
     /// <summary>
     /// By default, scripts are ordered by relative path including subdirectories. This option searches subdirectories, but order is based on filename alone.
     /// </summary>
-    public bool SearchAllSubdirectoriesInsteadOfTraverse { get; set; }
+    public bool IgnoreDirectoryNames { get; set; }
 
     private static string GetMasterDbName(DatabaseType databaseType) => databaseType switch
     {

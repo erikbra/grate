@@ -56,7 +56,7 @@ public class FileSystem_
     }
 
     [Test]
-    public void Sorts_enumerated_files_on_filename_when_subfolders_are_ignored()
+    public void Sorts_enumerated_files_on_filename_when_directory_names_are_ignored()
     {
         var parent = TestConfig.CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);

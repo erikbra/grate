@@ -301,12 +301,13 @@ public class Basic_CommandLineParsing
     }
 
     [TestCase("", false)]
+    [TestCase("--ignoredirectorynames", true)]
     [TestCase("--searchallinsteadoftraverse", true)]
     [TestCase("--searchallsubdirectoriesinsteadoftraverse", true)]
-    public async Task SearchAllSubdirectoriesInsteadOfTraverse(string args, bool expected)
+    public async Task IgnoreDirectoryNames(string args, bool expected)
     {
         var cfg = await ParseGrateConfiguration(args);
-        cfg?.SearchAllSubdirectoriesInsteadOfTraverse.Should().Be(expected);
+        cfg?.IgnoreDirectoryNames.Should().Be(expected);
     }
 
     private static async Task<GrateConfiguration?> ParseGrateConfiguration(string commandline)
