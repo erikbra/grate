@@ -121,14 +121,14 @@ public class GrateMigrator : IAsyncDisposable
                 try {
                     if (processingFolderInDefaultTransaction)
                     {
-                        await LogAndProcess(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling, config.IgnoreDirectoryNames);
+                        await LogAndProcess(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
                     }
                     else
                     {
                         using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
                         using (await dbMigrator.OpenNewActiveConnection())
                         {
-                            await LogAndProcess(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling, config.IgnoreDirectoryNames);
+                            await LogAndProcess(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
                         }
                         s.Complete();
                     }
