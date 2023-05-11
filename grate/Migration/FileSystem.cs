@@ -12,7 +12,7 @@ public static class FileSystem
         return ignoreDirectoryNames 
             ? folderPath
                 .EnumerateFileSystemInfos(pattern, SearchOption.AllDirectories).ToList()
-                .OrderBy(f => f.Name, StringComparer.CurrentCultureIgnoreCase) 
+                .OrderBy(f => Path.GetFileNameWithoutExtension(f.FullName), StringComparer.CurrentCultureIgnoreCase) 
             : folderPath
                 .EnumerateFileSystemInfos(pattern, SearchOption.AllDirectories).ToList()
                 .OrderBy(f => Path.GetRelativePath(folderPath.ToString(), f.FullName), StringComparer.CurrentCultureIgnoreCase);
