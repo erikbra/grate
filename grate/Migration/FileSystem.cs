@@ -7,10 +7,14 @@ namespace grate.Migration;
 
 public static class FileSystem
 {
-    public static IEnumerable<FileSystemInfo> GetFiles(DirectoryInfo folderPath, string pattern)
+    public static IEnumerable<FileSystemInfo> GetFiles(DirectoryInfo folderPath, string pattern, bool ignoreFolder = false)
     {
-        return folderPath
-            .EnumerateFileSystemInfos(pattern, SearchOption.AllDirectories).ToList()
-            .OrderBy(f => Path.GetRelativePath(folderPath.ToString(), f.FullName), StringComparer.CurrentCultureIgnoreCase);
+        return ignoreFolder 
+            ? folderPath
+                .EnumerateFileSystemInfos(pattern, SearchOption.AllDirectories).ToList()
+                .OrderBy(f => f.Name, StringComparer.CurrentCultureIgnoreCase) 
+            : folderPath
+                .EnumerateFileSystemInfos(pattern, SearchOption.AllDirectories).ToList()
+                .OrderBy(f => Path.GetRelativePath(folderPath.ToString(), f.FullName), StringComparer.CurrentCultureIgnoreCase);
     }
 }
