@@ -253,8 +253,7 @@ public class GrateMigrator : IAsyncDisposable
                     createDatabaseFolder,
                     changeDropFolder,
                     createDatabaseFolder.ConnectionType,
-                    createDatabaseFolder.TransactionHandling,
-                    config.IgnoreDirectoryNames
+                    createDatabaseFolder.TransactionHandling
                 );
             }
             else
@@ -272,7 +271,7 @@ public class GrateMigrator : IAsyncDisposable
 
     private DirectoryInfo Wrap(DirectoryInfo root, string subFolder) => new(Path.Combine(root.ToString(), subFolder));
 
-    private async Task LogAndProcess(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId, ConnectionType connectionType, TransactionHandling transactionHandling, bool ignoreDirectoryNames)
+    private async Task LogAndProcess(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId, ConnectionType connectionType, TransactionHandling transactionHandling)
     {
         var path = Wrap(root, folder.Path);
 
@@ -304,20 +303,20 @@ public class GrateMigrator : IAsyncDisposable
             msg);
 
         Separator('-');
-        await Process(root, folder, changeDropFolder, versionId, connectionType, transactionHandling, ignoreDirectoryNames);
+        await Process(root, folder, changeDropFolder, versionId, connectionType, transactionHandling);
         Separator('-');
         Separator(' ');
     }
 
     private async Task Process(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId,
-        ConnectionType connectionType, TransactionHandling transactionHandling, bool ignoreDirectoryNames)
+        ConnectionType connectionType, TransactionHandling transactionHandling)
     {
         var path = Wrap(root, folder.Path);
 
         await EnsureConnectionIsOpen(connectionType);
 
         var pattern = "*.sql";
-        var files = FileSystem.GetFiles(path, pattern, ignoreDirectoryNames);
+        var files = FileSystem.GetFiles(path, pattern, _migrator.Configuration.IgnoreDirectoryNames);
 
         var anySqlRun = false;
 
@@ -326,7 +325,7 @@ public class GrateMigrator : IAsyncDisposable
             var sql = await File.ReadAllTextAsync(file.FullName);
 
             // Normalize file names to log, so that results won't vary if you run on *nix VS Windows
-            var fileNameToLog = ignoreDirectoryNames
+            var fileNameToLog = _migrator.Configuration.IgnoreDirectoryNames
                 ? file.Name
                 : string.Join('/', Path.GetRelativePath(path.ToString(), file.FullName).Split(Path.DirectorySeparatorChar));
 
@@ -355,15 +354,14 @@ public class GrateMigrator : IAsyncDisposable
     }
     
     private async Task<bool> ProcessWithoutLogging(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder,
-        ConnectionType connectionType, TransactionHandling transactionHandling,
-        bool ignoreDirectoryNames)
+        ConnectionType connectionType, TransactionHandling transactionHandling)
     {
         var path = Wrap(root, folder.Path);
 
         await EnsureConnectionIsOpen(connectionType);
 
         var pattern = "*.sql";
-        var files = FileSystem.GetFiles(path, pattern, ignoreDirectoryNames);
+        var files = FileSystem.GetFiles(path, pattern, _migrator.Configuration.IgnoreDirectoryNames);
 
         var anySqlRun = false;
 
@@ -372,12 +370,12 @@ public class GrateMigrator : IAsyncDisposable
             var sql = await File.ReadAllTextAsync(file.FullName);
 
             // Normalize file names to log, so that results won't vary if you run on *nix VS Windows
-            var fileNameToLog = ignoreDirectoryNames
+            var fileNameToLog = _migrator.Configuration.IgnoreDirectoryNames
             ? file.Name
             : string.Join('/', Path.GetRelativePath(path.ToString(), file.FullName).Split(Path.DirectorySeparatorChar));
 
             bool theSqlRan = await _migrator.RunSqlWithoutLogging(sql, fileNameToLog, _migrator.Configuration.Environment,
-                connectionType, transactionHandling, ignoreDirectoryNames);
+                connectionType, transactionHandling);
 
             if (theSqlRan)
             {

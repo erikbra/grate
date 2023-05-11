@@ -33,8 +33,7 @@ public interface IDbMigrator: IAsyncDisposable
 
     Task<bool> RunSqlWithoutLogging(string sql, string scriptName,
         GrateEnvironment? environment,
-        ConnectionType connectionType, TransactionHandling transactionHandling,
-        bool ignoreDirectoryNames);
+        ConnectionType connectionType, TransactionHandling transactionHandling);
 
     Task RestoreDatabase(string backupPath);
     void SetDefaultConnectionActive();

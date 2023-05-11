@@ -159,8 +159,7 @@ public class DbMigrator : IDbMigrator
         string scriptName,
         GrateEnvironment? environment,
         ConnectionType connectionType,
-        TransactionHandling transactionHandling, 
-        bool ignoreDirectoryNames)
+        TransactionHandling transactionHandling)
     {
         async Task<bool> PrintLogAndRunSql()
         {
