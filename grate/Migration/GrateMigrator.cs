@@ -121,14 +121,14 @@ public class GrateMigrator : IAsyncDisposable
                 try {
                     if (processingFolderInDefaultTransaction)
                     {
-                        await LogAndProcess(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
+                        await LogAndProcess(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling, config.SearchAllSubdirectoriesInsteadOfTraverse);
                     }
                     else
                     {
                         using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
                         using (await dbMigrator.OpenNewActiveConnection())
                         {
-                            await LogAndProcess(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
+                            await LogAndProcess(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling, config.SearchAllSubdirectoriesInsteadOfTraverse);
                         }
                         s.Complete();
                     }
@@ -253,7 +253,8 @@ public class GrateMigrator : IAsyncDisposable
                     createDatabaseFolder,
                     changeDropFolder,
                     createDatabaseFolder.ConnectionType,
-                    createDatabaseFolder.TransactionHandling
+                    createDatabaseFolder.TransactionHandling,
+                    config.SearchAllSubdirectoriesInsteadOfTraverse
                 );
             }
             else
@@ -271,7 +272,7 @@ public class GrateMigrator : IAsyncDisposable
 
     private DirectoryInfo Wrap(DirectoryInfo root, string subFolder) => new(Path.Combine(root.ToString(), subFolder));
 
-    private async Task LogAndProcess(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId, ConnectionType connectionType, TransactionHandling transactionHandling)
+    private async Task LogAndProcess(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId, ConnectionType connectionType, TransactionHandling transactionHandling, bool searchAllSubdirectoriesInsteadOfTraverse)
     {
         var path = Wrap(root, folder.Path);
 
@@ -303,20 +304,20 @@ public class GrateMigrator : IAsyncDisposable
             msg);
 
         Separator('-');
-        await Process(root, folder, changeDropFolder, versionId, connectionType, transactionHandling);
+        await Process(root, folder, changeDropFolder, versionId, connectionType, transactionHandling, searchAllSubdirectoriesInsteadOfTraverse);
         Separator('-');
         Separator(' ');
     }
 
     private async Task Process(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId,
-        ConnectionType connectionType, TransactionHandling transactionHandling)
+        ConnectionType connectionType, TransactionHandling transactionHandling, bool searchAllSubdirectoriesInsteadOfTraverse)
     {
         var path = Wrap(root, folder.Path);
 
         await EnsureConnectionIsOpen(connectionType);
 
         var pattern = "*.sql";
-        var files = FileSystem.GetFiles(path, pattern);
+        var files = FileSystem.GetFiles(path, pattern, searchAllSubdirectoriesInsteadOfTraverse);
 
         var anySqlRun = false;
 
@@ -353,14 +354,15 @@ public class GrateMigrator : IAsyncDisposable
     }
     
     private async Task<bool> ProcessWithoutLogging(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder,
-        ConnectionType connectionType, TransactionHandling transactionHandling)
+        ConnectionType connectionType, TransactionHandling transactionHandling,
+        bool searchAllSubdirectoriesInsteadOfTraverse)
     {
         var path = Wrap(root, folder.Path);
 
         await EnsureConnectionIsOpen(connectionType);
 
         var pattern = "*.sql";
-        var files = FileSystem.GetFiles(path, pattern);
+        var files = FileSystem.GetFiles(path, pattern, searchAllSubdirectoriesInsteadOfTraverse);
 
         var anySqlRun = false;
 
@@ -373,7 +375,7 @@ public class GrateMigrator : IAsyncDisposable
                 Path.GetRelativePath(path.ToString(), file.FullName).Split(Path.DirectorySeparatorChar));
 
             bool theSqlRan = await _migrator.RunSqlWithoutLogging(sql, fileNameToLog, _migrator.Configuration.Environment,
-                connectionType, transactionHandling);
+                connectionType, transactionHandling, searchAllSubdirectoriesInsteadOfTraverse);
 
             if (theSqlRan)
             {
