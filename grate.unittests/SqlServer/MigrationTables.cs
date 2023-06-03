@@ -12,10 +12,10 @@ public class MigrationTables: Generic.GenericMigrationTables
     protected override string CountTableSql(string schemaName, string tableName)
     {
         return $@"
-SELECT count(table_name) FROM information_schema.tables
+SELECT count(table_name) FROM INFORMATION_SCHEMA.tables
 WHERE
-table_schema = '{schemaName}' AND
-table_name = '{tableName}' COLLATE Latin1_General_CS_AS
+TABLE_SCHEMA = '{schemaName}' AND
+TABLE_NAME = '{tableName}' COLLATE Latin1_General_CS_AS
 ";
     }
 }
