@@ -32,6 +32,25 @@ SELECT 1
     }
     
     [Test]
+    public void Splits_and_removes_slashes_and_semicolon_2()
+    {
+        var original = @"
+    create table table_one (
+            col  number
+        );
+        /
+
+    create table table_two (
+        col number
+    )
+";
+        var batches = Splitter.Split(original);
+
+        batches.Should().HaveCount(2);
+        batches.First().Should().NotEndWith(";");
+    }
+
+    [Test]
     public void Splits_and_removes_semicolon()
     {
         var original = @"
