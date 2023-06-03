@@ -15,7 +15,7 @@ public class MariaDbDatabase : AnsiSqlDatabase
     { }
 
     public override bool SupportsDdlTransactions => false;
-    protected override bool SupportsSchemas => false;
+    public override bool SupportsSchemas => false;
     protected override DbConnection GetSqlConnection(string? connectionString) => new MySqlConnection(connectionString);
 
     public override Task RestoreDatabase(string backupPath)

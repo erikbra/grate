@@ -1,4 +1,8 @@
 ﻿using grate.unittests.TestInfrastructure;
+using NUnit.Framework;
+
+// There are some parallelism issues, but this does not solve it
+//[assembly:LevelOfParallelism(1)]
 
 namespace grate.unittests;
 

@@ -23,13 +23,13 @@ public class OracleDatabase : AnsiSqlDatabase
     }
 
     public override bool SupportsDdlTransactions => false;
-    protected override bool SupportsSchemas => false;
+    public override bool SupportsSchemas => false;
 
     protected override DbConnection GetSqlConnection(string? connectionString) => new OracleConnection(connectionString);
 
     protected override string ExistsSql(string tableSchema, string fullTableName) =>
         $@"
-SELECT * FROM user_tables
+SELECT table_name FROM user_tables
 WHERE 
 lower(table_name) = '{fullTableName.ToLowerInvariant()}'
 ";

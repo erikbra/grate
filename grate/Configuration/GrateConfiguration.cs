@@ -26,6 +26,10 @@ public record GrateConfiguration
     public string? ConnectionString { get; init; } = null;
 
     public string SchemaName { get; init; } = "grate";
+    
+    public string ScriptsRunTableName { get; set; } = "ScriptsRun";
+    public string ScriptsRunErrorsTableName { get; set; } = "ScriptsRunErrors";
+    public string VersionTableName { get; set; } = "Version";
 
     public string? AdminConnectionString
     {
