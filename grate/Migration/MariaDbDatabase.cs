@@ -16,7 +16,21 @@ public class MariaDbDatabase : AnsiSqlDatabase
 
     public override bool SupportsDdlTransactions => false;
     public override bool SupportsSchemas => false;
-    protected override DbConnection GetSqlConnection(string? connectionString) => new MySqlConnection(connectionString);
+
+    protected override DbConnection GetSqlConnection(string? connectionString)
+    {
+        // If pipelining is not explicitly mentioned in the connection string, turn it off, as enabling it
+        // might lead to problems in more scenarios than it (potentially) solves, in the most
+        // common grate scenarios.
+        if (!(connectionString ?? "").Contains("Pipelining", StringComparison.InvariantCultureIgnoreCase))
+        {
+            var builder = new MySqlConnectionStringBuilder(connectionString) { Pipelining = false };
+            connectionString = builder.ConnectionString;
+        }
+
+        var conn = new MySqlConnection(connectionString);
+        return conn;
+    }
 
     public override Task RestoreDatabase(string backupPath)
     {
