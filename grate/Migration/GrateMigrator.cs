@@ -316,7 +316,7 @@ public class GrateMigrator : IAsyncDisposable
         await EnsureConnectionIsOpen(connectionType);
 
         var pattern = "*.sql";
-        var files = FileSystem.GetFiles(path, pattern);
+        var files = FileSystem.GetFiles(path, pattern, _migrator.Configuration.IgnoreDirectoryNames);
 
         var anySqlRun = false;
 
@@ -325,8 +325,9 @@ public class GrateMigrator : IAsyncDisposable
             var sql = await File.ReadAllTextAsync(file.FullName);
 
             // Normalize file names to log, so that results won't vary if you run on *nix VS Windows
-            var fileNameToLog = string.Join('/',
-                Path.GetRelativePath(path.ToString(), file.FullName).Split(Path.DirectorySeparatorChar));
+            var fileNameToLog = _migrator.Configuration.IgnoreDirectoryNames
+                ? file.Name
+                : string.Join('/', Path.GetRelativePath(path.ToString(), file.FullName).Split(Path.DirectorySeparatorChar));
 
             bool theSqlRan = await _migrator.RunSql(sql, fileNameToLog, folder.Type, versionId, _migrator.Configuration.Environment,
                 connectionType, transactionHandling);
@@ -360,7 +361,7 @@ public class GrateMigrator : IAsyncDisposable
         await EnsureConnectionIsOpen(connectionType);
 
         var pattern = "*.sql";
-        var files = FileSystem.GetFiles(path, pattern);
+        var files = FileSystem.GetFiles(path, pattern, _migrator.Configuration.IgnoreDirectoryNames);
 
         var anySqlRun = false;
 
@@ -369,8 +370,9 @@ public class GrateMigrator : IAsyncDisposable
             var sql = await File.ReadAllTextAsync(file.FullName);
 
             // Normalize file names to log, so that results won't vary if you run on *nix VS Windows
-            var fileNameToLog = string.Join('/',
-                Path.GetRelativePath(path.ToString(), file.FullName).Split(Path.DirectorySeparatorChar));
+            var fileNameToLog = _migrator.Configuration.IgnoreDirectoryNames
+            ? file.Name
+            : string.Join('/', Path.GetRelativePath(path.ToString(), file.FullName).Split(Path.DirectorySeparatorChar));
 
             bool theSqlRan = await _migrator.RunSqlWithoutLogging(sql, fileNameToLog, _migrator.Configuration.Environment,
                 connectionType, transactionHandling);

@@ -300,6 +300,15 @@ public class Basic_CommandLineParsing
         cfg?.DatabaseType.Should().Be(expected);
     }
 
+    [TestCase("", false)]
+    [TestCase("--ignoredirectorynames", true)]
+    [TestCase("--searchallinsteadoftraverse", true)]
+    [TestCase("--searchallsubdirectoriesinsteadoftraverse", true)]
+    public async Task IgnoreDirectoryNames(string args, bool expected)
+    {
+        var cfg = await ParseGrateConfiguration(args);
+        cfg?.IgnoreDirectoryNames.Should().Be(expected);
+    }
 
     private static async Task<GrateConfiguration?> ParseGrateConfiguration(string commandline)
     {
