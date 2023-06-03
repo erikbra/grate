@@ -1,7 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using static System.IO.Path;
+using static System.IO.SearchOption;
+using static System.StringComparer;
 
 namespace grate.Migration;
 
@@ -11,10 +13,14 @@ public static class FileSystem
     {
         return ignoreDirectoryNames 
             ? folderPath
-                .EnumerateFileSystemInfos(pattern, SearchOption.AllDirectories).ToList()
-                .OrderBy(f => Path.GetFileNameWithoutExtension(f.FullName), StringComparer.CurrentCultureIgnoreCase) 
+                .EnumerateFileSystemInfos(pattern, AllDirectories).ToList()
+                .OrderBy(f => GetFileNameWithoutExtension(f.FullName), CurrentCultureIgnoreCase)
             : folderPath
-                .EnumerateFileSystemInfos(pattern, SearchOption.AllDirectories).ToList()
-                .OrderBy(f => Path.GetRelativePath(folderPath.ToString(), f.FullName), StringComparer.CurrentCultureIgnoreCase);
+                .EnumerateFileSystemInfos(pattern, AllDirectories).ToList()
+                .OrderBy(f =>
+                    Combine(
+                        GetRelativePath(folderPath.ToString(), GetDirectoryName(f.FullName)!),
+                        GetFileNameWithoutExtension(f.FullName)),
+                    CurrentCultureIgnoreCase);
     }
 }

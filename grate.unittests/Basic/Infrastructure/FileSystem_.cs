@@ -31,6 +31,26 @@ public class FileSystem_
         files.First().FullName.Should().Be(Path.Combine(path.ToString(), filename1));
         files.Last().FullName.Should().Be(Path.Combine(path.ToString(), filename2));
     }
+
+    [Test]
+    public void Sorts_enumerated_files_on_filename_without_extension_when_no_subfolders()
+    {
+        var parent = TestConfig.CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+
+        var path = Wrap(parent, knownFolders[KnownFolderKeys.Up]!.Path);
+
+        string filename1 = "01_any_filename_and_a_bit_longer.sql";
+        string filename2 = "01_any_filename.sql";
+
+        TestConfig.WriteContent(path, filename1, "Whatever");
+        TestConfig.WriteContent(path, filename2, "Whatever");
+
+        var files = FileSystem.GetFiles(path, "*.sql").ToList();
+
+        files.First().FullName.Should().Be(Path.Combine(path.ToString(), filename2));
+        files.Last().FullName.Should().Be(Path.Combine(path.ToString(), filename1));
+    }
         
     [Test]
     public void Sorts_enumerated_files_on_sub_path_when_subfolders_are_used()
