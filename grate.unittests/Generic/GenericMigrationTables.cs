@@ -242,7 +242,7 @@ public abstract class GenericMigrationTables
     protected virtual string CountTableSql(string schemaName, string tableName)
     {
         return $@"
-SELECT count(table_name) FROM INFORMATION_SCHEMA.tables
+SELECT count(table_name) FROM INFORMATION_SCHEMA.TABLES
 WHERE 
 table_schema = '{schemaName}' AND
 table_name = '{tableName}'
