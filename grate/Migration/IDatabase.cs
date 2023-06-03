@@ -17,6 +17,7 @@ public interface IDatabase : IAsyncDisposable
     public string ScriptsRunErrorsTable { get; }
     public string VersionTable { get; }
     DbConnection ActiveConnection { set; }
+    bool SupportsSchemas { get; }
 
     Task InitializeConnections(GrateConfiguration configuration);
     Task OpenConnection();
@@ -48,4 +49,5 @@ public interface IDatabase : IAsyncDisposable
     void SetDefaultConnectionActive();
     Task<IDisposable> OpenNewActiveConnection();
     Task OpenActiveConnection();
+    Task<string?> ExistingTable(string schemaName, string tableName);
 }

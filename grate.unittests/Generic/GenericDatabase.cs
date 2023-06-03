@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Data.Common;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -8,7 +9,9 @@ using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
 using grate.unittests.TestInfrastructure;
+using Microsoft.Data.SqlClient;
 using NUnit.Framework;
+using static System.StringSplitOptions;
 
 namespace grate.unittests.Generic;
 
@@ -27,6 +30,39 @@ public abstract class GenericDatabase
 
         IEnumerable<string> databases = await GetDatabases();
         databases.Should().Contain(db);
+    }
+    
+    [Test]
+    public virtual async Task Is_created_with_custom_script_if_custom_create_database_folder_exists()
+    {
+        var scriptedDatabase = "CUSTOMSCRIPTEDDATABASE";
+        var confedDatabase = "DEFAULTDATABASE";
+    
+        var config = GetConfiguration(confedDatabase, true);
+        var password = Context.AdminConnectionString
+            .Split(";", TrimEntries | RemoveEmptyEntries)
+            .SingleOrDefault(entry => entry.StartsWith("Password") || entry.StartsWith("Pwd"))?
+            .Split("=", TrimEntries | RemoveEmptyEntries)
+            .Last();
+    
+        var customScript = Context.Syntax.CreateDatabase(scriptedDatabase, password);
+        TestConfig.WriteContent(Wrap(config.SqlFilesDirectory, config.Folders?.CreateDatabase?.Path), "createDatabase.sql", customScript);
+        try
+        {
+            await using var migrator = GetMigrator(config);
+            await migrator.Migrate();
+        }
+        catch (DbException)
+        {
+            //Do nothing because database name is wrong due to custom script
+        }
+        
+        File.Delete(Path.Join(Wrap(config.SqlFilesDirectory, config.Folders?.CreateDatabase?.Path).ToString(), "createDatabase.sql"));
+    
+        // The database should have been created by the custom script
+        IEnumerable<string> databases = (await GetDatabases()).ToList();
+        databases.Should().Contain(scriptedDatabase);
+        databases.Should().NotContain(confedDatabase);
     }
 
     [Test]
@@ -91,23 +127,6 @@ public abstract class GenericDatabase
         Assert.DoesNotThrowAsync(() => migrator.Migrate());
     }
 
-    [Test]
-    public async Task Does_not_needlessly_apply_case_sensitive_database_name_checks_Issue_167()
-    {
-        // There's a bug where if the database name specified by the user differs from the actual database only by case then
-        // Grate currently attempts to create the database again, only for it to fail on the DBMS (Sql Server bug only).
-
-        var db = "CASEDATABASE";
-        await CreateDatabase(db);
-
-        // Check that the database has been created
-        IEnumerable<string> databasesBeforeMigration = await GetDatabases();
-        databasesBeforeMigration.Should().Contain(db);
-
-        await using var migrator = GetMigrator(GetConfiguration(db.ToLower(), true)); // ToLower is important here, this reproduces the bug in #167
-        // There should be no errors running the migration
-        Assert.DoesNotThrowAsync(() => migrator.Migrate());
-    }
 
     protected Task CreateDatabase(string db) => CreateDatabaseFromConnectionString(db, Context.ConnectionString(db));
 
@@ -172,9 +191,9 @@ public abstract class GenericDatabase
     protected virtual bool ThrowOnMissingDatabase => true;
 
 
-    private GrateMigrator GetMigrator(GrateConfiguration config) => Context.GetMigrator(config);
+    protected GrateMigrator GetMigrator(GrateConfiguration config) => Context.GetMigrator(config);
 
-    private GrateConfiguration GetConfiguration(string databaseName, bool createDatabase)
+    protected GrateConfiguration GetConfiguration(string databaseName, bool createDatabase)
         => GetConfiguration(databaseName, createDatabase, Context.AdminConnectionString);
     
 
@@ -196,5 +215,9 @@ public abstract class GenericDatabase
             SqlFilesDirectory = parent
         };
     }
+    
+    
+    protected static DirectoryInfo Wrap(DirectoryInfo root, string? subFolder) =>
+        new DirectoryInfo(Path.Combine(root.ToString(), subFolder ?? ""));
     
 }

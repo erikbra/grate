@@ -26,7 +26,12 @@ public interface IDbMigrator: IAsyncDisposable
     Task<long> VersionTheDatabase(string newVersion);
     Task OpenAdminConnection();
     Task CloseAdminConnection();
+    
     Task<bool> RunSql(string sql, string scriptName, MigrationType migrationType, long versionId,
+        GrateEnvironment? environment,
+        ConnectionType connectionType, TransactionHandling transactionHandling);
+
+    Task<bool> RunSqlWithoutLogging(string sql, string scriptName,
         GrateEnvironment? environment,
         ConnectionType connectionType, TransactionHandling transactionHandling);
 

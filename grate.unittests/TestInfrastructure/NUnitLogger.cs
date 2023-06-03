@@ -20,7 +20,7 @@ public class NUnitLogger : ILogger
         _minimumLogLevel = minimumLogLevel;
     }
 
-    public IDisposable BeginScope<TState>(TState state) => default; //We don't have scoping support
+    public IDisposable BeginScope<TState>(TState state) where TState : notnull => default; //We don't have scoping support
 
     public bool IsEnabled(LogLevel logLevel) => _minimumLogLevel >= logLevel  ;
 

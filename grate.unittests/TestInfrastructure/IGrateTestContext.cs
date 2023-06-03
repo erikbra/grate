@@ -56,6 +56,17 @@ public interface IGrateTestContext
             SqlFilesDirectory = sqlFilesDirectory
         };
 
+    public GrateConfiguration GetConfiguration(string databaseName, DirectoryInfo sqlFilesDirectory,
+        IFoldersConfiguration knownFolders, string? env, bool runInTransaction) =>
+        DefaultConfiguration with
+        {
+            ConnectionString = ConnectionString(databaseName),
+            Folders = knownFolders,
+            Environment = env != null ? new GrateEnvironment(env) : null,
+            Transaction = runInTransaction,
+            SqlFilesDirectory = sqlFilesDirectory
+        };
+
     public GrateMigrator GetMigrator(GrateConfiguration config)
     {
         var factory = Substitute.For<IFactory>();

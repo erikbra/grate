@@ -16,11 +16,11 @@ which might be a good starting point if you have no special requirements.
 grate works with three different folder types:
 
 
-| Folder/script type | Explanation | More info |
-| ------ | ------- |------- |
-| One-time scripts | These are scripts that are run **exactly once** per database, and never again. | [One time scripts](../ScriptTypes/OneTimeScripts.md#one-time-scripts) |
-| Anytime Scripts | These scripts are run **any time they're changed** | [Anytime scripts](../ScriptTypes/AnytimeScripts.md#anytime-scripts) |
-| Everytime Scripts | These scripts are run (you guessed it) **every time** grate executes :) |  [Everytime scripts](../ScriptTypes/EverytimeScripts.md#everytime-scripts) |
+| Folder/script type | Name | Explanation | More info |
+| ------ |----|  ------- |------- |
+| One-time scripts | Once | These are scripts that are run **exactly once** per database, and never again. | [One time scripts](../ScriptTypes/OneTimeScripts.md#one-time-scripts) |
+| Anytime Scripts | AnyTime | These scripts are run **any time they're changed** | [Anytime scripts](../ScriptTypes/AnytimeScripts.md#anytime-scripts) |
+| Everytime Scripts | EveryTime | These scripts are run (you guessed it) **every time** grate executes :) |  [Everytime scripts](../ScriptTypes/EverytimeScripts.md#everytime-scripts) |
 
 ## Specifying a custom folder configuration
 
@@ -44,8 +44,11 @@ This would use the [default folder configuration](#default-folder-configuration)
 `ddl` folder for **up** scripts, in the `projections` folder for **views**, and in the `preparefordeploy` folder for **beforemigration** scripts.
 
 ```
---folders up=ddl;views=projections;beforemigration=preparefordeploy
+--folders 'up=ddl;views=projections;beforemigration=preparefordeploy'
 ```
+
+**NOTE:** Be sure to use quotes when specifying multiple folders in the argument, as many shells treat `;` as
+a the "end this command" character, so everything after the `;` will not be part of the command line.
 
 or 
 
@@ -81,7 +84,7 @@ The properties you can set per folder, are:
 | ------ | ------- | ------- | ------- |
 | Name   | the key/name you wish to give to the folder | (doesn't matter if path is specified) | _(none)_ |
 | Path   | the relative path of the folder, relative to the --sqlfilesdirectory parameter. | Any relative path | the **Name** specified above.
-| Type   | the type of the migration | Once, EveryTime, Anytime | Once |
+| Type   | the type of the migration | Once, EveryTime, AnyTime | Once |
 | ConnectionType | whether to run on the default connection, or on the admin | Default, Admin | Default |
 | TransactionHandling | whether to be part of the transaction (if running the migration in a transaction), or run the script in an autonomous transaction, so that it is always run, even on a rollback | Default, Autonomous | Default |
 
@@ -96,7 +99,7 @@ Example:
 or
 
 ```
---folders folder1=Once;folder2=Everytime;folder3=Anytime
+--folders folder1=Once;folder2=EveryTime;folder3=AnyTime
 ```
 
 the last one will expect the folders to be named `folder1`, `folder2`, and `folder3`, 
@@ -116,7 +119,7 @@ folders, should you wish so.
 Simply specify the folders you want to override in the `--folders` parameter. The ones you don't mention, will remain configured
 as default. 
 
-An example, if you want to use a folder `tables` to keeep you `up` scripts in, use the following argument to grate:
+An example, if you want to use a folder `tables` to keep you `up` scripts in, use the following argument to grate:
 
 ```bash
 $ grate --folders up=tables
@@ -128,6 +131,8 @@ grate processes the files in a standard set of directories in a fixed order for 
 
 | Folder | Script type | Explanation |
 | ------ | ------- |------- |
+| <nobr> (-1. dropDatabase)</nobr> | Anytime scripts | If you have the need for a custom `DROP DATABASE` script (used with the `--drop` command-line flag) |
+| <nobr> (0. createDatabase)</nobr> | Anytime scripts | If you have the need for a custom `CREATE DATABASE` script, put it here, and it will be used instead of the default. |
 | <nobr> 1. beforeMigration</nobr> | Everytime scripts | If you have particular tasks you want to perform prior to any database migrations (custom logging? database backups? disable replication?) you can do it here. |
 | <nobr>2. alterDatabase</nobr> | Anytime scripts | If you have scripts that need to alter the database config itself (rather than the _contents_ of the database) thjis is the place to do it.  For example setting recovery modes, enabling query stores, etc etc |
 | <nobr>3. runAfterCreateDatabase</nobr> | Anytime scripts | This directory is only processed if the database was created from scratch by grate.  Maybe you need to add user accounts or similar?

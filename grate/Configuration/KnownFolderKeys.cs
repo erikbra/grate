@@ -5,6 +5,7 @@ namespace grate.Configuration;
 public static class KnownFolderKeys
 {
     public const string BeforeMigration = nameof(BeforeMigration);
+    public const string CreateDatabase = nameof(CreateDatabase);
     public const string AlterDatabase = nameof(AlterDatabase);
     public const string RunAfterCreateDatabase = nameof(RunAfterCreateDatabase);
     public const string RunBeforeUp = nameof(RunBeforeUp);

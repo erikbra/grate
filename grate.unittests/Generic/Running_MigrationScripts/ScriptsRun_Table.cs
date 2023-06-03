@@ -122,10 +122,38 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
             second.script_name.Should().Be($"sub/dolder/gong/way/{filename}");
             second.text_of_script.Should().Be(Context.Syntax.CurrentDatabase);
         });
-        
-        
-        
     }
     
+    [Test()]
+    public async Task Can_handle_large_scripts()
+    {
+        var db = TestConfig.RandomDatabase();
+
+        var parent = TestConfig.CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+        GrateMigrator? migrator;
+
+        var folder = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.Path));
+        
+        const string filename = "large_file.sql";
+
+        CreateLargeDummySql(folder, filename: filename);
+        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
+        {
+            await migrator.Migrate();
+        }
+
+        string fileContent = await File.ReadAllTextAsync(Path.Combine(folder.ToString(), filename));
+
+        string[] scripts;
+        string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
+
+        await using (var conn = Context.CreateDbConnection(db))
+        {
+            scripts = (await conn.QueryAsync<string>(sql)).ToArray();
+        }
+
+        scripts.First().Should().Be(fileContent);
+    }
     
 }

@@ -20,22 +20,21 @@ jobs:
       #is-release: 'true'
     
     steps:
-    - name: Setup .NET 6
-      uses: actions/setup-dotnet@v2
+    - name: Setup .NET 7
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.0.x
-        include-prerelease: false
+        dotnet-version: 7.0.x
     - name: Checkout
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0.9.13
+      uses: gittools/actions/gitversion/setup@v0.10.2
       with:
         versionSpec: '5.x'
     - name: Determine Version
       id: gitversion
-      uses: gittools/actions/gitversion/execute@v0.9.13
+      uses: gittools/actions/gitversion/execute@v0.10.2
 
   build-netcore-tool:
     needs: set-version-number
@@ -45,11 +44,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Setup .NET 6
-      uses: actions/setup-dotnet@v2
+    - name: Setup .NET 7
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.0.x
-        include-prerelease: false
+        dotnet-version: 7.0.x
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
@@ -78,23 +76,22 @@ jobs:
       matrix:
         arch: [ "win-x64", "win-x86", "win-arm", "win-arm64", 
                 "alpine-x64", "linux-x64", "linux-arm", "linux-arm64",
-                 "osx-x64"
+                "osx-x64", "osx.11.0-x64", "osx.11.0-arm64", "osx.12-x64", "osx.12-arm64", "osx.13-x64", "osx.13-arm64"
               ]
 
     steps:
     - uses: actions/checkout@v3
-    - name: Setup .NET 6
-      uses: actions/setup-dotnet@v2
+    - name: Setup .NET 7
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.0.x
-        include-prerelease: false
+        dotnet-version: 7.0.x
 
     - name: Publish self-contained ${{ matrix.arch }}
       run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
 
-    - name: Publish .NET 6 dependent ${{ matrix.arch }}
+    - name: Publish .NET 6/7 dependent ${{ matrix.arch }}
       run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --no-self-contained  -o ./publish/${{ matrix.arch }}/dependent
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
@@ -122,7 +119,7 @@ jobs:
     if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
     strategy:
       matrix:
-        arch: [ "win-x64" ]
+        arch: [ "win-x64", "win-arm64" ]
 
     steps:
     - uses: actions/checkout@v3
@@ -164,7 +161,7 @@ jobs:
         
 
     - name: Log in to the Container registry
-      uses: docker/login-action@49ed152c8eca782a232dede0303416e8f356c37b
+      uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
       with:
         #registry: ${{ env.REGISTRY }}
         username: ${{ github.repository_owner}}
@@ -172,7 +169,7 @@ jobs:
 
     - name: Extract metadata (tags, labels) for Docker
       id: meta
-      uses: docker/metadata-action@69f6fc9d46f2f8bf0d5491e4aabe0bb8c6a4678a
+      uses: docker/metadata-action@c4ee3adeed93b1fa6a762f209fb01608c1a22f1e
       with:
         tags: |
           type=semver,pattern={{version}}
@@ -184,7 +181,7 @@ jobs:
 
 
     - name: Build and push Docker image
-      uses: docker/build-push-action@c84f38281176d4c9cdb1626ffafcd6b3911b5d94
+      uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
       with:
         context: ./installers/docker/
         push: true
@@ -227,31 +224,31 @@ jobs:
         name: grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch}}.deb
         path: ./installers/deb/grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch }}.deb
 
-  build-winget:
-    name: Winget - Update package manifest in the OWC
-    needs:
-     - set-version-number
-     - build-msi
-    runs-on: windows-latest
-    if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+  # build-winget:
+  #   name: Winget - Update package manifest in the OWC
+  #   needs:
+  #    - set-version-number
+  #    - build-msi
+  #   runs-on: windows-latest
+  #   if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
 
-    steps:
-    - name: Winget-Create
-      run: |
+  #   steps:
+  #   - name: Winget-Create
+  #     run: |
 
-        $version = "$($env:version)"
+  #       $version = "$($env:version)"
 
-        # Download wingetcreate
-        iwr https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
+  #       # Download wingetcreate
+  #       iwr https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
 
-        $packageUrl="https://github.com/erikbra/grate/releases/download/$version/grate-$version.msi"
+  #       $packageUrl="https://github.com/erikbra/grate/releases/download/$version/grate-$version.msi"
 
-        echo "Running ./wingetcreate.exe update erikbra.grate -u $packageUrl -v $version -t `"$env:WINGET_GH_PAT`" --submit"
-        ./wingetcreate.exe update erikbra.grate -u $packageUrl -v $version -t "$env:WINGET_GH_PAT" --submit
-      env:
-        WINGET_GH_PAT: ${{ secrets.WINGET_GH_PAT }}
-        #version: "1.4.0"
-        version: "${{ needs.set-version-number.outputs.nuGetVersion }}"
+  #       echo "Running ./wingetcreate.exe update erikbra.grate -u $packageUrl -v $version -t `"$env:WINGET_GH_PAT`" --submit"
+  #       ./wingetcreate.exe update erikbra.grate -u $packageUrl -v $version -t "$env:WINGET_GH_PAT" --submit
+  #     env:
+  #       WINGET_GH_PAT: ${{ secrets.WINGET_GH_PAT }}
+  #       #version: "1.4.0"
+  #       version: "${{ needs.set-version-number.outputs.nuGetVersion }}"
 
 
   test:
@@ -264,13 +261,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Setup .NET 6
-      uses: actions/setup-dotnet@v2
+    - name: Setup .NET 7
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.0.x
-        include-prerelease: false
+        dotnet-version: 7.0.x
     - name: Test
-      run: dotnet test --filter FullyQualifiedName~grate.unittests.${{ matrix.category }} -c Release --logger:"trx;LogFilePath=test-results-${{ matrix.category }}.xml"
+      run: dotnet test --filter "FullyQualifiedName~grate.unittests.${{ matrix.category }}" -c Release --logger:"trx;LogFilePath=test-results-${{ matrix.category }}.xml" -- -MaxCpuCount 2
 #      run:  dotnet test --verbosity Normal -c Release --logger "trx;LogFileName=/tmp/test-results/grate.unittests.trx"
       env:
         LogLevel: Warning

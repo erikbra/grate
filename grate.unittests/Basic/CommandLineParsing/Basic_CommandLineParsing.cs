@@ -8,6 +8,7 @@ using FluentAssertions;
 using grate.Commands;
 using grate.Configuration;
 using grate.Infrastructure;
+using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
 
 namespace grate.unittests.Basic.CommandLineParsing;
@@ -63,6 +64,21 @@ public class Basic_CommandLineParsing
         var cfg = await ParseGrateConfiguration(commandline);
 
         cfg?.AdminConnectionString.Should().Be(database);
+    }
+
+    [TestCase(DatabaseType.mariadb)]
+    [TestCase(DatabaseType.oracle)]
+    [TestCase(DatabaseType.postgresql)]
+    [TestCase(DatabaseType.sqlite)]
+    [TestCase(DatabaseType.sqlserver)]
+    public async Task DefaultAdminConnectionString(DatabaseType databaseType)
+    {
+        var commandline = $"--connectionstring=;Database=jalla --databasetype={databaseType}";
+        var cfg = await ParseGrateConfiguration(commandline);
+
+        var masterDbName = TestConfig.GetTestContext(databaseType).MasterDatabase;
+
+        cfg?.AdminConnectionString.Should().Be($";Database="+masterDbName);
     }
 
     [TestCase("-f ")]
@@ -284,6 +300,15 @@ public class Basic_CommandLineParsing
         cfg?.DatabaseType.Should().Be(expected);
     }
 
+    [TestCase("", false)]
+    [TestCase("--ignoredirectorynames", true)]
+    [TestCase("--searchallinsteadoftraverse", true)]
+    [TestCase("--searchallsubdirectoriesinsteadoftraverse", true)]
+    public async Task IgnoreDirectoryNames(string args, bool expected)
+    {
+        var cfg = await ParseGrateConfiguration(args);
+        cfg?.IgnoreDirectoryNames.Should().Be(expected);
+    }
 
     private static async Task<GrateConfiguration?> ParseGrateConfiguration(string commandline)
     {

@@ -25,10 +25,10 @@ public class BatchSplitterReplacer_
         [Test]
         public void full_statement_without_issue()
         {
-            string sql_to_match = SplitterContext.FullSplitter.tsql_statement;
+            string sql_to_match = SqlServerSplitterContext.FullSplitter.tsql_statement;
             TestContext.WriteLine(sql_to_match);
             string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
-            Assert.AreEqual(SplitterContext.FullSplitter.tsql_statement_scrubbed, sql_statement_scrubbed);
+            Assert.AreEqual(SqlServerSplitterContext.FullSplitter.tsql_statement_scrubbed, sql_statement_scrubbed);
         }
 
         [Test]

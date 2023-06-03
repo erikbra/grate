@@ -18,6 +18,9 @@ namespace grate.Migration;
 
 public abstract class AnsiSqlDatabase : IDatabase
 {
+    private const string Now = "now";
+    private const string User = "usr";
+
     private string SchemaName { get; set; } = "";
 
     protected GrateConfiguration? Config { get; private set; }
@@ -43,14 +46,18 @@ public abstract class AnsiSqlDatabase : IDatabase
         .Split("=", TrimEntries | RemoveEmptyEntries).Last();
 
     public abstract bool SupportsDdlTransactions { get; }
-    protected abstract bool SupportsSchemas { get; }
+    public abstract bool SupportsSchemas { get; }
     public bool SplitBatchStatements => true;
 
     public string StatementSeparatorRegex => _syntax.StatementSeparatorRegex;
 
-    public string ScriptsRunTable => _syntax.TableWithSchema(SchemaName, "ScriptsRun");
-    public string ScriptsRunErrorsTable => _syntax.TableWithSchema(SchemaName, "ScriptsRunErrors");
-    public string VersionTable => _syntax.TableWithSchema(SchemaName, "Version");
+    public string ScriptsRunTable => _syntax.TableWithSchema(SchemaName, ScriptsRunTableName);
+    public string ScriptsRunErrorsTable => _syntax.TableWithSchema(SchemaName, ScriptsRunErrorsTableName);
+    public string VersionTable => _syntax.TableWithSchema(SchemaName, VersionTableName);
+
+    private string ScriptsRunTableName { get; set; }
+    private string ScriptsRunErrorsTableName { get; set; }
+    private string VersionTableName { get; set; }
 
     public virtual Task InitializeConnections(GrateConfiguration configuration)
     {
@@ -58,10 +65,22 @@ public abstract class AnsiSqlDatabase : IDatabase
 
         ConnectionString = configuration.ConnectionString;
         AdminConnectionString = configuration.AdminConnectionString;
+        
         SchemaName = configuration.SchemaName;
+
+        VersionTableName = configuration.VersionTableName;
+        ScriptsRunTableName = configuration.ScriptsRunTableName;
+        ScriptsRunErrorsTableName = configuration.ScriptsRunErrorsTableName;
+        
         Config = configuration;
+        
         return Task.CompletedTask;
     }
+
+    private async Task<string> ExistingOrDefault(string schemaName, string tableName) =>
+        await ExistingTable(schemaName, tableName) ?? tableName;
+    
+        
 
     private string? AdminConnectionString { get; set; }
     protected string? ConnectionString { get; set; }
@@ -254,7 +273,7 @@ public abstract class AnsiSqlDatabase : IDatabase
 
     private async Task<bool> RunSchemaExists()
     {
-        string sql = $"SELECT s.schema_name FROM information_schema.schemata s WHERE s.schema_name = '{SchemaName}'";
+        string sql = $"SELECT s.SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA s WHERE s.SCHEMA_NAME = '{SchemaName}'";
         var res = await ExecuteScalarAsync<string>(ActiveConnection, sql);
         return res != null; // #230: If the server found a record that's good enough for us
     }
@@ -263,6 +282,10 @@ public abstract class AnsiSqlDatabase : IDatabase
 
     protected virtual async Task CreateScriptsRunTable()
     {
+        // Update scripts run table name with the correct casing, should it differ from the standard
+        
+        ScriptsRunTableName = await ExistingOrDefault(SchemaName, ScriptsRunTableName);
+        
         string createSql = $@"
 CREATE TABLE {ScriptsRunTable}(
 	{_syntax.PrimaryKeyColumn("id")},
@@ -285,6 +308,9 @@ CREATE TABLE {ScriptsRunTable}(
 
     protected virtual async Task CreateScriptsRunErrorsTable()
     {
+        // Update scripts run errors table name with the correct casing, should it differ from the standard
+        ScriptsRunErrorsTableName = await ExistingOrDefault(SchemaName, ScriptsRunErrorsTableName);
+        
         string createSql = $@"
 CREATE TABLE {ScriptsRunErrorsTable}(
 	{_syntax.PrimaryKeyColumn("id")},
@@ -307,6 +333,9 @@ CREATE TABLE {ScriptsRunErrorsTable}(
 
     protected virtual async Task CreateVersionTable()
     {
+        // Update version table name with the correct casing, should it differ from the standard
+        VersionTableName = await ExistingOrDefault(SchemaName, VersionTableName);
+        
         string createSql = $@"
 CREATE TABLE {VersionTable}(
 	{_syntax.PrimaryKeyColumn("id")},
@@ -317,6 +346,7 @@ CREATE TABLE {VersionTable}(
 	entered_by {_syntax.VarcharType}(50) NULL
 	{_syntax.PrimaryKeyConstraint("Version", "id")}
 )";
+        
         if (!await VersionTableExists())
         {
             await ExecuteNonQuery(ActiveConnection, createSql, Config?.CommandTimeout);
@@ -335,21 +365,25 @@ CREATE TABLE {VersionTable}(
         }
     }
 
-    protected async Task<bool> ScriptsRunTableExists() => await TableExists(SchemaName, "ScriptsRun");
-    protected async Task<bool> ScriptsRunErrorsTableExists() => await TableExists(SchemaName, "ScriptsRunErrors");
-    public async Task<bool> VersionTableExists() => await TableExists(SchemaName, "Version");
-    protected async Task<bool> StatusColumnInVersionTableExists() => await ColumnExists(SchemaName, "Version", "status");
+    protected async Task<bool> ScriptsRunTableExists() => (await ExistingTable(SchemaName, ScriptsRunTableName) is not null) ;
+    protected async Task<bool> ScriptsRunErrorsTableExists() => (await ExistingTable(SchemaName, ScriptsRunErrorsTableName) is not null);
+    public async Task<bool> VersionTableExists() => (await ExistingTable(SchemaName, VersionTableName) is not null);
+    
+    protected async Task<bool> StatusColumnInVersionTableExists() => await ColumnExists(SchemaName, VersionTableName, "status");
 
-    public async Task<bool> TableExists(string schemaName, string tableName)
+    public async Task<string?> ExistingTable(string schemaName, string tableName)
     {
         var fullTableName = SupportsSchemas ? tableName : _syntax.TableWithSchema(schemaName, tableName);
         var tableSchema = SupportsSchemas ? schemaName : DatabaseName;
-
+        
         string existsSql = ExistsSql(tableSchema, fullTableName);
 
         var res = await ExecuteScalarAsync<object>(ActiveConnection, existsSql);
 
-        return !DBNull.Value.Equals(res) && res is not null;
+        var name = (!DBNull.Value.Equals(res) && res is not null) ? (string) res : null;
+        
+        var prefix = SupportsSchemas ? string.Empty : _syntax.TableWithSchema(schemaName, string.Empty);
+        return name?[prefix.Length..] ;
     }
 
     private async Task<bool> ColumnExists(string schemaName, string tableName, string columnName)
@@ -366,21 +400,21 @@ CREATE TABLE {VersionTable}(
     protected virtual string ExistsSql(string tableSchema, string fullTableName)
     {
         return $@"
-SELECT * FROM information_schema.tables 
+SELECT table_name FROM INFORMATION_SCHEMA.TABLES 
 WHERE 
-table_schema = '{tableSchema}' AND
-table_name = '{fullTableName}'
+LOWER(TABLE_SCHEMA) = LOWER('{tableSchema}') AND
+LOWER(TABLE_NAME) = LOWER('{fullTableName}')
 ";
     }
 
     protected virtual string ExistsSql(string tableSchema, string fullTableName, string columnName)
     {
         return $@"
-SELECT * FROM information_schema.columns 
+SELECT * FROM INFORMATION_SCHEMA.COLUMNS 
 WHERE 
-table_schema = '{tableSchema}' AND
-table_name = '{fullTableName}' AND
-column_name = '{columnName}' 
+LOWER(TABLE_SCHEMA) = LOWER('{tableSchema}') AND
+LOWER(TABLE_NAME) = LOWER('{fullTableName}') AND
+LOWER(COLUMN_NAME) = LOWER('{columnName}') 
 ";
     }
 
@@ -576,16 +610,14 @@ INSERT INTO {ScriptsRunTable}
 (version_id, script_name, text_of_script, text_hash, one_time_script, entry_date, modified_date, entered_by)
 VALUES (@versionId, @scriptName, @sql, @hash, @runOnce, @now, @now, @usr)");
 
-        var scriptRun = new
-        {
-            versionId,
-            scriptName,
-            sql,
-            hash,
-            runOnce = Bool(runOnce),
-            now = DateTime.UtcNow,
-            usr = Environment.UserName
-        };
+        var scriptRun = new DynamicParameters();
+        scriptRun.Add(nameof(versionId), versionId);
+        scriptRun.Add(nameof(scriptName), scriptName);
+        scriptRun.Add(nameof(sql), sql, DbType.String);
+        scriptRun.Add(nameof(hash), hash);
+        scriptRun.Add(nameof(runOnce), Bool(runOnce));
+        scriptRun.Add(Now, DateTime.UtcNow);
+        scriptRun.Add(User, Environment.UserName);
 
         await ExecuteAsync(ActiveConnection, insertSql, scriptRun);
     }
@@ -601,16 +633,14 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
 
         var version = await ExecuteScalarAsync<string>(ActiveConnection, versionSql, new { versionId });
 
-        var scriptRunErrors = new
-        {
-            version,
-            scriptName,
-            sql,
-            errorSql,
-            errorMessage,
-            now = DateTime.UtcNow,
-            usr = Environment.UserName,
-        };
+        var scriptRunErrors = new DynamicParameters();
+        scriptRunErrors.Add(nameof(version), version);
+        scriptRunErrors.Add(nameof(scriptName), scriptName);
+        scriptRunErrors.Add(nameof(sql), sql, DbType.String);
+        scriptRunErrors.Add(nameof(errorSql), errorSql, DbType.String);
+        scriptRunErrors.Add(nameof(errorMessage), errorMessage, DbType.String);
+        scriptRunErrors.Add(Now, DateTime.UtcNow);
+        scriptRunErrors.Add(User, Environment.UserName);
 
         await ExecuteAsync(ActiveConnection, insertSql, scriptRunErrors);
     }

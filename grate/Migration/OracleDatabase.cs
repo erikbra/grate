@@ -23,13 +23,13 @@ public class OracleDatabase : AnsiSqlDatabase
     }
 
     public override bool SupportsDdlTransactions => false;
-    protected override bool SupportsSchemas => false;
+    public override bool SupportsSchemas => false;
 
     protected override DbConnection GetSqlConnection(string? connectionString) => new OracleConnection(connectionString);
 
     protected override string ExistsSql(string tableSchema, string fullTableName) =>
         $@"
-SELECT * FROM user_tables
+SELECT table_name FROM user_tables
 WHERE 
 lower(table_name) = '{fullTableName.ToLowerInvariant()}'
 ";
@@ -73,7 +73,7 @@ WHERE  version_row_number <= 1
 
     public override Task RestoreDatabase(string backupPath)
     {
-        throw new System.NotImplementedException("Restoring a database from file is not currently supported for Maria DB.");
+        throw new System.NotImplementedException("Restoring a database from file is not currently supported for Oracle.");
     }
 
     protected override async Task CreateVersionTable()

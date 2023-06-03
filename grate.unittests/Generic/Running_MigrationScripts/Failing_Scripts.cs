@@ -1,4 +1,5 @@
-﻿using System.Data.Common;
+﻿using System;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -73,6 +74,42 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
         scripts.Should().HaveCount(1);
     }
     
+    [Test()]
+    public async Task Inserts_Large_Failed_Scripts_Into_ScriptRunErrors_Table()
+    {
+        var db = TestConfig.RandomDatabase();
+
+        var parent = TestConfig.CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+        GrateMigrator? migrator;
+
+        CreateLongInvalidSql(parent, knownFolders[Up]);
+
+        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
+        {
+            try
+            {
+                await migrator.Migrate();
+            }
+            catch (MigrationFailed)
+            {
+            }
+        }
+
+        string fileContent = await File.ReadAllTextAsync(Path.Combine(parent.ToString(), knownFolders[Up]!.Path, "2_failing.sql"));
+
+        string[] scripts;
+        string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRunErrors")}";
+
+        using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+        {
+            await using var conn = Context.CreateDbConnection(db);
+            scripts = (await conn.QueryAsync<string>(sql)).ToArray();
+        }
+
+        scripts.First().Should().Be(fileContent);
+    }
+
     [Test]
     public void Ensure_Command_Timeout_Fires()
     {
@@ -235,6 +272,13 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
     protected static void CreateInvalidSql(DirectoryInfo root, MigrationsFolder? folder)
     {
         var dummySql = "SELECT TOP";
+        var path = MakeSurePathExists(root, folder);
+        WriteSql(path, "2_failing.sql", dummySql);
+    }
+
+    protected void CreateLongInvalidSql(DirectoryInfo root, MigrationsFolder? folder)
+    {
+        var dummySql = CreateLongComment(8192) + Environment.NewLine + "SELECT TOP";
         var path = MakeSurePathExists(root, folder);
         WriteSql(path, "2_failing.sql", dummySql);
     }
