@@ -14,7 +14,18 @@ public class BatchSplitterReplacer
         _regex = new Regex(pattern, IgnoreCase | Multiline);
     }
 
-    public string Replace(string text) => _regex.Replace(text, ReplaceBatchSeparator);
+    public string Replace(string text)
+    {
+        var replace = _regex.Replace(text, ReplaceBatchSeparator);
+        
+        // Combine multiple consecutive replacement tokens with one (needed for Oracle, if ; and / are on separate lines)
+        replace = Regex.Replace(
+                replace, 
+                Regex.Escape(Replacement) + "(\\s*)" + Regex.Escape(Replacement),
+                "$1" + Replacement);
+        
+        return replace;
+    }
 
     private string ReplaceBatchSeparator(Match match)
     {

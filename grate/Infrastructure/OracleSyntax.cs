@@ -12,7 +12,7 @@ public class OracleSyntax : ISyntax
             const string dashComments = @"(?<KEEP1>--.*$)";
             const string starComments = @"(?<KEEP1>/\*[\S\s]*?\*/)";
             const string batchSeparator = @"(?<KEEP1>.*)(?<BATCHSPLITTER>;)(?<KEEP2>\s|$)";
-            const string sqlPlusExecuteCommand = @"(?<KEEP1>^|\s)(?<BATCHSPLITTER>\/|;)(?<KEEP2>\s|$)";
+            const string sqlPlusExecuteCommand = @"(?<KEEP1>^|\s)(?<BATCHSPLITTER>\/|;)(?<KEEP2>\s*|$|\n)";
             return strings + "|" + dashComments + "|" + starComments + "|" + batchSeparator + "|" + sqlPlusExecuteCommand;
         }
     }
