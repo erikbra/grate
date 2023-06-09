@@ -59,11 +59,8 @@ public class GrateMigrator : IAsyncDisposable
         
         TransactionScope? scope = null;
         IList<Exception> exceptions = new List<Exception>();
-        string? newVersion = default;
-        long versionId = default;
-        
         dbMigrator.SetDefaultConnectionActive();
-        
+
         if (config.Drop)
         {
             await dbMigrator.DropDatabase();
@@ -84,6 +81,8 @@ public class GrateMigrator : IAsyncDisposable
         // Run these first without a transaction, to make sure the tables are created even on a potential rollback
         await CreateGrateStructure(dbMigrator);
 
+        string? newVersion;
+        long versionId;
         (versionId, newVersion) = await VersionTheDatabase(dbMigrator);
 
         Separator('=');
@@ -241,8 +240,8 @@ public class GrateMigrator : IAsyncDisposable
             var config = dbMigrator.Configuration;
             var createDatabaseFolder = config.Folders?.CreateDatabase;
             var database = _migrator.Database;
-            
-            var path = Wrap(config.SqlFilesDirectory, createDatabaseFolder?.Path  ?? "zz-xx-øø-definitely-does-not-exist");
+
+            var path = Wrap(config.SqlFilesDirectory, createDatabaseFolder?.Path ?? "zz-xx-øø-definitely-does-not-exist");
             
             if (createDatabaseFolder is not null && path.Exists)
             {
@@ -269,7 +268,7 @@ public class GrateMigrator : IAsyncDisposable
         await dbMigrator.RestoreDatabase(backupPath);
     }
 
-    private DirectoryInfo Wrap(DirectoryInfo root, string subFolder) => new(Path.Combine(root.ToString(), subFolder));
+    private static DirectoryInfo Wrap(DirectoryInfo root, string subFolder) => new(Path.Combine(root.ToString(), subFolder));
 
     private async Task LogAndProcess(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId, ConnectionType connectionType, TransactionHandling transactionHandling)
     {

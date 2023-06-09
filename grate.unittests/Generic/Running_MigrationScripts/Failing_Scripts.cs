@@ -302,7 +302,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
     private static TestCaseData GetTestCase(
         MigrationsFolder? folder,
-        [CallerArgumentExpression("folder")] string migrationsFolderDefinitionName = ""
+        [CallerArgumentExpression(nameof(folder))] string migrationsFolderDefinitionName = ""
     ) =>
         new TestCaseData(folder)
             .SetArgDisplayNames(

@@ -8,7 +8,7 @@ public static class OracleSplitterContext
 
     public static class FullSplitter
     {
-        public static string PLSqlStatement = @"
+        public static readonly string PLSqlStatement = @"
 BOB1
 /
 
@@ -99,7 +99,7 @@ INSERT [dbo].[Foo] ([Bar]) VALUES (N'/ speed racer, / speed racer, / speed racer
 
 /";
 
-        public static string PLSqlStatementScrubbed = @"
+        public static readonly string PLSqlStatementScrubbed = @"
 BOB1
 " + StatementSplitter.BatchTerminatorReplacementString + @"
 
@@ -190,7 +190,7 @@ INSERT [dbo].[Foo] ([Bar]) VALUES (N'/ speed racer, / speed racer, / speed racer
 
 " + StatementSplitter.BatchTerminatorReplacementString + @"";
 
-        public static string plsql_statement =
+        public static readonly string plsql_statement =
             @"
 SQL1;
 ;
@@ -204,7 +204,7 @@ INSERT into Table (columnname) values ("";"");
 UPDATE Table set columnname="";"";
 END;
 ";
-        public static string plsql_statement_scrubbed = @"
+        public static readonly string plsql_statement_scrubbed = @"
 SQL1;
 " + StatementSplitter.BatchTerminatorReplacementString + @"
 SQL2;

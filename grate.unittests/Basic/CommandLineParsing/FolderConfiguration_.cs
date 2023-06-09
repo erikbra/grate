@@ -24,8 +24,7 @@ public class FolderConfiguration_
     public async Task Default()
     {
         var cfg = await ParseGrateConfiguration("--sqlfilesdirectory=/tmp");
-
-        var parent = cfg?.SqlFilesDirectory ?? new DirectoryInfo("/tmp");
+        _ = cfg?.SqlFilesDirectory ?? new DirectoryInfo("/tmp");
 
         var expected = FoldersConfiguration.Default(null);
         var actual = cfg?.Folders;
@@ -38,7 +37,7 @@ public class FolderConfiguration_
     public async Task Default_With_Overrides(string commandLine, Func<KnownFolderNames, KnownFolderNames> applyExpectedOverrides)
     {
         var cfg = await ParseGrateConfiguration("--sqlfilesdirectory=/tmp", commandLine);
-        var parent = cfg?.SqlFilesDirectory ?? new DirectoryInfo("/tmp");
+        _ = cfg?.SqlFilesDirectory ?? new DirectoryInfo("/tmp");
         var folderConfig = applyExpectedOverrides(KnownFolderNames.Default);
         var expected = FoldersConfiguration.Default(folderConfig);
         
@@ -79,7 +78,7 @@ public class FolderConfiguration_
     private static TestCaseData GetTestCase(
         string folderArg,
         Func<KnownFolderNames, KnownFolderNames> expectedOverrides,
-        [CallerArgumentExpression("expectedOverrides")] string overridesText = ""
+        [CallerArgumentExpression(nameof(expectedOverrides))] string overridesText = ""
     ) => new TestCaseData(folderArg, expectedOverrides).SetArgDisplayNames(folderArg, overridesText);
     
     private static TestCaseData GetCustomisedTestCase(

@@ -27,9 +27,11 @@ public class SqlServerDatabase : AnsiSqlDatabase
             var builder = new SqlConnectionStringBuilder(connectionString) { Pooling = false };
             connectionString = builder.ConnectionString;
         }
-        
-        var conn = new SqlConnection(connectionString);
-        conn.AccessToken = AccessToken;
+
+        var conn = new SqlConnection(connectionString)
+        {
+            AccessToken = AccessToken
+        };
 
         return conn;
     }

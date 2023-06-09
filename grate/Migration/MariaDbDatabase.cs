@@ -19,10 +19,14 @@ public class MariaDbDatabase : AnsiSqlDatabase
 
     protected override DbConnection GetSqlConnection(string? connectionString)
     {
+        //if we actually get a null here we're in trouble, but the cascading changes of making the param
+        //non-null are significant.
+        connectionString ??= "";
+
         // If pipelining is not explicitly mentioned in the connection string, turn it off, as enabling it
         // might lead to problems in more scenarios than it (potentially) solves, in the most
         // common grate scenarios.
-        if (!(connectionString ?? "").Contains("Pipelining", StringComparison.InvariantCultureIgnoreCase))
+        if (!connectionString.Contains("Pipelining", StringComparison.InvariantCultureIgnoreCase))
         {
             var builder = new MySqlConnectionStringBuilder(connectionString) { Pipelining = false };
             connectionString = builder.ConnectionString;

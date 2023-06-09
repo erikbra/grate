@@ -8,7 +8,7 @@ public static class SqlServerSplitterContext
 
     public static class FullSplitter
     {
-        public static string tsql_statement = @"
+        public static readonly string tsql_statement = @"
 BOB1
 GO
 
@@ -99,7 +99,7 @@ INSERT [dbo].[Foo] ([Bar]) VALUES (N'Go speed racer, go speed racer, go speed ra
 
 GO";
 
-        public static string tsql_statement_scrubbed = @"
+        public static readonly string tsql_statement_scrubbed = @"
 BOB1
 " + StatementSplitter.BatchTerminatorReplacementString + @"
 
@@ -190,7 +190,7 @@ INSERT [dbo].[Foo] ([Bar]) VALUES (N'Go speed racer, go speed racer, go speed ra
 
 " + StatementSplitter.BatchTerminatorReplacementString + @"";
 
-        public static string plsql_statement =
+        public static readonly string plsql_statement =
             @"
 SQL1;
 ;
@@ -204,7 +204,7 @@ INSERT into Table (columnname) values ("";"");
 UPDATE Table set columnname="";"";
 END;
 ";
-        public static string plsql_statement_scrubbed = @"
+        public static readonly string plsql_statement_scrubbed = @"
 SQL1;
 " + StatementSplitter.BatchTerminatorReplacementString + @"
 SQL2;

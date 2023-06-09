@@ -55,9 +55,9 @@ public abstract class AnsiSqlDatabase : IDatabase
     public string ScriptsRunErrorsTable => _syntax.TableWithSchema(SchemaName, ScriptsRunErrorsTableName);
     public string VersionTable => _syntax.TableWithSchema(SchemaName, VersionTableName);
 
-    private string ScriptsRunTableName { get; set; }
-    private string ScriptsRunErrorsTableName { get; set; }
-    private string VersionTableName { get; set; }
+    private string ScriptsRunTableName { get; set; } = "";
+    private string ScriptsRunErrorsTableName { get; set; } = "";
+    private string VersionTableName { get; set; } = "";
 
     public virtual Task InitializeConnections(GrateConfiguration configuration)
     {
@@ -146,16 +146,14 @@ public abstract class AnsiSqlDatabase : IDatabase
     
     protected async Task RunInAutonomousTransaction(string? connectionString, Func<DbConnection, Task> func)
     {
-        using (var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+        using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+        await using (var connection = GetSqlConnection(connectionString))
         {
-            await using (var connection = GetSqlConnection(connectionString))
-            {
-                await Open(connection);
-                await func(connection);
-                await Close(connection);
-            }
-            s.Complete();
+            await Open(connection);
+            await func(connection);
+            await Close(connection);
         }
+        s.Complete();
     }
     
     public async Task OpenActiveConnection()
@@ -558,9 +556,9 @@ WHERE id = (SELECT MAX(id) FROM {ScriptsRunTable} sr2 WHERE sr2.script_name = sr
     public async Task<string?> GetCurrentHash(string scriptName)
     {
         var cache = await GetScriptsRunCache();
-        if (cache.ContainsKey(scriptName))
+        if (cache.TryGetValue(scriptName, out var value))
         {
-            return cache[scriptName];
+            return value;
         }
 
         var hashSql = Parameterize($@"
