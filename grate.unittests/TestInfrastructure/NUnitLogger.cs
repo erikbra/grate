@@ -42,7 +42,7 @@ public class NUnitLogger : ILogger
         TestContext.Progress.WriteLine($"[{ts}] {shortName,-25} {formatter(state, exception)}");
     }
 
-    private string Shorten(string name) => name.Replace("grate.Migration.", "");
+    private static string Shorten(string name) => name.Replace("grate.Migration.", "");
 }
 #pragma warning restore CS8603 // Possible null reference return.
 

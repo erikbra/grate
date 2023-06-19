@@ -76,7 +76,7 @@ public class Fully_Customised_Folders
         MigrationType expectedType,
         ConnectionType expectedConnectionType,
         TransactionHandling transactionHandling,
-        [CallerArgumentExpression("folder")] string migrationsFolderDefinitionName = ""
+        [CallerArgumentExpression(nameof(folder))] string migrationsFolderDefinitionName = ""
     ) =>
         new TestCaseData(folder, expectedName, expectedType, expectedConnectionType, transactionHandling)
             .SetArgDisplayNames(

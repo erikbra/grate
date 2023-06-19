@@ -57,7 +57,7 @@ public static class Program
         catch (MigrationFailed ex)
         {
             var logger = _serviceProvider.GetRequiredService<ILogger<GrateMigrator>>();
-            logger.LogError(ex.Message);
+            logger.LogError(ex, "{ErrorMessage}", ex.Message);
         }
 
         await WaitForLoggerToFinish();

@@ -7,15 +7,15 @@ namespace grate.Exceptions;
 
 public class MigrationFailed: AggregateException
 {
-    private const string _message = "Migration failed due to errors";
+    private const string ErrorMessage = "Migration failed due to errors";
 
     public MigrationFailed(IEnumerable<Exception> exceptions)
-        : base(_message, exceptions)
+        : base(ErrorMessage, exceptions)
     {
     }
     
     public MigrationFailed(params Exception[] exceptions)
-        : base(_message, exceptions)
+        : base(ErrorMessage, exceptions)
     { }
 
     public override string Message
@@ -28,7 +28,7 @@ public class MigrationFailed: AggregateException
             }
 
             StringBuilder sb = new StringBuilder();
-            sb.Append(_message);
+            sb.Append(ErrorMessage);
             sb.Append(":\n");
             for (int i = 0; i < InnerExceptions.Count; i++)
             {

@@ -19,7 +19,7 @@ namespace grate.unittests.Basic.Infrastructure.FolderConfiguration;
 // ReSharper disable once InconsistentNaming
 public class KnownFolders_CustomNames
 {
-    private static readonly Random Random = new Random();
+    private static readonly Random Random = new();
 
     [Test]
     public void Returns_folders_in_same_order_as_default()
@@ -114,7 +114,7 @@ public class KnownFolders_CustomNames
         MigrationType expectedType,
         ConnectionType expectedConnectionType,
         TransactionHandling transactionHandling,
-        [CallerArgumentExpression("folder")] string migrationsFolderDefinitionName = ""
+        [CallerArgumentExpression(nameof(folder))] string migrationsFolderDefinitionName = ""
     ) =>
         new TestCaseData(folder, expectedName, expectedType, expectedConnectionType, transactionHandling)
             .SetArgDisplayNames(

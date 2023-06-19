@@ -90,7 +90,7 @@ public class KnownFolders_Default
         MigrationType expectedType,
         ConnectionType expectedConnectionType,
         TransactionHandling transactionHandling,
-        [CallerArgumentExpression("folder")] string migrationsFolderDefinitionName = ""
+        [CallerArgumentExpression(nameof(folder))] string migrationsFolderDefinitionName = ""
     ) =>
         new TestCaseData(folder, expectedName, expectedType, expectedConnectionType, transactionHandling)
             .SetArgDisplayNames(

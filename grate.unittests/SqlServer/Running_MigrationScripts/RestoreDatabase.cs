@@ -18,13 +18,11 @@ public class RestoreDatabase : SqlServerScriptsBase
     [OneTimeSetUp]
     public async Task RunBeforeTest()
     {
-        await using (var conn = Context.CreateDbConnection("master"))
-        {
-            await conn.ExecuteAsync("use [master] CREATE DATABASE [test]");
-            await conn.ExecuteAsync("use [test] CREATE TABLE dbo.Table_1 (column1 int NULL)");
-            await conn.ExecuteAsync($"BACKUP DATABASE [test] TO  DISK = '{_backupPath}'");
-            await conn.ExecuteAsync("use [master] DROP DATABASE [test]");
-        }
+        await using var conn = Context.CreateDbConnection("master");
+        await conn.ExecuteAsync("use [master] CREATE DATABASE [test]");
+        await conn.ExecuteAsync("use [test] CREATE TABLE dbo.Table_1 (column1 int NULL)");
+        await conn.ExecuteAsync($"BACKUP DATABASE [test] TO  DISK = '{_backupPath}'");
+        await conn.ExecuteAsync("use [master] DROP DATABASE [test]");
     }
         
     [Test]

@@ -38,7 +38,7 @@ public class Migration
     }
     
     protected static DirectoryInfo Wrap(DirectoryInfo root, string? subFolder) =>
-        new DirectoryInfo(Path.Combine(root.ToString(), subFolder ?? ""));
+        new(Path.Combine(root.ToString(), subFolder ?? ""));
 
     private static IDbMigrator GetDbMigrator(bool dryRun)
     {

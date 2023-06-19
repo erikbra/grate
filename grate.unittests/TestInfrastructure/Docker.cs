@@ -25,13 +25,10 @@ public static class Docker
         var hostPortList = await RunDockerCommand(findPortArgs);
         var hostPort = hostPortList.Split(" ", StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
 
-        if (hostPort is null)
-        {
-            throw new TestInfrastructureSetupException(
-                $"Unable to get host port from docker run output '${hostPortList}'");
-        }
-
-        return (serverName, int.Parse(hostPort));
+        return hostPort is null
+            ? throw new TestInfrastructureSetupException(
+                $"Unable to get host port from docker run output '${hostPortList}'")
+            : ((string containerId, int port))(serverName, int.Parse(hostPort));
     }
 
     public static async Task<string> Delete(string container)
