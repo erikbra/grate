@@ -73,7 +73,7 @@ public class KnownFolders_Default
         GetTestCase(Folders[RunAfterCreateDatabase] ,"runAfterCreateDatabase", AnyTime, Default, TransactionHandling.Default),
         GetTestCase(Folders[RunBeforeUp] ,"runBeforeUp", AnyTime, Default, TransactionHandling.Default),
         GetTestCase(Folders[Up] ,"up", Once, Default, TransactionHandling.Default),
-        GetTestCase(Folders[RunFirstAfterUp] ,"runFirstAfterUp", Once, Default, TransactionHandling.Default),
+        GetTestCase(Folders[RunFirstAfterUp] ,"runFirstAfterUp", AnyTime, Default, TransactionHandling.Default),
         GetTestCase(Folders[Functions] ,"functions", AnyTime, Default, TransactionHandling.Default),
         GetTestCase(Folders[Views] ,"views", AnyTime, Default, TransactionHandling.Default),
         GetTestCase(Folders[Sprocs] ,"sprocs", AnyTime, Default, TransactionHandling.Default),

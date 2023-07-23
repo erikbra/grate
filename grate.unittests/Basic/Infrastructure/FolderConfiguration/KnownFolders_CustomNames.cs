@@ -96,7 +96,7 @@ public class KnownFolders_CustomNames
             TransactionHandling.Default),
         GetTestCase(Folders[RunBeforeUp], OverriddenFolderNames.RunBeforeUp, AnyTime, Default, TransactionHandling.Default),
         GetTestCase(Folders[Up], OverriddenFolderNames.Up, Once, Default, TransactionHandling.Default),
-        GetTestCase(Folders[RunFirstAfterUp], OverriddenFolderNames.RunFirstAfterUp, Once, Default, TransactionHandling.Default),
+        GetTestCase(Folders[RunFirstAfterUp], OverriddenFolderNames.RunFirstAfterUp, AnyTime, Default, TransactionHandling.Default),
         GetTestCase(Folders[Functions], OverriddenFolderNames.Functions, AnyTime, Default, TransactionHandling.Default),
         GetTestCase(Folders[Views], OverriddenFolderNames.Views, AnyTime, Default, TransactionHandling.Default),
         GetTestCase(Folders[Sprocs], OverriddenFolderNames.Sprocs, AnyTime, Default, TransactionHandling.Default),

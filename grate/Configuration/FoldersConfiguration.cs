@@ -40,7 +40,7 @@ public class FoldersConfiguration: Dictionary<string, MigrationsFolder?>, IFolde
             { KnownFolderKeys.RunAfterCreateDatabase, new MigrationsFolder("Run After Create Database", folderNames.RunAfterCreateDatabase, AnyTime) },
             { KnownFolderKeys.RunBeforeUp,  new MigrationsFolder("Run Before Update", folderNames.RunBeforeUp, AnyTime) },
             { KnownFolderKeys.Up, new MigrationsFolder("Update", folderNames.Up, Once) },
-            { KnownFolderKeys.RunFirstAfterUp, new MigrationsFolder("Run First After Update", folderNames.RunFirstAfterUp, Once) },
+            { KnownFolderKeys.RunFirstAfterUp, new MigrationsFolder("Run First After Update", folderNames.RunFirstAfterUp, AnyTime) },
             { KnownFolderKeys.Functions, new MigrationsFolder("Functions", folderNames.Functions, AnyTime) },
             { KnownFolderKeys.Views, new MigrationsFolder("Views", folderNames.Views, AnyTime) },
             { KnownFolderKeys.Sprocs, new MigrationsFolder("Stored Procedures", folderNames.Sprocs, AnyTime) },
