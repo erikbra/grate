@@ -37,4 +37,70 @@ CREATE INDEX CONCURRENTLY IX_column2 ON public.table1
         batches.Should().HaveCount(4);
     }
 
+    [Test]
+    public void Ignores_semicolons_in_strings()
+    {
+        var original = @"
+DO '
+BEGIN
+    IF NOT EXISTS(
+        SELECT schema_name
+        FROM information_schema.schemata
+        WHERE schema_name = ''random''
+    )
+    THEN
+        EXECUTE ''CREATE SCHEMA random'';
+    END IF;
+END
+';
+";
+        var batches = Splitter.Split(original);
+
+        batches.Should().HaveCount(1);
+    }
+
+    [Test]
+    public void Ignores_semicolons_in_backslash_escaped_strings()
+    {
+        var original = @"
+DO E'
+BEGIN
+    IF NOT EXISTS(
+        SELECT schema_name
+        FROM information_schema.schemata
+        WHERE schema_name = \'random\'
+    )
+    THEN
+        EXECUTE \'CREATE SCHEMA random\';
+    END IF;
+END
+';
+";
+        var batches = Splitter.Split(original);
+
+        batches.Should().HaveCount(1);
+    }
+
+    [TestCase("$$")]
+    [TestCase("$sometag$")]
+    public void Ignores_semicolons_in_dollar_quoted_strings(string tag)
+    {
+        var original = @$"
+DO 
+{tag}
+BEGIN
+    IF NOT EXISTS(
+        SELECT schema_name
+        FROM information_schema.schemata
+        WHERE schema_name = 'random'
+    )
+    THEN
+        EXECUTE 'CREATE SCHEMA random';
+    END IF;
+END
+{tag};
+";
+    var batches = Splitter.Split(original);
+        batches.Should().HaveCount(1);
+    }
 }

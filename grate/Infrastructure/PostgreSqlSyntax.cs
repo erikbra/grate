@@ -6,11 +6,13 @@ public class PostgreSqlSyntax : ISyntax
     {
         get
         {
-            const string strings = @"(?<KEEP1>'[^']*')";
+            const string strings = @"(?<KEEP1>'([^']|\'\')*')";
+            const string backslashEscapedSrings = @"(?<KEEP1>E(?<!\\)('[\S\s]*?(?<!\\)'))";
+            const string dollarQuotedStrings = @"(?<KEEP1>\$(?'tag'\w*)\$[\S\s]*?\$\k'tag'\$)";
             const string dashComments = @"(?<KEEP1>--.*$)";
             const string starComments = @"(?<KEEP1>/\*[\S\s]*?\*/)";
             const string separator = @"(?<KEEP1>.*)(?<BATCHSPLITTER>;)(?<KEEP2>.*)";
-            return strings + "|" + dashComments + "|" + starComments + "|" + separator;
+            return strings + "|" + backslashEscapedSrings + "|" + dollarQuotedStrings + "|" + dashComments + "|" + starComments + "|" + separator;
         }
     }
 
