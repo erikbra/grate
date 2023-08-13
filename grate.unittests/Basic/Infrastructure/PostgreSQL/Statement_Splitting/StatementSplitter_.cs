@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Linq;
+using FluentAssertions;
 using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -36,29 +37,7 @@ CREATE INDEX CONCURRENTLY IX_column2 ON public.table1
 
         batches.Should().HaveCount(4);
     }
-
-    [Test]
-    public void Ignores_semicolons_in_strings()
-    {
-        var original = @"
-DO '
-BEGIN
-    IF NOT EXISTS(
-        SELECT schema_name
-        FROM information_schema.schemata
-        WHERE schema_name = ''random''
-    )
-    THEN
-        EXECUTE ''CREATE SCHEMA random'';
-    END IF;
-END
-';
-";
-        var batches = Splitter.Split(original);
-
-        batches.Should().HaveCount(1);
-    }
-
+    
     [Test]
     public void Ignores_semicolons_in_backslash_escaped_strings()
     {
@@ -100,7 +79,48 @@ BEGIN
 END
 {tag};
 ";
-    var batches = Splitter.Split(original);
+        var batches = Splitter.Split(original);
+        batches.Should().HaveCount(1);
+    }
+    
+    [Test]
+    public void Splits_on_semicolon_after_single_quotes_when_there_is_another_semicolon_in_the_quote()
+    {
+        var original = @"SELECT 1 WHERE whatnot = '; ' ; MOO";
+        var batches = Splitter.Split(original).ToList();
+        batches.Should().HaveCount(2);
+
+        batches.First().Should().Be("SELECT 1 WHERE whatnot = '; ' ");
+        batches.Last().Should().Be(" MOO");
+    }
+
+    [Test]
+    public void Ignores_semicolon_in_single_quotes_when_there_is_no_other_semicolon()
+    {
+        var original = @"SELECT 1 WHERE whatnot = '; '";
+        var batches = Splitter.Split(original);
+        batches.Should().HaveCount(1);
+    }
+
+    [Test]
+    public void Ignores_semicolons_in_strings()
+    {
+        var original = @"
+DO '
+BEGIN
+    IF NOT EXISTS(
+        SELECT schema_name
+        FROM information_schema.schemata
+        WHERE schema_name = ''random''
+    )
+    THEN
+        EXECUTE ''CREATE SCHEMA random'';
+    END IF;
+END
+';
+";
+        var batches = Splitter.Split(original);
+
         batches.Should().HaveCount(1);
     }
 }
