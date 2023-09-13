@@ -25,7 +25,7 @@ jobs:
       with:
         dotnet-version: 7.0.x
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Install GitVersion
@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup .NET 7
       uses: actions/setup-dotnet@v3
       with:
@@ -80,7 +80,7 @@ jobs:
               ]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup .NET 7
       uses: actions/setup-dotnet@v3
       with:
@@ -122,7 +122,7 @@ jobs:
         arch: [ "win-x64", "win-arm64" ]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: actions/download-artifact@v3
       with:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
@@ -153,7 +153,7 @@ jobs:
       FULL_IMAGE_NAME: ${{ github.repository }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: actions/download-artifact@v3
       with:
         name: grate-alpine-x64-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
@@ -200,7 +200,7 @@ jobs:
         arch: [ "linux-arm", "linux-arm64", "linux-x64" ]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: actions/download-artifact@v3
       with:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
@@ -260,7 +260,7 @@ jobs:
         category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle" ]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup .NET 7
       uses: actions/setup-dotnet@v3
       with:
