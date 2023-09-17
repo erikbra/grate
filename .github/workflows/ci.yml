@@ -26,18 +26,11 @@ jobs:
       with:
         dotnet-version: 7.0.x
     - name: Restore dependencies
-      run: dotnet restore -r linux-x64 grate.unittests/grate.unittests.csproj
+      run: |
+       dotnet restore -r linux-x64 grate.sln
     - name: Build
-      run: dotnet build --no-self-contained grate.unittests/grate.unittests.csproj -r linux-x64 --no-restore -c release -o bin/bin
+      run: dotnet build --no-restore --no-self-contained -r linux-x64 grate/grate.csproj -c release
 
-    - name: Upload built binaries
-      uses: actions/upload-artifact@v3
-      with:
-        name: binaries
-        # Note the double bin/bin above. If you add more paths here, you should remove one 'bin', as if there's only one folder, the files are added to the zip root instead.
-        path: |
-          bin   
-        retention-days: 1
 
   analyze:
     name: Analyze Code Security
@@ -70,24 +63,26 @@ jobs:
     name: Run tests
 
     runs-on: ubuntu-latest
-    needs: build-code
+    #needs: build-code
 
     strategy:
       fail-fast: false
       matrix:
         category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
+        #category: [ "Basic", "MariaDB", "Sqlite"  ]
 
     steps:
-    - name: Download binaries
-      uses: actions/download-artifact@v3
-      with:
-        name: binaries    
+    - uses: actions/checkout@v4
     - name: Setup .NET 7
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 7.0.x
     - name: Test
-      run: dotnet test --filter "FullyQualifiedName~grate.unittests.${{ matrix.category }}" bin/grate.unittests.dll --logger:"trx;LogFileName=test-results-${{ matrix.category }}.xml" -- -MaxCpuCount 2
+      run: |
+        dotnet test \
+          unittests/${{ matrix.category }} \
+          --logger:"xunit;LogFilePath=/tmp/test-results/${{ matrix.category }}.xml" -- \
+          -MaxCpuCount 2
       env:
         LogLevel: Warning
         TZ: UTC
@@ -97,7 +92,67 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: test-results-${{ matrix.category }}
-        #name: test-results
-        path: TestResults/test-results-${{ matrix.category }}.xml
+        path: |
+          /tmp/test-results/${{ matrix.category }}.xml
         retention-days: 1
+
+
+  report:
+     runs-on: ubuntu-latest
+     name: Create test report
+     needs: test
+
+     steps:
+      - name: Download XML test reports
+        uses: actions/download-artifact@v3
+        with:
+          path: test-results
+
+      - name: Install smink
+        run: |
+          BASEURL="https://github.com/erikbra/smink/releases/download/"
+          VERSION="0.2.0"
+
+          INSTALL_DIR="/tmp/smink"
+          SMINK="${INSTALL_DIR}/smink"
+
+          FILENAME="smink-linux-x64-${VERSION}.zip"
+          FULL_URL="${BASEURL}${VERSION}/${FILENAME}"
+          DOWNLOAD_DIR="/tmp/smink-download"
+
+          DOWNLOAD_FILE="${DOWNLOAD_DIR}/${FILENAME}"
+
+          test -f "${SMINK}" && \
+          echo "smink already installed - not installing" || \
+          echo "Installing smink v ${VERSION}" && \
+          (test -d "${DOWNLOAD_DIR}" || mkdir -p "${DOWNLOAD_DIR}") && \
+          (test -d "${INSTALL_DIR}" || mkdir -p "${INSTALL_DIR}") && \
+          (test -f "${DOWNLOAD_FILE}" || curl -o "${DOWNLOAD_FILE}" -sL "${FULL_URL}") && \
+          unzip -o "${DOWNLOAD_FILE}" -d "${INSTALL_DIR}" 
+
+          chmod u+x "${SMINK}"
+
+      - name: Create HTML test report
+        run: |
+
+          XML_DIR='/tmp/xml'
+          REPORT_DIR='/tmp/test-results'
+
+          test -d $XML_DIR  || mkdir $XML_DIR
+          find "test-results" -name '*.xml' -exec cp "{}" $XML_DIR \;
+          echo "Found the following test results files:"
+          ls -1 $XML_DIR
+
+          test -d $REPORT_DIR || mkdir $REPORT_DIR
+          echo "Running smink"
+          /tmp/smink/smink "${XML_DIR}/*.xml" "${REPORT_DIR}/test-report.html" --title "grate unit tests"
+
+      - name: Upload HTML test report
+        uses: actions/upload-artifact@v3
+        with:
+          name: HTML test report
+          path: |
+            /tmp/test-results/test-report.html
+          retention-days: 1
+
 
