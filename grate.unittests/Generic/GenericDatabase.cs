@@ -47,15 +47,16 @@ public abstract class GenericDatabase
     
         var customScript = Context.Syntax.CreateDatabase(scriptedDatabase, password);
         TestConfig.WriteContent(Wrap(config.SqlFilesDirectory, config.Folders?.CreateDatabase?.Path), "createDatabase.sql", customScript);
-        try
-        {
+        //try
+        //{
             await using var migrator = GetMigrator(config);
             await migrator.Migrate();
-        }
-        catch (DbException)
-        {
+        //}
+        //catch (DbException e)
+        //{
+            //var s = e.Message;
             //Do nothing because database name is wrong due to custom script
-        }
+        //}
         
         File.Delete(Path.Join(Wrap(config.SqlFilesDirectory, config.Folders?.CreateDatabase?.Path).ToString(), "createDatabase.sql"));
     
