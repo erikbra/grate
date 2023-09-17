@@ -4,11 +4,11 @@ using Dapper;
 using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
-using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
+using Unit_tests.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
 
-namespace grate.unittests.PostgreSQL.Running_MigrationScripts;
+namespace Unit_tests.PostgreSQL.Running_MigrationScripts;
 
 [TestFixture]
 [Category("PostgreSQL")]

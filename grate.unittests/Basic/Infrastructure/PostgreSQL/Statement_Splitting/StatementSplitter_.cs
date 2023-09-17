@@ -5,7 +5,7 @@ using grate.Migration;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 
-namespace grate.unittests.Basic.Infrastructure.PostgreSQL.Statement_Splitting;
+namespace Unit_tests.Basic_tests.Infrastructure.PostgreSQL.Statement_Splitting;
 
 [TestFixture]
 [Category("Basic")]

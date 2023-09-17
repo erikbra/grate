@@ -1,7 +1,7 @@
-using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
+using Unit_tests.TestInfrastructure;
 
-namespace grate.unittests.PostgreSQL;
+namespace Unit_tests.PostgreSQL;
 
 [TestFixture]
 [Category("PostgreSQL")]

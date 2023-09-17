@@ -3,10 +3,10 @@ using System.Threading.Tasks;
 using Dapper;
 using FluentAssertions;
 using grate.Configuration;
-using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
+using Unit_tests.TestInfrastructure;
 
-namespace grate.unittests.SqlServer.Running_MigrationScripts;
+namespace Unit_tests.SqlServer.Running_MigrationScripts;
 
 [TestFixture]
 [Category("SqlServer")]

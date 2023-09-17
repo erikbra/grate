@@ -1,6 +1,6 @@
-﻿using grate.unittests.TestInfrastructure;
+﻿using Unit_tests.TestInfrastructure;
 
-namespace grate.unittests.Oracle.Running_MigrationScripts;
+namespace Unit_tests.Oracle.Running_MigrationScripts;
 
 public class DropDatabase : Generic.Running_MigrationScripts.DropDatabase
 {

@@ -1,10 +1,10 @@
 ﻿using System.Data;
 using System.Threading.Tasks;
 using FluentAssertions;
-using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
+using Unit_tests.TestInfrastructure;
 
-namespace grate.unittests.Generic;
+namespace Unit_tests.Generic;
 
 [TestFixture]
 public abstract class GenericDockerContainer

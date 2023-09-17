@@ -3,13 +3,13 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
-using grate.unittests.TestInfrastructure;
+using Unit_tests.TestInfrastructure;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using NUnit.Framework;
 
-namespace grate.unittests.Basic.Infrastructure.MariaDB;
+namespace Unit_tests.Basic_tests.Infrastructure.MariaDB;
 
 // ReSharper disable once InconsistentNaming
 public class MariaDbDatabase_

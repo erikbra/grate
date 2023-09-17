@@ -1,7 +1,7 @@
-﻿using grate.unittests.TestInfrastructure;
-using NUnit.Framework;
+﻿using NUnit.Framework;
+using Unit_tests.TestInfrastructure;
 
-namespace grate.unittests.Oracle.Running_MigrationScripts;
+namespace Unit_tests.Oracle.Running_MigrationScripts;
 
 [TestFixture]
 [Category("Oracle")]

@@ -3,10 +3,10 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
+using Unit_tests.TestInfrastructure;
 
-namespace grate.unittests.Generic;
+namespace Unit_tests.Generic;
 
 [SetUpFixture]
 public abstract class SetupDockerTestEnvironment

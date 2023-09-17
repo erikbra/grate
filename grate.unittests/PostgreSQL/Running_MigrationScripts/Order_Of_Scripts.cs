@@ -1,7 +1,7 @@
-using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
+using Unit_tests.TestInfrastructure;
 
-namespace grate.unittests.PostgreSQL.Running_MigrationScripts;
+namespace Unit_tests.PostgreSQL.Running_MigrationScripts;
 
 [TestFixture]
 [Category("PostgreSQL")]

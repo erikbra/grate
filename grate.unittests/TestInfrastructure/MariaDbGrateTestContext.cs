@@ -6,7 +6,7 @@ using grate.Migration;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
 
-namespace grate.unittests.TestInfrastructure;
+namespace Unit_tests.TestInfrastructure;
 
 class MariaDbGrateTestContext : TestContextBase, IGrateTestContext, IDockerTestContext
 {

@@ -1,7 +1,7 @@
-﻿using grate.unittests.TestInfrastructure;
-using NUnit.Framework;
+﻿using NUnit.Framework;
+using Unit_tests.TestInfrastructure;
 
-namespace grate.unittests.SqlServerCaseSensitive
+namespace Unit_tests.SqlServerCaseSensitive
 {
     [TestFixture]
     [Category("SqlServerCaseSensitive")]

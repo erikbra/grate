@@ -7,7 +7,7 @@ using grate.Migration;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 
-namespace grate.unittests.TestInfrastructure;
+namespace Unit_tests.TestInfrastructure;
 
 public interface IGrateTestContext
 {

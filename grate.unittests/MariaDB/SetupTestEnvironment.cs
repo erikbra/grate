@@ -1,12 +1,12 @@
-﻿using grate.unittests.TestInfrastructure;
-using NUnit.Framework;
+﻿using NUnit.Framework;
+using Unit_tests.TestInfrastructure;
 
-namespace grate.unittests.MariaDB;
+namespace Unit_tests.MariaDB;
 
 [SetUpFixture]
 [Category("MariaDB")]
 public class SetupTestEnvironment : Generic.SetupDockerTestEnvironment
 {
-    protected override IGrateTestContext GrateTestContext => unittests.GrateTestContext.MariaDB;
-    protected override IDockerTestContext DockerTestContext => unittests.GrateTestContext.MariaDB;
+    protected override IGrateTestContext GrateTestContext => Unit_tests.GrateTestContext.MariaDB;
+    protected override IDockerTestContext DockerTestContext => Unit_tests.GrateTestContext.MariaDB;
 }

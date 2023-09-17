@@ -2,9 +2,9 @@
 using System.IO;
 using System.Text;
 using grate.Configuration;
-using grate.unittests.TestInfrastructure;
+using Unit_tests.TestInfrastructure;
 
-namespace grate.unittests.Generic.Running_MigrationScripts;
+namespace Unit_tests.Generic.Running_MigrationScripts;
 
 public abstract class MigrationsScriptsBase
 {

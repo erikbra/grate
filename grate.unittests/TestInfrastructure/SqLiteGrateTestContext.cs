@@ -6,7 +6,7 @@ using grate.Migration;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 
-namespace grate.unittests.TestInfrastructure;
+namespace Unit_tests.TestInfrastructure;
 
 class SqliteGrateTestContext : TestContextBase, IGrateTestContext
 {

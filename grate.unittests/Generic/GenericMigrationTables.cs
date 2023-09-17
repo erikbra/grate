@@ -7,10 +7,10 @@ using Dapper;
 using FluentAssertions;
 using grate.Configuration;
 using grate.Exceptions;
-using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
+using Unit_tests.TestInfrastructure;
 
-namespace grate.unittests.Generic;
+namespace Unit_tests.Generic;
 
 [TestFixture]
 public abstract class GenericMigrationTables

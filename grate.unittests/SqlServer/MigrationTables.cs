@@ -1,7 +1,7 @@
-using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
+using Unit_tests.TestInfrastructure;
 
-namespace grate.unittests.SqlServer;
+namespace Unit_tests.SqlServer;
 
 [TestFixture]
 [Category("SqlServer")]

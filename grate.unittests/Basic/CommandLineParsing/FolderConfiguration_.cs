@@ -13,7 +13,7 @@ using grate.Commands;
 using grate.Configuration;
 using NUnit.Framework;
 
-namespace grate.unittests.Basic.CommandLineParsing;
+namespace Unit_tests.Basic_tests.CommandLineParsing;
 
 [TestFixture]
 [Category("Basic")]

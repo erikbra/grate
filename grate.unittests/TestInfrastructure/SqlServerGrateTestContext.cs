@@ -8,7 +8,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using static System.Runtime.InteropServices.Architecture;
 
-namespace grate.unittests.TestInfrastructure;
+namespace Unit_tests.TestInfrastructure;
 
 class SqlServerGrateTestContext : TestContextBase, IGrateTestContext, IDockerTestContext
 {

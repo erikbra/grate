@@ -5,7 +5,7 @@ using grate.Configuration;
 using Microsoft.Extensions.Logging;
 using static System.StringSplitOptions;
 
-namespace grate.unittests.TestInfrastructure;
+namespace Unit_tests.TestInfrastructure;
 
 public static class TestConfig
 {

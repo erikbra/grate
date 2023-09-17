@@ -3,12 +3,12 @@ using System.Threading.Tasks;
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
-using grate.unittests.TestInfrastructure;
+using Unit_tests.TestInfrastructure;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
 
-namespace grate.unittests.Basic;
+namespace Unit_tests.Basic_tests;
 
 public class Migration
 {

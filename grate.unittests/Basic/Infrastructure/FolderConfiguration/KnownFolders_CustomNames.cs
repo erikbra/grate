@@ -5,13 +5,13 @@ using System.Runtime.CompilerServices;
 using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
-using grate.unittests.TestInfrastructure;
+using Unit_tests.TestInfrastructure;
 using NUnit.Framework;
 using static grate.Configuration.KnownFolderKeys;
 using static grate.Configuration.MigrationType;
 using static grate.Migration.ConnectionType;
 
-namespace grate.unittests.Basic.Infrastructure.FolderConfiguration;
+namespace Unit_tests.Basic_tests.Infrastructure.FolderConfiguration;
 
 [TestFixture]
 [TestOf(nameof(FoldersConfiguration))]

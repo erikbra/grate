@@ -6,7 +6,7 @@ using grate.Migration;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 
-namespace grate.unittests.TestInfrastructure;
+namespace Unit_tests.TestInfrastructure;
 
 internal class PostgreSqlGrateTestContext : TestContextBase, IGrateTestContext, IDockerTestContext
 {

@@ -3,11 +3,11 @@ using System.Threading.Tasks;
 using Dapper;
 using FluentAssertions;
 using grate.Configuration;
-using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
+using Unit_tests.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
 
-namespace grate.unittests.Generic.Running_MigrationScripts;
+namespace Unit_tests.Generic.Running_MigrationScripts;
 
 public abstract class DropDatabase : MigrationsScriptsBase
 {

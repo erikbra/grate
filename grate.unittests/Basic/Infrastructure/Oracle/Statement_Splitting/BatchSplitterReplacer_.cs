@@ -1,12 +1,12 @@
 ﻿using grate.Infrastructure;
 using grate.Migration;
-using grate.unittests.TestInfrastructure;
+using Unit_tests.TestInfrastructure;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 
 // ReSharper disable InconsistentNaming
 
-namespace grate.unittests.Basic.Infrastructure.Oracle.Statement_Splitting;
+namespace Unit_tests.Basic_tests.Infrastructure.Oracle.Statement_Splitting;
 
 [TestFixture]
 [Category("Basic")]

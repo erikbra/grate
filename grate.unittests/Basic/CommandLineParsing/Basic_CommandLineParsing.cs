@@ -8,10 +8,10 @@ using FluentAssertions;
 using grate.Commands;
 using grate.Configuration;
 using grate.Infrastructure;
-using grate.unittests.TestInfrastructure;
+using Unit_tests.TestInfrastructure;
 using NUnit.Framework;
 
-namespace grate.unittests.Basic.CommandLineParsing;
+namespace Unit_tests.Basic_tests.CommandLineParsing;
 
 [TestFixture]
 [Category("Basic")]

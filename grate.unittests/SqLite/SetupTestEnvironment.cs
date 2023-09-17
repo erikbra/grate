@@ -1,11 +1,11 @@
 ﻿using System.IO;
 using System.Threading;
-using grate.unittests.TestInfrastructure;
 using Microsoft.Data.Sqlite;
 using NUnit.Framework;
 using Microsoft.Extensions.Logging;
+using Unit_tests.TestInfrastructure;
 
-namespace grate.unittests.Sqlite;
+namespace Unit_tests.Sqlite;
 
 [SetUpFixture]
 [Category("Sqlite")]

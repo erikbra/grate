@@ -1,12 +1,12 @@
-﻿using grate.unittests.TestInfrastructure;
-using NUnit.Framework;
+﻿using NUnit.Framework;
+using Unit_tests.TestInfrastructure;
 
-namespace grate.unittests.Oracle;
+namespace Unit_tests.Oracle;
 
 [SetUpFixture]
 [Category("Oracle")]
 public class SetupTestEnvironment : Generic.SetupDockerTestEnvironment
 {
-    protected override IGrateTestContext GrateTestContext => unittests.GrateTestContext.Oracle;
-    protected override IDockerTestContext DockerTestContext => unittests.GrateTestContext.Oracle;
+    protected override IGrateTestContext GrateTestContext => Unit_tests.GrateTestContext.Oracle;
+    protected override IDockerTestContext DockerTestContext => Unit_tests.GrateTestContext.Oracle;
 }

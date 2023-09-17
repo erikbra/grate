@@ -1,10 +1,10 @@
 using System;
 using System.Threading.Tasks;
 using grate.Configuration;
-using grate.unittests.TestInfrastructure;
 using NUnit.Framework;
+using Unit_tests.TestInfrastructure;
 
-namespace grate.unittests.Oracle;
+namespace Unit_tests.Oracle;
 
 [TestFixture]
 [Category("Oracle")]

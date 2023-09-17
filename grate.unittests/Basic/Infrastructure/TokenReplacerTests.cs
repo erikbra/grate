@@ -4,10 +4,11 @@ using FluentAssertions;
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
+using Unit_tests;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 
-namespace grate.unittests.Basic.Infrastructure;
+namespace Unit_tests.Basic_tests.Infrastructure;
 
 [TestFixture]
 [Category("Basic")]

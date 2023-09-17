@@ -8,12 +8,12 @@ using Dapper;
 using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
-using grate.unittests.TestInfrastructure;
 using Microsoft.Data.SqlClient;
 using NUnit.Framework;
+using Unit_tests.TestInfrastructure;
 using static System.StringSplitOptions;
 
-namespace grate.unittests.Generic;
+namespace Unit_tests.Generic;
 
 [TestFixture]
 public abstract class GenericDatabase

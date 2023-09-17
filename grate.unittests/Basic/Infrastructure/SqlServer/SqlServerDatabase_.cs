@@ -3,12 +3,12 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
-using grate.unittests.TestInfrastructure;
+using Unit_tests.TestInfrastructure;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
-namespace grate.unittests.Basic.Infrastructure.SqlServer;
+namespace Unit_tests.Basic_tests.Infrastructure.SqlServer;
 
 // ReSharper disable once InconsistentNaming
 public class SqlServerDatabase_

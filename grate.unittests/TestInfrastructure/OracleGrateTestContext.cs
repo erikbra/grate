@@ -6,7 +6,7 @@ using grate.Migration;
 using Microsoft.Extensions.Logging;
 using Oracle.ManagedDataAccess.Client;
 
-namespace grate.unittests.TestInfrastructure;
+namespace Unit_tests.TestInfrastructure;
 
 internal class OracleGrateTestContext : TestContextBase, IGrateTestContext, IDockerTestContext
 {

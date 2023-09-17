@@ -1,7 +1,7 @@
 ﻿using grate.Infrastructure;
 // ReSharper disable StringLiteralTypo
 
-namespace grate.unittests.TestInfrastructure;
+namespace Unit_tests.TestInfrastructure;
 
 public static class SqlServerSplitterContext
 {

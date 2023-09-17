@@ -1,6 +1,6 @@
-﻿using grate.unittests.TestInfrastructure;
+﻿using Unit_tests.TestInfrastructure;
 
-namespace grate.unittests.MariaDB.Running_MigrationScripts;
+namespace Unit_tests.MariaDB.Running_MigrationScripts;
 
 public class DropDatabase : Generic.Running_MigrationScripts.DropDatabase
 {

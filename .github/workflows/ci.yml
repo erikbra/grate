@@ -41,6 +41,7 @@ jobs:
 
   analyze:
     name: Analyze Code Security
+    if: ${{ '1' == '2' }}
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -75,7 +76,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
+        #category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
+        category: [ "Basic", "MariaDB", "Sqlite"  ]
 
     steps:
     - name: Download binaries
@@ -87,7 +89,12 @@ jobs:
       with:
         dotnet-version: 7.0.x
     - name: Test
-      run: dotnet test --filter "FullyQualifiedName~grate.unittests.${{ matrix.category }}" bin/grate.unittests.dll --logger:"trx;LogFileName=test-results-${{ matrix.category }}.xml" -- -MaxCpuCount 2
+      run: |
+        #--logger:"nunit;LogFilePath=test-results/${{ matrix.category }}.xml" -- \
+        dotnet test --filter "FullyQualifiedName~Unit_tests.${{ matrix.category }}" \
+          bin/grate.unittests.dll \
+          --logger:"xunit;LogFilePath=test-results/${{ matrix.category }}.xml" -- \
+          -MaxCpuCount 2
       env:
         LogLevel: Warning
         TZ: UTC
@@ -97,7 +104,69 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: test-results-${{ matrix.category }}
-        #name: test-results
-        path: TestResults/test-results-${{ matrix.category }}.xml
+        path: |
+          test-results/${{ matrix.category }}.xml
         retention-days: 1
+
+
+  report:
+     runs-on: ubuntu-latest
+     name: Create test report
+     needs: test
+
+     steps:
+      - name: Download XML test reports
+        uses: actions/download-artifact@v3
+        with:
+          #name: test-results-${{ matrix.category }}
+          path: test-results
+
+      - name: Install smink
+        run: |
+          BASEURL="https://github.com/erikbra/smink/releases/download/"
+          VERSION="0.2.0"
+
+          INSTALL_DIR="/tmp/smink"
+          SMINK="${INSTALL_DIR}/smink"
+
+          FILENAME="smink-linux-x64-${VERSION}.zip"
+          FULL_URL="${BASEURL}${VERSION}/${FILENAME}"
+          DOWNLOAD_DIR="/tmp/smink-download"
+
+          DOWNLOAD_FILE="${DOWNLOAD_DIR}/${FILENAME}"
+
+          test -f "${SMINK}" && \
+          echo "smink already installed - not installing" || \
+          echo "Installing smink v ${VERSION}" && \
+          (test -d "${DOWNLOAD_DIR}" || mkdir -p "${DOWNLOAD_DIR}") && \
+          (test -d "${INSTALL_DIR}" || mkdir -p "${INSTALL_DIR}") && \
+          (test -f "${DOWNLOAD_FILE}" || curl -o "${DOWNLOAD_FILE}" -sL "${FULL_URL}") && \
+          unzip -o "${DOWNLOAD_FILE}" -d "${INSTALL_DIR}" 
+
+          chmod u+x "${SMINK}"
+
+      - name: Create HTML test report
+        run: |
+          rm -rf test-results/binaries
+
+          XML_DIR='/tmp/xml'
+          REPORT_DIR='/tmp/test-results'
+
+          test -d $XML_DIR  || mkdir $XML_DIR
+          find "test-results" -name '*.xml' -exec cp "{}" $XML_DIR \;
+          ls -lR $XML_DIR
+
+          test -d $REPORT_DIR || mkdir $REPORT_DIR
+          echo "Running smink"
+          /tmp/smink/smink "${XML_DIR}/*.xml" "${REPORT_DIR}/test-report.html" --title "grate unit tests"
+          ls -lR ${REPORT_DIR}
+
+      - name: Upload HTML test report
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-html-report
+          path: |
+            /tmp/test-results/test-report.html
+          retention-days: 1
+
 

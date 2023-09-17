@@ -1,10 +1,10 @@
-﻿using grate.unittests.TestInfrastructure;
-using NUnit.Framework;
+﻿using NUnit.Framework;
+using Unit_tests.TestInfrastructure;
 
 // There are some parallelism issues, but this does not solve it
 //[assembly:LevelOfParallelism(1)]
 
-namespace grate.unittests;
+namespace Unit_tests;
 
 public static class GrateTestContext
 {

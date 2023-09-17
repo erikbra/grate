@@ -12,10 +12,60 @@ jobs:
      name: Create test report
 
      steps:
-      - uses: dorny/test-reporter@v1
+      - name: Download XML test reports
+        uses: actions/download-artifact@v3
         with:
-          artifact: /test-results(?:-?)(.*)/           # artifact name - allows for both one big 'test-results', and several 'test-results-SqlServer', 'test-results-Sqlite', etc
-          name: Test report $1                     # Name of the check run which will be created
-          path: '*.xml'                                            # Path to test results (inside artifact .zip)
-          reporter: dotnet-trx                                     # Format of test results     
+          #name: test-results-${{ matrix.category }}
+          path: test-results
+
+      - name: Install smink
+        run: |
+          BASEURL="https://github.com/erikbra/smink/releases/download/"
+          VERSION="0.2.0"
+
+          INSTALL_DIR="/tmp/smink"
+          SMINK="${INSTALL_DIR}/smink"
+
+          FILENAME="smink-linux-x64-${VERSION}.zip"
+          FULL_URL="${BASEURL}${VERSION}/${FILENAME}"
+          DOWNLOAD_DIR="/tmp/smink-download"
+
+          DOWNLOAD_FILE="${DOWNLOAD_DIR}/${FILENAME}"
+
+          echo "INSTALL_DIR: ${INSTALL_DIR}"
+          echo "SMINK: ${SMINK}"
+          echo "DOWNLOAD_DIR: ${DOWNLOAD_DIR}"
+          echo "DOWNLOAD_FILE: ${DOWNLOAD_FILE}"
+
+          test -f "${SMINK}" && \
+          echo "smink already installed - not installing" || \
+          echo "Installing smink v ${VERSION}" && \
+          (test -d "${DOWNLOAD_DIR}" || mkdir -p "${DOWNLOAD_DIR}") && \
+          (test -d "${INSTALL_DIR}" || mkdir -p "${INSTALL_DIR}") && \
+          (test -f "${DOWNLOAD_FILE}" || curl -o "${DOWNLOAD_FILE}" -sL "${FULL_URL}") && \
+          unzip -o "${DOWNLOAD_FILE}" -d "${INSTALL_DIR}" 
+
+          ls -lah ${DOWNLOAD_DIR}
+
+          chmod u+x "${SMINK}"
+
+      - name: Create HTML test report
+        run: |
+          XML_DIR='/tmp/xml'
+
+          echo "xml dir: $XML_DIR"
+
+          test -d $XML_DIR  || mkdir $XML_DIR
+          find "test-results" -name '*.xml' -exec cp "{}" $XML_DIR \;
+          ls -lR $XML_DIR
+          /tmp/smink/smink "$XML_DIR/*.xml" "test-results/test-report.html"
+
+      - name: Upload HTML test report
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-html-report
+          path: |
+           "test-results/test-report.html"
+          retention-days: 1
+
 

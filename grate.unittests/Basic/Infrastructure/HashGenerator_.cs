@@ -1,7 +1,7 @@
 ﻿using grate.Infrastructure;
 using NUnit.Framework;
 
-namespace grate.unittests.Basic.Infrastructure;
+namespace Unit_tests.Basic_tests.Infrastructure;
 
 [TestFixture]
 [Category("Basic")]

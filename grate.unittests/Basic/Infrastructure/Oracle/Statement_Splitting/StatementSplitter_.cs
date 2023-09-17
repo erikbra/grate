@@ -4,7 +4,7 @@ using grate.Migration;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 
-namespace grate.unittests.Basic.Infrastructure.Oracle.Statement_Splitting;
+namespace Unit_tests.Basic_tests.Infrastructure.Oracle.Statement_Splitting;
 
 [TestFixture]
 [Category("Basic")]

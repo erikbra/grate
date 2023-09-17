@@ -3,10 +3,10 @@ using System.Linq;
 using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
-using grate.unittests.TestInfrastructure;
+using Unit_tests.TestInfrastructure;
 using NUnit.Framework;
 
-namespace grate.unittests.Basic.Infrastructure;
+namespace Unit_tests.Basic_tests.Infrastructure;
 
 [TestFixture]
 [Category("Basic")]

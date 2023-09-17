@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace grate.unittests.TestInfrastructure;
+namespace Unit_tests.TestInfrastructure;
 
 public class TestInfrastructureSetupException: Exception
 {
