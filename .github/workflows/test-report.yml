@@ -4,6 +4,7 @@ on:
     workflows: ['CI']                     # runs after CI workflow
     types:
       - completed
+  workflow_dispatch:
 
 jobs:
   report:
