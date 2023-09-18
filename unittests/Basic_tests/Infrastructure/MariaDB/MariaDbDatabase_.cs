@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using NUnit.Framework;
 
-namespace Basic.Infrastructure.MariaDB;
+namespace Basic_tests.Infrastructure.MariaDB;
 
 // ReSharper disable once InconsistentNaming
 public class MariaDbDatabase_

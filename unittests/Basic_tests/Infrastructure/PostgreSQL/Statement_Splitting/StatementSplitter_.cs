@@ -5,10 +5,10 @@ using grate.Migration;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 
-namespace Basic.Infrastructure.PostgreSQL.Statement_Splitting;
+namespace Basic_tests.Infrastructure.PostgreSQL.Statement_Splitting;
 
 [TestFixture]
-[Category("Basic")]
+[Category("Basic tests")]
 // ReSharper disable once InconsistentNaming
 public class StatementSplitter_
 {

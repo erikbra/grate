@@ -7,6 +7,7 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <RootNamespace>Basic_tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

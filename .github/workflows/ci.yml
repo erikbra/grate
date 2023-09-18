@@ -68,8 +68,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
-        #category: [ "Basic", "MariaDB", "Sqlite"  ]
+        category: [ "Basic_tests", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
+        #category: [ "Basic_tests", "Sqlite"  ]
 
     steps:
     - uses: actions/checkout@v4
@@ -91,7 +91,7 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v3
       with:
-        name: test-results-${{ matrix.category }}
+        name: "${{ matrix.category }} XML test results"
         path: |
           /tmp/test-results/${{ matrix.category }}.xml
         retention-days: 1

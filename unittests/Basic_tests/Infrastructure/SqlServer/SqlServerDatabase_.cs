@@ -8,7 +8,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
-namespace Basic.Infrastructure.SqlServer;
+namespace Basic_tests.Infrastructure.SqlServer;
 
 // ReSharper disable once InconsistentNaming
 public class SqlServerDatabase_

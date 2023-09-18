@@ -5,10 +5,10 @@ using grate.Migration;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 
-namespace Basic;
+namespace Basic_tests;
 
 [TestFixture]
-[NUnit.Framework.Category("Basic")]
+[NUnit.Framework.Category("Basic tests")]
 // ReSharper disable once InconsistentNaming
 public class GrateConfiguration_
 {

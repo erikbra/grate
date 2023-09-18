@@ -3,10 +3,10 @@ using FluentAssertions;
 using grate.Infrastructure;
 using NUnit.Framework;
 
-namespace Basic.Infrastructure;
+namespace Basic_tests.Infrastructure;
 
 [TestFixture]
-[Category("Basic")]
+[Category("Basic tests")]
 // ReSharper disable once InconsistentNaming
 public class GrateEnvironment_
 {

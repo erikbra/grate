@@ -5,15 +5,16 @@ using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
 using NUnit.Framework;
+using TestCommon;
 using TestCommon.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
 
-namespace TestCommon.PostgreSQL.Running_MigrationScripts;
+namespace PostgreSQL.Running_MigrationScripts;
 
 [TestFixture]
 [Category("PostgreSQL")]
 // ReSharper disable once InconsistentNaming
-public class Everytime_scripts: Generic.Running_MigrationScripts.Everytime_scripts
+public class Everytime_scripts: TestCommon.Generic.Running_MigrationScripts.Everytime_scripts
 {
     protected override IGrateTestContext Context => GrateTestContext.PostgreSql;
 

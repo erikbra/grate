@@ -6,10 +6,10 @@ using grate.Migration;
 using TestCommon.TestInfrastructure;
 using NUnit.Framework;
 
-namespace Basic.Infrastructure;
+namespace Basic_tests.Infrastructure;
 
 [TestFixture]
-[Category("Basic")]
+[Category("Basic tests")]
 public class FileSystem_
 {
     [Test]

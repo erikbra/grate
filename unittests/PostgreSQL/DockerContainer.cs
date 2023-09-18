@@ -1,11 +1,13 @@
 using NUnit.Framework;
+using TestCommon;
+using TestCommon.Generic;
 using TestCommon.TestInfrastructure;
 
-namespace TestCommon.PostgreSQL;
+namespace PostgreSQL;
 
 [TestFixture]
 [Category("PostgreSQL")]
-public class DockerContainer: Generic.GenericDockerContainer
+public class DockerContainer: GenericDockerContainer
 {
     protected override IGrateTestContext Context => GrateTestContext.PostgreSql;
 }

@@ -7,7 +7,7 @@ using grate.Configuration;
 using grate.Migration;
 using NUnit.Framework;
 
-namespace Basic.CommandLineParsing;
+namespace Basic_tests.CommandLineParsing;
 
 // ReSharper disable once InconsistentNaming
 [TestOf(nameof(FoldersCommand))]

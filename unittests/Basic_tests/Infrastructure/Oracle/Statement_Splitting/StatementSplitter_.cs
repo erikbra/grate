@@ -4,27 +4,28 @@ using grate.Migration;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 
-namespace Basic.Infrastructure.SqlServer.Statement_Splitting;
+namespace Basic_tests.Infrastructure.Oracle.Statement_Splitting;
 
 [TestFixture]
-[Category("Basic")]
+[Category("Basic tests")]
 // ReSharper disable once InconsistentNaming
 public class StatementSplitter_
 {
     
 #pragma warning disable NUnit1032
-    private static readonly IDatabase Database = new SqlServerDatabase(NullLogger<SqlServerDatabase>.Instance);
-    private static readonly StatementSplitter Splitter = new(Database.StatementSeparatorRegex);
+    private static readonly IDatabase Database = new OracleDatabase(NullLogger<OracleDatabase>.Instance);
 #pragma warning restore NUnit1032
+    
+    private static readonly StatementSplitter Splitter = new(Database.StatementSeparatorRegex);
 
     [Test]
     public void Splits_and_removes_GO_statements()
     {
         var original = @"
-SELECT @@VERSION;
+SELECT * FROM v$version WHERE banner LIKE 'Oracle%';
 
 
-GO
+/
 SELECT 1
 ";
         var batches = Splitter.Split(original);
