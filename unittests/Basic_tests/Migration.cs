@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
 
-namespace Basic;
+namespace Basic_tests;
 
 public class Migration
 {

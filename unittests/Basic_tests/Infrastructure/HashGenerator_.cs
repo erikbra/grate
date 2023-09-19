@@ -1,10 +1,11 @@
-﻿using grate.Infrastructure;
+﻿using FluentAssertions;
+using grate.Infrastructure;
 using NUnit.Framework;
 
-namespace Basic.Infrastructure;
+namespace Basic_tests.Infrastructure;
 
 [TestFixture]
-[Category("Basic")]
+[Category("Basic tests")]
 // ReSharper disable once InconsistentNaming
 public class HashGenerator_
 {
@@ -15,6 +16,6 @@ public class HashGenerator_
         string expected_hash = "TMGPZJmBhSO5uYbf/TBqNA==";
 
         var hashGen = new HashGenerator();
-        Assert.AreEqual(expected_hash, hashGen.Hash(text_to_hash));
+        hashGen.Hash(text_to_hash).Should().Be(expected_hash);
     }
 }

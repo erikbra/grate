@@ -9,11 +9,11 @@ using NUnit.Framework;
 using static grate.Configuration.MigrationType;
 using static grate.Migration.ConnectionType;
 
-namespace Basic.Infrastructure.FolderConfiguration;
+namespace Basic_tests.Infrastructure.FolderConfiguration;
 
 [TestFixture]
 [TestOf(nameof(FoldersConfiguration))]
-[Category("Basic")]
+[Category("Basic tests")]
 // ReSharper disable once InconsistentNaming
 public class Fully_Customised_Folders
 {

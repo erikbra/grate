@@ -9,10 +9,10 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using NUnit.Framework;
 
-namespace Basic.Infrastructure;
+namespace Basic_tests.Infrastructure;
 
 [TestFixture]
-[Category("Basic")]
+[Category("Basic tests")]
 public class TokenReplacerTests
 {
     [TestCase("")]

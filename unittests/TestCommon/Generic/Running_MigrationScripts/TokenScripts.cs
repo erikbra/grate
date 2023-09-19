@@ -18,7 +18,7 @@ public abstract class TokenScripts : MigrationsScriptsBase
     protected virtual string CreateViewMyCustomToken => "create view grate as select '{{MyCustomToken}}' as dbase";
         
     [Test]
-    public async Task EnsureTokensAreReplaced()
+    public async Task Tokens_are_replaced()
     {
         var db = TestConfig.RandomDatabase().ToUpper();
         
@@ -41,7 +41,7 @@ public abstract class TokenScripts : MigrationsScriptsBase
     }
 
     [Test]
-    public async Task EnsureUserTokensAreReplaced()
+    public async Task User_tokens_are_replaced()
     {
         var db = TestConfig.RandomDatabase();
         

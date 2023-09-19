@@ -1,12 +1,13 @@
 using NUnit.Framework;
+using TestCommon;
 using TestCommon.TestInfrastructure;
 
-namespace TestCommon.PostgreSQL.Running_MigrationScripts;
+namespace PostgreSQL.Running_MigrationScripts;
 
 [TestFixture]
 [Category("PostgreSQL")]
 // ReSharper disable once InconsistentNaming
-public class One_time_scripts: Generic.Running_MigrationScripts.One_time_scripts
+public class One_time_scripts: TestCommon.Generic.Running_MigrationScripts.One_time_scripts
 {
     protected override IGrateTestContext Context => GrateTestContext.PostgreSql;
 }

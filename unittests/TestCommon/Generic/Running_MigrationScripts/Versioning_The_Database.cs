@@ -17,7 +17,7 @@ namespace TestCommon.Generic.Running_MigrationScripts;
 public abstract class Versioning_The_Database : MigrationsScriptsBase
 {
     [Test]
-    public async Task Returns_The_New_Version_Id()
+    public async Task Returns_the_new_version_id()
     {
         var db = TestConfig.RandomDatabase();
 
@@ -45,7 +45,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
     }
 
     [Test]
-    public async Task Does_Not_Create_Versions_When_Dryrun()
+    public async Task Does_not_create_versions_on_DryRun()
     {
         //for bug #204 - when running --baseline and --dryrun on a new db it shouldn't create the grate schema's etc
         var db = TestConfig.RandomDatabase();
@@ -68,7 +68,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
     }
 
     [Test]
-    public async Task Creates_A_New_Version_In_Progress()
+    public async Task Creates_a_new_version_with_status_InProgress()
     {
         var db = TestConfig.RandomDatabase();
         var dbVersion = "1.2.3.4";

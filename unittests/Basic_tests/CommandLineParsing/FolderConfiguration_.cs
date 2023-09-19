@@ -13,10 +13,10 @@ using grate.Commands;
 using grate.Configuration;
 using NUnit.Framework;
 
-namespace Basic.CommandLineParsing;
+namespace Basic_tests.CommandLineParsing;
 
 [TestFixture]
-[Category("Basic")]
+[Category("Basic tests")]
 // ReSharper disable once InconsistentNaming
 public class FolderConfiguration_
 {

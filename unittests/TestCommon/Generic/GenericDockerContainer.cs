@@ -12,7 +12,7 @@ public abstract class GenericDockerContainer
     protected abstract IGrateTestContext Context { get; }
         
     [Test]
-    public async Task IsUpAndRunning()
+    public async Task Is_up_and_running()
     {
         string? res;
         await using (var conn = Context.CreateAdminDbConnection()) 

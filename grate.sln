@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Unit tests", "unittests", "{CE4BF96D-E795-49EC-BB36-EDCC7E542685}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Basic", "unittests\Basic\Basic.csproj", "{6F07C15E-B93E-42A9-9E34-6A6EB0CD624D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Basic_tests", "unittests\Basic_tests\Basic_tests.csproj", "{6F07C15E-B93E-42A9-9E34-6A6EB0CD624D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestCommon", "unittests\TestCommon\TestCommon.csproj", "{FCA0770D-4AB6-4B92-B725-D27A483A2179}"
 EndProject
