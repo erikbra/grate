@@ -46,6 +46,7 @@ up using modern .NET 6/7/8.
     <None Include="NuGet.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
+
   <PropertyGroup Condition="'$(SelfContained)' == 'true'">
     <PublishSingleFile>true</PublishSingleFile>
     <PublishTrimmed>true</PublishTrimmed>

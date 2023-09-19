@@ -21,13 +21,11 @@ public class DbMigrator : IDbMigrator
         _hashGenerator = hashGenerator;
         Configuration = configuration ?? throw new ArgumentException("No configuration passed to DbMigrator.  Container setup error?", nameof(configuration));
         Database = factory.GetService<DatabaseType, IDatabase>(Configuration.DatabaseType);
-        StatementSplitter = new StatementSplitter(Database.StatementSeparatorRegex);
     }
 
     public Task InitializeConnections() => Database.InitializeConnections(Configuration);
 
     public IDatabase Database { get; set; }
-    private StatementSplitter StatementSplitter { get; }
 
     public async Task<bool> DatabaseExists() => await Database.DatabaseExists();
 
@@ -187,7 +185,7 @@ public class DbMigrator : IDbMigrator
             sql = ReplaceTokensIn(sql);
         }
         
-        return await PrintLogAndRunSql();;
+       return await PrintLogAndRunSql();;
     }
 
 
@@ -338,7 +336,7 @@ public class DbMigrator : IDbMigrator
     }
 
 
-    private IEnumerable<string> GetStatements(string sql) => Database.SplitBatchStatements ? StatementSplitter.Split(sql) : new [] { sql };
+    private IEnumerable<string> GetStatements(string sql) => Database.GetStatements(sql);
 
     private void LogScriptChangedWarning(string scriptName)
     {

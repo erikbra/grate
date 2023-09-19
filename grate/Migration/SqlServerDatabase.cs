@@ -17,7 +17,6 @@ public class SqlServerDatabase : AnsiSqlDatabase
 
     public override bool SupportsDdlTransactions => true;
     public override bool SupportsSchemas => true;
-    public override bool SplitBatchStatements => true;
     protected override DbConnection GetSqlConnection(string? connectionString)
     {
         // If pooling is not explicitly mentioned in the connection string, turn it off, as enabling it
