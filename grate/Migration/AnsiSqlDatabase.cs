@@ -47,7 +47,7 @@ public abstract class AnsiSqlDatabase : IDatabase
 
     public abstract bool SupportsDdlTransactions { get; }
     public abstract bool SupportsSchemas { get; }
-    public bool SplitBatchStatements => true;
+    public virtual bool SplitBatchStatements => false;
 
     public string StatementSeparatorRegex => _syntax.StatementSeparatorRegex;
 

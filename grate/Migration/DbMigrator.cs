@@ -338,7 +338,7 @@ public class DbMigrator : IDbMigrator
     }
 
 
-    private IEnumerable<string> GetStatements(string sql) => StatementSplitter.Split(sql);
+    private IEnumerable<string> GetStatements(string sql) => Database.SplitBatchStatements ? StatementSplitter.Split(sql) : new [] { sql };
 
     private void LogScriptChangedWarning(string scriptName)
     {
