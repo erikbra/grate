@@ -197,7 +197,7 @@ jobs:
     if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
     strategy:
       matrix:
-        arch: [ "linux-arm", "linux-arm64", "linux-x64" ]
+        arch: [ "linux-arm64", "linux-x64" ]
 
     steps:
     - uses: actions/checkout@v4
