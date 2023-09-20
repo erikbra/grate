@@ -10,7 +10,7 @@ namespace grate.Infrastructure.Npgsql;
 /// Parses/splits PostgreSQL statements into batches, using
 /// the internal Npgsql.SqlQueryParser via heavy use of reflection. 
 /// </summary>
-public static class NpgsqlQueryParser
+public static class ReflectionNpgsqlQueryParser
 {
     // Heavy use of reflection here...
     private static readonly MethodInfo ParseRawQuery;
@@ -20,7 +20,7 @@ public static class NpgsqlQueryParser
     private static readonly PropertyInfo FinalCommandText;
     private static ConstructorInfo Constructor { get; }
 
-    static NpgsqlQueryParser()
+    static ReflectionNpgsqlQueryParser()
     {
         var sqlQueryParserType = Type.GetType("Npgsql.SqlQueryParser, Npgsql")!;
         Constructor = sqlQueryParserType.GetConstructor(

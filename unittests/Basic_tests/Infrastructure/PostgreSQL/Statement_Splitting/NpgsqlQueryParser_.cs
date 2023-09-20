@@ -8,7 +8,8 @@ public class NpgsqlQueryParser_
     [Test]
     public void Can_split_create_index_concurrently()
     {
-        var statements = NpgsqlQueryParser.Split(sqlStatement);
+        //var statements = ReflectionNpgsqlQueryParser.Split(sqlStatement);
+        var statements = NativeSqlQueryParser.Split(sqlStatement);
         statements.Should().HaveCount(4);
     }
 

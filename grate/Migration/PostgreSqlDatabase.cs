@@ -26,5 +26,5 @@ public class PostgreSqlDatabase : AnsiSqlDatabase
     public override bool SplitBatchStatements => true;
 
     public override IEnumerable<string> GetStatements(string sql)
-        => NpgsqlQueryParser.Split(sql);
+        => ReflectionNpgsqlQueryParser.Split(sql);
 }
