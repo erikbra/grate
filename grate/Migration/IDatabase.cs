@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading.Tasks;
 using grate.Configuration;
@@ -50,4 +51,11 @@ public interface IDatabase : IAsyncDisposable
     Task<IDisposable> OpenNewActiveConnection();
     Task OpenActiveConnection();
     Task<string?> ExistingTable(string schemaName, string tableName);
+
+    /// <summary>
+    /// Split a sql into multiple statements (if supported), or just returns the whole sql in one item, if not supported
+    /// </summary>
+    /// <param name="sql"></param>
+    /// <returns></returns>
+    IEnumerable<string> GetStatements(string sql);
 }

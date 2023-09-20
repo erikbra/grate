@@ -36,6 +36,7 @@ public abstract class AnsiSqlDatabase : IDatabase
     {
         Logger = logger;
         _syntax = syntax;
+        StatementSplitter = new StatementSplitter(StatementSeparatorRegex);
     }
 
     public string ServerName => Connection.DataSource;
@@ -47,7 +48,12 @@ public abstract class AnsiSqlDatabase : IDatabase
 
     public abstract bool SupportsDdlTransactions { get; }
     public abstract bool SupportsSchemas { get; }
-    public bool SplitBatchStatements => true;
+
+    public virtual bool SplitBatchStatements => true;
+    private StatementSplitter StatementSplitter { get; }
+
+    public virtual IEnumerable<string> GetStatements(string sql)
+        => SplitBatchStatements ? this.StatementSplitter.Split(sql) : new [] { sql };
 
     public string StatementSeparatorRegex => _syntax.StatementSeparatorRegex;
 

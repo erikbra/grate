@@ -1,6 +1,8 @@
-﻿using System.Data.Common;
+﻿using System.Collections.Generic;
+using System.Data.Common;
 using System.Threading.Tasks;
 using grate.Infrastructure;
+using grate.Infrastructure.Npgsql;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 
@@ -20,4 +22,9 @@ public class PostgreSqlDatabase : AnsiSqlDatabase
     {
         throw new System.NotImplementedException("Restoring a database from file is not currently supported for  Postgresql.");
     }
+
+    public override bool SplitBatchStatements => true;
+
+    public override IEnumerable<string> GetStatements(string sql)
+        => ReflectionNpgsqlQueryParser.Split(sql);
 }
