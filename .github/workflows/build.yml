@@ -257,7 +257,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        category: [ "Basic", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle" ]
+        category: [ "Basic_tests", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
 
     steps:
     - uses: actions/checkout@v4
@@ -266,8 +266,11 @@ jobs:
       with:
         dotnet-version: 8.0.100-rc.1.23463.5
     - name: Test
-      run: dotnet test --filter "FullyQualifiedName~grate.unittests.${{ matrix.category }}" -c Release --logger:"trx;LogFilePath=test-results-${{ matrix.category }}.xml" -- -MaxCpuCount 2
-#      run:  dotnet test --verbosity Normal -c Release --logger "trx;LogFileName=/tmp/test-results/grate.unittests.trx"
+      run: |
+        dotnet test \
+          unittests/${{ matrix.category }} \
+          --logger:"xunit;LogFilePath=/tmp/test-results/${{ matrix.category }}.xml" -- \
+          -MaxCpuCount 2
       env:
         LogLevel: Warning
         TZ: UTC
