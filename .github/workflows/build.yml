@@ -156,7 +156,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: actions/download-artifact@v3
       with:
-        name: grate-alpine-x64-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
+        name: grate-linux-musl-x64-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: installers/docker/
         
 
