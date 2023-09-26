@@ -9,9 +9,9 @@ namespace grate.Infrastructure.Npgsql;
 public class DummyBatchCommand
 {
     public string? FinalCommandText { get; set; }
-    public string CommandText { get; set; }
-    public DummyNpgsqlParameterCollection Parameters { get; set; }
-    public DummyNpgsqlParameterCollection PositionalParameters { get; set; }
+    public string CommandText { get; set; } = null!;
+    public DummyNpgsqlParameterCollection Parameters { get; set; } = null!;
+    public DummyNpgsqlParameterCollection PositionalParameters { get; set; } = null!;
 
     public void Reset()
     {

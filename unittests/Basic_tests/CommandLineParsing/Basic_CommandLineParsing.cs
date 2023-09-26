@@ -304,6 +304,8 @@ public class Basic_CommandLineParsing
     [TestCase("", DatabaseType.sqlserver)] // default
     [TestCase("--dbt=postgresql", DatabaseType.postgresql)]
     [TestCase("--dbt=mariadb", DatabaseType.mariadb)]
+    [TestCase("--databasetype=mariadb", DatabaseType.mariadb)]
+    [TestCase("--databasetype=MariaDB", DatabaseType.mariadb)]
     public async Task TestDatabaseType(string args, DatabaseType expected)
     {
         var cfg = await ParseGrateConfiguration(args);

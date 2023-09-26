@@ -6,6 +6,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using grate.Commands;
@@ -77,6 +78,7 @@ public static class Program
         ParseResult p =
             new Parser(cmd).Parse(commandline);
         await handler.InvokeAsync(new InvocationContext(p));
+        
         return cfg;
     }
 
