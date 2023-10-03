@@ -27,7 +27,7 @@ up using modern .NET 6/7/8.
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0-rc.1.23419.4" />
     <PackageReference Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-*" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.*" />
-    <PackageReference Include="Dapper" Version="2.0.*" />
+    <PackageReference Include="Dapper" Version="2.1.*" />
     <PackageReference Include="Npgsql" Version="7.0.*" />
     <PackageReference Include="MySqlConnector" Version="2.2.*" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="7.0.*" />
