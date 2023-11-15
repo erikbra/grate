@@ -13,7 +13,7 @@
     <PackageReference Include="NUnit.Analyzers" Version="3.7.*" />
     <PackageReference Include="FluentAssertions" Version="6.12.*" />
     <PackageReference Include="NSubstitute" Version="5.1.*" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0-rc.1.23419.4"  />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0"  />
   </ItemGroup>
   
 
