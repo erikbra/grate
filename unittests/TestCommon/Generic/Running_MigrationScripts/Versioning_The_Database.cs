@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -63,7 +63,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         await using var migrator = Context.GetMigrator(grateConfig);
         await migrator.Migrate(); // shouldn't touch anything because of --dryrun
         var addedTable = await migrator.DbMigrator.Database.VersionTableExists();
-        addedTable.Should().Be(addedTable); // we didn't even add the grate infrastructure
+        addedTable.Should().Be(false); // we didn't even add the grate infrastructure
     }
 
     [Test]
