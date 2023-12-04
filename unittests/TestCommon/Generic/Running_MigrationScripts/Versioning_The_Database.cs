@@ -22,7 +22,6 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         var db = TestConfig.RandomDatabase();
 
         GrateMigrator? migrator;
-        
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Sprocs]);
@@ -49,7 +48,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
     {
         //for bug #204 - when running --baseline and --dryrun on a new db it shouldn't create the grate schema's etc
         var db = TestConfig.RandomDatabase();
-        
+
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
 
@@ -64,7 +63,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         await using var migrator = Context.GetMigrator(grateConfig);
         await migrator.Migrate(); // shouldn't touch anything because of --dryrun
         var addedTable = await migrator.DbMigrator.Database.VersionTableExists();
-        Assert.False(addedTable); // we didn't even add the grate infrastructure
+        addedTable.Should().Be(addedTable); // we didn't even add the grate infrastructure
     }
 
     [Test]
@@ -80,7 +79,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         CreateDummySql(parent, knownFolders[Up]);
 
         long newVersionId = 0;
-        
+
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             //Calling migrate here to setup the database and such.
