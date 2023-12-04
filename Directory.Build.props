@@ -30,7 +30,7 @@
   <PropertyGroup>
     <Authors>Erik A. Brandstadmoen</Authors>
     <PackageReadmeFile>NuGet.md</PackageReadmeFile>
-    <Product>MSA Common Library</Product>
+    <Product>grate database migration</Product>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>
 grate - sql for the 20s
