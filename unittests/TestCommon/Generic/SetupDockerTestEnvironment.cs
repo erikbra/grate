@@ -1,8 +1,8 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
-using System.Threading.Tasks;
+using DotNet.Testcontainers.Builders;
+using DotNet.Testcontainers.Containers;
 using NUnit.Framework;
 using TestCommon.TestInfrastructure;
 
@@ -13,9 +13,9 @@ public abstract class SetupDockerTestEnvironment
 {
     protected abstract IGrateTestContext GrateTestContext { get; }
     protected abstract IDockerTestContext DockerTestContext { get; }
-
+    private IContainer? _dockerContainer;
     private string? _serverName;
-    private string? _containerId;
+    //private string? _containerId;
     private readonly Random _random = new();
 
     private const string LowerCase = "abcdefghijklmnopqrstuvwxyz";
@@ -31,21 +31,25 @@ public abstract class SetupDockerTestEnvironment
     public async Task RunBeforeAnyTests()
     {
         Trace.Listeners.Add(new ConsoleTraceListener());
-            
+
         _serverName = GetServerName();
-        var password =
-            _random.GetString(10, UpperCase) +
-            _random.GetString(10, LowerCase) +
-            _random.GetString(10, Digits);
+        GrateTestContext.AdminPassword = _random.GetString(10, UpperCase) +
+                                         _random.GetString(10, LowerCase) +
+                                         _random.GetString(10, Digits);
 
+        var builder = new ContainerBuilder()
+        .WithImage(DockerTestContext.DockerImage)
+        .WithPortBinding(DockerTestContext.ContainerPort ?? default, true)
+        .WithWaitStrategy(Wait.ForUnixContainer().AddCustomWaitStrategy(DockerTestContext.WaitStrategy));
+        builder = DockerTestContext.AddEnvironmentVariables(builder);
+        _dockerContainer = builder.Build();
+        await _dockerContainer.StartAsync();
         //await TestContext.Out.WriteAsync($"Starting {GrateTestContext.DatabaseTypeName} docker container: ");
-        (_containerId, var port) = await Docker.StartDockerContainer(_serverName, password, DockerTestContext.ContainerPort, DockerTestContext.DockerCommand);
+        // (_containerId, var port) = await Docker.StartDockerContainer(_serverName, password, DockerTestContext.ContainerPort, DockerTestContext.DockerCommand);
 
-        GrateTestContext.AdminPassword = password;
-        GrateTestContext.Port = port;
-
-        await TestContext.Progress.WriteLineAsync($"Started {GrateTestContext.DatabaseTypeName} docker container: " + _containerId);
-        await TestContext.Progress.WriteLineAsync("Listening on port: " + port);
+        GrateTestContext.Port = _dockerContainer.GetMappedPublicPort(DockerTestContext.ContainerPort!.Value);
+        await TestContext.Progress.WriteLineAsync($"Started {GrateTestContext.DatabaseTypeName} docker container: " + _dockerContainer.Id);
+        await TestContext.Progress.WriteLineAsync("Listening on port: " + GrateTestContext.Port);
 
         await TestContext.Progress.WriteAsync("Waiting until server is ready");
         var ready = await WaitUntilServerIsReady();
@@ -56,8 +60,10 @@ public abstract class SetupDockerTestEnvironment
     [OneTimeTearDown]
     public async Task RunAfterAnyTests()
     {
-        var containerId = await Docker.Delete(_containerId!);
-        await TestContext.Progress.WriteLineAsync($"Removed {GrateTestContext.DatabaseTypeName} docker container: " + containerId);
+        //var containerId = await Docker.Delete(_containerId!);
+        //await TestContext.Progress.WriteLineAsync($"Removed {GrateTestContext.DatabaseTypeName} docker container: " + containerId);
+        await _dockerContainer!.StopAsync();
+        await _dockerContainer.DisposeAsync();
         Trace.Flush();
     }
 

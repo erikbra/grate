@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Data.Common;
+using DotNet.Testcontainers.Builders;
+using DotNet.Testcontainers.Configurations;
+using DotNet.Testcontainers.Containers;
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
@@ -14,8 +17,8 @@ public class MariaDbGrateTestContext : TestContextBase, IGrateTestContext, IDock
     public string AdminPassword { get; set; } = default!;
     public int? Port { get; set; }
 
-    public string DockerCommand(string serverName, string adminPassword) =>
-        $"run -d --name {serverName} -e MYSQL_ROOT_PASSWORD={adminPassword} -P mariadb:10.5.9";
+    // public string DockerCommand(string serverName, string adminPassword) =>
+    //     $"run -d --name {serverName} -e MYSQL_ROOT_PASSWORD={adminPassword} -P mariadb:10.5.9";
     
     public string AdminConnectionString => $"Server=localhost;Port={Port};Database=mysql;Uid=root;Pwd={AdminPassword}";
     public string ConnectionString(string database) => $"Server=localhost;Port={Port};Database={database};Uid=root;Pwd={AdminPassword}";
@@ -44,4 +47,29 @@ public class MariaDbGrateTestContext : TestContextBase, IGrateTestContext, IDock
 
     public string ExpectedVersionPrefix => "10.5.9-MariaDB";
     public bool SupportsCreateDatabase => true;
+    public string? DockerImage => "mariadb:10.5.9";
+    public IWaitUntil WaitStrategy => new WaitUntiMariaDbReady();
+    public ContainerBuilder AddEnvironmentVariables(ContainerBuilder builder)
+    {
+        return builder.WithEnvironment("MYSQL_ROOT_PASSWORD", AdminPassword);
+    }
+}
+sealed class WaitUntiMariaDbReady : IWaitUntil
+{
+    private static readonly string[] s_lineEndings =
+    {
+        "\r\n", "\n"
+    };
+
+    /// <inheritdoc />
+    public async Task<bool> UntilAsync(IContainer container)
+    {
+        var (stdout, stderr) = await container.GetLogsAsync(timestampsEnabled: false)
+            .ConfigureAwait(false);
+
+        return 2.Equals(Array.Empty<string>()
+            .Concat(stdout.Split(s_lineEndings, StringSplitOptions.RemoveEmptyEntries))
+            .Concat(stderr.Split(s_lineEndings, StringSplitOptions.RemoveEmptyEntries))
+            .Count(line => line.Contains("database system is ready to accept connections")));
+    }
 }

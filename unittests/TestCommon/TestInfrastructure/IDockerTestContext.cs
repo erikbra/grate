@@ -1,8 +1,13 @@
-﻿namespace TestCommon.TestInfrastructure;
+﻿using DotNet.Testcontainers.Builders;
+using DotNet.Testcontainers.Configurations;
+using DotNet.Testcontainers.Containers;
+
+namespace TestCommon.TestInfrastructure;
 
 public interface IDockerTestContext
 {
-    string DockerCommand(string serverName, string adminPassword);
+    //string DockerCommand(string serverName, string adminPassword);
+    string? DockerImage { get; }
 
     /// <summary>
     /// The port in the container to find the HostPort to (e.g. 1433 for SQL server, 1521 for Oracle).
@@ -10,4 +15,6 @@ public interface IDockerTestContext
     /// </summary>
     /// <returns></returns>
     int? ContainerPort { get; }
+    IWaitUntil WaitStrategy { get; }
+    ContainerBuilder AddEnvironmentVariables(ContainerBuilder builder);
 }
