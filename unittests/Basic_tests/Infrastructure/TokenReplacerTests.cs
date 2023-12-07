@@ -4,26 +4,26 @@ using FluentAssertions;
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
-using TestCommon;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
-using NUnit.Framework;
+using TestCommon;
+using Xunit;
 
 namespace Basic_tests.Infrastructure;
 
-[TestFixture]
-[Category("Basic tests")]
+
 public class TokenReplacerTests
 {
-    [TestCase("")]
-    [TestCase(null)]
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
     public void EnsureEmptyStringIsLeftEmpty(string? input)
     {
         var tokens = new Dictionary<string, string?>();
         TokenReplacer.ReplaceTokens(tokens, input).Should().Be(string.Empty);
     }
 
-    [Test]
+    [Fact]
     public void EnsureUnknownTokenIsIgnored()
     {
         var tokens = new Dictionary<string, string?>();
@@ -31,7 +31,7 @@ public class TokenReplacerTests
         TokenReplacer.ReplaceTokens(tokens, input).Should().Be(input);
     }
 
-    [Test]
+    [Fact]
     public void EnsureTokensAreReplaced()
     {
         var tokens = new Dictionary<string, string?> { ["EnvName"] = "Test" };
@@ -39,7 +39,7 @@ public class TokenReplacerTests
         TokenReplacer.ReplaceTokens(tokens, input).Should().Be("This is a Test.");
     }
 
-    [Test]
+    [Fact]
     public void EnsureConfigMakesItToTokens()
     {
         var folders = FoldersConfiguration.Default(null);
@@ -54,7 +54,7 @@ public class TokenReplacerTests
 
     }
 
-    [Test]
+    [Fact]
     public void EnsureDbMakesItToTokens()
     {
         var config = new GrateConfiguration()
@@ -74,7 +74,7 @@ public class TokenReplacerTests
         tokens["ServerName"].Should().Be("(LocalDb)\\mssqllocaldb");
     }
 
-    [Test]
+    [Fact]
     public void EnsureUserTokenParserWorks()
     {
         // TestCase attribute didn't seem to like tuples...

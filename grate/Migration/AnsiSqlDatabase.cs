@@ -53,7 +53,7 @@ public abstract class AnsiSqlDatabase : IDatabase
     private StatementSplitter StatementSplitter { get; }
 
     public virtual IEnumerable<string> GetStatements(string sql)
-        => SplitBatchStatements ? this.StatementSplitter.Split(sql) : new [] { sql };
+        => SplitBatchStatements ? this.StatementSplitter.Split(sql) : new[] { sql };
 
     public string StatementSeparatorRegex => _syntax.StatementSeparatorRegex;
 
@@ -71,22 +71,22 @@ public abstract class AnsiSqlDatabase : IDatabase
 
         ConnectionString = configuration.ConnectionString;
         AdminConnectionString = configuration.AdminConnectionString;
-        
+
         SchemaName = configuration.SchemaName;
 
         VersionTableName = configuration.VersionTableName;
         ScriptsRunTableName = configuration.ScriptsRunTableName;
         ScriptsRunErrorsTableName = configuration.ScriptsRunErrorsTableName;
-        
+
         Config = configuration;
-        
+
         return Task.CompletedTask;
     }
 
     private async Task<string> ExistingOrDefault(string schemaName, string tableName) =>
         await ExistingTable(schemaName, tableName) ?? tableName;
-    
-        
+
+
 
     private string? AdminConnectionString { get; set; }
     protected string? ConnectionString { get; set; }
@@ -94,7 +94,7 @@ public abstract class AnsiSqlDatabase : IDatabase
     protected abstract DbConnection GetSqlConnection(string? connectionString);
 
     protected DbConnection AdminConnection => _adminConnection ??= GetSqlConnection(AdminConnectionString);
-    
+
     protected DbConnection Connection => _connection ??= GetSqlConnection(ConnectionString);
 
     public DbConnection ActiveConnection { protected get; set; } = default!;
@@ -135,8 +135,8 @@ public abstract class AnsiSqlDatabase : IDatabase
     {
         TResult res;
         using (var s = new TransactionScope(
-                   TransactionScopeOption.Suppress, 
-                   new TransactionOptions() { IsolationLevel = IsolationLevel.ReadUncommitted} , 
+                   TransactionScopeOption.Suppress,
+                   new TransactionOptions() { IsolationLevel = IsolationLevel.ReadUncommitted },
                    TransactionScopeAsyncFlowOption.Enabled))
         {
             await using (var connection = GetSqlConnection(connectionString))
@@ -149,7 +149,7 @@ public abstract class AnsiSqlDatabase : IDatabase
         }
         return res;
     }
-    
+
     protected async Task RunInAutonomousTransaction(string? connectionString, Func<DbConnection, Task> func)
     {
         using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
@@ -161,7 +161,7 @@ public abstract class AnsiSqlDatabase : IDatabase
         }
         s.Complete();
     }
-    
+
     public async Task OpenActiveConnection()
     {
         await Open(ActiveConnection);
@@ -193,9 +193,9 @@ public abstract class AnsiSqlDatabase : IDatabase
         if (!await DatabaseExists())
         {
             Logger.LogTrace("Creating database {DatabaseName}", DatabaseName);
-            
+
             await OpenAdminConnection();
-            
+
             var sql = _syntax.CreateDatabase(DatabaseName, Password);
             await ExecuteNonQuery(AdminConnection, sql, Config?.AdminCommandTimeout);
         }
@@ -287,9 +287,9 @@ public abstract class AnsiSqlDatabase : IDatabase
     protected virtual async Task CreateScriptsRunTable()
     {
         // Update scripts run table name with the correct casing, should it differ from the standard
-        
+
         ScriptsRunTableName = await ExistingOrDefault(SchemaName, ScriptsRunTableName);
-        
+
         string createSql = $@"
 CREATE TABLE {ScriptsRunTable}(
 	{_syntax.PrimaryKeyColumn("id")},
@@ -314,7 +314,7 @@ CREATE TABLE {ScriptsRunTable}(
     {
         // Update scripts run errors table name with the correct casing, should it differ from the standard
         ScriptsRunErrorsTableName = await ExistingOrDefault(SchemaName, ScriptsRunErrorsTableName);
-        
+
         string createSql = $@"
 CREATE TABLE {ScriptsRunErrorsTable}(
 	{_syntax.PrimaryKeyColumn("id")},
@@ -339,7 +339,7 @@ CREATE TABLE {ScriptsRunErrorsTable}(
     {
         // Update version table name with the correct casing, should it differ from the standard
         VersionTableName = await ExistingOrDefault(SchemaName, VersionTableName);
-        
+
         string createSql = $@"
 CREATE TABLE {VersionTable}(
 	{_syntax.PrimaryKeyColumn("id")},
@@ -350,7 +350,7 @@ CREATE TABLE {VersionTable}(
 	entered_by {_syntax.VarcharType}(50) NULL
 	{_syntax.PrimaryKeyConstraint("Version", "id")}
 )";
-        
+
         if (!await VersionTableExists())
         {
             await ExecuteNonQuery(ActiveConnection, createSql, Config?.CommandTimeout);
@@ -369,25 +369,25 @@ CREATE TABLE {VersionTable}(
         }
     }
 
-    protected async Task<bool> ScriptsRunTableExists() => (await ExistingTable(SchemaName, ScriptsRunTableName) is not null) ;
+    protected async Task<bool> ScriptsRunTableExists() => (await ExistingTable(SchemaName, ScriptsRunTableName) is not null);
     protected async Task<bool> ScriptsRunErrorsTableExists() => (await ExistingTable(SchemaName, ScriptsRunErrorsTableName) is not null);
     public async Task<bool> VersionTableExists() => (await ExistingTable(SchemaName, VersionTableName) is not null);
-    
+
     protected async Task<bool> StatusColumnInVersionTableExists() => await ColumnExists(SchemaName, VersionTableName, "status");
 
     public async Task<string?> ExistingTable(string schemaName, string tableName)
     {
         var fullTableName = SupportsSchemas ? tableName : _syntax.TableWithSchema(schemaName, tableName);
         var tableSchema = SupportsSchemas ? schemaName : DatabaseName;
-        
+
         string existsSql = ExistsSql(tableSchema, fullTableName);
 
         var res = await ExecuteScalarAsync<object>(ActiveConnection, existsSql);
-        
-        var name = (!DBNull.Value.Equals(res) && res is not null) ? (string) res : null;
-        
+
+        var name = (!DBNull.Value.Equals(res) && res is not null) ? (string)res : null;
+
         var prefix = SupportsSchemas ? string.Empty : _syntax.TableWithSchema(schemaName, string.Empty);
-        return name?[prefix.Length..] ;
+        return name?[prefix.Length..];
     }
 
     private async Task<bool> ColumnExists(string schemaName, string tableName, string columnName)
@@ -491,27 +491,27 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy, @status)
 
     public async Task RunSql(string sql, ConnectionType connectionType, TransactionHandling transactionHandling)
     {
-        Logger.LogTrace("[SQL] Running (on connection '{ConnType}', transaction handling '{TransactionHandling}'): \n{Sql}", 
-                            connectionType.ToString(), 
+        Logger.LogTrace("[SQL] Running (on connection '{ConnType}', transaction handling '{TransactionHandling}'): \n{Sql}",
+                            connectionType.ToString(),
                             transactionHandling,
                             sql);
 
         int? timeout = GetTimeout(connectionType);
         var connection = GetDbConnection(connectionType);
-       
+
         await ExecuteNonQuery(connection, sql, timeout);
     }
 
-    
-    private DbConnection GetDbConnection(ConnectionType connectionType) => 
+
+    private DbConnection GetDbConnection(ConnectionType connectionType) =>
         connectionType switch
         {
             ConnectionType.Default => ActiveConnection,
             ConnectionType.Admin => AdminConnection,
             _ => throw new UnknownConnectionType(connectionType)
         };
-    
-    private int? GetTimeout(ConnectionType connectionType) => 
+
+    private int? GetTimeout(ConnectionType connectionType) =>
         connectionType switch
         {
             ConnectionType.Default => Config?.CommandTimeout,

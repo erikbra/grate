@@ -1,19 +1,24 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using FluentAssertions;
-using NUnit.Framework;
-using TestCommon;
+﻿using FluentAssertions;
+using SqlServer.TestInfrastructure;
 using TestCommon.TestInfrastructure;
 
 namespace SqlServer;
 
-[TestFixture]
-[Category("SqlServer")]
-public class Database: TestCommon.Generic.GenericDatabase
-{
-    protected override IGrateTestContext Context => GrateTestContext.SqlServer;
+[Collection(nameof(SqlServerTestContainer))]
 
-    [Test]
+public class Database : TestCommon.Generic.GenericDatabase, IClassFixture<SimpleService>
+{
+
+    protected override IGrateTestContext Context { get; }
+
+    protected ITestOutputHelper TestOutput { get; }
+
+    public Database(SqlServerTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
+    {
+        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
+        TestOutput = testOutput;
+    }
+    [Fact]
     public async Task Does_not_needlessly_apply_case_sensitive_database_name_checks_Issue_167()
     {
         // There's a bug where if the database name specified by the user differs from the actual database only by case then
@@ -28,6 +33,7 @@ public class Database: TestCommon.Generic.GenericDatabase
 
         await using var migrator = GetMigrator(GetConfiguration(db.ToLower(), true)); // ToLower is important here, this reproduces the bug in #167
         // There should be no errors running the migration
-        Assert.DoesNotThrowAsync(() => migrator.Migrate());
+        //Assert.DoesNotThrowAsync(() => migrator.Migrate());
+        await migrator.Migrate();
     }
 }

@@ -1,23 +1,28 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Dapper;
+﻿using Dapper;
 using FluentAssertions;
 using grate.Configuration;
-using NUnit.Framework;
-using TestCommon;
+using SqlServer.TestInfrastructure;
 using TestCommon.TestInfrastructure;
 
 namespace SqlServer.Running_MigrationScripts;
 
-[TestFixture]
-[Category("SqlServer")]
-public class RestoreDatabase : SqlServerScriptsBase
+[Collection(nameof(SqlServerTestContainer))]
+public class RestoreDatabase : SqlServerScriptsBase, IClassFixture<SimpleService>
 {
-    protected override IGrateTestContext Context => GrateTestContext.SqlServer;
+    protected override IGrateTestContext Context { get; }
+
+    protected override ITestOutputHelper TestOutput { get; }
+
+    public RestoreDatabase(SqlServerTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
+    {
+        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
+        TestOutput = testOutput;
+    }
+
     private readonly string _backupPath = "/var/opt/mssql/backup/test.bak";
 
-    [OneTimeSetUp]
-    public async Task RunBeforeTest()
+
+    private async Task RunBeforeTest()
     {
         await using var conn = Context.CreateDbConnection("master");
         await conn.ExecuteAsync("use [master] CREATE DATABASE [test]");
@@ -25,16 +30,18 @@ public class RestoreDatabase : SqlServerScriptsBase
         await conn.ExecuteAsync($"BACKUP DATABASE [test] TO  DISK = '{_backupPath}'");
         await conn.ExecuteAsync("use [master] DROP DATABASE [test]");
     }
-        
-    [Test]
+
+    [Fact]
     public async Task Ensure_database_gets_restored()
     {
+        await RunBeforeTest();
+
         var db = TestConfig.RandomDatabase();
-        
+
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[KnownFolderKeys.Sprocs]);
-            
+
         var restoreConfig = Context.GetConfiguration(db, parent, knownFolders) with
         {
             Restore = _backupPath

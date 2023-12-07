@@ -1,16 +1,24 @@
-﻿using System;
-using System.Data.Common;
+﻿using System.Data.Common;
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TestCommon.TestInfrastructure;
 
 namespace Sqlite.TestInfrastructure;
 
-class SqliteGrateTestContext : TestContextBase, IGrateTestContext
+public class SqliteGrateTestContext : IGrateTestContext
 {
+
+    private readonly SqliteTestContainer _testContainer;
+
+    public SqliteGrateTestContext(IServiceProvider serviceProvider, SqliteTestContainer testContainer)
+    {
+        ServiceProvider = serviceProvider;
+        _testContainer = testContainer;
+    }
     public string AdminPassword { get; set; } = default!;
     public int? Port { get; set; }
 
@@ -28,7 +36,7 @@ class SqliteGrateTestContext : TestContextBase, IGrateTestContext
     public string DatabaseTypeName => "Sqlite";
     public string MasterDatabase => "master";
 
-    public IDatabase DatabaseMigrator => new SqliteDatabase(TestConfig.LogFactory.CreateLogger<SqliteDatabase>());
+    public IDatabase DatabaseMigrator => new SqliteDatabase(ServiceProvider.GetRequiredService<ILogger<SqliteDatabase>>());
 
     public SqlStatements Sql => new()
     {
@@ -38,4 +46,6 @@ class SqliteGrateTestContext : TestContextBase, IGrateTestContext
 
     public string ExpectedVersionPrefix => "3.32.3";
     public bool SupportsCreateDatabase => false;
+
+    public IServiceProvider ServiceProvider { get; }
 }

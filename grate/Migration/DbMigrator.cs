@@ -152,12 +152,12 @@ public class DbMigrator : IDbMigrator
 
         return theSqlWasRun;
     }
-    
+
     public async Task<bool> RunSqlWithoutLogging(
-        string sql, 
+        string sql,
         string scriptName,
         GrateEnvironment? environment,
-        ConnectionType connectionType, 
+        ConnectionType connectionType,
         TransactionHandling transactionHandling)
     {
         async Task<bool> PrintLogAndRunSql()
@@ -184,8 +184,8 @@ public class DbMigrator : IDbMigrator
         {
             sql = ReplaceTokensIn(sql);
         }
-        
-       return await PrintLogAndRunSql();
+
+        return await PrintLogAndRunSql();
     }
 
 
@@ -273,7 +273,7 @@ public class DbMigrator : IDbMigrator
         string scriptName,
         MigrationType migrationType,
         long versionId,
-        ConnectionType connectionType, 
+        ConnectionType connectionType,
         TransactionHandling transactionHandling)
     {
         foreach (var statement in GetStatements(sql))
@@ -286,7 +286,8 @@ public class DbMigrator : IDbMigrator
             {
                 _logger.LogError("Error running script \"{ScriptName}\": {ErrorMessage}", scriptName, ex.Message);
 
-                if (Transaction.Current is not null) {
+                if (Transaction.Current is not null)
+                {
                     Database.Rollback();
                 }
 
@@ -299,7 +300,7 @@ public class DbMigrator : IDbMigrator
                     await RecordScriptInScriptsRunErrorsTable(scriptName, sql, statement, ex.Message, versionId);
                 }
                 s.Complete();
-                
+
                 SetDefaultConnectionActive();
                 throw;
             }
@@ -307,11 +308,11 @@ public class DbMigrator : IDbMigrator
 
         await RecordScriptInScriptsRunTable(scriptName, sql, migrationType, versionId, transactionHandling);
     }
-    
+
     private async Task RunTheActualSqlWithoutLogging(
         string sql,
         string scriptName,
-        ConnectionType connectionType, 
+        ConnectionType connectionType,
         TransactionHandling transactionHandling)
     {
         foreach (var statement in GetStatements(sql))
@@ -324,7 +325,8 @@ public class DbMigrator : IDbMigrator
             {
                 _logger.LogError("Error running script \"{ScriptName}\": {ErrorMessage}", scriptName, ex.Message);
 
-                if (Transaction.Current is not null) {
+                if (Transaction.Current is not null)
+                {
                     Database.Rollback();
                 }
 
@@ -370,7 +372,7 @@ public class DbMigrator : IDbMigrator
             s.Complete();
         }
         SetDefaultConnectionActive();
-        
+
         throw new OneTimeScriptChanged(errorMessage);
     }
 

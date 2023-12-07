@@ -2,23 +2,22 @@
 using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.Logging.Abstractions;
-using NUnit.Framework;
+using Xunit;
 
 namespace Basic_tests.Infrastructure.Oracle.Statement_Splitting;
 
-[TestFixture]
-[Category("Basic tests")]
+
 // ReSharper disable once InconsistentNaming
 public class StatementSplitter_
 {
-    
+
 #pragma warning disable NUnit1032
     private static readonly IDatabase Database = new OracleDatabase(NullLogger<OracleDatabase>.Instance);
 #pragma warning restore NUnit1032
-    
+
     private static readonly StatementSplitter Splitter = new(Database.StatementSeparatorRegex);
 
-    [Test]
+    [Fact]
     public void Splits_and_removes_GO_statements()
     {
         var original = @"

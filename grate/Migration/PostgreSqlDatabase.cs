@@ -10,7 +10,7 @@ namespace grate.Migration;
 
 public class PostgreSqlDatabase : AnsiSqlDatabase
 {
-    public PostgreSqlDatabase(ILogger<PostgreSqlDatabase> logger) 
+    public PostgreSqlDatabase(ILogger<PostgreSqlDatabase> logger)
         : base(logger, new PostgreSqlSyntax())
     { }
 

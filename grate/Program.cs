@@ -78,7 +78,7 @@ public static class Program
         ParseResult p =
             new Parser(cmd).Parse(commandline);
         await handler.InvokeAsync(new InvocationContext(p));
-        
+
         return cfg;
     }
 

@@ -56,7 +56,7 @@ public class GrateMigrator : IAsyncDisposable
 
         _logger.LogInformation("Setup, Backup, Create/Restore/Drop");
         Separator('=');
-        
+
         TransactionScope? scope = null;
         IList<Exception> exceptions = new List<Exception>();
         dbMigrator.SetDefaultConnectionActive();
@@ -72,7 +72,7 @@ public class GrateMigrator : IAsyncDisposable
         {
             databaseCreated = await CreateDatabaseIfItDoesNotExist(dbMigrator);
         }
-            
+
         if (!string.IsNullOrEmpty(config.Restore))
         {
             await RestoreDatabaseFromPath(config.Restore, dbMigrator);
@@ -88,7 +88,7 @@ public class GrateMigrator : IAsyncDisposable
         Separator('=');
         _logger.LogInformation("Migration Scripts");
         Separator('=');
-        
+
         try
         {
             // Start the transaction, if configured
@@ -102,22 +102,23 @@ public class GrateMigrator : IAsyncDisposable
             foreach (var folder in knownFolders.Values)
             {
                 var processingFolderInDefaultTransaction = folder?.TransactionHandling == TransactionHandling.Default;
-                
+
                 // Don't run any more folders that runs in the default transaction, if the transaction is already aborted
                 // (due to an error in a script, or something else)
                 if (exceptionOccured && processingFolderInDefaultTransaction)
                 {
                     continue;
                 }
-                
+
                 // This is an ugly "if" run on every script, to check one special folder which has conditions.
                 // If possible, we should find a 'cleaner' way to do this.
-                if (nameof(KnownFolderNames.RunAfterCreateDatabase).Equals(folder?.Name) && ! databaseCreated)
+                if (nameof(KnownFolderNames.RunAfterCreateDatabase).Equals(folder?.Name) && !databaseCreated)
                 {
                     continue;
                 }
-                
-                try {
+
+                try
+                {
                     if (processingFolderInDefaultTransaction)
                     {
                         await LogAndProcess(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
@@ -131,16 +132,17 @@ public class GrateMigrator : IAsyncDisposable
                         }
                         s.Complete();
                     }
-                }catch (DbException ex)
+                }
+                catch (DbException ex)
                 {
                     // Catch exceptions, so that we run the rest of the scripts, that should always be run.
                     exceptions.Add(ex);
                     exceptionOccured = true;
                 }
             }
-            
+
             await dbMigrator.CloseConnection();
-            
+
             if (!exceptionOccured)
             {
                 scope?.Complete();
@@ -242,7 +244,7 @@ public class GrateMigrator : IAsyncDisposable
             var database = _migrator.Database;
 
             var path = Wrap(config.SqlFilesDirectory, createDatabaseFolder?.Path ?? "zz-xx-øø-definitely-does-not-exist");
-            
+
             if (createDatabaseFolder is not null && path.Exists)
             {
                 //await LogAndProcess(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
@@ -351,7 +353,7 @@ public class GrateMigrator : IAsyncDisposable
         }
 
     }
-    
+
     private async Task<bool> ProcessWithoutLogging(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder,
         ConnectionType connectionType, TransactionHandling transactionHandling)
     {

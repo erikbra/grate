@@ -5,7 +5,7 @@ using System.Text;
 
 namespace grate.Exceptions;
 
-public class MigrationFailed: AggregateException
+public class MigrationFailed : AggregateException
 {
     private const string ErrorMessage = "Migration failed due to errors";
 
@@ -13,7 +13,7 @@ public class MigrationFailed: AggregateException
         : base(ErrorMessage, exceptions)
     {
     }
-    
+
     public MigrationFailed(params Exception[] exceptions)
         : base(ErrorMessage, exceptions)
     { }

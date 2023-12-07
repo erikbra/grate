@@ -1,24 +1,29 @@
-using System.Linq;
-using System.Threading.Tasks;
-using Dapper;
+﻿using Dapper;
 using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
-using NUnit.Framework;
-using TestCommon;
+using PostgreSQL.TestInfrastructure;
 using TestCommon.TestInfrastructure;
+using Xunit.Abstractions;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace PostgreSQL.Running_MigrationScripts;
 
-[TestFixture]
-[Category("PostgreSQL")]
+[Collection(nameof(PostgresqlTestContainer))]
 // ReSharper disable once InconsistentNaming
-public class Everytime_scripts: TestCommon.Generic.Running_MigrationScripts.Everytime_scripts
+public class Everytime_scripts : TestCommon.Generic.Running_MigrationScripts.Everytime_scripts, IClassFixture<SimpleService>
 {
-    protected override IGrateTestContext Context => GrateTestContext.PostgreSql;
 
-    [Test]
+    protected override IGrateTestContext Context { get; }
+    protected override ITestOutputHelper TestOutput { get; }
+
+    public Everytime_scripts(PostgresqlTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
+    {
+        Context = new PostgreSqlGrateTestContext(simpleService.ServiceProvider, testContainer);
+        TestOutput = testOutput;
+    }
+
+    [Fact]
     public async Task Create_index_concurrently_works()
     {
         var db = TestConfig.RandomDatabase();

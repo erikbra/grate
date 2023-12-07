@@ -18,7 +18,7 @@ public class GrateEnvironment
     private bool IsForCurrentEnvironment(string path) =>
         FileName(path).StartsWith($"{Current}.", InvariantCultureIgnoreCase) ||
         FileName(path).Contains($".{Current}.", InvariantCultureIgnoreCase);
-        
+
     public static bool IsEnvironmentFile(string fileName) => fileName.Contains(EnvironmentMarker, InvariantCultureIgnoreCase);
     private static string FileName(string path) => new FileInfo(path).Name;
 

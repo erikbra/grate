@@ -10,7 +10,7 @@ namespace grate.Migration;
 
 public class MariaDbDatabase : AnsiSqlDatabase
 {
-    public MariaDbDatabase(ILogger<MariaDbDatabase> logger) 
+    public MariaDbDatabase(ILogger<MariaDbDatabase> logger)
         : base(logger, new MariaDbSyntax())
     { }
 

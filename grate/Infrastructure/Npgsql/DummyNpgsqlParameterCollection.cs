@@ -2,7 +2,7 @@
 
 namespace grate.Infrastructure.Npgsql;
 
-public class DummyNpgsqlParameterCollection: Dictionary<string, DummyNpgsqlParameter>
+public class DummyNpgsqlParameterCollection : Dictionary<string, DummyNpgsqlParameter>
 {
     public void Add(DummyNpgsqlParameter parameter) => Add(parameter.ParameterName, parameter);
     public DummyPlaceholderType PlaceholderType => DummyPlaceholderType.Whatever;

@@ -1,9 +1,17 @@
-﻿using TestCommon.TestInfrastructure;
+﻿using SqlServerCaseSensitive.TestInfrastructure;
+using TestCommon.TestInfrastructure;
 
-namespace SqlServerCaseSensitive.Running_MigrationScripts
+namespace SqlServerCaseSensitive.Running_MigrationScripts;
+[Collection(nameof(SqlServerTestContainer))]
+public class ScriptsRun_Table : TestCommon.Generic.Running_MigrationScripts.ScriptsRun_Table, IClassFixture<SimpleService>
 {
-    public class ScriptsRun_Table : TestCommon.Generic.Running_MigrationScripts.ScriptsRun_Table
+    protected override IGrateTestContext Context { get; }
+
+    protected override ITestOutputHelper TestOutput { get; }
+
+    public ScriptsRun_Table(SqlServerTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
     {
-        protected override IGrateTestContext Context => GrateTestContext.SqlServerCaseSensitive;
+        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
+        TestOutput = testOutput;
     }
 }

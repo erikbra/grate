@@ -1,19 +1,23 @@
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Data.Sqlite;
-using NUnit.Framework;
-using TestCommon;
+﻿using Microsoft.Data.Sqlite;
+using Sqlite.TestInfrastructure;
 using TestCommon.TestInfrastructure;
 
 namespace Sqlite;
 
-[TestFixture]
-[Category("Sqlite")]
-public class Database: TestCommon.Generic.GenericDatabase
+[Collection(nameof(SqliteTestContainer))]
+public class Database : TestCommon.Generic.GenericDatabase, IClassFixture<SimpleService>
 {
-    protected override IGrateTestContext Context => GrateTestContext.Sqlite;
+
+    protected override IGrateTestContext Context { get; }
+
+    protected ITestOutputHelper TestOutput { get; }
+
+    public Database(SqliteTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
+    {
+        Context = new SqliteGrateTestContext(simpleService.ServiceProvider, testContainer);
+        TestOutput = testOutput;
+    }
+
 
     protected override async Task CreateDatabaseFromConnectionString(string db, string connectionString)
     {
@@ -32,7 +36,7 @@ public class Database: TestCommon.Generic.GenericDatabase
         await cmd.ExecuteNonQueryAsync();
     }
 
-    protected override async Task<IEnumerable<string>> GetDatabases() 
+    protected override async Task<IEnumerable<string>> GetDatabases()
     {
         var dbFiles = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), "*.db");
         IEnumerable<string> dbNames = dbFiles
@@ -43,7 +47,7 @@ public class Database: TestCommon.Generic.GenericDatabase
         return await ValueTask.FromResult(dbNames);
     }
 
-    [Ignore("SQLite does not support custom database creation script")]
+    [Fact(Skip = "SQLite does not support custom database creation script")]
     public override Task Is_created_with_custom_script_if_custom_create_database_folder_exists() =>
         Task.CompletedTask;
 

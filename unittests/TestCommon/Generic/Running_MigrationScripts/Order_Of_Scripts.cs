@@ -1,21 +1,17 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Dapper;
+﻿using Dapper;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using grate.Configuration;
 using grate.Migration;
-using NUnit.Framework;
 using TestCommon.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace TestCommon.Generic.Running_MigrationScripts;
 
-[TestFixture]
 // ReSharper disable once InconsistentNaming
-public abstract class Order_Of_Scripts: MigrationsScriptsBase
+public abstract class Order_Of_Scripts : MigrationsScriptsBase
 {
-    [Test()]
+    [Fact]
     public async Task Is_as_expected()
     {
         var db = TestConfig.RandomDatabase();
@@ -28,7 +24,7 @@ public abstract class Order_Of_Scripts: MigrationsScriptsBase
 
         string[] scripts;
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")} ORDER BY id";
-            
+
         await using (var conn = Context.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
@@ -51,7 +47,7 @@ public abstract class Order_Of_Scripts: MigrationsScriptsBase
             "1_permissions.sql",
             "1_aftermigration.sql",
         };
-            
+
         scripts.Should().BeEquivalentTo(expectation);
         scripts.Should().HaveCount(14);
 
@@ -68,18 +64,18 @@ public abstract class Order_Of_Scripts: MigrationsScriptsBase
     private GrateMigrator GetMigrator(string databaseName, bool createDatabase)
     {
         var scriptsDir = CreateRandomTempDirectory();
-            
+
         var config = Context.DefaultConfiguration with
         {
-            CreateDatabase = createDatabase, 
+            CreateDatabase = createDatabase,
             ConnectionString = Context.ConnectionString(databaseName),
             Folders = FoldersConfiguration.Default(null),
             SqlFilesDirectory = scriptsDir
-            
+
         };
 
         var knownFolders = config.Folders;
-        
+
         CreateDummySql(scriptsDir, knownFolders[AfterMigration], "1_aftermigration.sql");
         CreateDummySql(scriptsDir, knownFolders[AlterDatabase], "1_alterdatabase.sql");
         CreateDummySql(scriptsDir, knownFolders[BeforeMigration], "1_beforemigration.sql");

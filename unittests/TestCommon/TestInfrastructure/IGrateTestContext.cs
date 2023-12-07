@@ -4,6 +4,7 @@ using System.IO;
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 
@@ -11,8 +12,8 @@ namespace TestCommon.TestInfrastructure;
 
 public interface IGrateTestContext
 {
-    string AdminPassword { get; set; }
-    int? Port { get; set; }
+    string AdminPassword { get; }
+    int? Port { get; }
 
     string AdminConnectionString { get; }
     string ConnectionString(string database);
@@ -33,9 +34,9 @@ public interface IGrateTestContext
     SqlStatements Sql { get; }
     string DatabaseTypeName { get; }
     string MasterDatabase { get; }
-
+    IServiceProvider ServiceProvider { get; }
     string ExpectedVersionPrefix { get; }
-        
+
     // ReSharper disable once InconsistentNaming
     public GrateConfiguration DefaultConfiguration => new()
     {
@@ -74,8 +75,8 @@ public interface IGrateTestContext
             .GetService<DatabaseType, IDatabase>(DatabaseType)
             .Returns(DatabaseMigrator);
 
-        var dbMigrator = new DbMigrator(factory, TestConfig.LogFactory.CreateLogger<DbMigrator>(), new HashGenerator(), config);
-        var migrator = new GrateMigrator(TestConfig.LogFactory.CreateLogger<GrateMigrator>(), dbMigrator);
+        var dbMigrator = new DbMigrator(factory, ServiceProvider.GetRequiredService<ILogger<DbMigrator>>(), new HashGenerator(), config);
+        var migrator = new GrateMigrator(ServiceProvider.GetRequiredService<ILogger<GrateMigrator>>(), dbMigrator);
 
         return migrator;
     }
@@ -84,13 +85,13 @@ public interface IGrateTestContext
     {
         return GetMigrator(databaseName, sqlFilesDirectory, knownFolders, null, false);
     }
-    
+
     public GrateMigrator GetMigrator(string databaseName, DirectoryInfo sqlFilesDirectory, IFoldersConfiguration knownFolders, bool runInTransaction)
     {
         return GetMigrator(databaseName, sqlFilesDirectory, knownFolders, null, runInTransaction);
     }
-    
-    
+
+
     public GrateMigrator GetMigrator(string databaseName, DirectoryInfo sqlFilesDirectory, IFoldersConfiguration knownFolders, string? env)
     {
         return GetMigrator(databaseName, sqlFilesDirectory, knownFolders, env, false);

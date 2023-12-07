@@ -8,10 +8,10 @@ namespace grate.Infrastructure.Npgsql;
 // This makes updating the class easier if it should change in the future.
 using NpgsqlBatchCommand = DummyBatchCommand;
 using NpgsqlCommand = DummyNpgsqlCommand;
-using NpgsqlParameterCollection = DummyNpgsqlParameterCollection;
 using NpgsqlParameter = DummyNpgsqlParameter;
-using ThrowHelper = DummyThrowHelper;
+using NpgsqlParameterCollection = DummyNpgsqlParameterCollection;
 using PlaceholderType = DummyPlaceholderType;
+using ThrowHelper = DummyThrowHelper;
 
 
 /// <summary>
@@ -29,7 +29,7 @@ public static class NativeSqlQueryParser
         return statements;
     }
 
-    
+
     /// <summary>
     /// 
     ///  Method "stolen" from Unit-test in Npgsql: https://github.com/npgsql/npgsql/blob/main/test/Npgsql.Tests/SqlQueryParserTests.cs#L196

@@ -15,7 +15,7 @@ public static class FoldersCommand
         if (IsFile(arg))
         {
             arg = File.Exists(arg) ? File.ReadAllText(arg) : "";
-            
+
             // Makes more sense to supply an empty config than the default if you actually supply a file,
             // but that file is either non-existant or empty
             if (string.IsNullOrEmpty(arg))
@@ -23,7 +23,7 @@ public static class FoldersCommand
                 return FoldersConfiguration.Empty;
             }
         }
-        
+
         string? content = arg switch
         {
             { Length: 0 } => null,
@@ -77,7 +77,7 @@ public static class FoldersCommand
             }
             ApplyConfig(folder, config);
         }
-        
+
         return foldersConfiguration;
     }
 
@@ -109,7 +109,7 @@ public static class FoldersCommand
 
             return;
         }
-        
+
 
         var tokens = folderConfig.Split(',');
         foreach (var token in tokens)
@@ -124,8 +124,8 @@ public static class FoldersCommand
                 throw new InvalidFolderConfiguration(folderConfig, key);
             }
 
-            var parsed = (propertyType?.IsEnum ?? false) 
-                            ? Enum.Parse(propertyType, value) 
+            var parsed = (propertyType?.IsEnum ?? false)
+                            ? Enum.Parse(propertyType, value)
                             : value;
 
             setter.Invoke(folder, new[] { parsed });
@@ -147,13 +147,13 @@ public static class FoldersCommand
 
     private static (string key, string value) SplitInTwo(string s, char separator)
     {
-            var keyAndValue = s.Split(separator, 2);
-            var (key, value) = (keyAndValue.First(), keyAndValue.Last());
-            return (key, value);
+        var keyAndValue = s.Split(separator, 2);
+        var (key, value) = (keyAndValue.First(), keyAndValue.Last());
+        return (key, value);
     }
 
     private static bool IsFile(string? s)
     {
-        return s is not null && (File.Exists(s) || s.StartsWith("/")) ;
+        return s is not null && (File.Exists(s) || s.StartsWith("/"));
     }
 }

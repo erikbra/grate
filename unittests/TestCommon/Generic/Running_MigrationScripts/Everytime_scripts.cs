@@ -1,22 +1,17 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Dapper;
+﻿using Dapper;
 using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
-using NUnit.Framework;
 using TestCommon.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace TestCommon.Generic.Running_MigrationScripts;
 
-[TestFixture]
+//[TestFixture]
 // ReSharper disable once InconsistentNaming
 public abstract class Everytime_scripts : MigrationsScriptsBase
 {
-    [Test]
+    [Fact]
     public async Task Are_run_every_time_even_when_unchanged()
     {
         var db = TestConfig.RandomDatabase();
@@ -38,7 +33,7 @@ public abstract class Everytime_scripts : MigrationsScriptsBase
         scripts.Should().HaveCount(3);
     }
 
-    [Test]
+    [Fact]
     public async Task Are_not_run_in_dryrun()
     {
         var db = TestConfig.RandomDatabase();
@@ -54,7 +49,7 @@ public abstract class Everytime_scripts : MigrationsScriptsBase
 
         await using var migrator = Context.GetMigrator(config);
         await migrator.Migrate();
-        
+
         string[] scripts;
         string sql = $"SELECT 1 FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")} " +
                      $"WHERE script_name = '1_jalla.sql'";
@@ -74,7 +69,7 @@ public abstract class Everytime_scripts : MigrationsScriptsBase
         scripts.Should().BeEmpty();
     }
 
-    [Test]
+    [Fact]
     public async Task Are_recognized_by_script_name()
     {
         var db = TestConfig.RandomDatabase();
@@ -109,7 +104,7 @@ public abstract class Everytime_scripts : MigrationsScriptsBase
         scripts.Should().HaveCount(7); // one time script ran once, the two everytime scripts ran every time.
     }
 
-    [Test]
+    [Fact]
     public async Task Are_not_run_in_baseline()
     {
         var db = TestConfig.RandomDatabase();
@@ -138,7 +133,7 @@ public abstract class Everytime_scripts : MigrationsScriptsBase
         scripts.Should().HaveCount(1); //marked as run
 
         // but doesn't exist
-        Assert.ThrowsAsync(Context.DbExceptionType, async () => await conn.QueryAsync<string>("select * from grate"));
+        await Assert.ThrowsAsync(Context.DbExceptionType, async () => await conn.QueryAsync<string>("select * from grate"));
     }
 
     private void CreateEveryTimeScriptFile(DirectoryInfo root, MigrationsFolder? folder)

@@ -1,11 +1,12 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using grate.Infrastructure.Npgsql;
+using Xunit;
 
 namespace PostgreSQL.Infrastructure;
 
 public class NpgsqlQueryParser_
 {
-    [Test]
+    [Fact]
     public void Can_split_create_index_concurrently()
     {
         //var statements = ReflectionNpgsqlQueryParser.Split(sqlStatement);

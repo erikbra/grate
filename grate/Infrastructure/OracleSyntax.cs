@@ -25,7 +25,7 @@ public class OracleSyntax : ISyntax
     public string PrimaryKeyColumn(string columnName) => $"{columnName} NUMBER(19) PRIMARY KEY";
 
     public string CreateSchema(string schemaName) => throw new NotImplementedException("Create schema is not implemented for Oracle DB");
-        
+
     public string CreateDatabase(string userName, string? password) => $@"
 begin 
     execute immediate 'CREATE USER {userName} IDENTIFIED BY ""{password}""';
@@ -46,8 +46,8 @@ begin
     EXECUTE IMMEDIATE 'DROP USER {databaseName} CASCADE';
 end;
 ";
-        
-        
+
+
     public string TableWithSchema(string schemaName, string tableName) => $"{schemaName}_{tableName}";
     public string ReturnId => "RETURNING id;";
     public string TimestampType => "timestamp";

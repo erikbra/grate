@@ -11,7 +11,7 @@ namespace grate.Migration;
 
 public class SqlServerDatabase : AnsiSqlDatabase
 {
-    public SqlServerDatabase(ILogger<SqlServerDatabase> logger) 
+    public SqlServerDatabase(ILogger<SqlServerDatabase> logger)
         : base(logger, new SqlServerSyntax())
     { }
 
@@ -80,7 +80,7 @@ public class SqlServerDatabase : AnsiSqlDatabase
         Logger.LogInformation("Database {DbName} successfully restored from path {Path}.", DatabaseName, backupPath);
     }
 
-    
+
     protected override string HasRunSql =>
         $@"
 SELECT 1 FROM  {ScriptsRunTable} WITH (NOLOCK)

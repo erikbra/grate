@@ -1,4 +1,4 @@
-namespace grate.Infrastructure;
+﻿namespace grate.Infrastructure;
 
 public interface IFactory
 {
