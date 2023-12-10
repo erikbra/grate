@@ -1,0 +1,47 @@
+<Project>
+
+  <PropertyGroup>
+    <LangVersion>preview</LangVersion>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>preview</AnalysisLevel>
+    <NoWarn>$(NoWarn);CS1591;NU5118;NU5128</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <CodeAnalysisRuleset>$(MSBuildThisFileDirectory)CodeAnalysis.ruleset</CodeAnalysisRuleset>
+    <EnableXlfLocalization>false</EnableXlfLocalization>
+    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>false</CentralPackageTransitivePinningEnabled>
+    <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+  </PropertyGroup>
+
+
+  <PropertyGroup>
+    <NetTargetFrameworks Condition=" '$(NetTargetFrameworks)' == '' ">
+      net6.0;net7.0;net8.0
+    </NetTargetFrameworks>
+    <TargetFramework Condition=" '$(TargetFramework)' == '' ">net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Authors>Erik A. Brandstadmoen</Authors>
+    <PackageReadmeFile>NuGet.md</PackageReadmeFile>
+    <Product>grate database migration</Product>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Description>
+grate - sql for the 20s
+    
+grate is a no-code, low-fi database migration tool, inspired heavily by RoundhousE. It's written from the ground
+up using modern .NET 6/7/8. </Description>
+    <Copyright>© Erik A. Brandstadmoen. All rights reserved.</Copyright>
+    <PackageProjectUrl>https://erikbra.github.io/grate/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/erikbra/grate</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>sql migration roundhouse</PackageTags>
+  </PropertyGroup>
+
+</Project>

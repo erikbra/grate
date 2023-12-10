@@ -1,0 +1,36 @@
+<Project>
+  <!--
+                                          ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+                                          █████ ▀██ ██ ▄▄▄█▄▄ ▄▄███ ▄▄ ████ ▄▄ ██
+                                          █▀▀██ █ █ ██ ▄▄▄███ █████ ▄▄ █▀▀█ ▀▄ ██
+                                          █▄▄██ ██▄ ██ ▀▀▀███ █████ ▀▀ █▄▄█ ▀▀ ██
+                                          ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+  -->
+
+  <ItemGroup>
+    <!--
+      .net sdk
+    -->
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console"                                       Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection"                                   Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting"                                               Version="8.0.0" />
+    <PackageVersion Include="Npgsql"                                                                     Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Data.Sqlite"                                                      Version="8.0.0" />
+    <PackageVersion Include="System.CommandLine.NamingConventionBinder"                                  Version="2.0.0-beta4.22272.1" />
+    <PackageVersion Include="Microsoft.Data.SqlClient"                                                   Version="5.1.2" />
+    <PackageVersion Include="Dapper"                                                                     Version="2.1.24" />
+    <PackageVersion Include="MySqlConnector"                                                             Version="2.3.1" />
+    <PackageVersion Include="Oracle.ManagedDataAccess.Core"                                              Version="3.21.120" />
+    <!--
+      Note: the following references are exclusively used in the test projects:
+    -->
+    <PackageVersion Include="Microsoft.NET.Test.Sdk"                                                     Version="17.8.0" />
+    <PackageVersion Include="NUnit"                                                                      Version="4.0.1" />
+    <PackageVersion Include="NUnit3TestAdapter"                                                          Version="4.5.0" />
+    <PackageVersion Include="NUnit.Analyzers"                                                            Version="3.10.0" />
+    <PackageVersion Include="FluentAssertions"                                                           Version="6.12.0" />
+    <PackageVersion Include="NSubstitute"                                                                Version="5.1.0" />
+    <PackageVersion Include="XunitXml.TestLogger"                                                        Version="3.1.17" />
+    <PackageVersion Include="coverlet.collector"                                                         Version="6.0.0" />
+  </ItemGroup>
+</Project>

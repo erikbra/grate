@@ -73,7 +73,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         scripts.Should().HaveCount(1);
     }
-    
+
     [Test()]
     public async Task Inserts_Large_Failed_Scripts_Into_ScriptRunErrors_Table()
     {
@@ -187,7 +187,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
         {
             Assert.Ignore("DDL transactions not supported, skipping tests");
         }
-        
+
         var filename = folder.Name + "_jalla1.sql";
         var scripts = await RunMigration(folder, filename);
         scripts.Should().NotContain(filename);
@@ -283,7 +283,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
         WriteSql(path, "2_failing.sql", dummySql);
     }
 
-    private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
+    //private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
     private static readonly IFoldersConfiguration Folders = FoldersConfiguration.Default(null);
 
     private static readonly object?[] ShouldStillBeRunOnRollback =

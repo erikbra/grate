@@ -23,10 +23,10 @@ public record GrateConfiguration
 
     public DirectoryInfo OutputPath { get; init; } = new(Path.Combine(CurrentDirectory.FullName, "output"));
 
-    public string? ConnectionString { get; init; } = null;
+    public string? ConnectionString { get; init; }
 
     public string SchemaName { get; init; } = "grate";
-    
+
     public string ScriptsRunTableName { get; set; } = "ScriptsRun";
     public string ScriptsRunErrorsTableName { get; set; } = "ScriptsRunErrors";
     public string VersionTableName { get; set; } = "Version";
@@ -37,7 +37,7 @@ public record GrateConfiguration
         init => _adminConnectionString = value;
     }
 
-    public string? AccessToken { get; set; } = null;
+    public string? AccessToken { get; set; }
 
     private string? WithAdminDb(string? connectionString)
     {

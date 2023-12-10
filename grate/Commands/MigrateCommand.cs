@@ -83,12 +83,15 @@ public sealed class MigrateCommand : RootCommand
             "This is where everything related to the migration is stored. This includes any backups, all items that ran, permission dumps, logs, etc."
         ).ExistingOnly();
 
-
     private static Option Folders() =>
         new Option<IFoldersConfiguration>(
             new[] { "--folders" },
+
+#pragma warning disable CA1826
+            // The code that's violating the rule is on this line.
             result => FoldersCommand.Parse(result?.Tokens?.FirstOrDefault()?.ToString()),
-            description: 
+#pragma warning restore CA1826
+            description:
 @"Folder configuration.
 
 If you wish to override any of the default folder names, supply a semicolon separated list of mappings.
@@ -144,10 +147,10 @@ or
 
 the last one will expect the folders to be named 'folder1', 'folder2', and 'folder3', in the sqlfilesdirectory.
 
-", 
+",
             isDefault: false
         );
-    
+
 
     //SECURITY OPTIONS
     private static Option AccessToken() =>

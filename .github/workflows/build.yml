@@ -23,7 +23,7 @@ jobs:
     - name: Setup .NET 8
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.100-rc.1.23463.5
+        dotnet-version: 8.0.x
     - name: Checkout
       uses: actions/checkout@v4
       with:
@@ -47,7 +47,7 @@ jobs:
     - name: Setup .NET 8
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.100-rc.1.23463.5
+        dotnet-version: 8.0.x
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
@@ -84,7 +84,7 @@ jobs:
     - name: Setup .NET 8
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.100-rc.1.23463.5
+        dotnet-version: 8.0.x
 
     - name: Publish self-contained ${{ matrix.arch }}
       run: dotnet publish ./grate/grate.csproj -f net8.0 -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
@@ -264,7 +264,7 @@ jobs:
     - name: Setup .NET 8
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.100-rc.1.23463.5
+        dotnet-version: 8.0.x
     - name: Test
       run: |
         dotnet test \

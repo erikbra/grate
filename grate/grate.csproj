@@ -2,36 +2,23 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
-    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+    <TargetFramework>$(TargetFramework)</TargetFramework>
+    <TargetFrameworks>$(NetTargetFrameworks)</TargetFrameworks>
     <DebugType>Embedded</DebugType>
     <Nullable>enable</Nullable>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Authors>Erik A. Brandstadmoen</Authors>
-    <PackageReadmeFile>NuGet.md</PackageReadmeFile>
-    <Description>
-grate - sql for the 20s
-    
-grate is a no-code, low-fi database migration tool, inspired heavily by RoundhousE. It's written from the ground
-up using modern .NET 6/7/8. 
-    </Description>
-    <PackageProjectUrl>https://erikbra.github.io/grate/</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/erikbra/grate</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>sql migration roundhouse</PackageTags>
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0-rc.1.23419.4" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0-rc.1.23419.4" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0-rc.1.23419.4" />
-    <PackageReference Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-*" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.*" />
-    <PackageReference Include="Dapper" Version="2.1.*" />
-    <PackageReference Include="Npgsql" Version="7.0.*" />
-    <PackageReference Include="MySqlConnector" Version="2.2.*" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="7.0.*" />
-    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="3.21.*" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Hosting"  />
+    <PackageReference Include="System.CommandLine.NamingConventionBinder" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
+    <PackageReference Include="Dapper" />
+    <PackageReference Include="Npgsql" />
+    <PackageReference Include="MySqlConnector"  />
+    <PackageReference Include="Microsoft.Data.Sqlite" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" />
   </ItemGroup>
   
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
