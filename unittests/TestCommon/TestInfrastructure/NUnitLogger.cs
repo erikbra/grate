@@ -65,5 +65,5 @@ public class NUnitLoggerProvider : ILoggerProvider
 
     public void Dispose() { GC.SuppressFinalize(this); }
 
-    public event EventHandler OnCreateLogger = delegate { };
+    //public event EventHandler OnCreateLogger = delegate { };
 }
