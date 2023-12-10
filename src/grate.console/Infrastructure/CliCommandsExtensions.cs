@@ -1,8 +1,8 @@
 ﻿using System.CommandLine;
-using grate.Commands;
+using grate.Console.Commands;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace grate.Infrastructure;
+namespace grate.Console.Infrastructure;
 
 public static class CliCommandCollectionExtensions
 {

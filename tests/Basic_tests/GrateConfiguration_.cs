@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
+using grate.SqlServer.Migration;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Basic_tests;

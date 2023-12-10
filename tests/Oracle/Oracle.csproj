@@ -18,7 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <!-- <ProjectReference Include="..\..\grate\grate.csproj" /> -->
+      <ProjectReference Include="..\..\src\grate.oracle\grate.oracle.csproj" />
       <ProjectReference Include="..\TestCommon\TestCommon.csproj" />
     </ItemGroup>
 

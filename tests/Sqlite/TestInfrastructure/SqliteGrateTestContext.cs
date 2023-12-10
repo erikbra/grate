@@ -2,6 +2,7 @@
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
+using grate.Sqlite.Migration;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
+using grate.SqlServer.Migration;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

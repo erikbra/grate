@@ -7,8 +7,8 @@ using grate.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Oracle.ManagedDataAccess.Client;
 using static System.StringSplitOptions;
-
-namespace grate.Migration;
+using grate.Migration;
+namespace grate.Oracle.Migration;
 
 public class OracleDatabase : AnsiSqlDatabase
 {

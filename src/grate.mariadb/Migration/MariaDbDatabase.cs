@@ -3,8 +3,8 @@ using System.Diagnostics;
 using grate.Infrastructure;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
-
-namespace grate.Migration;
+using grate.Migration;
+namespace grate.MariaDb.Migration;
 
 public class MariaDbDatabase : AnsiSqlDatabase
 {

@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>$(NetTargetFrameworks)</TargetFrameworks>
+    <DebugType>Embedded</DebugType>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>None</DebugType>
+<!--    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>-->
+<!--    <RuntimeIdentifiers>win-x64;win-x86;win-arm;win-arm64;alpine-x64;linux-x64;linux-arm;linux-arm64;osx.11.0-x64;osx.10.12-x64;osx-x64</RuntimeIdentifiers>-->
+    <RuntimeIdentifiers>win-x64;win-x86;win-arm64;linux-musl-x64;linux-musl-arm64;linux-x64;linux-arm64;osx-x64;osx-arm64</RuntimeIdentifiers>
+    <ToolCommandName>grate</ToolCommandName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="NuGet.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\grate\grate.csproj" />
+  </ItemGroup>
+
+</Project>

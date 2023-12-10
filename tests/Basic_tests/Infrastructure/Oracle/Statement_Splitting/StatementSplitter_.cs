@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using grate.Infrastructure;
 using grate.Migration;
+using grate.Oracle.Migration;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Basic_tests.Infrastructure.Oracle.Statement_Splitting;

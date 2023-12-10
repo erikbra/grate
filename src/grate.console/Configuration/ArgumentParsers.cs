@@ -1,7 +1,7 @@
 ﻿using System.CommandLine.Parsing;
 using grate.Infrastructure;
 
-namespace grate.Configuration
+namespace grate.Console.Configuration
 {
     public static class ArgumentParsers
     {

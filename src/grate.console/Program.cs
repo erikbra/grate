@@ -4,16 +4,22 @@ using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.Reflection;
-using grate.Commands;
+using grate.Console.Commands;
 using grate.Configuration;
 using grate.Exceptions;
 using grate.Infrastructure;
 using grate.Migration;
+using grate.MariaDb.Migration;
+using grate.Sqlite.Migration;
+using grate.Oracle.Migration;
+using grate.Npgsql.Migration;
+using grate.SqlServer.Migration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
-
-namespace grate;
+using grate;
+using grate.Console.Infrastructure;
+namespace grate.Console;
 
 public static class Program
 {

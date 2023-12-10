@@ -3,8 +3,8 @@ using grate.Infrastructure;
 using grate.Infrastructure.Npgsql;
 using Microsoft.Extensions.Logging;
 using Npgsql;
-
-namespace grate.Migration;
+using grate.Migration;
+namespace grate.Npgsql.Migration;
 
 public class PostgreSqlDatabase : AnsiSqlDatabase
 {

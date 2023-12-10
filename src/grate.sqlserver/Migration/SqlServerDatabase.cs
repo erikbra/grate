@@ -4,8 +4,8 @@ using grate.Configuration;
 using grate.Infrastructure;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
-
-namespace grate.Migration;
+using grate.Migration;
+namespace grate.SqlServer.Migration;
 
 public class SqlServerDatabase : AnsiSqlDatabase
 {

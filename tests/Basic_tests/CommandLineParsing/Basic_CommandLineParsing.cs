@@ -3,7 +3,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using FluentAssertions;
-using grate.Commands;
+using grate.Console.Commands;
 using grate.Configuration;
 using grate.Infrastructure;
 

@@ -2,8 +2,8 @@
 using grate.Infrastructure;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
-
-namespace grate.Migration;
+using grate.Migration;
+namespace grate.Sqlite.Migration;
 
 public class SqliteDatabase : AnsiSqlDatabase
 {

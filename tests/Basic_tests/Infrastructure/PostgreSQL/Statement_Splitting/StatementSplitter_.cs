@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using grate.Infrastructure;
 using grate.Migration;
+using grate.Npgsql.Migration;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Basic_tests.Infrastructure.PostgreSQL.Statement_Splitting;

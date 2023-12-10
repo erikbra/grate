@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using grate.Infrastructure;
 using grate.Migration;
+using grate.SqlServer.Migration;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Basic_tests.Infrastructure.SqlServer.Statement_Splitting;

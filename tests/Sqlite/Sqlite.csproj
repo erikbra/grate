@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-      <!-- <ProjectReference Include="..\..\grate\grate.csproj" /> -->
+      <ProjectReference Include="..\..\src\grate.sqlite\grate.sqlite.csproj" />
       <ProjectReference Include="..\TestCommon\TestCommon.csproj" />
   </ItemGroup>
 

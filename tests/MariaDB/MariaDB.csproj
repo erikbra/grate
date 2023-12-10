@@ -18,6 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\src\grate.mariadb\grate.mariadb.csproj" />
       <ProjectReference Include="..\TestCommon\TestCommon.csproj" />
     </ItemGroup>
 

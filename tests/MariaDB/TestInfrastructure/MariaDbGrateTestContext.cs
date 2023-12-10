@@ -4,6 +4,7 @@ using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using grate.MariaDb.Migration;
 using MySqlConnector;
 using TestCommon.TestInfrastructure;
 

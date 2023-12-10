@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using grate.Commands;
+using grate.Console.Commands;
 using grate.Configuration;
 using grate.Migration;
 

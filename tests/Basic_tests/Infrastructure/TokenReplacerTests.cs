@@ -2,6 +2,7 @@
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
+using grate.SqlServer.Migration;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 

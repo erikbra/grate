@@ -2,6 +2,8 @@
 using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
+using grate.SqlServer.Migration;
+using grate.MariaDb.Migration;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

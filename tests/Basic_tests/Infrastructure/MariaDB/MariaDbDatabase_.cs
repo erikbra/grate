@@ -1,7 +1,7 @@
 ﻿using System.Data.Common;
 using FluentAssertions;
 using grate.Configuration;
-using grate.Migration;
+using grate.MariaDb.Migration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
