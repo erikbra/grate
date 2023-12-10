@@ -8,9 +8,6 @@
         "ghcr.io/devcontainers/features/powershell:1": {
             "version": "latest"
         },
-        "ghcr.io/azure/azure-dev/azd:0": {
-            "version": "latest"
-        },
         "ghcr.io/devcontainers/features/common-utils:2": {},
         "ghcr.io/devcontainers/features/dotnet:2": {
             "version": "none",
@@ -21,7 +18,6 @@
     "customizations": {
         "vscode": {
             "extensions": [
-                "ms-vscode.vscode-node-azure-pack",
                 "GitHub.copilot",
                 "GitHub.vscode-github-actions",
                 "ms-dotnettools.vscode-dotnet-runtime",
