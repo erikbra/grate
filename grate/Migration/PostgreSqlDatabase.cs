@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Data.Common;
-using System.Threading.Tasks;
+﻿using System.Data.Common;
 using grate.Infrastructure;
 using grate.Infrastructure.Npgsql;
 using Microsoft.Extensions.Logging;
@@ -10,7 +8,7 @@ namespace grate.Migration;
 
 public class PostgreSqlDatabase : AnsiSqlDatabase
 {
-    public PostgreSqlDatabase(ILogger<PostgreSqlDatabase> logger) 
+    public PostgreSqlDatabase(ILogger<PostgreSqlDatabase> logger)
         : base(logger, new PostgreSqlSyntax())
     { }
 

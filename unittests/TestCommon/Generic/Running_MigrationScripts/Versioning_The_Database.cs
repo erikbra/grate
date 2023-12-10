@@ -1,28 +1,22 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Dapper;
+﻿using Dapper;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using grate.Configuration;
 using grate.Migration;
-using NUnit.Framework;
 using TestCommon.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace TestCommon.Generic.Running_MigrationScripts;
 
-[TestFixture]
 // ReSharper disable once InconsistentNaming
 public abstract class Versioning_The_Database : MigrationsScriptsBase
 {
-    [Test]
+    [Fact]
     public async Task Returns_the_new_version_id()
     {
         var db = TestConfig.RandomDatabase();
 
         GrateMigrator? migrator;
-        
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Sprocs]);
@@ -44,12 +38,12 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         }
     }
 
-    [Test]
+    [Fact]
     public async Task Does_not_create_versions_on_DryRun()
     {
         //for bug #204 - when running --baseline and --dryrun on a new db it shouldn't create the grate schema's etc
         var db = TestConfig.RandomDatabase();
-        
+
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
 
@@ -64,10 +58,10 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         await using var migrator = Context.GetMigrator(grateConfig);
         await migrator.Migrate(); // shouldn't touch anything because of --dryrun
         var addedTable = await migrator.DbMigrator.Database.VersionTableExists();
-        Assert.False(addedTable); // we didn't even add the grate infrastructure
+        addedTable.Should().Be(false); // we didn't even add the grate infrastructure
     }
 
-    [Test]
+    [Fact]
     public async Task Creates_a_new_version_with_status_InProgress()
     {
         var db = TestConfig.RandomDatabase();
@@ -80,7 +74,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         CreateDummySql(parent, knownFolders[Up]);
 
         long newVersionId = 0;
-        
+
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             //Calling migrate here to setup the database and such.

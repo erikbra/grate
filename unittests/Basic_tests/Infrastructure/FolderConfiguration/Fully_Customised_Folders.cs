@@ -1,23 +1,17 @@
 ﻿using System.Collections.Immutable;
-using System.IO;
-using System.Runtime.CompilerServices;
 using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
 using TestCommon.TestInfrastructure;
-using NUnit.Framework;
 using static grate.Configuration.MigrationType;
 using static grate.Migration.ConnectionType;
 
 namespace Basic_tests.Infrastructure.FolderConfiguration;
 
-[TestFixture]
-[TestOf(nameof(FoldersConfiguration))]
-[Category("Basic tests")]
 // ReSharper disable once InconsistentNaming
 public class Fully_Customised_Folders
 {
-    [Test]
+    [Fact]
     public void Returns_folders_in_Expected_Order()
     {
         var items = Folders.Values.ToImmutableArray();
@@ -31,8 +25,8 @@ public class Fully_Customised_Folders
         });
     }
 
-    [Test]
-    [TestCaseSource(nameof(ExpectedKnownFolderNames))]
+    [Theory]
+    [MemberData(nameof(ExpectedKnownFolderNames))]
     public void Has_expected_folder_configuration(
         MigrationsFolder folder,
         string expectedFolderName,
@@ -52,7 +46,7 @@ public class Fully_Customised_Folders
         });
     }
 
-    
+
     private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
 
     private static readonly IFoldersConfiguration Folders = new FoldersConfiguration(
@@ -62,28 +56,12 @@ public class Fully_Customised_Folders
         new MigrationsFolder("security", "secret", AnyTime)
     );
 
-    private static readonly object?[] ExpectedKnownFolderNames =
+    public static IEnumerable<object?[]> ExpectedKnownFolderNames()
     {
-        GetTestCase(Folders["structure"], "structure", Once, Default, TransactionHandling.Default),
-        GetTestCase(Folders["randomstuff"], "randomstuff", AnyTime, Admin, TransactionHandling.Autonomous),
-        GetTestCase(Folders["procedures"], "procs", AnyTime, Default, TransactionHandling.Default),
-        GetTestCase(Folders["security"], "secret", AnyTime, Default, TransactionHandling.Default),
-    };
+        yield return new object?[] { Folders["structure"], "structure", Once, Default, TransactionHandling.Default };
+        yield return new object?[] { Folders["randomstuff"], "randomstuff", AnyTime, Admin, TransactionHandling.Autonomous };
+        yield return new object?[] { Folders["procedures"], "procs", AnyTime, Default, TransactionHandling.Default };
+        yield return new object?[] { Folders["security"], "secret", AnyTime, Default, TransactionHandling.Default };
+    }
 
-    private static TestCaseData GetTestCase(
-        MigrationsFolder? folder,
-        string expectedName,
-        MigrationType expectedType,
-        ConnectionType expectedConnectionType,
-        TransactionHandling transactionHandling,
-        [CallerArgumentExpression(nameof(folder))] string migrationsFolderDefinitionName = ""
-    ) =>
-        new TestCaseData(folder, expectedName, expectedType, expectedConnectionType, transactionHandling)
-            .SetArgDisplayNames(
-                migrationsFolderDefinitionName,
-                expectedName,
-                expectedType.ToString(),
-                "conn: " + expectedConnectionType,
-                "tran: " + transactionHandling
-            );
 }

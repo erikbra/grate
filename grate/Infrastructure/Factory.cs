@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace grate.Infrastructure;
 
@@ -29,6 +27,6 @@ public class Factory : IFactory
     public TValue GetService<TKey, TValue>(TKey key)
     {
         if (key == null) throw new ArgumentNullException(nameof(key));
-        return (TValue) _provider.GetRequiredService(_services[key]);
+        return (TValue)_provider.GetRequiredService(_services[key]);
     }
 }

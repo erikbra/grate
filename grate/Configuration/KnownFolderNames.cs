@@ -1,6 +1,6 @@
 ﻿namespace grate.Configuration;
 
-public record KnownFolderNames: IKnownFolderNames
+public record KnownFolderNames : IKnownFolderNames
 {
     public string BeforeMigration { get; init; } = "beforeMigration";
     public string CreateDatabase { get; init; } = "createDatabase";

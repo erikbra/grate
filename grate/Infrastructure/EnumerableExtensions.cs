@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace grate.Infrastructure;
+﻿namespace grate.Infrastructure;
 
 public static class EnumerableExtensions
 {

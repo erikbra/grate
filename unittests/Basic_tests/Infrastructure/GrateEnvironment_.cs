@@ -1,16 +1,13 @@
-﻿using System.IO;
-using FluentAssertions;
+﻿using FluentAssertions;
 using grate.Infrastructure;
-using NUnit.Framework;
 
 namespace Basic_tests.Infrastructure;
 
-[TestFixture]
-[Category("Basic tests")]
+
 // ReSharper disable once InconsistentNaming
 public class GrateEnvironment_
 {
-    [Test]
+    [Fact]
     public void Always_runs_non_environment_files()
     {
         var env = new GrateEnvironment("TEST");
@@ -19,7 +16,7 @@ public class GrateEnvironment_
         env.ShouldRun(file).Should().BeTrue();
     }
 
-    [Test]
+    [Fact]
     public void Detects_environment_marker_in_start_of_filename()
     {
         var env = new GrateEnvironment("BOOYA");
@@ -28,7 +25,7 @@ public class GrateEnvironment_
         env.ShouldRun(file).Should().BeTrue();
     }
 
-    [Test]
+    [Fact]
     public void Detects_environment_marker_in_middle_of_filename()
     {
         var env = new GrateEnvironment("BOOYA");
@@ -37,7 +34,7 @@ public class GrateEnvironment_
         env.ShouldRun(file).Should().BeTrue();
     }
 
-    [Test]
+    [Fact]
     public void Detects_environment_marker_in_end_of_filename()
     {
         var env = new GrateEnvironment("BOOYA");
@@ -46,7 +43,7 @@ public class GrateEnvironment_
         env.ShouldRun(file).Should().BeTrue();
     }
 
-    [Test]
+    [Fact]
     public void Does_not_run_for_other_environments()
     {
         var env = new GrateEnvironment("FOOFOO");

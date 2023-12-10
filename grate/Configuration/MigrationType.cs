@@ -1,4 +1,4 @@
-namespace grate.Configuration;
+﻿namespace grate.Configuration;
 
 public enum MigrationType
 {

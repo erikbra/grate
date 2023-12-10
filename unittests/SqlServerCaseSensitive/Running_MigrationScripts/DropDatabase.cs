@@ -1,12 +1,17 @@
-﻿using NUnit.Framework;
+﻿using SqlServerCaseSensitive.TestInfrastructure;
 using TestCommon.TestInfrastructure;
 
-namespace SqlServerCaseSensitive.Running_MigrationScripts
+namespace SqlServerCaseSensitive.Running_MigrationScripts;
+[Collection(nameof(SqlServerTestContainer))]
+public class DropDatabase : TestCommon.Generic.Running_MigrationScripts.DropDatabase, IClassFixture<SimpleService>
 {
-    [TestFixture]
-    [Category("SqlServerCaseSensitive")]
-    public class DropDatabase : TestCommon.Generic.Running_MigrationScripts.DropDatabase
+    protected override IGrateTestContext Context { get; }
+
+    protected override ITestOutputHelper TestOutput { get; }
+
+    public DropDatabase(SqlServerTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
     {
-        protected override IGrateTestContext Context => GrateTestContext.SqlServerCaseSensitive;
+        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
+        TestOutput = testOutput;
     }
 }

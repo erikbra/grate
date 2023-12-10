@@ -1,12 +1,9 @@
-﻿using System.IO;
-using System.Threading.Tasks;
-using grate.Configuration;
+﻿using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
-using TestCommon.TestInfrastructure;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using NUnit.Framework;
+using TestCommon.TestInfrastructure;
 
 namespace Basic_tests;
 
@@ -18,8 +15,8 @@ public class Migration
     {
         _logger = Substitute.For<ILogger<GrateMigrator>>();
     }
-    
-    [Test]
+
+    [Fact]
     public async Task Does_not_output_no_sql_run_in_dryrun_mode()
     {
         var dbMigrator = GetDbMigrator(true);
@@ -28,7 +25,7 @@ public class Migration
         _logger.DidNotReceive().LogInformation(" No sql run, either an empty folder, or all files run against destination previously.");
     }
 
-    [Test]
+    [Fact]
     public async Task Outputs_no_sql_run_in_live_mode()
     {
         var dbMigrator = GetDbMigrator(false);
@@ -36,7 +33,7 @@ public class Migration
         await migrator.Migrate();
         _logger.Received().LogInformation(" No sql run, either an empty folder, or all files run against destination previously.");
     }
-    
+
     protected static DirectoryInfo Wrap(DirectoryInfo root, string? subFolder) =>
         new(Path.Combine(root.ToString(), subFolder ?? ""));
 
@@ -56,14 +53,14 @@ public class Migration
         var knownFolders = FoldersConfiguration.Default();
 
         var path = Wrap(parent, knownFolders[KnownFolderKeys.Up]!.Path);
-        
+
         var folder1 = new DirectoryInfo(Path.Combine(path.ToString(), "01_sub", "folder", "long", "way"));
         string filename1 = "01_any_filename.sql";
         TestConfig.WriteContent(folder1, filename1, "Whatever");
-        
+
         var configuration = new GrateConfiguration()
         {
-            NonInteractive = true, 
+            NonInteractive = true,
             SqlFilesDirectory = parent,
             DryRun = dryRun
         };
@@ -71,5 +68,5 @@ public class Migration
 
         return dbMigrator;
     }
-    
+
 }

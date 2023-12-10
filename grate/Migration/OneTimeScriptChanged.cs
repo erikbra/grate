@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace grate.Migration;
+﻿namespace grate.Migration;
 
 public class OneTimeScriptChanged : Exception
 {

@@ -1,15 +1,6 @@
 ﻿
 namespace grate.Infrastructure.Npgsql;
 
-// These are just dummies, to be able to use the SqlQueryParser 100% as-is, without rewrites.
-// This makes updating the class easier if it should change in the future.
-using NpgsqlBatchCommand = DummyBatchCommand;
-using NpgsqlCommand = DummyNpgsqlCommand;
-using NpgsqlParameterCollection = DummyNpgsqlParameterCollection;
-using NpgsqlParameter = DummyNpgsqlParameter;
-using ThrowHelper = DummyThrowHelper;
-using PlaceholderType = DummyPlaceholderType;
-
 /*
  * This class is adopted without modification from the Npgsql codebase, and adjusted a bit, to make it more
  * self-contained, and not dependent on actual connections to a PostgreSQL database.
@@ -41,6 +32,14 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+// These are just dummies, to be able to use the SqlQueryParser 100% as-is, without rewrites.
+// This makes updating the class easier if it should change in the future.
+using NpgsqlBatchCommand = DummyBatchCommand;
+using NpgsqlCommand = DummyNpgsqlCommand;
+using NpgsqlParameter = DummyNpgsqlParameter;
+using NpgsqlParameterCollection = DummyNpgsqlParameterCollection;
+using PlaceholderType = DummyPlaceholderType;
+using ThrowHelper = DummyThrowHelper;
 
 sealed class SqlQueryParser
 {
@@ -137,53 +136,53 @@ sealed class SqlQueryParser
         var blockCommentLevel = 0;
         var parenthesisLevel = 0;
 
-        None:
+None:
         if (currCharOfs >= end)
             goto Finish;
         var lastChar = ch;
         ch = sql[currCharOfs++];
-        NoneContinue:
+NoneContinue:
         while (true)
         {
             switch (ch)
             {
-            case '/':
-                goto BlockCommentBegin;
-            case '-':
-                goto LineCommentBegin;
-            case '\'':
-                if (standardConformingStrings)
+                case '/':
+                    goto BlockCommentBegin;
+                case '-':
+                    goto LineCommentBegin;
+                case '\'':
+                    if (standardConformingStrings)
+                        goto Quoted;
+                    goto Escaped;
+                case '$':
+                    if (!IsIdentifier(lastChar))
+                        goto DollarQuotedStart;
+                    break;
+                case '"':
                     goto Quoted;
-                goto Escaped;
-            case '$':
-                if (!IsIdentifier(lastChar))
-                    goto DollarQuotedStart;
-                break;
-            case '"':
-                goto Quoted;
-            case ':':
-                if (lastChar != ':')
-                    goto NamedParamStart;
-                break;
-            case '@':
-                if (lastChar != '@')
-                    goto NamedParamStart;
-                break;
-            case ';':
-                if (parenthesisLevel == 0)
-                    goto SemiColon;
-                break;
-            case '(':
-                parenthesisLevel++;
-                break;
-            case ')':
-                parenthesisLevel--;
-                break;
-            case 'e':
-            case 'E':
-                if (!IsLetter(lastChar))
-                    goto EscapedStart;
-                break;
+                case ':':
+                    if (lastChar != ':')
+                        goto NamedParamStart;
+                    break;
+                case '@':
+                    if (lastChar != '@')
+                        goto NamedParamStart;
+                    break;
+                case ';':
+                    if (parenthesisLevel == 0)
+                        goto SemiColon;
+                    break;
+                case '(':
+                    parenthesisLevel++;
+                    break;
+                case ')':
+                    parenthesisLevel--;
+                    break;
+                case 'e':
+                case 'E':
+                    if (!IsLetter(lastChar))
+                        goto EscapedStart;
+                    break;
             }
 
             if (currCharOfs >= end)
@@ -193,7 +192,7 @@ sealed class SqlQueryParser
             ch = sql[currCharOfs++];
         }
 
-        NamedParamStart:
+NamedParamStart:
         if (currCharOfs < end)
         {
             lastChar = ch;
@@ -210,8 +209,8 @@ sealed class SqlQueryParser
         }
         goto Finish;
 
-        NamedParam:
-        // We have already at least one character of the param name
+NamedParam:
+// We have already at least one character of the param name
         while (true)
         {
             lastChar = ch;
@@ -263,7 +262,7 @@ sealed class SqlQueryParser
             currCharOfs++;
         }
 
-        Quoted:
+Quoted:
         Debug.Assert(ch == '\'' || ch == '"');
         while (currCharOfs < end && sql[currCharOfs] != ch)
         {
@@ -277,7 +276,7 @@ sealed class SqlQueryParser
         }
         goto Finish;
 
-        EscapedStart:
+EscapedStart:
         if (currCharOfs < end)
         {
             lastChar = ch;
@@ -288,77 +287,77 @@ sealed class SqlQueryParser
         }
         goto Finish;
 
-        Escaped:
+Escaped:
         while (currCharOfs < end)
         {
             ch = sql[currCharOfs++];
             switch (ch)
             {
-            case '\'':
-                goto MaybeConcatenatedEscaped;
-            case '\\':
-            {
-                if (currCharOfs >= end)
-                    goto Finish;
-                currCharOfs++;
-                break;
-            }
+                case '\'':
+                    goto MaybeConcatenatedEscaped;
+                case '\\':
+                    {
+                        if (currCharOfs >= end)
+                            goto Finish;
+                        currCharOfs++;
+                        break;
+                    }
             }
         }
         goto Finish;
 
-        MaybeConcatenatedEscaped:
+MaybeConcatenatedEscaped:
         while (currCharOfs < end)
         {
             ch = sql[currCharOfs++];
             switch (ch)
             {
-            case '\r':
-            case '\n':
-                goto MaybeConcatenatedEscaped2;
-            case ' ':
-            case '\t':
-            case '\f':
-                continue;
-            default:
-                lastChar = '\0';
-                goto NoneContinue;
+                case '\r':
+                case '\n':
+                    goto MaybeConcatenatedEscaped2;
+                case ' ':
+                case '\t':
+                case '\f':
+                    continue;
+                default:
+                    lastChar = '\0';
+                    goto NoneContinue;
             }
         }
         goto Finish;
 
-        MaybeConcatenatedEscaped2:
+MaybeConcatenatedEscaped2:
         while (currCharOfs < end)
         {
             ch = sql[currCharOfs++];
             switch (ch)
             {
-            case '\'':
-                goto Escaped;
-            case '-':
-            {
-                if (currCharOfs >= end)
-                    goto Finish;
-                ch = sql[currCharOfs++];
-                if (ch == '-')
-                    goto MaybeConcatenatedEscapeAfterComment;
-                lastChar = '\0';
-                goto NoneContinue;
-            }
-            case ' ':
-            case '\t':
-            case '\n':
-            case '\r':
-            case '\f':
-                continue;
-            default:
-                lastChar = '\0';
-                goto NoneContinue;
+                case '\'':
+                    goto Escaped;
+                case '-':
+                    {
+                        if (currCharOfs >= end)
+                            goto Finish;
+                        ch = sql[currCharOfs++];
+                        if (ch == '-')
+                            goto MaybeConcatenatedEscapeAfterComment;
+                        lastChar = '\0';
+                        goto NoneContinue;
+                    }
+                case ' ':
+                case '\t':
+                case '\n':
+                case '\r':
+                case '\f':
+                    continue;
+                default:
+                    lastChar = '\0';
+                    goto NoneContinue;
             }
         }
         goto Finish;
 
-        MaybeConcatenatedEscapeAfterComment:
+MaybeConcatenatedEscapeAfterComment:
         while (currCharOfs < end)
         {
             ch = sql[currCharOfs++];
@@ -367,7 +366,7 @@ sealed class SqlQueryParser
         }
         goto Finish;
 
-        DollarQuotedStart:
+DollarQuotedStart:
         if (currCharOfs < end)
         {
             ch = sql[currCharOfs];
@@ -390,7 +389,7 @@ sealed class SqlQueryParser
         }
         goto Finish;
 
-        DollarQuotedInFirstDelim:
+DollarQuotedInFirstDelim:
         while (currCharOfs < end)
         {
             lastChar = ch;
@@ -405,7 +404,7 @@ sealed class SqlQueryParser
         }
         goto Finish;
 
-        DollarQuoted:
+DollarQuoted:
         var tag = sql.AsSpan(dollarTagStart - 1, dollarTagEnd - dollarTagStart + 2);
         var pos = sql.AsSpan(dollarTagEnd + 1).IndexOf(tag);
         if (pos == -1)
@@ -418,7 +417,7 @@ sealed class SqlQueryParser
         ch = '\0';
         goto None;
 
-        LineCommentBegin:
+LineCommentBegin:
         if (currCharOfs < end)
         {
             ch = sql[currCharOfs++];
@@ -429,7 +428,7 @@ sealed class SqlQueryParser
         }
         goto Finish;
 
-        LineComment:
+LineComment:
         while (currCharOfs < end)
         {
             ch = sql[currCharOfs++];
@@ -438,7 +437,7 @@ sealed class SqlQueryParser
         }
         goto Finish;
 
-        BlockCommentBegin:
+BlockCommentBegin:
         while (currCharOfs < end)
         {
             ch = sql[currCharOfs++];
@@ -457,21 +456,21 @@ sealed class SqlQueryParser
         }
         goto Finish;
 
-        BlockComment:
+BlockComment:
         while (currCharOfs < end)
         {
             ch = sql[currCharOfs++];
             switch (ch)
             {
-            case '*':
-                goto BlockCommentEnd;
-            case '/':
-                goto BlockCommentBegin;
+                case '*':
+                    goto BlockCommentEnd;
+                case '/':
+                    goto BlockCommentBegin;
             }
         }
         goto Finish;
 
-        BlockCommentEnd:
+BlockCommentEnd:
         while (currCharOfs < end)
         {
             ch = sql[currCharOfs++];
@@ -486,7 +485,7 @@ sealed class SqlQueryParser
         }
         goto Finish;
 
-        SemiColon:
+SemiColon:
         _rewrittenSql.Append(sql, currTokenBeg, currCharOfs - currTokenBeg - 1);
         batchCommand.FinalCommandText = _rewrittenSql.ToString();
         while (currCharOfs < end)
@@ -519,7 +518,7 @@ sealed class SqlQueryParser
             batchCommands.RemoveRange(statementIndex + 1, batchCommands.Count - (statementIndex + 1));
         return;
 
-        Finish:
+Finish:
         _rewrittenSql.Append(sql, currTokenBeg, end - currTokenBeg);
         batchCommand.FinalCommandText = _rewrittenSql.ToString();
         if (batchCommands is not null && batchCommands.Count > statementIndex + 1)

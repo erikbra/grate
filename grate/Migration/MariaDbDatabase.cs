@@ -1,7 +1,5 @@
-﻿using System;
-using System.Data.Common;
+﻿using System.Data.Common;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using grate.Infrastructure;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
@@ -10,7 +8,7 @@ namespace grate.Migration;
 
 public class MariaDbDatabase : AnsiSqlDatabase
 {
-    public MariaDbDatabase(ILogger<MariaDbDatabase> logger) 
+    public MariaDbDatabase(ILogger<MariaDbDatabase> logger)
         : base(logger, new MariaDbSyntax())
     { }
 

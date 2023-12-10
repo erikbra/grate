@@ -1,6 +1,4 @@
 ﻿using System.Data.Common;
-using System.IO;
-using System.Threading.Tasks;
 using grate.Infrastructure;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
@@ -10,9 +8,9 @@ namespace grate.Migration;
 public class SqliteDatabase : AnsiSqlDatabase
 {
     private static readonly SqliteSyntax Syntax = new();
-            
-        
-    public SqliteDatabase(ILogger<SqliteDatabase> logger) 
+
+
+    public SqliteDatabase(ILogger<SqliteDatabase> logger)
         : base(logger, Syntax)
     { }
 
@@ -47,7 +45,7 @@ WHERE name='{columnName}'";
         {
             File.Delete(db);
         }
-            
+
         return Task.CompletedTask;
     }
 

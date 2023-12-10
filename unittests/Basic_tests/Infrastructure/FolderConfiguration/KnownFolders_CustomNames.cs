@@ -1,27 +1,20 @@
-﻿using System;
-using System.Collections.Immutable;
-using System.IO;
-using System.Runtime.CompilerServices;
+﻿using System.Collections.Immutable;
 using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
 using TestCommon.TestInfrastructure;
-using NUnit.Framework;
 using static grate.Configuration.KnownFolderKeys;
 using static grate.Configuration.MigrationType;
 using static grate.Migration.ConnectionType;
 
 namespace Basic_tests.Infrastructure.FolderConfiguration;
 
-[TestFixture]
-[TestOf(nameof(FoldersConfiguration))]
-[Category("Basic tests")]
 // ReSharper disable once InconsistentNaming
 public class KnownFolders_CustomNames
 {
     private static readonly Random Random = new();
 
-    [Test]
+    [Fact]
     public void Returns_folders_in_same_order_as_default()
     {
         var items = Folders.Values.ToImmutableArray();
@@ -45,8 +38,8 @@ public class KnownFolders_CustomNames
         });
     }
 
-    [Test]
-    [TestCaseSource(nameof(ExpectedKnownFolderNames))]
+    [Theory]
+    [MemberData(nameof(ExpectedKnownFolderNames))]
     public void Has_expected_folder_configuration(
         MigrationsFolder folder,
         string expectedName,
@@ -84,44 +77,25 @@ public class KnownFolders_CustomNames
         Permissions = "permissions" + Random.GetString(8),
         AfterMigration = "afterMigration" + Random.GetString(8),
     };
-    
+
     private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
     private static readonly IFoldersConfiguration Folders = FoldersConfiguration.Default(OverriddenFolderNames);
 
-    private static readonly object?[] ExpectedKnownFolderNames =
+    public static IEnumerable<object?[]> ExpectedKnownFolderNames()
     {
-        GetTestCase(Folders[BeforeMigration], OverriddenFolderNames.BeforeMigration, EveryTime, Default, TransactionHandling.Autonomous),
-        GetTestCase(Folders[AlterDatabase], OverriddenFolderNames.AlterDatabase, AnyTime, Admin, TransactionHandling.Autonomous),
-        GetTestCase(Folders[RunAfterCreateDatabase], OverriddenFolderNames.RunAfterCreateDatabase, AnyTime, Default,
-            TransactionHandling.Default),
-        GetTestCase(Folders[RunBeforeUp], OverriddenFolderNames.RunBeforeUp, AnyTime, Default, TransactionHandling.Default),
-        GetTestCase(Folders[Up], OverriddenFolderNames.Up, Once, Default, TransactionHandling.Default),
-        GetTestCase(Folders[RunFirstAfterUp], OverriddenFolderNames.RunFirstAfterUp, AnyTime, Default, TransactionHandling.Default),
-        GetTestCase(Folders[Functions], OverriddenFolderNames.Functions, AnyTime, Default, TransactionHandling.Default),
-        GetTestCase(Folders[Views], OverriddenFolderNames.Views, AnyTime, Default, TransactionHandling.Default),
-        GetTestCase(Folders[Sprocs], OverriddenFolderNames.Sprocs, AnyTime, Default, TransactionHandling.Default),
-        GetTestCase(Folders[Triggers], OverriddenFolderNames.Triggers, AnyTime, Default, TransactionHandling.Default),
-        GetTestCase(Folders[Indexes], OverriddenFolderNames.Indexes, AnyTime, Default, TransactionHandling.Default),
-        GetTestCase(Folders[RunAfterOtherAnyTimeScripts], OverriddenFolderNames.RunAfterOtherAnyTimeScripts, AnyTime, Default,
-            TransactionHandling.Default),
-        GetTestCase(Folders[Permissions], OverriddenFolderNames.Permissions, EveryTime, Default, TransactionHandling.Autonomous),
-        GetTestCase(Folders[AfterMigration], OverriddenFolderNames.AfterMigration, EveryTime, Default, TransactionHandling.Autonomous),
-    };
-
-    private static TestCaseData GetTestCase(
-        MigrationsFolder? folder,
-        string expectedName,
-        MigrationType expectedType,
-        ConnectionType expectedConnectionType,
-        TransactionHandling transactionHandling,
-        [CallerArgumentExpression(nameof(folder))] string migrationsFolderDefinitionName = ""
-    ) =>
-        new TestCaseData(folder, expectedName, expectedType, expectedConnectionType, transactionHandling)
-            .SetArgDisplayNames(
-                migrationsFolderDefinitionName,
-                expectedName,
-                expectedType.ToString(),
-                "conn: " + expectedConnectionType,
-                "tran: " + transactionHandling
-            );
+        yield return new object?[] { Folders[BeforeMigration], OverriddenFolderNames.BeforeMigration, EveryTime, Default, TransactionHandling.Autonomous };
+        yield return new object?[] { Folders[AlterDatabase], OverriddenFolderNames.AlterDatabase, AnyTime, Admin, TransactionHandling.Autonomous };
+        yield return new object?[] { Folders[RunAfterCreateDatabase], OverriddenFolderNames.RunAfterCreateDatabase, AnyTime, Default, TransactionHandling.Default };
+        yield return new object?[] { Folders[RunBeforeUp], OverriddenFolderNames.RunBeforeUp, AnyTime, Default, TransactionHandling.Default };
+        yield return new object?[] { Folders[Up], OverriddenFolderNames.Up, Once, Default, TransactionHandling.Default };
+        yield return new object?[] { Folders[RunFirstAfterUp], OverriddenFolderNames.RunFirstAfterUp, AnyTime, Default, TransactionHandling.Default };
+        yield return new object?[] { Folders[Functions], OverriddenFolderNames.Functions, AnyTime, Default, TransactionHandling.Default };
+        yield return new object?[] { Folders[Views], OverriddenFolderNames.Views, AnyTime, Default, TransactionHandling.Default };
+        yield return new object?[] { Folders[Sprocs], OverriddenFolderNames.Sprocs, AnyTime, Default, TransactionHandling.Default };
+        yield return new object?[] { Folders[Triggers], OverriddenFolderNames.Triggers, AnyTime, Default, TransactionHandling.Default };
+        yield return new object?[] { Folders[Indexes], OverriddenFolderNames.Indexes, AnyTime, Default, TransactionHandling.Default };
+        yield return new object?[] { Folders[RunAfterOtherAnyTimeScripts], OverriddenFolderNames.RunAfterOtherAnyTimeScripts, AnyTime, Default, TransactionHandling.Default };
+        yield return new object?[] { Folders[Permissions], OverriddenFolderNames.Permissions, EveryTime, Default, TransactionHandling.Autonomous };
+        yield return new object?[] { Folders[AfterMigration], OverriddenFolderNames.AfterMigration, EveryTime, Default, TransactionHandling.Autonomous };
+    }
 }

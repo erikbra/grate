@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using Npgsql;
 
 namespace grate.Infrastructure.Npgsql;
@@ -20,24 +17,26 @@ public static class ReflectionNpgsqlQueryParser
     private static readonly PropertyInfo FinalCommandText;
     private static ConstructorInfo Constructor { get; }
 
+#pragma warning disable CA1810
+    // The code that's violating the rule is on this line.
     static ReflectionNpgsqlQueryParser()
     {
         var sqlQueryParserType = Type.GetType("Npgsql.SqlQueryParser, Npgsql")!;
         Constructor = sqlQueryParserType.GetConstructor(
             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
             null, Type.EmptyTypes, null)!;
-        
+
         var npgsqlCommand = typeof(NpgsqlCommand);
         var npgsqlBatchCommand = typeof(NpgsqlBatchCommand);
 
-        ParseRawQuery = sqlQueryParserType.GetMethod("ParseRawQuery", BindingFlags.Instance | BindingFlags.NonPublic, new [] {npgsqlCommand, typeof(bool), typeof(bool)} )!;
-        
+        ParseRawQuery = sqlQueryParserType.GetMethod("ParseRawQuery", BindingFlags.Instance | BindingFlags.NonPublic, new[] { npgsqlCommand, typeof(bool), typeof(bool) })!;
+
         InternalBatchCommands = npgsqlCommand.GetProperty("InternalBatchCommands", BindingFlags.Instance | BindingFlags.NonPublic)!;
         State = npgsqlCommand.GetProperty("State", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        IsCached = npgsqlCommand.GetProperty("IsCached", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        IsCached = npgsqlCommand.GetProperty("IsCacheable", BindingFlags.Instance | BindingFlags.NonPublic)!;
         FinalCommandText = npgsqlBatchCommand.GetProperty("FinalCommandText", BindingFlags.Instance | BindingFlags.NonPublic)!;
     }
-    
+#pragma warning restore CA1810
     public static IEnumerable<string> Split(string sql)
     {
         var cmd = new NpgsqlCommand(sql);
@@ -55,5 +54,5 @@ public static class ReflectionNpgsqlQueryParser
             .Cast<string>();
         return statements;
     }
-   
+
 }

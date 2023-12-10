@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace grate.Infrastructure;
+﻿namespace grate.Infrastructure;
 
 internal static class TextWriterExtensions
 {

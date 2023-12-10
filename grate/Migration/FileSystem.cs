@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using static System.IO.Path;
+﻿using static System.IO.Path;
 using static System.IO.SearchOption;
 using static System.StringComparer;
 
@@ -11,7 +8,7 @@ public static class FileSystem
 {
     public static IEnumerable<FileSystemInfo> GetFiles(DirectoryInfo folderPath, string pattern, bool ignoreDirectoryNames = false)
     {
-        return ignoreDirectoryNames 
+        return ignoreDirectoryNames
             ? folderPath
                 .EnumerateFileSystemInfos(pattern, AllDirectories).ToList()
                 .OrderBy(f => GetFileNameWithoutExtension(f.FullName), CurrentCultureIgnoreCase)

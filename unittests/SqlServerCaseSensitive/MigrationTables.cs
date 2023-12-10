@@ -1,13 +1,19 @@
-﻿using NUnit.Framework;
+﻿using SqlServerCaseSensitive.TestInfrastructure;
 using TestCommon.Generic;
 using TestCommon.TestInfrastructure;
 
-namespace SqlServerCaseSensitive
+namespace SqlServerCaseSensitive;
+[Collection(nameof(SqlServerTestContainer))]
+public class MigrationTables : GenericMigrationTables, IClassFixture<SimpleService>
 {
-    [TestFixture]
-    [Category("SqlServerCaseSensitive")]
-    public class MigrationTables : GenericMigrationTables
+
+    protected override IGrateTestContext Context { get; }
+
+    protected ITestOutputHelper TestOutput { get; }
+
+    public MigrationTables(SqlServerTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
     {
-        protected override IGrateTestContext Context => GrateTestContext.SqlServerCaseSensitive;
+        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
+        TestOutput = testOutput;
     }
 }

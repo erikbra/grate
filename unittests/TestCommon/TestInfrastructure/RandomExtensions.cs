@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TestCommon.TestInfrastructure;
+﻿namespace TestCommon.TestInfrastructure;
 
 public static class RandomExtensions
 {

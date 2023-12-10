@@ -1,37 +1,31 @@
-﻿using System;
-using System.Data.Common;
+﻿using System.Data.Common;
 using System.Runtime.InteropServices;
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TestCommon.TestInfrastructure;
 using static System.Runtime.InteropServices.Architecture;
 
 namespace SqlServerCaseSensitive.TestInfrastructure;
 
-class SqlServerGrateTestContext : TestContextBase, IGrateTestContext, IDockerTestContext
+class SqlServerGrateTestContext : IGrateTestContext
 {
-    public SqlServerGrateTestContext(string serverCollation) => ServerCollation = serverCollation;
-
-    public SqlServerGrateTestContext(): this("Danish_Norwegian_CI_AS")
-    {}
-
-    public string AdminPassword { get; set; } = default!;
-    public int? Port { get; set; }
-    public override int? ContainerPort => 1433;
-    
-    // on arm64 (M1), the standard mssql/server image is not available
-    private static string DockerImage => RuntimeInformation.ProcessArchitecture switch
+    public IServiceProvider ServiceProvider { get; private set; }
+    private readonly SqlServerTestContainer _testContainer;
+    public SqlServerGrateTestContext(string serverCollation, IServiceProvider serviceProvider, SqlServerTestContainer container)
     {
-        Arm64 => "mcr.microsoft.com/azure-sql-edge:latest",
-        X64 => "mcr.microsoft.com/mssql/server:2019-latest",
-        var other => throw new PlatformNotSupportedException("Unsupported platform for running tests: " + other)
-    };
-
-    public string DockerCommand(string serverName, string adminPassword) =>
-        $"run -d --name {serverName} -e ACCEPT_EULA=Y -e SA_PASSWORD={adminPassword} -e MSSQL_PID=Developer -e MSSQL_COLLATION={ServerCollation} -P {DockerImage}";
+        ServiceProvider = serviceProvider;
+        _testContainer = container;
+        ServerCollation = serverCollation;
+    }
+    public SqlServerGrateTestContext(IServiceProvider serviceProvider, SqlServerTestContainer container) : this("Danish_Norwegian_CI_AS", serviceProvider, container)
+    {
+    }
+    public string AdminPassword => _testContainer.AdminPassword;
+    public int? Port => _testContainer.TestContainer!.GetMappedPublicPort(_testContainer.Port);
 
     public string AdminConnectionString => $"Data Source=localhost,{Port};Initial Catalog=master;User Id=sa;Password={AdminPassword};Encrypt=false;Pooling=false";
     public string ConnectionString(string database) => $"Data Source=localhost,{Port};Initial Catalog={database};User Id=sa;Password={AdminPassword};Encrypt=false;Pooling=false";
@@ -47,7 +41,7 @@ class SqlServerGrateTestContext : TestContextBase, IGrateTestContext, IDockerTes
     public string DatabaseTypeName => "SQL server";
     public string MasterDatabase => "master";
 
-    public IDatabase DatabaseMigrator => new SqlServerDatabase(TestConfig.LogFactory.CreateLogger<SqlServerDatabase>());
+    public IDatabase DatabaseMigrator => new SqlServerDatabase(ServiceProvider.GetRequiredService<ILogger<SqlServerDatabase>>());
 
     public SqlStatements Sql => new()
     {
@@ -61,7 +55,7 @@ class SqlServerGrateTestContext : TestContextBase, IGrateTestContext, IDockerTes
         X64 => "Microsoft SQL Server 2019",
         var other => throw new PlatformNotSupportedException("Unsupported platform for running tests: " + other)
     };
-    
+
     public bool SupportsCreateDatabase => true;
 
     public string ServerCollation { get; }

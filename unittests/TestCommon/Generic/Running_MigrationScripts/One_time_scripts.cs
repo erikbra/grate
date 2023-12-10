@@ -1,32 +1,26 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Dapper;
+﻿using Dapper;
 using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
-using NUnit.Framework;
 using TestCommon.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace TestCommon.Generic.Running_MigrationScripts;
 
-[TestFixture]
 // ReSharper disable once InconsistentNaming
-public abstract class One_time_scripts: MigrationsScriptsBase
+public abstract class One_time_scripts : MigrationsScriptsBase
 {
-    [Test]
+    [Fact]
     public async Task Are_not_run_more_than_once_when_unchanged()
     {
         var db = TestConfig.RandomDatabase();
 
         GrateMigrator? migrator;
-            
+
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Up]);
-            
+
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             await migrator.Migrate();
@@ -38,7 +32,7 @@ public abstract class One_time_scripts: MigrationsScriptsBase
 
         string[] scripts;
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
-            
+
         await using (var conn = Context.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
@@ -46,33 +40,33 @@ public abstract class One_time_scripts: MigrationsScriptsBase
 
         scripts.Should().HaveCount(1);
     }
-        
-    [Test]
+
+    [Fact]
     public async Task Fails_if_changed_between_runs()
     {
         var db = TestConfig.RandomDatabase();
 
         GrateMigrator? migrator;
-            
+
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Up]);
-            
+
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
             await migrator.Migrate();
         }
-            
+
         WriteSomeOtherSql(parent, knownFolders[Up]);
-            
+
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
-            Assert.ThrowsAsync<OneTimeScriptChanged>(() => migrator.Migrate());
+            await Assert.ThrowsAsync<OneTimeScriptChanged>(() => migrator.Migrate());
         }
 
         string[] scripts;
         string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
-            
+
         await using (var conn = Context.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
@@ -82,7 +76,7 @@ public abstract class One_time_scripts: MigrationsScriptsBase
         scripts.First().Should().Be(Context.Sql.SelectVersion);
     }
 
-    [Test]
+    [Fact]
     public async Task Runs_and_warns_if_changed_between_runs_and_flag_set()
     {
         var db = TestConfig.RandomDatabase();
@@ -92,7 +86,7 @@ public abstract class One_time_scripts: MigrationsScriptsBase
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Up]);
-            
+
         var config = Context.GetConfiguration(db, parent, knownFolders) with
         {
             WarnOnOneTimeScriptChanges = true, // this is important!
@@ -125,7 +119,7 @@ public abstract class One_time_scripts: MigrationsScriptsBase
     protected virtual string CreateView1 => "create view grate as select '1' as col";
     protected virtual string CreateView2 => "create view grate as select '2' as col";
 
-    [Test]
+    [Fact]
     public async Task Ignores_and_warns_if_changed_between_runs_and_flag_set()
     {
         var db = TestConfig.RandomDatabase();

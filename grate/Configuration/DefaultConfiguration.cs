@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace grate.Configuration;
+﻿namespace grate.Configuration;
 
 // ReSharper disable once InconsistentNaming
 public static class DefaultConfiguration
@@ -21,6 +18,6 @@ public static class DefaultConfiguration
     public static readonly int DefaultAdminCommandTimeout = 300;
     public static readonly int DefaultRestoreTimeout = 900;
 
-    public static readonly bool DefaultDisableOutput = false;
+    public static readonly bool DefaultDisableOutput;
 
 }

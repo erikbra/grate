@@ -1,25 +1,32 @@
-﻿using System;
-using System.Data.Common;
+﻿using System.Data.Common;
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using TestCommon.TestInfrastructure;
 
 namespace MariaDB.TestInfrastructure;
 
-public class MariaDbGrateTestContext : TestContextBase, IGrateTestContext, IDockerTestContext
+public class MariaDbGrateTestContext : IGrateTestContext
 {
-    public string AdminPassword { get; set; } = default!;
-    public int? Port { get; set; }
+    public string AdminPassword => _testContainer.AdminPassword;
+    public int? Port => _testContainer.TestContainer!.GetMappedPublicPort(_testContainer.Port);
+    public IServiceProvider ServiceProvider { get; private set; }
+    private readonly MariaDbTestContainer _testContainer;
+    public MariaDbGrateTestContext(IServiceProvider serviceProvider, MariaDbTestContainer container)
+    {
+        ServiceProvider = serviceProvider;
+        _testContainer = container;
+    }
 
-    public string DockerCommand(string serverName, string adminPassword) =>
-        $"run -d --name {serverName} -e MYSQL_ROOT_PASSWORD={adminPassword} -P mariadb:10.5.9";
-    
-    public string AdminConnectionString => $"Server=localhost;Port={Port};Database=mysql;Uid=root;Pwd={AdminPassword}";
-    public string ConnectionString(string database) => $"Server=localhost;Port={Port};Database={database};Uid=root;Pwd={AdminPassword}";
-    public string UserConnectionString(string database) => $"Server=localhost;Port={Port};Database={database};Uid={database};Pwd=mooo1213";
+    // public string DockerCommand(string serverName, string adminPassword) =>
+    //     $"run -d --name {serverName} -e MYSQL_ROOT_PASSWORD={adminPassword} -P mariadb:10.5.9";
+
+    public string AdminConnectionString => $"Server={_testContainer.TestContainer!.Hostname};Port={Port};Database=mysql;Uid=root;Pwd={AdminPassword}";
+    public string ConnectionString(string database) => $"Server={_testContainer.TestContainer!.Hostname};Port={Port};Database={database};Uid=root;Pwd={AdminPassword}";
+    public string UserConnectionString(string database) => $"Server={_testContainer.TestContainer!.Hostname};Port={Port};Database={database};Uid={database};Pwd=mooo1213";
 
     public DbConnection GetDbConnection(string connectionString) => new MySqlConnection(connectionString);
 
@@ -31,7 +38,7 @@ public class MariaDbGrateTestContext : TestContextBase, IGrateTestContext, IDock
     public string DatabaseTypeName => "MariaDB Server";
     public string MasterDatabase => "mysql";
 
-    public IDatabase DatabaseMigrator => new MariaDbDatabase(TestConfig.LogFactory.CreateLogger<MariaDbDatabase>());
+    public IDatabase DatabaseMigrator => new MariaDbDatabase(ServiceProvider.GetRequiredService<ILogger<MariaDbDatabase>>());
 
     public SqlStatements Sql => new()
     {

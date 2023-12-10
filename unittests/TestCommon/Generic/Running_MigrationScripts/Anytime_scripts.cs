@@ -1,21 +1,18 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Dapper;
+﻿using Dapper;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using grate.Configuration;
 using grate.Migration;
-using NUnit.Framework;
 using TestCommon.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace TestCommon.Generic.Running_MigrationScripts;
 
-[TestFixture]
+//[TestFixture]
 // ReSharper disable once InconsistentNaming
 public abstract class Anytime_scripts : MigrationsScriptsBase
 {
-    [Test]
+    [Fact]
     public async Task Are_not_run_more_than_once_when_unchanged()
     {
         var db = TestConfig.RandomDatabase();
@@ -46,13 +43,13 @@ public abstract class Anytime_scripts : MigrationsScriptsBase
         scripts.Should().HaveCount(1);
     }
 
-    [Test]
+    [Fact]
     public async Task Are_run_again_if_changed_between_runs()
     {
         var db = TestConfig.RandomDatabase();
 
         GrateMigrator? migrator;
-        
+
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Sprocs]);
@@ -86,7 +83,7 @@ public abstract class Anytime_scripts : MigrationsScriptsBase
         }
     }
 
-    [Test]
+    [Fact]
     public async Task Do_not_have_text_logged_if_flag_set()
     {
         var db = TestConfig.RandomDatabase();
@@ -101,12 +98,12 @@ public abstract class Anytime_scripts : MigrationsScriptsBase
         {
             DoNotStoreScriptsRunText = true, // important
         };
-           
+
         await using (migrator = Context.GetMigrator(config))
         {
             await migrator.Migrate();
         }
-            
+
         string[] scripts;
         string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
@@ -119,7 +116,7 @@ public abstract class Anytime_scripts : MigrationsScriptsBase
         scripts.Single().Should().Be(null);
     }
 
-    [Test]
+    [Fact]
     public async Task Do_have_text_logged_by_default()
     {
         var db = TestConfig.RandomDatabase();
@@ -129,12 +126,12 @@ public abstract class Anytime_scripts : MigrationsScriptsBase
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Sprocs]);
-            
+
         var config = Context.GetConfiguration(db, parent, knownFolders) with
         {
             DoNotStoreScriptsRunText = false, // important
         };
-           
+
         await using (migrator = Context.GetMigrator(config))
         {
             await migrator.Migrate();
@@ -152,7 +149,7 @@ public abstract class Anytime_scripts : MigrationsScriptsBase
         scripts.Single().Should().Be(Context.Sql.SelectVersion);
     }
 
-    [Test]
+    [Fact]
     public async Task Are_run_more_than_once_when_unchanged_but_flag_set()
     {
         var db = TestConfig.RandomDatabase();
@@ -162,7 +159,7 @@ public abstract class Anytime_scripts : MigrationsScriptsBase
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Sprocs]);
-            
+
         var config = Context.GetConfiguration(db, parent, knownFolders) with
         {
             RunAllAnyTimeScripts = true, // important

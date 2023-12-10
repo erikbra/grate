@@ -1,20 +1,15 @@
-﻿using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Dapper;
+﻿using Dapper;
 using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
-using NUnit.Framework;
 using TestCommon.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace TestCommon.Generic.Running_MigrationScripts;
 
-[TestFixture]
 public abstract class ScriptsRun_Table : MigrationsScriptsBase
 {
-    [Test()]
+    [Fact]
     public async Task Includes_the_folder_name_in_the_script_name_if_subfolders()
     {
         var db = TestConfig.RandomDatabase();
@@ -24,7 +19,7 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
         GrateMigrator? migrator;
 
         var folder = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.Path, "sub", "folder", "long", "way"));
-        
+
         string filename = "any_filename.sql";
 
         CreateDummySql(folder, filename);
@@ -44,19 +39,19 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
         var expectedName = $"sub/folder/long/way/{filename}";
         scripts.First().Should().Be(expectedName);
     }
-    
-    [Test()]
+
+    [Fact]
     public async Task Does_not_include_the_folder_name_in_the_script_name_if_no_subfolders()
     {
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
-        
+
         GrateMigrator? migrator;
 
         string filename = "any_filename.sql";
-        
+
         CreateDummySql(parent, knownFolders[Up], filename);
 
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
@@ -74,13 +69,13 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
 
         scripts.First().Should().Be(filename);
     }
-    
+
     // ReSharper disable InconsistentNaming
     // ReSharper disable once ClassNeverInstantiated.Local
     record Result(string script_name, string text_of_script);
     // ReSharper restore InconsistentNaming
-    
-    [Test()]
+
+    [Fact]
     public async Task Does_not_overwrite_scripts_from_different_folders_with_last_content()
     {
         var db = TestConfig.RandomDatabase();
@@ -88,7 +83,7 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
         var parent = TestConfig.CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         GrateMigrator? migrator;
-        
+
         string filename = "any_filename.sql";
         var folder1 = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.Path, "dub", "folder", "long", "way"));
         var folder2 = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.Path, "sub", "dolder", "gong", "way"));
@@ -109,7 +104,7 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
         {
             scripts = (await conn.QueryAsync<Result>(sql)).ToArray();
         }
-        
+
         Assert.Multiple(() =>
         {
             scripts.Should().HaveCount(2);
@@ -118,13 +113,13 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
 
             first.script_name.Should().Be($"dub/folder/long/way/{filename}");
             first.text_of_script.Should().Be(Context.Sql.SelectVersion);
-            
+
             second.script_name.Should().Be($"sub/dolder/gong/way/{filename}");
             second.text_of_script.Should().Be(Context.Syntax.CurrentDatabase);
         });
     }
-    
-    [Test()]
+
+    [Fact]
     public async Task Can_handle_large_scripts()
     {
         var db = TestConfig.RandomDatabase();
@@ -134,7 +129,7 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
         GrateMigrator? migrator;
 
         var folder = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.Path));
-        
+
         const string filename = "large_file.sql";
 
         CreateLargeDummySql(folder, filename: filename);
@@ -155,5 +150,5 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
 
         scripts.First().Should().Be(fileContent);
     }
-    
+
 }

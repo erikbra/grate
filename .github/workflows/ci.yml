@@ -24,7 +24,7 @@ jobs:
     - name: Setup .NET 8
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 8.0.100-rc.1.23463.5
+        dotnet-version: 8.0.x
     - name: Restore dependencies
       run: |
        dotnet restore -r linux-x64 grate.sln
@@ -47,7 +47,7 @@ jobs:
     - name: Setup .NET 8
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 8.0.100-rc.1.23463.5
+        dotnet-version: 8.0.x
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
@@ -68,7 +68,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        category: [ "Basic_tests", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
+        category: [ "Basic_tests", "SqlServer", "SqlServerCaseSensitive" , "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
         #category: [ "Basic_tests", "Sqlite"  ]
 
     steps:
@@ -76,7 +76,7 @@ jobs:
     - name: Setup .NET 8
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 8.0.100-rc.1.23463.5
+        dotnet-version: 8.0.x
     - name: Test
       run: |
         dotnet test \

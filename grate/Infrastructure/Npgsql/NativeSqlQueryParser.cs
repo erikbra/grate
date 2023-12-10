@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace grate.Infrastructure.Npgsql;
+﻿namespace grate.Infrastructure.Npgsql;
 
 // These are just dummies, to be able to use the SqlQueryParser 100% as-is, without rewrites.
 // This makes updating the class easier if it should change in the future.
 using NpgsqlBatchCommand = DummyBatchCommand;
 using NpgsqlCommand = DummyNpgsqlCommand;
-using NpgsqlParameterCollection = DummyNpgsqlParameterCollection;
 using NpgsqlParameter = DummyNpgsqlParameter;
-using ThrowHelper = DummyThrowHelper;
-using PlaceholderType = DummyPlaceholderType;
 
 
 /// <summary>
@@ -29,7 +22,7 @@ public static class NativeSqlQueryParser
         return statements;
     }
 
-    
+
     /// <summary>
     /// 
     ///  Method "stolen" from Unit-test in Npgsql: https://github.com/npgsql/npgsql/blob/main/test/Npgsql.Tests/SqlQueryParserTests.cs#L196
