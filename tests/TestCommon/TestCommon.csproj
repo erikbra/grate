@@ -4,24 +4,21 @@
     <TargetFramework>$(TargetFramework)</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-
-    <IsPackable>false</IsPackable>
-    <IsTestProject>true</IsTestProject>
-    <RootNamespace>Basic_tests</RootNamespace>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit"/>
     <PackageReference Include="xunit.runner.visualstudio"/>
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="NSubstitute" />
-    <PackageReference Include="XunitXml.TestLogger" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+    <PackageReference Include="Testcontainers" />
   </ItemGroup>
+  
 
   <ItemGroup>
-    <ProjectReference Include="..\..\grate\grate.csproj" />
-    <ProjectReference Include="..\TestCommon\TestCommon.csproj" />
+    <ProjectReference Include="..\..\src\grate\grate.csproj" />
   </ItemGroup>
-
+  
 </Project>

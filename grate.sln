@@ -3,30 +3,32 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31710.8
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "grate", "grate\grate.csproj", "{15753E21-AE9C-4ADB-A65C-4B83CB59B1D8}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8A726E46-C613-42CB-BC6F-B7FE80F487D9}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Unit tests", "unittests", "{CE4BF96D-E795-49EC-BB36-EDCC7E542685}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Unit tests", "tests", "{CE4BF96D-E795-49EC-BB36-EDCC7E542685}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Basic_tests", "unittests\Basic_tests\Basic_tests.csproj", "{6F07C15E-B93E-42A9-9E34-6A6EB0CD624D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Basic_tests", "tests\Basic_tests\Basic_tests.csproj", "{6F07C15E-B93E-42A9-9E34-6A6EB0CD624D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestCommon", "unittests\TestCommon\TestCommon.csproj", "{FCA0770D-4AB6-4B92-B725-D27A483A2179}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestCommon", "tests\TestCommon\TestCommon.csproj", "{FCA0770D-4AB6-4B92-B725-D27A483A2179}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MariaDB", "unittests\MariaDB\MariaDB.csproj", "{23FF1FBA-3B38-44B5-A7E1-CC151AF64985}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MariaDB", "tests\MariaDB\MariaDB.csproj", "{23FF1FBA-3B38-44B5-A7E1-CC151AF64985}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oracle", "unittests\Oracle\Oracle.csproj", "{DCC2A9BD-A91D-4DC8-9323-AFE97CE820B1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oracle", "tests\Oracle\Oracle.csproj", "{DCC2A9BD-A91D-4DC8-9323-AFE97CE820B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostgreSQL", "unittests\PostgreSQL\PostgreSQL.csproj", "{06509ECC-2889-4CDC-868E-E1FD3B386C25}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostgreSQL", "tests\PostgreSQL\PostgreSQL.csproj", "{06509ECC-2889-4CDC-868E-E1FD3B386C25}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sqlite", "unittests\Sqlite\Sqlite.csproj", "{98280060-F5C3-447C-AE15-8B23D3AF7F86}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sqlite", "tests\Sqlite\Sqlite.csproj", "{98280060-F5C3-447C-AE15-8B23D3AF7F86}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlServer", "unittests\SqlServer\SqlServer.csproj", "{C96C6F44-EAFA-47C9-A134-F6C7A14F1F16}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlServer", "tests\SqlServer\SqlServer.csproj", "{C96C6F44-EAFA-47C9-A134-F6C7A14F1F16}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlServerCaseSensitive", "unittests\SqlServerCaseSensitive\SqlServerCaseSensitive.csproj", "{1947C59A-495F-4AA8-913A-1F17A69670A8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlServerCaseSensitive", "tests\SqlServerCaseSensitive\SqlServerCaseSensitive.csproj", "{1947C59A-495F-4AA8-913A-1F17A69670A8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E44E6448-3155-4ACB-B1CC-A0FE953FABD2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "grate", "src\grate\grate.csproj", "{B5E7047A-35DA-4429-A536-3C5F56FE4977}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,18 +40,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{15753E21-AE9C-4ADB-A65C-4B83CB59B1D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{15753E21-AE9C-4ADB-A65C-4B83CB59B1D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{15753E21-AE9C-4ADB-A65C-4B83CB59B1D8}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{15753E21-AE9C-4ADB-A65C-4B83CB59B1D8}.Debug|x64.Build.0 = Debug|Any CPU
-		{15753E21-AE9C-4ADB-A65C-4B83CB59B1D8}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{15753E21-AE9C-4ADB-A65C-4B83CB59B1D8}.Debug|x86.Build.0 = Debug|Any CPU
-		{15753E21-AE9C-4ADB-A65C-4B83CB59B1D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{15753E21-AE9C-4ADB-A65C-4B83CB59B1D8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{15753E21-AE9C-4ADB-A65C-4B83CB59B1D8}.Release|x64.ActiveCfg = Release|Any CPU
-		{15753E21-AE9C-4ADB-A65C-4B83CB59B1D8}.Release|x64.Build.0 = Release|Any CPU
-		{15753E21-AE9C-4ADB-A65C-4B83CB59B1D8}.Release|x86.ActiveCfg = Release|Any CPU
-		{15753E21-AE9C-4ADB-A65C-4B83CB59B1D8}.Release|x86.Build.0 = Release|Any CPU
 		{6F07C15E-B93E-42A9-9E34-6A6EB0CD624D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6F07C15E-B93E-42A9-9E34-6A6EB0CD624D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F07C15E-B93E-42A9-9E34-6A6EB0CD624D}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -146,6 +136,18 @@ Global
 		{1947C59A-495F-4AA8-913A-1F17A69670A8}.Release|x64.Build.0 = Release|Any CPU
 		{1947C59A-495F-4AA8-913A-1F17A69670A8}.Release|x86.ActiveCfg = Release|Any CPU
 		{1947C59A-495F-4AA8-913A-1F17A69670A8}.Release|x86.Build.0 = Release|Any CPU
+		{B5E7047A-35DA-4429-A536-3C5F56FE4977}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5E7047A-35DA-4429-A536-3C5F56FE4977}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5E7047A-35DA-4429-A536-3C5F56FE4977}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B5E7047A-35DA-4429-A536-3C5F56FE4977}.Debug|x64.Build.0 = Debug|Any CPU
+		{B5E7047A-35DA-4429-A536-3C5F56FE4977}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B5E7047A-35DA-4429-A536-3C5F56FE4977}.Debug|x86.Build.0 = Debug|Any CPU
+		{B5E7047A-35DA-4429-A536-3C5F56FE4977}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5E7047A-35DA-4429-A536-3C5F56FE4977}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5E7047A-35DA-4429-A536-3C5F56FE4977}.Release|x64.ActiveCfg = Release|Any CPU
+		{B5E7047A-35DA-4429-A536-3C5F56FE4977}.Release|x64.Build.0 = Release|Any CPU
+		{B5E7047A-35DA-4429-A536-3C5F56FE4977}.Release|x86.ActiveCfg = Release|Any CPU
+		{B5E7047A-35DA-4429-A536-3C5F56FE4977}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -162,5 +164,6 @@ Global
 		{98280060-F5C3-447C-AE15-8B23D3AF7F86} = {CE4BF96D-E795-49EC-BB36-EDCC7E542685}
 		{C96C6F44-EAFA-47C9-A134-F6C7A14F1F16} = {CE4BF96D-E795-49EC-BB36-EDCC7E542685}
 		{1947C59A-495F-4AA8-913A-1F17A69670A8} = {CE4BF96D-E795-49EC-BB36-EDCC7E542685}
+		{B5E7047A-35DA-4429-A536-3C5F56FE4977} = {E44E6448-3155-4ACB-B1CC-A0FE953FABD2}
 	EndGlobalSection
 EndGlobal

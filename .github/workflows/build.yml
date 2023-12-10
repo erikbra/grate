@@ -51,8 +51,8 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      #run: dotnet pack ./grate/grate.csproj -c release -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
-      run: dotnet pack ./grate/grate.csproj -p:SelfContained=false -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
+      #run: dotnet pack ./src/grate/grate.csproj -c release -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
+      run: dotnet pack ./src/grate/grate.csproj -p:SelfContained=false -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
       
@@ -87,12 +87,12 @@ jobs:
         dotnet-version: 8.0.x
 
     - name: Publish self-contained ${{ matrix.arch }}
-      run: dotnet publish ./grate/grate.csproj -f net8.0 -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
+      run: dotnet publish ./src/grate/grate.csproj -f net8.0 -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
 
     - name: Publish .NET 6/7/8 dependent ${{ matrix.arch }}
-      run: dotnet publish ./grate/grate.csproj -r ${{ matrix.arch }} -c release --no-self-contained  -o ./publish/${{ matrix.arch }}/dependent
+      run: dotnet publish ./src/grate/grate.csproj -r ${{ matrix.arch }} -c release --no-self-contained  -o ./publish/${{ matrix.arch }}/dependent
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
 

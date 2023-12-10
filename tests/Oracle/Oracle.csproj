@@ -8,19 +8,19 @@
         <IsPackable>false</IsPackable>
     </PropertyGroup>
 
-  <ItemGroup>
+    <ItemGroup>
       <PackageReference Include="Microsoft.NET.Test.Sdk" />
       <PackageReference Include="xunit"/>
       <PackageReference Include="xunit.runner.visualstudio"/>
       <PackageReference Include="coverlet.collector" />
-      <PackageReference Include="Testcontainers.MsSql" />
+      <PackageReference Include="Testcontainers.Oracle" />
       <PackageReference Include="XunitXml.TestLogger" />
-  </ItemGroup>
+    </ItemGroup>
 
-  <ItemGroup>
-      <ProjectReference Include="..\..\grate\grate.csproj" />
+    <ItemGroup>
+      <!-- <ProjectReference Include="..\..\grate\grate.csproj" /> -->
       <ProjectReference Include="..\TestCommon\TestCommon.csproj" />
-  </ItemGroup>
+    </ItemGroup>
 
 
 </Project>
