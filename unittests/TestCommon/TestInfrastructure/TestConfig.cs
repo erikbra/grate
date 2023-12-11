@@ -38,7 +38,7 @@ public static class TestConfig
         .SingleOrDefault(entry => entry.StartsWith("Password") || entry.StartsWith("Pwd"))?
         .Split("=", TrimEntries | RemoveEmptyEntries).Last();
 
-    private static LogLevel GetLogLevel()
+    public static LogLevel GetLogLevel()
     {
         if (!Enum.TryParse(Environment.GetEnvironmentVariable("LogLevel"), out LogLevel logLevel))
         {

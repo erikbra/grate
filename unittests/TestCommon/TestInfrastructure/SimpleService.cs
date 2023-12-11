@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace TestCommon.TestInfrastructure;
 public class SimpleService
@@ -7,7 +8,11 @@ public class SimpleService
     public SimpleService()
     {
         ServiceProvider = new ServiceCollection()
-            .AddLogging()
+            .AddLogging(opt =>
+            {
+                opt.AddConsole();
+                opt.SetMinimumLevel(TestConfig.GetLogLevel());
+            })
             .BuildServiceProvider();
     }
 }
