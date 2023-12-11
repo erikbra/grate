@@ -13,6 +13,7 @@
       <PackageReference Include="xunit"/>
       <PackageReference Include="xunit.runner.visualstudio"/>
       <PackageReference Include="coverlet.collector" />
+      <PackageReference Include="XunitXml.TestLogger" />
   </ItemGroup>
 
   <ItemGroup>
