@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using grate.Configuration;

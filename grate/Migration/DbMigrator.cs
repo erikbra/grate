@@ -184,7 +184,6 @@ public class DbMigrator : IDbMigrator
         {
             sql = ReplaceTokensIn(sql);
         }
-
         return await PrintLogAndRunSql();
     }
 
