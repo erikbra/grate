@@ -57,7 +57,7 @@ jobs:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
       
     - name: Upload published tool artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       with:
         name: grate-dotnet-tool-${{ needs.set-version-number.outputs.nuGetVersion }}
@@ -128,7 +128,7 @@ jobs:
 
     - name: Upload self-contained ${{ matrix.arch }}
       #if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: ./publish/${{ matrix.arch }}/self-contained/*
@@ -163,7 +163,7 @@ jobs:
 
     - name: Upload self-contained ${{ matrix.arch }}
       #if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: ./publish/${{ matrix.arch }}/self-contained/*
@@ -182,7 +182,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: ${{ matrix.arch }}/
@@ -194,7 +194,7 @@ jobs:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
 
     - name: Upload MSI ${{ matrix.arch }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: grate-msi-${{ matrix.arch }}-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: ./installers/msi/tmp/*.msi
@@ -213,7 +213,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    # - uses: actions/download-artifact@v3 # download from another artifact is not a good idea, we need to build directly from source
+    # - uses: actions/download-artifact@v4 # download from another artifact is not a good idea, we need to build directly from source
     #   with:
     #     name: grate-linux-musl-x64-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
     #     path: installers/docker/
@@ -261,7 +261,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: ${{ matrix.arch }}/
@@ -279,7 +279,7 @@ jobs:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
 
     - name: Upload .dpkg ${{ steps.get-arch.outputs.arch }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch}}.deb
         path: ./installers/deb/grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch }}.deb
@@ -352,7 +352,7 @@ jobs:
     runs-on: ${{ matrix.os.name }}
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
         name: grate-${{ matrix.os.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: executables/${{ matrix.os.arch }}
