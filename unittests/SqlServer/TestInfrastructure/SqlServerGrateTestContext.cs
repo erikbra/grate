@@ -62,12 +62,7 @@ class SqlServerGrateTestContext : IGrateTestContext
         SleepTwoSeconds = "WAITFOR DELAY '00:00:02'"
     };
 
-    public string ExpectedVersionPrefix => RuntimeInformation.ProcessArchitecture switch
-    {
-        Arm64 => "Microsoft Azure SQL Edge Developer",
-        X64 => "Microsoft SQL Server 2019",
-        var other => throw new PlatformNotSupportedException("Unsupported platform for running tests: " + other)
-    };
+    public string ExpectedVersionPrefix => "Microsoft SQL Server 2019";
 
     public bool SupportsCreateDatabase => true;
 
