@@ -2,10 +2,10 @@
 using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
+using System.Runtime.CompilerServices;
 using FluentAssertions;
 using grate.Commands;
 using grate.Configuration;
-using Xunit;
 
 namespace Basic_tests.CommandLineParsing;
 
@@ -39,45 +39,38 @@ public class FolderConfiguration_
 
     [Theory]
     [MemberData(nameof(FullyCustomFoldersCommandLines))]
-    public async Task Fully_Customised(string root, string foldersArgument, IFoldersConfiguration expected)
+    public async Task Fully_Customised(string name, string root, string foldersArgument, IFoldersConfiguration expected)
     {
+        var s = name;
         var cfg = await ParseGrateConfiguration("--sqlfilesdirectory=" + root, foldersArgument);
         var actual = cfg?.Folders;
 
         AssertEquivalent(expected.Values, actual?.Values);
     }
 
-    public static IEnumerable<object?[]> FoldersCommandLines()
-    {
-        yield return new object?[] { "--folders=up=tables", KnownFolderNames.Default with { Up = "tables" } };
-        yield return new object?[] { "--folders=up=tables;views=projections", KnownFolderNames.Default with { Up = "tables", Views = "projections" } };
-    }
+    public static TheoryData<string, KnownFolderNames?> FoldersCommandLines() =>
+        new()
+        {
+            { "--folders=up=tables", Wrap(KnownFolderNames.Default with { Up = "tables" }) },
+            { "--folders=up=tables;views=projections", Wrap(KnownFolderNames.Default with { Up = "tables", Views = "projections" }) },
+        };
 
 
-    public static IEnumerable<object?[]> FullyCustomFoldersCommandLines()
-    {
-        yield return new object?[]{
-        "/tmp/jalla",
-@"--folders=folder1=type:Once;folder2=type:EveryTime;folder3=type:AnyTime",
-        new FoldersConfiguration(
-            new MigrationsFolder("folder1", MigrationType.Once),
-            new MigrationsFolder("folder2", MigrationType.EveryTime),
-            new MigrationsFolder("folder3", MigrationType.AnyTime)
-        )};
-    }
+    public static TheoryData<string, string, string, IFoldersConfiguration> FullyCustomFoldersCommandLines() =>
+        new()
+        {
+            {
+                "Mostly defaults",
+                "/tmp/jalla",
+                @"--folders=folder1=type:Once;folder2=type:EveryTime;folder3=type:AnyTime",
+                new FoldersConfiguration(
+                    new MigrationsFolder("folder1", MigrationType.Once),
+                    new MigrationsFolder("folder2", MigrationType.EveryTime),
+                    new MigrationsFolder("folder3", MigrationType.AnyTime)
+                )
+            }
+        };
 
-    // private static TestCaseData GetTestCase(
-    //     string folderArg,
-    //     Func<KnownFolderNames, KnownFolderNames> expectedOverrides,
-    //     [CallerArgumentExpression(nameof(expectedOverrides))] string overridesText = ""
-    // ) => new TestCaseData(folderArg, expectedOverrides).SetArgDisplayNames(folderArg, overridesText);
-
-    // private static TestCaseData GetCustomisedTestCase(
-    //     string caseName,
-    //     string root,
-    //     string folderArg,
-    //     IFoldersConfiguration expected
-    // ) => new TestCaseData(root, folderArg, expected).SetArgDisplayNames(caseName, folderArg);
 
     private static void AssertEquivalent(
         IEnumerable<MigrationsFolder?> expected,
@@ -120,4 +113,18 @@ public class FolderConfiguration_
 
         return cfg;
     }
+
+    private static KnownFolderNamesWithDescription? Wrap(KnownFolderNames? names, [CallerArgumentExpression(nameof(names))] string description = "") =>
+        names is { } ? new KnownFolderNamesWithDescription(names) { Description =  description} : null;
+
+    public record KnownFolderNamesWithDescription : KnownFolderNames
+    {
+        public KnownFolderNamesWithDescription(KnownFolderNames folder) : base(folder)
+        {
+        }
+
+        public string Description { get; init; } = null!;
+        public override string ToString() => Description;
+    }
+
 }

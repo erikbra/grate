@@ -9,6 +9,7 @@ public class OracleTestContainer : ContainerFixture
     {
         TestContainer = new OracleBuilder()
                             .WithImage(DockerImage)
+                            .WithEnvironment("DOCKER_DEFAULT_PLATFORM", "linux/amd64")
                             .WithPassword(AdminPassword)
                             .WithPortBinding(Port, true)
                         .Build();
