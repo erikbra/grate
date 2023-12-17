@@ -11,19 +11,12 @@ public static class DescriptiveTestObjects
 }
 
 public record MigrationsFolderWithDescription: MigrationsFolder
+{
+    public MigrationsFolderWithDescription(MigrationsFolder baseFolder, string description) : base(baseFolder)
     {
-        public MigrationsFolderWithDescription(MigrationsFolder baseFolder, string description) : base(
-            baseFolder.Name,
-            baseFolder.Path,
-            baseFolder.Type,
-            baseFolder.ConnectionType,
-            baseFolder.TransactionHandling
-        )
-        {
-            Description = description;
-        }
-
-        private string Description { get; } = null!;
-        public override string ToString() => Description;
+        Description = description;
     }
-    
+
+    private string Description { get; } = null!;
+    public override string ToString() => Description;
+}
