@@ -2,22 +2,21 @@
 using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.Logging.Abstractions;
-using NUnit.Framework;
+using Xunit;
 
 namespace Basic_tests.Infrastructure.SqlServer.Statement_Splitting;
 
-[TestFixture]
-[Category("Basic tests")]
+
 // ReSharper disable once InconsistentNaming
 public class StatementSplitter_
 {
-    
+
 #pragma warning disable NUnit1032
     private static readonly IDatabase Database = new SqlServerDatabase(NullLogger<SqlServerDatabase>.Instance);
     private static readonly StatementSplitter Splitter = new(Database.StatementSeparatorRegex);
 #pragma warning restore NUnit1032
 
-    [Test]
+    [Fact]
     public void Splits_and_removes_GO_statements()
     {
         var original = @"

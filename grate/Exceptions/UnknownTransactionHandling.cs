@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace grate.Exceptions;
 
-public class UnknownTransactionHandling: ArgumentOutOfRangeException
+public class UnknownTransactionHandling : ArgumentOutOfRangeException
 {
     public UnknownTransactionHandling(object? transactionHandling,
         [CallerArgumentExpression(nameof(transactionHandling))] string argumentName = "")

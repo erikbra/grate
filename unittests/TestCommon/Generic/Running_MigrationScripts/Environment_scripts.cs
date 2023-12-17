@@ -1,26 +1,23 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Dapper;
+﻿using Dapper;
 using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
-using NUnit.Framework;
 using TestCommon.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace TestCommon.Generic.Running_MigrationScripts;
 
-[TestFixture]
+//[TestFixture]
 // ReSharper disable once InconsistentNaming
 public abstract class Environment_scripts : MigrationsScriptsBase
 {
-    [Test]
+    [Fact]
     public async Task Are_not_run_if_not_in_environment()
     {
         var db = TestConfig.RandomDatabase();
 
         GrateMigrator? migrator;
-        
+
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
 
@@ -42,13 +39,13 @@ public abstract class Environment_scripts : MigrationsScriptsBase
         scripts.Should().BeEmpty();
     }
 
-    [Test]
+    [Fact]
     public async Task Are_not_run_by_default() //Bug #101
     {
         var db = TestConfig.RandomDatabase();
 
         GrateMigrator? migrator;
-        
+
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
 
@@ -70,7 +67,7 @@ public abstract class Environment_scripts : MigrationsScriptsBase
         scripts.Should().BeEmpty();
     }
 
-    [Test]
+    [Fact]
     public async Task Are_run_if_in_environment()
     {
         var db = TestConfig.RandomDatabase();
@@ -98,7 +95,7 @@ public abstract class Environment_scripts : MigrationsScriptsBase
         scripts.Should().HaveCount(2);
     }
 
-    [Test]
+    [Fact]
     public async Task Non_environment_scripts_are_always_run()
     {
         var db = TestConfig.RandomDatabase();
@@ -107,10 +104,10 @@ public abstract class Environment_scripts : MigrationsScriptsBase
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
-        
-        CreateDummySql(parent,knownFolders[Up], "1_.filename.sql");
-        CreateDummySql(parent,knownFolders[Up], "2_.TEST.ENV.otherfilename.sql");
-        CreateDummySql(parent,knownFolders[Up], "2_.TEST.ENV.somethingelse.sql");
+
+        CreateDummySql(parent, knownFolders[Up], "1_.filename.sql");
+        CreateDummySql(parent, knownFolders[Up], "2_.TEST.ENV.otherfilename.sql");
+        CreateDummySql(parent, knownFolders[Up], "2_.TEST.ENV.somethingelse.sql");
 
         await using (migrator = Context.GetMigrator(db, parent, knownFolders, "PROD"))
         {

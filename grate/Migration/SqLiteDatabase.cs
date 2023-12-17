@@ -10,9 +10,9 @@ namespace grate.Migration;
 public class SqliteDatabase : AnsiSqlDatabase
 {
     private static readonly SqliteSyntax Syntax = new();
-            
-        
-    public SqliteDatabase(ILogger<SqliteDatabase> logger) 
+
+
+    public SqliteDatabase(ILogger<SqliteDatabase> logger)
         : base(logger, Syntax)
     { }
 
@@ -47,7 +47,7 @@ WHERE name='{columnName}'";
         {
             File.Delete(db);
         }
-            
+
         return Task.CompletedTask;
     }
 

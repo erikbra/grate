@@ -1,17 +1,14 @@
-﻿using System;
-using System.Data.Common;
-using System.Threading.Tasks;
+﻿using System.Data.Common;
 using System.Transactions;
 using grate.Configuration;
 using grate.Infrastructure;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
-
 namespace grate.Migration;
 
 public class SqlServerDatabase : AnsiSqlDatabase
 {
-    public SqlServerDatabase(ILogger<SqlServerDatabase> logger) 
+    public SqlServerDatabase(ILogger<SqlServerDatabase> logger)
         : base(logger, new SqlServerSyntax())
     { }
 
@@ -43,6 +40,35 @@ public class SqlServerDatabase : AnsiSqlDatabase
         return base.InitializeConnections(configuration);
     }
 
+    public override async Task<bool> DatabaseExists()
+    {
+        var sql = @$"USE master;
+                    SELECT 1 FROM sys.databases WHERE [name] = @dbname";
+        try
+        {
+
+            Logger.LogInformation("Trying to check the database {DbName} database on {Server}", DatabaseName, ServerName);
+            await OpenAdminConnection();
+            var cmd = AdminConnection.CreateCommand();
+            cmd.CommandText = sql;
+
+            // dbName parameter
+            var dbNameParam = cmd.CreateParameter();
+            dbNameParam.ParameterName = "@dbname";
+            dbNameParam.Value = DatabaseName;
+            cmd.Parameters.Add(dbNameParam);
+            var result = await cmd.ExecuteScalarAsync();
+            Logger.LogInformation("Database {DbName} querying with result {Result}", DatabaseName, result);
+            return result is not null;
+
+        }
+        catch (DbException e)
+        {
+            Logger.LogDebug(e, "Got error: {ErrorMessage}", e.Message);
+            return false;
+        }
+
+    }
     public override async Task RestoreDatabase(string backupPath)
     {
         try
@@ -80,7 +106,7 @@ public class SqlServerDatabase : AnsiSqlDatabase
         Logger.LogInformation("Database {DbName} successfully restored from path {Path}.", DatabaseName, backupPath);
     }
 
-    
+
     protected override string HasRunSql =>
         $@"
 SELECT 1 FROM  {ScriptsRunTable} WITH (NOLOCK)

@@ -14,7 +14,7 @@ namespace grate.Configuration
             {
                 return new GrateEnvironment(result.Tokens[0].Value);
             }
-            
+
             result.ErrorMessage = $"Arg specified multiple times.";
 
             return default;

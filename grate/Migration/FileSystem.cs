@@ -11,7 +11,7 @@ public static class FileSystem
 {
     public static IEnumerable<FileSystemInfo> GetFiles(DirectoryInfo folderPath, string pattern, bool ignoreDirectoryNames = false)
     {
-        return ignoreDirectoryNames 
+        return ignoreDirectoryNames
             ? folderPath
                 .EnumerateFileSystemInfos(pattern, AllDirectories).ToList()
                 .OrderBy(f => GetFileNameWithoutExtension(f.FullName), CurrentCultureIgnoreCase)

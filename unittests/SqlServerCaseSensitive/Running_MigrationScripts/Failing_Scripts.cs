@@ -1,14 +1,20 @@
-﻿using NUnit.Framework;
+﻿using SqlServerCaseSensitive.TestInfrastructure;
 using TestCommon.TestInfrastructure;
 
-namespace SqlServerCaseSensitive.Running_MigrationScripts
+namespace SqlServerCaseSensitive.Running_MigrationScripts;
+[Collection(nameof(SqlServerTestContainer))]
+// ReSharper disable once InconsistentNaming
+public class Failing_Scripts : TestCommon.Generic.Running_MigrationScripts.Failing_Scripts, IClassFixture<SimpleService>
 {
-    [TestFixture]
-    [Category("SqlServerCaseSensitive")]
-    // ReSharper disable once InconsistentNaming
-    public class Failing_Scripts : TestCommon.Generic.Running_MigrationScripts.Failing_Scripts
+    protected override IGrateTestContext Context { get; }
+
+    protected override ITestOutputHelper TestOutput { get; }
+
+    public Failing_Scripts(SqlServerTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
     {
-        protected override IGrateTestContext Context => GrateTestContext.SqlServerCaseSensitive;
-        protected override string ExpectedErrorMessageForInvalidSql => "Incorrect syntax near 'TOP'.";
+        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
+        TestOutput = testOutput;
     }
+    protected override string ExpectedErrorMessageForInvalidSql => "Incorrect syntax near 'TOP'.";
+
 }

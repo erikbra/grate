@@ -12,7 +12,7 @@ public record GrateConsoleColor
         AnsiColorCode = ansiColorCode;
         Fallback = fallback;
     }
-        
+
     public static class Foreground
     {
         private static class AnsiColors
@@ -34,12 +34,12 @@ public record GrateConsoleColor
             internal const string Magenta = "\x1B[1m\x1B[35m";
             internal const string Cyan = "\x1B[1m\x1B[36m";
             internal const string White = "\x1B[1m\x1B[37m";
-                
+
             internal static string Rgb(int r, int g, int b) => $"\x1b[38;2;{r};{g};{b}m";
             // ReSharper restore MemberHidesStaticFromOuterClass
         }
-            
-        public static readonly GrateConsoleColor Default = new(AnsiColors.Default, ConsoleColor.White); 
+
+        public static readonly GrateConsoleColor Default = new(AnsiColors.Default, ConsoleColor.White);
         public static readonly GrateConsoleColor Info = Rgb(23, 162, 184);
         public static readonly GrateConsoleColor Black = new(AnsiColors.Black, ConsoleColor.Black);
         public static readonly GrateConsoleColor DarkRed = new(AnsiColors.DarkRed, ConsoleColor.DarkRed);
@@ -49,7 +49,7 @@ public record GrateConsoleColor
         public static readonly GrateConsoleColor DarkMagenta = new(AnsiColors.DarkMagenta, ConsoleColor.DarkMagenta);
         public static readonly GrateConsoleColor DarkCyan = new(AnsiColors.DarkCyan, ConsoleColor.DarkCyan);
         public static readonly GrateConsoleColor Gray = new(AnsiColors.Gray, ConsoleColor.Gray);
-        public static readonly GrateConsoleColor DarkGray = Rgb(192,192,192);
+        public static readonly GrateConsoleColor DarkGray = Rgb(192, 192, 192);
         public static readonly GrateConsoleColor Red = new(AnsiColors.Red, ConsoleColor.Red);
         public static readonly GrateConsoleColor Green = new(AnsiColors.Green, ConsoleColor.Green);
         public static readonly GrateConsoleColor Yellow = new(AnsiColors.Yellow, ConsoleColor.Yellow);
@@ -81,8 +81,8 @@ public record GrateConsoleColor
             internal static string Rgb(int r, int g, int b) => $"\x1b[48;2;{r};{g};{b}m";
             // ReSharper restore MemberHidesStaticFromOuterClass
         }
-            
-        public static readonly GrateConsoleColor Default = new(AnsiColors.Default, ConsoleColor.Black); 
+
+        public static readonly GrateConsoleColor Default = new(AnsiColors.Default, ConsoleColor.Black);
         public static readonly GrateConsoleColor Info = Rgb(23, 162, 184);
         public static readonly GrateConsoleColor Black = new(AnsiColors.Black, ConsoleColor.Black);
         public static readonly GrateConsoleColor DarkRed = new(AnsiColors.DarkRed, ConsoleColor.DarkRed);

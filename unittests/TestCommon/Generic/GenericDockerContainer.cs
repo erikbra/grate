@@ -1,21 +1,19 @@
 ﻿using System.Data;
 using System.Threading.Tasks;
 using FluentAssertions;
-using NUnit.Framework;
 using TestCommon.TestInfrastructure;
 
 namespace TestCommon.Generic;
 
-[TestFixture]
 public abstract class GenericDockerContainer
 {
     protected abstract IGrateTestContext Context { get; }
-        
-    [Test]
+
+    [Fact]
     public async Task Is_up_and_running()
     {
         string? res;
-        await using (var conn = Context.CreateAdminDbConnection()) 
+        await using (var conn = Context.CreateAdminDbConnection())
         {
             await conn.OpenAsync();
 
@@ -23,7 +21,7 @@ public abstract class GenericDockerContainer
             cmd.CommandType = CommandType.Text;
             cmd.CommandText = Context.Sql.SelectVersion;
 
-            res = (string?) await cmd.ExecuteScalarAsync();
+            res = (string?)await cmd.ExecuteScalarAsync();
         }
 
         res.Should().StartWith(Context.ExpectedVersionPrefix);

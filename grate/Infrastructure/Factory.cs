@@ -29,6 +29,6 @@ public class Factory : IFactory
     public TValue GetService<TKey, TValue>(TKey key)
     {
         if (key == null) throw new ArgumentNullException(nameof(key));
-        return (TValue) _provider.GetRequiredService(_services[key]);
+        return (TValue)_provider.GetRequiredService(_services[key]);
     }
 }

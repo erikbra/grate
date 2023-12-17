@@ -1,22 +1,17 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Dapper;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using grate.Configuration;
 using grate.Migration;
-using NUnit.Framework;
 using TestCommon.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace TestCommon.Generic.Running_MigrationScripts;
 
-[TestFixture]
 // ReSharper disable once InconsistentNaming
 public abstract class Versioning_The_Database : MigrationsScriptsBase
 {
-    [Test]
+    [Fact]
     public async Task Returns_the_new_version_id()
     {
         var db = TestConfig.RandomDatabase();
@@ -43,7 +38,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         }
     }
 
-    [Test]
+    [Fact]
     public async Task Does_not_create_versions_on_DryRun()
     {
         //for bug #204 - when running --baseline and --dryrun on a new db it shouldn't create the grate schema's etc
@@ -66,7 +61,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         addedTable.Should().Be(false); // we didn't even add the grate infrastructure
     }
 
-    [Test]
+    [Fact]
     public async Task Creates_a_new_version_with_status_InProgress()
     {
         var db = TestConfig.RandomDatabase();

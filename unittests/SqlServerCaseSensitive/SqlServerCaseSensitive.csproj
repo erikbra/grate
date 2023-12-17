@@ -10,18 +10,17 @@
 
   <ItemGroup>
       <PackageReference Include="Microsoft.NET.Test.Sdk" />
-      <PackageReference Include="NUnit" />
-      <PackageReference Include="NUnit3TestAdapter" />
-      <PackageReference Include="NUnit.Analyzers" />
-      <PackageReference Include="coverlet.collector" />
+      <PackageReference Include="xunit"/>
+      <PackageReference Include="xunit.runner.visualstudio"/>
       <PackageReference Include="XunitXml.TestLogger" />
+      <PackageReference Include="coverlet.collector" />
+      <PackageReference Include="Testcontainers.MsSql" />
   </ItemGroup>
 
   <ItemGroup>
       <ProjectReference Include="..\..\grate\grate.csproj" />
       <ProjectReference Include="..\TestCommon\TestCommon.csproj" />
   </ItemGroup>
-
 
 
 </Project>

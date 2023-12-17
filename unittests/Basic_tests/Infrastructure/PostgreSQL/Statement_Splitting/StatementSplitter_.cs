@@ -1,25 +1,23 @@
-﻿using System.Linq;
-using FluentAssertions;
+﻿using FluentAssertions;
 using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.Logging.Abstractions;
-using NUnit.Framework;
+using Xunit;
 
 namespace Basic_tests.Infrastructure.PostgreSQL.Statement_Splitting;
 
-[TestFixture]
-[Category("Basic tests")]
+
 // ReSharper disable once InconsistentNaming
 public class StatementSplitter_
 {
-    
+
 #pragma warning disable NUnit1032
     private static readonly IDatabase Database = new PostgreSqlDatabase(NullLogger<PostgreSqlDatabase>.Instance);
 #pragma warning restore NUnit1032
-    
+
     private static readonly StatementSplitter Splitter = new(Database.StatementSeparatorRegex);
 
-    [Test]
+    [Fact]
     public void Splits_and_removes_semicolons()
     {
         var original = @"
@@ -41,8 +39,8 @@ CREATE INDEX CONCURRENTLY IX_column2 ON public.table1
 
         batches.Should().HaveCount(4);
     }
-    
-    [Test]
+
+    [Fact]
     public void Ignores_semicolons_in_backslash_escaped_strings()
     {
         var original = @"
@@ -64,8 +62,9 @@ END
         batches.Should().HaveCount(1);
     }
 
-    [TestCase("$$")]
-    [TestCase("$sometag$")]
+    [Theory]
+    [InlineData("$$")]
+    [InlineData("$sometag$")]
     public void Ignores_semicolons_in_dollar_quoted_strings(string tag)
     {
         var original = @$"
@@ -86,8 +85,8 @@ END
         var batches = Splitter.Split(original);
         batches.Should().HaveCount(1);
     }
-    
-    [Test]
+
+    [Fact]
     public void Splits_on_semicolon_after_single_quotes_when_there_is_another_semicolon_in_the_quote()
     {
         var original = @"SELECT 1 WHERE whatnot = '; ' ; MOO";
@@ -98,7 +97,7 @@ END
         batches.Last().Should().Be(" MOO");
     }
 
-    [Test]
+    [Fact]
     public void Ignores_semicolon_in_single_quotes_when_there_is_no_other_semicolon()
     {
         var original = @"SELECT 1 WHERE whatnot = '; '";
@@ -106,7 +105,7 @@ END
         batches.Should().HaveCount(1);
     }
 
-    [Test]
+    [Fact]
     public void Ignores_semicolons_in_strings()
     {
         var original = @"

@@ -1,28 +1,22 @@
-﻿using System;
-using System.Data.Common;
-using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
 using System.Transactions;
 using Dapper;
 using FluentAssertions;
 using grate.Configuration;
 using grate.Exceptions;
 using grate.Migration;
-using NUnit.Framework;
 using TestCommon.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace TestCommon.Generic.Running_MigrationScripts;
 
-[TestFixture]
+
 // ReSharper disable once InconsistentNaming
 public abstract class Failing_Scripts : MigrationsScriptsBase
 {
     protected abstract string ExpectedErrorMessageForInvalidSql { get; }
 
-    [Test]
+    [Fact]
     public async Task Aborts_the_run_giving_an_error_message()
     {
         var db = TestConfig.RandomDatabase();
@@ -35,12 +29,12 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         await using (migrator = Context.GetMigrator(db, parent, knownFolders))
         {
-            var ex = Assert.ThrowsAsync<MigrationFailed>(migrator.Migrate);
+            var ex = await Assert.ThrowsAsync<MigrationFailed>(migrator.Migrate);
             ex?.Message.Should().Be($"Migration failed due to errors:\n * {ExpectedErrorMessageForInvalidSql}");
         }
     }
 
-    [Test]
+    [Fact]
     public async Task Inserts_Failed_Scripts_Into_ScriptRunErrors_Table()
     {
         var db = TestConfig.RandomDatabase();
@@ -74,7 +68,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
         scripts.Should().HaveCount(1);
     }
 
-    [Test()]
+    [Fact]
     public async Task Inserts_Large_Failed_Scripts_Into_ScriptRunErrors_Table()
     {
         var db = TestConfig.RandomDatabase();
@@ -110,14 +104,15 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
         scripts.First().Should().Be(fileContent);
     }
 
-    [Test]
+    [Fact]
     public void Ensure_Command_Timeout_Fires()
     {
         var sql = Context.Sql.SleepTwoSeconds;
 
         if (sql == default)
         {
-            Assert.Ignore("DBMS doesn't support sleep() for testing");
+            TestOutput.WriteLine("DBMS doesn't support sleep() for testing");
+            return;
         }
 
         var db = TestConfig.RandomDatabase();
@@ -132,7 +127,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
             CommandTimeout = 1, // shorter than the script runs for
         };
 
-        Assert.CatchAsync(async () =>
+        Record.ExceptionAsync(async () =>
         {
             await using var migrator = Context.GetMigrator(config);
             await migrator.Migrate();
@@ -140,14 +135,15 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
         });
     }
 
-    [Test]
+    [Fact]
     public void Ensure_AdminCommand_Timeout_Fires()
     {
         var sql = Context.Sql.SleepTwoSeconds;
 
         if (sql == default)
         {
-            Assert.Ignore("DBMS doesn't support sleep() for testing");
+            TestOutput.WriteLine("DBMS doesn't support sleep() for testing");
+            return;
         }
 
         var db = TestConfig.RandomDatabase();
@@ -162,7 +158,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
             AdminCommandTimeout = 1, // shorter than the script runs for
         };
 
-        Assert.CatchAsync(async () =>
+        Record.ExceptionAsync(async () =>
         {
             await using var migrator = Context.GetMigrator(config);
             await migrator.Migrate();
@@ -170,8 +166,8 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
         });
     }
 
-    [Test]
-    [TestCaseSource(nameof(ShouldStillBeRunOnRollback))]
+    [Theory]
+    [MemberData(nameof(ShouldStillBeRunOnRollback))]
     public virtual async Task Still_Runs_The_Scripts_In(MigrationsFolder folder)
     {
         var filename = folder.Name + "_jalla1.sql";
@@ -179,13 +175,14 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
         scripts.Should().Contain(filename);
     }
 
-    [Test]
-    [TestCaseSource(nameof(ShouldNotBeRunOnRollback))]
+    [Theory]
+    [MemberData(nameof(ShouldNotBeRunOnRollback))]
     public virtual async Task Rolls_Back_Runs_Of_Scripts_In(MigrationsFolder folder)
     {
         if (!Context.SupportsTransaction)
         {
-            Assert.Ignore("DDL transactions not supported, skipping tests");
+            TestOutput.WriteLine("DDL transactions not supported, skipping tests");
+            return;
         }
 
         var filename = folder.Name + "_jalla1.sql";
@@ -193,7 +190,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
         scripts.Should().NotContain(filename);
     }
 
-    [Test]
+    [Fact]
     public async Task Create_a_version_in_error_if_ran_without_transaction()
     {
         var db = TestConfig.RandomDatabase();
@@ -286,26 +283,34 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
     //private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
     private static readonly IFoldersConfiguration Folders = FoldersConfiguration.Default(null);
 
-    private static readonly object?[] ShouldStillBeRunOnRollback =
+    public static IEnumerable<object?[]> ShouldStillBeRunOnRollback()
     {
-        GetTestCase(Folders[BeforeMigration]), GetTestCase(Folders[AlterDatabase]), GetTestCase(Folders[Permissions]),
-        GetTestCase(Folders[AfterMigration]),
-    };
+        yield return new object?[] { Folders[BeforeMigration] };
+        yield return new object?[] { Folders[AlterDatabase] };
+        yield return new object?[] { Folders[Permissions] };
+        yield return new object?[] { Folders[AfterMigration] };
+    }
 
-    private static readonly object?[] ShouldNotBeRunOnRollback =
+    public static IEnumerable<object?[]> ShouldNotBeRunOnRollback()
     {
-        GetTestCase(Folders[RunAfterCreateDatabase]), GetTestCase(Folders[RunBeforeUp]), GetTestCase(Folders[Up]),
-        GetTestCase(Folders[RunFirstAfterUp]), GetTestCase(Folders[Functions]), GetTestCase(Folders[Views]),
-        GetTestCase(Folders[Sprocs]), GetTestCase(Folders[Triggers]), GetTestCase(Folders[Indexes]),
-        GetTestCase(Folders[RunAfterOtherAnyTimeScripts]),
-    };
+        yield return new object?[] { Folders[RunAfterCreateDatabase] };
+        yield return new object?[] { Folders[RunBeforeUp] };
+        yield return new object?[] { Folders[Up] };
+        yield return new object?[] { Folders[RunFirstAfterUp] };
+        yield return new object?[] { Folders[Functions] };
+        yield return new object?[] { Folders[Views] };
+        yield return new object?[] { Folders[Sprocs] };
+        yield return new object?[] { Folders[Triggers] };
+        yield return new object?[] { Folders[Indexes] };
+        yield return new object?[] { Folders[RunAfterOtherAnyTimeScripts] };
+    }
 
-    private static TestCaseData GetTestCase(
-        MigrationsFolder? folder,
-        [CallerArgumentExpression(nameof(folder))] string migrationsFolderDefinitionName = ""
-    ) =>
-        new TestCaseData(folder)
-            .SetArgDisplayNames(
-                migrationsFolderDefinitionName
-            );
+    // private static TestCaseData GetTestCase(
+    //     MigrationsFolder? folder,
+    //     [CallerArgumentExpression(nameof(folder))] string migrationsFolderDefinitionName = ""
+    // ) =>
+    //     new TestCaseData(folder)
+    //         .SetArgDisplayNames(
+    //             migrationsFolderDefinitionName
+    //         );
 }

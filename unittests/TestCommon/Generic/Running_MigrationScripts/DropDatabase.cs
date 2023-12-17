@@ -1,9 +1,6 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Dapper;
+﻿using Dapper;
 using FluentAssertions;
 using grate.Configuration;
-using NUnit.Framework;
 using TestCommon.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
 
@@ -11,7 +8,7 @@ namespace TestCommon.Generic.Running_MigrationScripts;
 
 public abstract class DropDatabase : MigrationsScriptsBase
 {
-    [Test]
+    [Fact]
     public async Task Ensure_database_gets_dropped()
     {
         var db = TestConfig.RandomDatabase();
@@ -19,7 +16,7 @@ public abstract class DropDatabase : MigrationsScriptsBase
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Sprocs]);
-            
+
         var dropConfig = Context.GetConfiguration(db, parent, knownFolders) with
         {
             Drop = true, // This is important!

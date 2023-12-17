@@ -1,15 +1,14 @@
 ﻿using FluentAssertions;
 using grate.Infrastructure;
-using NUnit.Framework;
+using Xunit;
 
 namespace Basic_tests.Infrastructure;
 
-[TestFixture]
-[Category("Basic tests")]
+
 // ReSharper disable once InconsistentNaming
 public class HashGenerator_
 {
-    [Test]
+    [Fact]
     public void Generates_the_correct_hash()
     {
         string text_to_hash = "I want to see what the freak is going on here";

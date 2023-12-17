@@ -5,30 +5,30 @@ using static grate.Configuration.MigrationType;
 
 namespace grate.Configuration;
 
-public class FoldersConfiguration: Dictionary<string, MigrationsFolder?>, IFoldersConfiguration
+public class FoldersConfiguration : Dictionary<string, MigrationsFolder?>, IFoldersConfiguration
 {
     public FoldersConfiguration(IEnumerable<MigrationsFolder> folders) :
-        base(folders.ToDictionary(folder => folder.Name, folder => (MigrationsFolder?) folder))
+        base(folders.ToDictionary(folder => folder.Name, folder => (MigrationsFolder?)folder))
     {
     }
 
     public FoldersConfiguration(params MigrationsFolder[] folders) :
         this(folders.AsEnumerable())
     { }
-    
-    public FoldersConfiguration(IDictionary<string, MigrationsFolder> source) 
-        : base(source.ToDictionary(item => item.Key, item => (MigrationsFolder?) item.Value))
+
+    public FoldersConfiguration(IDictionary<string, MigrationsFolder> source)
+        : base(source.ToDictionary(item => item.Key, item => (MigrationsFolder?)item.Value))
     { }
 
-    
-    public FoldersConfiguration() 
+
+    public FoldersConfiguration()
     { }
-    
+
     public MigrationsFolder? CreateDatabase { get; set; }
     public MigrationsFolder? DropDatabase { get; set; }
 
     public static FoldersConfiguration Empty => new();
-    
+
     public static IFoldersConfiguration Default(IKnownFolderNames? folderNames = null)
     {
         folderNames ??= KnownFolderNames.Default;
@@ -52,7 +52,7 @@ public class FoldersConfiguration: Dictionary<string, MigrationsFolder?>, IFolde
         };
         foldersConfiguration.CreateDatabase = new MigrationsFolder("CreateDatabase", folderNames.CreateDatabase, AnyTime, ConnectionType.Admin, TransactionHandling.Autonomous);
         foldersConfiguration.DropDatabase = new MigrationsFolder("DropDatabase", folderNames.DropDatabase, AnyTime, ConnectionType.Admin, TransactionHandling.Autonomous);
-        
+
         return foldersConfiguration;
     }
 
