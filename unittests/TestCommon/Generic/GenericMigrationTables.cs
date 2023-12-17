@@ -76,28 +76,33 @@ public abstract class GenericMigrationTables
         }
         scripts.Should().NotBeNull();
     }
+    
     // [Theory]
     // [InlineData("ScriptsRun")]
     // [InlineData("ScriptsRunErrors")]
     // [InlineData("Version")]
-    // public async Task Migration_does_not_fail_if_table_already_exists(string tableName)
-    // {
-    //     var db = "MonoBonoJono";
+    //public async Task Migration_does_not_fail_if_table_already_exists(string tableName)
+    [Fact]
+    public async Task Migration_does_not_fail_if_table_already_exists()
+    {
+        var db = "MonoBonoJono";
 
-    //     var parent = TestConfig.CreateRandomTempDirectory();
-    //     var knownFolders = FoldersConfiguration.Default(null);
+        var parent = TestConfig.CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
 
-    //     await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
-    //     {
-    //         await migrator.Migrate();
-    //     }
+        await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
+        {
+            await migrator.Migrate();
+        }
 
-    //     // Run migration again - make sure it does not throw an exception
-    //     await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
-    //     {
-    //         Assert.DoesNotThrowAsync(() => migrator.Migrate());
-    //     }
-    // }
+        // Run migration again - make sure it does not throw an exception
+        await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
+        {
+            var exception = await Record.ExceptionAsync(() => migrator.Migrate());
+            Assert.Null(exception);
+        }
+    }
+    
     [Theory]
     [InlineData("version")]
     [InlineData("vErSiON")]

@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using System.Transactions;
+﻿using System.Transactions;
 using Dapper;
 using FluentAssertions;
 using grate.Configuration;
@@ -7,6 +6,7 @@ using grate.Exceptions;
 using grate.Migration;
 using TestCommon.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
+using static TestCommon.TestInfrastructure.DescriptiveTestObjects;
 
 namespace TestCommon.Generic.Running_MigrationScripts;
 
@@ -127,12 +127,14 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
             CommandTimeout = 1, // shorter than the script runs for
         };
 
-        Record.ExceptionAsync(async () =>
+        var exception = Record.ExceptionAsync(async () =>
         {
             await using var migrator = Context.GetMigrator(config);
             await migrator.Migrate();
             Assert.Fail("Should have thrown a timeout exception prior to this!");
         });
+
+        exception.Should().NotBeNull();
     }
 
     [Fact]
@@ -158,12 +160,14 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
             AdminCommandTimeout = 1, // shorter than the script runs for
         };
 
-        Record.ExceptionAsync(async () =>
+        var exception = Record.ExceptionAsync(async () =>
         {
             await using var migrator = Context.GetMigrator(config);
             await migrator.Migrate();
             Assert.Fail("Should have thrown a timeout exception prior to this!");
         });
+        
+        exception.Should().NotBeNull();
     }
 
     [Theory]
@@ -283,34 +287,28 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
     //private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
     private static readonly IFoldersConfiguration Folders = FoldersConfiguration.Default(null);
 
-    public static IEnumerable<object?[]> ShouldStillBeRunOnRollback()
-    {
-        yield return new object?[] { Folders[BeforeMigration] };
-        yield return new object?[] { Folders[AlterDatabase] };
-        yield return new object?[] { Folders[Permissions] };
-        yield return new object?[] { Folders[AfterMigration] };
-    }
+    public static TheoryData<MigrationsFolderWithDescription?> ShouldStillBeRunOnRollback() =>
+        new()
+        {
+            { Describe(Folders[BeforeMigration]) },
+            { Describe(Folders[AlterDatabase]) },
+            { Describe(Folders[Permissions]) },
+            { Describe(Folders[AfterMigration]) }
+        };
 
-    public static IEnumerable<object?[]> ShouldNotBeRunOnRollback()
-    {
-        yield return new object?[] { Folders[RunAfterCreateDatabase] };
-        yield return new object?[] { Folders[RunBeforeUp] };
-        yield return new object?[] { Folders[Up] };
-        yield return new object?[] { Folders[RunFirstAfterUp] };
-        yield return new object?[] { Folders[Functions] };
-        yield return new object?[] { Folders[Views] };
-        yield return new object?[] { Folders[Sprocs] };
-        yield return new object?[] { Folders[Triggers] };
-        yield return new object?[] { Folders[Indexes] };
-        yield return new object?[] { Folders[RunAfterOtherAnyTimeScripts] };
-    }
+    public static TheoryData<MigrationsFolderWithDescription?> ShouldNotBeRunOnRollback() =>
+        new()
+        {
+            { Describe(Folders[RunAfterCreateDatabase]) },
+            { Describe(Folders[RunBeforeUp]) },
+            { Describe(Folders[Up]) },
+            { Describe(Folders[RunFirstAfterUp]) },
+            { Describe(Folders[Functions]) },
+            { Describe(Folders[Views]) },
+            { Describe(Folders[Sprocs]) },
+            { Describe(Folders[Triggers]) },
+            { Describe(Folders[Indexes]) },
+            { Describe(Folders[RunAfterOtherAnyTimeScripts]) }
+        };
 
-    // private static TestCaseData GetTestCase(
-    //     MigrationsFolder? folder,
-    //     [CallerArgumentExpression(nameof(folder))] string migrationsFolderDefinitionName = ""
-    // ) =>
-    //     new TestCaseData(folder)
-    //         .SetArgDisplayNames(
-    //             migrationsFolderDefinitionName
-    //         );
 }
