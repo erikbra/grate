@@ -48,11 +48,11 @@ public class FolderConfiguration_
         AssertEquivalent(expected.Values, actual?.Values);
     }
 
-    public static TheoryData<string, KnownFolderNames?> FoldersCommandLines() =>
+    public static TheoryData<string, KnownFolderNames> FoldersCommandLines() =>
         new()
         {
-            { "--folders=up=tables", Wrap(KnownFolderNames.Default with { Up = "tables" }) },
-            { "--folders=up=tables;views=projections", Wrap(KnownFolderNames.Default with { Up = "tables", Views = "projections" }) },
+            { "--folders=up=tables", Wrap(KnownFolderNames.Default with { Up = "tables" })! },
+            { "--folders=up=tables;views=projections", Wrap(KnownFolderNames.Default with { Up = "tables", Views = "projections" })! },
         };
 
 

@@ -82,24 +82,24 @@ public class KnownFolders_CustomNames
     private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
     private static readonly IFoldersConfiguration Folders = FoldersConfiguration.Default(OverriddenFolderNames);
     
-    public static TheoryData<MigrationsFolderWithDescription?, string, MigrationType, ConnectionType, TransactionHandling> ExpectedKnownFolderNames()
+    public static TheoryData<MigrationsFolderWithDescription, string, MigrationType, ConnectionType, TransactionHandling> ExpectedKnownFolderNames()
     {
-        var data = new TheoryData<MigrationsFolderWithDescription?, string, MigrationType, ConnectionType, TransactionHandling>
+        var data = new TheoryData<MigrationsFolderWithDescription, string, MigrationType, ConnectionType, TransactionHandling>
         {
-            { Describe(Folders[BeforeMigration]), OverriddenFolderNames.BeforeMigration, EveryTime, Default, TransactionHandling.Autonomous },
-            { Describe(Folders[AlterDatabase]), OverriddenFolderNames.AlterDatabase, AnyTime, Admin, TransactionHandling.Autonomous },
-            { Describe(Folders[RunAfterCreateDatabase]), OverriddenFolderNames.RunAfterCreateDatabase, AnyTime, Default, TransactionHandling.Default },
-            { Describe(Folders[RunBeforeUp]), OverriddenFolderNames.RunBeforeUp, AnyTime, Default, TransactionHandling.Default },
-            { Describe(Folders[Up]), OverriddenFolderNames.Up, Once, Default, TransactionHandling.Default },
-            { Describe(Folders[RunFirstAfterUp]), OverriddenFolderNames.RunFirstAfterUp, AnyTime, Default, TransactionHandling.Default },
-            { Describe(Folders[Functions]), OverriddenFolderNames.Functions, AnyTime, Default, TransactionHandling.Default },
-            { Describe(Folders[Views]), OverriddenFolderNames.Views, AnyTime, Default, TransactionHandling.Default },
-            { Describe(Folders[Sprocs]), OverriddenFolderNames.Sprocs, AnyTime, Default, TransactionHandling.Default },
-            { Describe(Folders[Triggers]), OverriddenFolderNames.Triggers, AnyTime, Default, TransactionHandling.Default },
-            { Describe(Folders[Indexes]), OverriddenFolderNames.Indexes, AnyTime, Default, TransactionHandling.Default },
-            { Describe(Folders[RunAfterOtherAnyTimeScripts]), OverriddenFolderNames.RunAfterOtherAnyTimeScripts, AnyTime, Default, TransactionHandling.Default },
-            { Describe(Folders[Permissions]), OverriddenFolderNames.Permissions, EveryTime, Default, TransactionHandling.Autonomous },
-            { Describe(Folders[AfterMigration]), OverriddenFolderNames.AfterMigration, EveryTime, Default, TransactionHandling.Autonomous }
+            { Describe(Folders[BeforeMigration])!, OverriddenFolderNames.BeforeMigration, EveryTime, Default, TransactionHandling.Autonomous },
+            { Describe(Folders[AlterDatabase])!, OverriddenFolderNames.AlterDatabase, AnyTime, Admin, TransactionHandling.Autonomous },
+            { Describe(Folders[RunAfterCreateDatabase])!, OverriddenFolderNames.RunAfterCreateDatabase, AnyTime, Default, TransactionHandling.Default },
+            { Describe(Folders[RunBeforeUp])!, OverriddenFolderNames.RunBeforeUp, AnyTime, Default, TransactionHandling.Default },
+            { Describe(Folders[Up])!, OverriddenFolderNames.Up, Once, Default, TransactionHandling.Default },
+            { Describe(Folders[RunFirstAfterUp])!, OverriddenFolderNames.RunFirstAfterUp, AnyTime, Default, TransactionHandling.Default },
+            { Describe(Folders[Functions])!, OverriddenFolderNames.Functions, AnyTime, Default, TransactionHandling.Default },
+            { Describe(Folders[Views])!, OverriddenFolderNames.Views, AnyTime, Default, TransactionHandling.Default },
+            { Describe(Folders[Sprocs])!, OverriddenFolderNames.Sprocs, AnyTime, Default, TransactionHandling.Default },
+            { Describe(Folders[Triggers])!, OverriddenFolderNames.Triggers, AnyTime, Default, TransactionHandling.Default },
+            { Describe(Folders[Indexes])!, OverriddenFolderNames.Indexes, AnyTime, Default, TransactionHandling.Default },
+            { Describe(Folders[RunAfterOtherAnyTimeScripts])!, OverriddenFolderNames.RunAfterOtherAnyTimeScripts, AnyTime, Default, TransactionHandling.Default },
+            { Describe(Folders[Permissions])!, OverriddenFolderNames.Permissions, EveryTime, Default, TransactionHandling.Autonomous },
+            { Describe(Folders[AfterMigration])!, OverriddenFolderNames.AfterMigration, EveryTime, Default, TransactionHandling.Autonomous }
        };
        return data;
     }
