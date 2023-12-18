@@ -287,28 +287,28 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
     //private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
     private static readonly IFoldersConfiguration Folders = FoldersConfiguration.Default(null);
 
-    public static TheoryData<MigrationsFolderWithDescription?> ShouldStillBeRunOnRollback() =>
+    public static TheoryData<MigrationsFolderWithDescription> ShouldStillBeRunOnRollback() =>
         new()
         {
-            { Describe(Folders[BeforeMigration]) },
-            { Describe(Folders[AlterDatabase]) },
-            { Describe(Folders[Permissions]) },
-            { Describe(Folders[AfterMigration]) }
+            { Describe(Folders[BeforeMigration])! },
+            { Describe(Folders[AlterDatabase])! },
+            { Describe(Folders[Permissions])! },
+            { Describe(Folders[AfterMigration])! }
         };
 
-    public static TheoryData<MigrationsFolderWithDescription?> ShouldNotBeRunOnRollback() =>
+    public static TheoryData<MigrationsFolderWithDescription> ShouldNotBeRunOnRollback() =>
         new()
         {
-            { Describe(Folders[RunAfterCreateDatabase]) },
-            { Describe(Folders[RunBeforeUp]) },
-            { Describe(Folders[Up]) },
-            { Describe(Folders[RunFirstAfterUp]) },
-            { Describe(Folders[Functions]) },
-            { Describe(Folders[Views]) },
-            { Describe(Folders[Sprocs]) },
-            { Describe(Folders[Triggers]) },
-            { Describe(Folders[Indexes]) },
-            { Describe(Folders[RunAfterOtherAnyTimeScripts]) }
+            { Describe(Folders[RunAfterCreateDatabase])! },
+            { Describe(Folders[RunBeforeUp])! },
+            { Describe(Folders[Up])! },
+            { Describe(Folders[RunFirstAfterUp])! },
+            { Describe(Folders[Functions])! },
+            { Describe(Folders[Views])! },
+            { Describe(Folders[Sprocs])! },
+            { Describe(Folders[Triggers])! },
+            { Describe(Folders[Indexes])! },
+            { Describe(Folders[RunAfterOtherAnyTimeScripts])! }
         };
 
 }
