@@ -11,7 +11,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\..\src\grate\grate.csproj" />
+    <ProjectReference Include="..\..\src\grate.core\grate.core.csproj" />
   </ItemGroup>
 
 </Project>
