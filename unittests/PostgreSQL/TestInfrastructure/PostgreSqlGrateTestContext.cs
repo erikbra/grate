@@ -36,7 +36,7 @@ public class PostgreSqlGrateTestContext : IGrateTestContext
     public ISyntax Syntax => new PostgreSqlSyntax();
     public Type DbExceptionType => typeof(PostgresException);
 
-    public DatabaseType DatabaseType => DatabaseType.postgresql;
+    public string DatabaseType => "postgresql";
     public bool SupportsTransaction => true;
     public string DatabaseTypeName => "PostgreSQL";
     public string MasterDatabase => "postgres";

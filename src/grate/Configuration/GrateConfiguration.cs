@@ -13,11 +13,23 @@ namespace grate.Configuration;
 /// </summary>
 public record GrateConfiguration
 {
-    private readonly string? _adminConnectionString;
+    //private readonly string? _adminConnectionString;
 
     public IFoldersConfiguration? Folders { get; init; } = FoldersConfiguration.Default();
 
-    public DatabaseType DatabaseType { get; init; } // = DatabaseType.sqlserver;
+    private string? _databaseType;
+
+    /// <summary>
+    /// database type to use. Defaults to sqlserver.
+    /// </summary>
+    public string? DatabaseType
+    {
+        get => _databaseType;
+        init
+        {
+            _databaseType = value?.ToLowerInvariant();
+        }
+    }
 
     public DirectoryInfo SqlFilesDirectory { get; init; } = CurrentDirectory;
 
@@ -31,25 +43,26 @@ public record GrateConfiguration
     public string ScriptsRunErrorsTableName { get; set; } = "ScriptsRunErrors";
     public string VersionTableName { get; set; } = "Version";
 
-    public string? AdminConnectionString
-    {
-        get => _adminConnectionString ?? WithAdminDb(ConnectionString);
-        init => _adminConnectionString = value;
-    }
+    public string? AdminConnectionString { get; init; }
+    // {
+    //     get => _adminConnectionString ?? WithAdminDb(ConnectionString);
+    //     init => _adminConnectionString = value;
+    // }
 
     public string? AccessToken { get; set; }
 
-    private string? WithAdminDb(string? connectionString)
-    {
-        if (string.IsNullOrEmpty(connectionString))
-        {
-            return connectionString;
-        }
-        var pattern = new Regex("(.*;\\s*(?:Initial Catalog|Database)=)([^;]*)(.*)");
-        var replacement = $"$1{GetMasterDbName(DatabaseType)}$3";
-        var replaced = pattern.Replace(connectionString, replacement);
-        return replaced;
-    }
+    // TODO: seems like the connectionstring only apply to sqlserver, so we should move this to the sqlserver project
+    // private string? WithAdminDb(string? connectionString)
+    // {
+    //     if (string.IsNullOrEmpty(connectionString))
+    //     {
+    //         return connectionString;
+    //     }
+    //     var pattern = new Regex("(.*;\\s*(?:Initial Catalog|Database)=)([^;]*)(.*)");
+    //     var replacement = $"$1{MasterDatabaseName}$3";
+    //     var replaced = pattern.Replace(connectionString, replacement);
+    //     return replaced;
+    // }
 
     public static GrateConfiguration Default => new();
     public bool CreateDatabase { get; init; } = true;
@@ -131,14 +144,14 @@ public record GrateConfiguration
     /// </summary>
     public bool IgnoreDirectoryNames { get; set; }
 
-    private static string GetMasterDbName(DatabaseType databaseType) => databaseType switch
-    {
-        DatabaseType.mariadb => "mysql",
-        DatabaseType.oracle => "oracle",
-        DatabaseType.postgresql => "postgres",
-        DatabaseType.sqlite => "master",
-        DatabaseType.sqlserver => "master",
-        _ => throw new ArgumentOutOfRangeException(nameof(databaseType), databaseType.ToString())
-    };
+    // private static string GetMasterDbName(DatabaseType databaseType) => databaseType switch
+    // {
+    //     DatabaseType.mariadb => "mysql",
+    //     DatabaseType.oracle => "oracle",
+    //     DatabaseType.postgresql => "postgres",
+    //     DatabaseType.sqlite => "master",
+    //     DatabaseType.sqlserver => "master",
+    //     _ => throw new ArgumentOutOfRangeException(nameof(databaseType), databaseType.ToString())
+    // };
 
 }

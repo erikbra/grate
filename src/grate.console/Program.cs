@@ -9,8 +9,8 @@ using System.Reflection;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using grate.Commands;
 using grate.Configuration;
+using grate.console.Commands;
 using grate.Exceptions;
 using grate.Infrastructure;
 using grate.Migration;
@@ -132,11 +132,11 @@ public static class Program
         {
             var fac = new Factory(serviceProvider);
 
-            fac.AddService(DatabaseType.mariadb, typeof(MariaDbDatabase));
-            fac.AddService(DatabaseType.oracle, typeof(OracleDatabase));
-            fac.AddService(DatabaseType.postgresql, typeof(PostgreSqlDatabase));
-            fac.AddService(DatabaseType.sqlserver, typeof(SqlServerDatabase));
-            fac.AddService(DatabaseType.sqlite, typeof(SqliteDatabase));
+            fac.AddService("mariadb", typeof(MariaDbDatabase));
+            fac.AddService("oracle", typeof(OracleDatabase));
+            fac.AddService("postgresql", typeof(PostgreSqlDatabase));
+            fac.AddService("sqlserver", typeof(SqlServerDatabase));
+            fac.AddService("sqlite", typeof(SqliteDatabase));
 
             return fac;
         });

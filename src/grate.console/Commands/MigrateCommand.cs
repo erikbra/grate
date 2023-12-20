@@ -1,14 +1,11 @@
-﻿using System.Collections.Generic;
-using System.CommandLine;
+﻿using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
-using System.IO;
-using System.Linq;
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
 using static grate.Configuration.DefaultConfiguration;
 
-namespace grate.Commands;
+namespace grate.console.Commands;
 
 public sealed class MigrateCommand : RootCommand
 {
@@ -177,9 +174,9 @@ the last one will expect the folders to be named 'folder1', 'folder2', and 'fold
 
     //DATABASE OPTIONS
     private static Option DatabaseType() =>
-        new Option<DatabaseType>(
+        new Option<string>(
             new[] { "--databasetype", "--dt", "--dbt" },
-            () => Configuration.DatabaseType.sqlserver,
+            () => "sqlserver",
             "Tells grate what type of database it is running on."
         );
 

@@ -10,6 +10,8 @@ namespace grate.Migration;
 
 public class MariaDbDatabase : AnsiSqlDatabase
 {
+
+    public override string DatabaseType => "mariadb";
     public MariaDbDatabase(ILogger<MariaDbDatabase> logger)
         : base(logger, new MariaDbSyntax())
     { }

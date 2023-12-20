@@ -1,5 +1,5 @@
 ﻿using System.CommandLine;
-using grate.Commands;
+using grate.console.Commands;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace grate.Infrastructure;

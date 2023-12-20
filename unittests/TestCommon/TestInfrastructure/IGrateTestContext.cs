@@ -27,7 +27,7 @@ public interface IGrateTestContext
     ISyntax Syntax { get; }
 
     Type DbExceptionType { get; }
-    DatabaseType DatabaseType { get; }
+    string DatabaseType { get; }
     bool SupportsTransaction { get; }
     IDatabase DatabaseMigrator { get; }
 
@@ -72,7 +72,7 @@ public interface IGrateTestContext
     {
         var factory = Substitute.For<IFactory>();
         factory
-            .GetService<DatabaseType, IDatabase>(DatabaseType)
+            .GetService<string, IDatabase>(DatabaseType)
             .Returns(DatabaseMigrator);
 
         var dbMigrator = new DbMigrator(factory, ServiceProvider.GetRequiredService<ILogger<DbMigrator>>(), new HashGenerator(), config);

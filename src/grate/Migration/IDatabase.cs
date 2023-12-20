@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Threading.Tasks;
+﻿using System.Data.Common;
 using grate.Configuration;
 
 namespace grate.Migration;
@@ -10,6 +7,8 @@ public interface IDatabase : IAsyncDisposable
 {
     string? ServerName { get; }
     string? DatabaseName { get; }
+    string DatabaseType { get; }
+    string MasterDatabaseName { get; }
     bool SupportsDdlTransactions { get; }
 
     bool SplitBatchStatements { get; }

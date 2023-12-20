@@ -4,8 +4,8 @@ using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.Runtime.CompilerServices;
 using FluentAssertions;
-using grate.Commands;
 using grate.Configuration;
+using grate.console.Commands;
 
 namespace Basic_tests.CommandLineParsing;
 

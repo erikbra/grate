@@ -35,7 +35,7 @@ public class OracleGrateTestContext : IGrateTestContext
     public ISyntax Syntax => new OracleSyntax();
     public Type DbExceptionType => typeof(OracleException);
 
-    public DatabaseType DatabaseType => DatabaseType.oracle;
+    public string DatabaseType => "oracle";
     public bool SupportsTransaction => false;
 
     public string DatabaseTypeName => "Oracle";

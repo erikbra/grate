@@ -31,7 +31,7 @@ public class SqliteGrateTestContext : IGrateTestContext
     public ISyntax Syntax => new SqliteSyntax();
     public Type DbExceptionType => typeof(SqliteException);
 
-    public DatabaseType DatabaseType => DatabaseType.sqlite;
+    public string DatabaseType => "sqlite";
     public bool SupportsTransaction => false;
     public string DatabaseTypeName => "Sqlite";
     public string MasterDatabase => "master";

@@ -15,12 +15,16 @@
     <PackageReference Include="System.CommandLine.NamingConventionBinder" />
     <PackageReference Include="Microsoft.Data.SqlClient" />
     <PackageReference Include="Dapper" />
-    <PackageReference Include="Npgsql" />
-    <PackageReference Include="MySqlConnector"  />
-    <PackageReference Include="Microsoft.Data.Sqlite" />
-    <PackageReference Include="Oracle.ManagedDataAccess.Core" />
   </ItemGroup>
   
+  <ItemGroup>
+    <ProjectReference Include="..\grate.mariadb\grate.mariadb.csproj" />
+    <ProjectReference Include="..\grate.oracle\grate.oracle.csproj" />
+    <ProjectReference Include="..\grate.postgresql\grate.postgresql.csproj" />
+    <ProjectReference Include="..\grate.sqlite\grate.sqlite.csproj" />
+    <ProjectReference Include="..\grate.sqlserver\grate.sqlserver.csproj" />
+  </ItemGroup>
+
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <DebugType>None</DebugType>
 <!--    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>-->

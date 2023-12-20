@@ -9,6 +9,7 @@ namespace grate.Migration;
 
 public class SqliteDatabase : AnsiSqlDatabase
 {
+    public override string DatabaseType => "sqlite";
     private static readonly SqliteSyntax Syntax = new();
 
 

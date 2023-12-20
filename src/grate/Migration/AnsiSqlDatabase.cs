@@ -41,6 +41,8 @@ public abstract class AnsiSqlDatabase : IDatabase
 
     public string ServerName => Connection.DataSource;
     public virtual string DatabaseName => Connection.Database;
+    public virtual string MasterDatabaseName => "master";
+    public abstract string DatabaseType { get; }
 
     private string? Password => ConnectionString?.Split(";", TrimEntries | RemoveEmptyEntries)
         .SingleOrDefault(entry => entry.StartsWith("Password") || entry.StartsWith("Pwd"))?
@@ -70,7 +72,7 @@ public abstract class AnsiSqlDatabase : IDatabase
         Logger.LogInformation("Initializing connections.");
 
         ConnectionString = configuration.ConnectionString;
-        AdminConnectionString = configuration.AdminConnectionString;
+        AdminConnectionString = this.GetAdminConnectionString(configuration);
 
         SchemaName = configuration.SchemaName;
 

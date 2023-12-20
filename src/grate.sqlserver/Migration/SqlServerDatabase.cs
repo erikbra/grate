@@ -8,6 +8,8 @@ namespace grate.Migration;
 
 public class SqlServerDatabase : AnsiSqlDatabase
 {
+
+    public override string DatabaseType => "sqlserver";
     public SqlServerDatabase(ILogger<SqlServerDatabase> logger)
         : base(logger, new SqlServerSyntax())
     { }

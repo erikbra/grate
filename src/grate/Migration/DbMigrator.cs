@@ -20,7 +20,7 @@ public class DbMigrator : IDbMigrator
         _logger = logger;
         _hashGenerator = hashGenerator;
         Configuration = configuration ?? throw new ArgumentException("No configuration passed to DbMigrator.  Container setup error?", nameof(configuration));
-        Database = factory.GetService<DatabaseType, IDatabase>(Configuration.DatabaseType);
+        Database = factory.GetService<string, IDatabase>(Configuration.DatabaseType!);
     }
 
     public Task InitializeConnections() => Database.InitializeConnections(Configuration);

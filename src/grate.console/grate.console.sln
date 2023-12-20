@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "grate.console", "grate.console.csproj", "{556F5001-A87A-4F4E-9D2C-217B8E1C7EC8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{556F5001-A87A-4F4E-9D2C-217B8E1C7EC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{556F5001-A87A-4F4E-9D2C-217B8E1C7EC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{556F5001-A87A-4F4E-9D2C-217B8E1C7EC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{556F5001-A87A-4F4E-9D2C-217B8E1C7EC8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BFC7444C-B649-4B3E-A416-9BB1A8FB9766}
+	EndGlobalSection
+EndGlobal

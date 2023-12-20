@@ -33,7 +33,7 @@ public class MariaDbGrateTestContext : IGrateTestContext
     public ISyntax Syntax => new MariaDbSyntax();
     public Type DbExceptionType => typeof(MySqlException);
 
-    public DatabaseType DatabaseType => DatabaseType.mariadb;
+    public string DatabaseType => "mariadb";
     public bool SupportsTransaction => false;
     public string DatabaseTypeName => "MariaDB Server";
     public string MasterDatabase => "mysql";

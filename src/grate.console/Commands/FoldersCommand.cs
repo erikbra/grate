@@ -6,7 +6,7 @@ using System.Reflection;
 using grate.Configuration;
 using grate.Exceptions;
 
-namespace grate.Commands;
+namespace grate.console.Commands;
 
 public static class FoldersCommand
 {

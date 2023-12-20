@@ -49,7 +49,7 @@ class SqlServerGrateTestContext : IGrateTestContext
     public ISyntax Syntax => new SqlServerSyntax();
     public Type DbExceptionType => typeof(SqlException);
 
-    public DatabaseType DatabaseType => DatabaseType.sqlserver;
+    public string DatabaseType => "sqlserver";
     public bool SupportsTransaction => true;
     public string DatabaseTypeName => "SQL server";
     public string MasterDatabase => "master";
