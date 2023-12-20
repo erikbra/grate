@@ -76,7 +76,7 @@ public abstract class GenericMigrationTables
         }
         scripts.Should().NotBeNull();
     }
-    
+
     // [Theory]
     // [InlineData("ScriptsRun")]
     // [InlineData("ScriptsRunErrors")]
@@ -102,7 +102,7 @@ public abstract class GenericMigrationTables
             Assert.Null(exception);
         }
     }
-    
+
     [Theory]
     [InlineData("version")]
     [InlineData("vErSiON")]

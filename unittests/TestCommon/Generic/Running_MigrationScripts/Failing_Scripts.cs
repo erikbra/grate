@@ -166,7 +166,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
             await migrator.Migrate();
             Assert.Fail("Should have thrown a timeout exception prior to this!");
         });
-        
+
         exception.Should().NotBeNull();
     }
 

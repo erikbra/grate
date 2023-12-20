@@ -81,7 +81,7 @@ public class KnownFolders_CustomNames
 
     private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
     private static readonly IFoldersConfiguration Folders = FoldersConfiguration.Default(OverriddenFolderNames);
-    
+
     public static TheoryData<MigrationsFolderWithDescription, string, MigrationType, ConnectionType, TransactionHandling> ExpectedKnownFolderNames()
     {
         var data = new TheoryData<MigrationsFolderWithDescription, string, MigrationType, ConnectionType, TransactionHandling>
@@ -101,6 +101,6 @@ public class KnownFolders_CustomNames
             { Describe(Folders[Permissions])!, OverriddenFolderNames.Permissions, EveryTime, Default, TransactionHandling.Autonomous },
             { Describe(Folders[AfterMigration])!, OverriddenFolderNames.AfterMigration, EveryTime, Default, TransactionHandling.Autonomous }
        };
-       return data;
+        return data;
     }
 }

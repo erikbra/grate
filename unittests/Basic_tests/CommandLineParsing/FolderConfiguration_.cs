@@ -115,7 +115,7 @@ public class FolderConfiguration_
     }
 
     private static KnownFolderNamesWithDescription? Wrap(KnownFolderNames? names, [CallerArgumentExpression(nameof(names))] string description = "") =>
-        names is { } ? new KnownFolderNamesWithDescription(names) { Description =  description} : null;
+        names is { } ? new KnownFolderNamesWithDescription(names) { Description = description } : null;
 
     public record KnownFolderNamesWithDescription : KnownFolderNames
     {

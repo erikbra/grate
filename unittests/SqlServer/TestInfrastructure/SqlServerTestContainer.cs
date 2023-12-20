@@ -7,7 +7,7 @@ public class SqlServerTestContainer : ContainerFixture
 
     // Run with linux/amd86 on ARM architectures too, the docker emulation is good enough
     public string? DockerImage => "mcr.microsoft.com/mssql/server:2019-latest";
-   
+
     public int Port = 1433;
     public SqlServerTestContainer()
     {
