@@ -1,11 +1,8 @@
 ﻿using FluentAssertions;
 using grate.Infrastructure;
-using grate.Migration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging.Abstractions;
 using Oracle.TestInfrastructure;
 using TestCommon.TestInfrastructure;
-using Xunit.Abstractions;
 
 // ReSharper disable InconsistentNaming
 

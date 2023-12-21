@@ -3,11 +3,9 @@ using grate;
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
-using grate.PostgreSql;
 using grate.SqlServer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using TestCommon.TestInfrastructure;
 namespace Basic_tests;
 

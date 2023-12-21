@@ -1,6 +1,5 @@
 ﻿using grate;
 using grate.Oracle;
-using grate.SqlServer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TestCommon.TestInfrastructure;

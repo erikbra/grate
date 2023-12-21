@@ -2,7 +2,6 @@
 using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using TestCommon.TestInfrastructure;
 

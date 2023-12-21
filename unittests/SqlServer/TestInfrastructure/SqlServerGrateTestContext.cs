@@ -3,7 +3,6 @@ using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using TestCommon.TestInfrastructure;
 
 namespace SqlServer.TestInfrastructure;

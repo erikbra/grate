@@ -2,7 +2,6 @@
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
-using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 
 namespace Basic_tests.Infrastructure;
