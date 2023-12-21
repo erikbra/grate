@@ -1,5 +1,4 @@
-﻿using grate.Infrastructure;
-using grate.Migration;
+﻿using grate.Migration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -15,11 +14,11 @@ public class SimpleService
                 opt.AddConsole();
                 opt.SetMinimumLevel(TestConfig.GetLogLevel());
             })
-            .AddKeyedSingleton<IDatabase, SqlServerDatabase>(DatabaseType.SqlServer)
-            .AddKeyedSingleton<IDatabase, PostgreSqlDatabase>(DatabaseType.PostgreSql)
-            .AddKeyedSingleton<IDatabase, MariaDbDatabase>(DatabaseType.MariaDb)
-            .AddKeyedSingleton<IDatabase, OracleDatabase>(DatabaseType.Oracle)
-            .AddKeyedSingleton<IDatabase, SqliteDatabase>(DatabaseType.Sqlite)
+            .AddKeyedSingleton<IDatabase, SqlServerDatabase>(grate.SqlServer.Infrastructure.DatabaseType.Name)
+            .AddKeyedSingleton<IDatabase, PostgreSqlDatabase>(grate.PostgreSql.Infrastructure.DatabaseType.Name)
+            .AddKeyedSingleton<IDatabase, MariaDbDatabase>(grate.MariaDb.Infrastructure.DatabaseType.Name)
+            .AddKeyedSingleton<IDatabase, OracleDatabase>(grate.Oracle.Infrastructure.DatabaseType.Name)
+            .AddKeyedSingleton<IDatabase, SqliteDatabase>(grate.Sqlite.Infrastructure.DatabaseType.Name)
             .BuildServiceProvider();
     }
 }

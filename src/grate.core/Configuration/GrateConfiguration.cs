@@ -1,4 +1,5 @@
 ﻿using grate.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace grate.Configuration;
@@ -10,6 +11,7 @@ namespace grate.Configuration;
 public record GrateConfiguration
 {
     //private readonly string? _adminConnectionString;
+    public IServiceCollection? ServiceCollection { get; set; }
 
     public IFoldersConfiguration? Folders { get; init; } = FoldersConfiguration.Default();
 
@@ -21,7 +23,7 @@ public record GrateConfiguration
     public string? DatabaseType
     {
         get => _databaseType;
-        init
+        set
         {
             _databaseType = value?.ToLowerInvariant();
         }

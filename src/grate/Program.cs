@@ -12,7 +12,6 @@ using grate.Migration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
-
 namespace grate;
 
 public static class Program
@@ -115,7 +114,7 @@ public static class Program
         services.AddTransient<IDbMigrator, DbMigrator>();
         services.AddTransient<IHashGenerator, HashGenerator>();
 
-        services.AddTransient<GrateMigrator, GrateMigrator>();
+        services.AddTransient<IGrateMigrator, GrateMigrator>();
 
         services.AddTransient<MariaDbDatabase>();
         services.AddTransient<OracleDatabase>();
@@ -127,11 +126,11 @@ public static class Program
         {
             var fac = new Factory(serviceProvider);
 
-            fac.AddService("mariadb", typeof(MariaDbDatabase));
-            fac.AddService("oracle", typeof(OracleDatabase));
-            fac.AddService("postgresql", typeof(PostgreSqlDatabase));
-            fac.AddService("sqlserver", typeof(SqlServerDatabase));
-            fac.AddService("sqlite", typeof(SqliteDatabase));
+            fac.AddService(grate.MariaDb.Infrastructure.DatabaseType.Name, typeof(MariaDbDatabase));
+            fac.AddService(grate.Oracle.Infrastructure.DatabaseType.Name, typeof(OracleDatabase));
+            fac.AddService(grate.PostgreSql.Infrastructure.DatabaseType.Name, typeof(PostgreSqlDatabase));
+            fac.AddService(grate.SqlServer.Infrastructure.DatabaseType.Name, typeof(SqlServerDatabase));
+            fac.AddService(grate.Sqlite.Infrastructure.DatabaseType.Name, typeof(SqliteDatabase));
 
             return fac;
         });

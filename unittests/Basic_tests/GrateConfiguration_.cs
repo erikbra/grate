@@ -17,7 +17,7 @@ public class GrateConfiguration_ : IClassFixture<SimpleService>
         _serviceProvider = simpleService.ServiceProvider;
     }
     [Theory]
-    [InlineData(DatabaseType.SqlServer)]
+    [InlineData(grate.SqlServer.Infrastructure.DatabaseType.Name)]
     public void Uses_ConnectionString_with_master_db_if_adminConnectionString_is_not_set_Initial_Catalog(string databaseType)
     {
         var cfg = new GrateConfiguration()
@@ -28,7 +28,7 @@ public class GrateConfiguration_ : IClassFixture<SimpleService>
     }
 
     [Theory]
-    [InlineData(DatabaseType.SqlServer)]
+    [InlineData(grate.PostgreSql.Infrastructure.DatabaseType.Name)]
     public void Uses_ConnectionString_with_master_db_if_adminConnectionString_is_not_set_Database(string databaseType)
     {
         var cfg = new GrateConfiguration()
