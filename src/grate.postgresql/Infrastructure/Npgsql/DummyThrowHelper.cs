@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace grate.Infrastructure.Npgsql;
+﻿namespace grate.Infrastructure.Npgsql;
 
 public static class DummyThrowHelper
 {

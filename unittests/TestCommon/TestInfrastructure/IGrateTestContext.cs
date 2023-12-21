@@ -1,6 +1,4 @@
-﻿using System;
-using System.Data.Common;
-using System.IO;
+﻿using System.Data.Common;
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;

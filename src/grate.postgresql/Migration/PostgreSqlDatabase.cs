@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Data.Common;
-using System.Threading.Tasks;
+﻿using System.Data.Common;
 using grate.Infrastructure;
 using grate.Infrastructure.Npgsql;
 using Microsoft.Extensions.Logging;

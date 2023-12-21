@@ -1,13 +1,10 @@
 ﻿using System.Data.Common;
-using System.Runtime.InteropServices;
-using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TestCommon.TestInfrastructure;
-using static System.Runtime.InteropServices.Architecture;
 
 namespace SqlServer.TestInfrastructure;
 

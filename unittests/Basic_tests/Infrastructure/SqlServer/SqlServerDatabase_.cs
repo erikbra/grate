@@ -6,7 +6,6 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TestCommon.TestInfrastructure;
-using Xunit;
 
 namespace Basic_tests.Infrastructure.SqlServer;
 

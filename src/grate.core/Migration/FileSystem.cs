@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using static System.IO.Path;
+﻿using static System.IO.Path;
 using static System.IO.SearchOption;
 using static System.StringComparer;
 

@@ -2,7 +2,6 @@
 using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.Logging.Abstractions;
-using Xunit;
 
 namespace Basic_tests.Infrastructure.SqlServer.Statement_Splitting;
 

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace grate.Configuration;
+﻿namespace grate.Configuration;
 
 public static class KnownFolderKeys
 {

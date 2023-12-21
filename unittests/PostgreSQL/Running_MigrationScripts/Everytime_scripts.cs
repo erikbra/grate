@@ -4,7 +4,6 @@ using grate.Configuration;
 using grate.Migration;
 using PostgreSQL.TestInfrastructure;
 using TestCommon.TestInfrastructure;
-using Xunit.Abstractions;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace PostgreSQL.Running_MigrationScripts;

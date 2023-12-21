@@ -1,7 +1,5 @@
-﻿using System;
-using System.Data.Common;
+﻿using System.Data.Common;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using grate.Infrastructure;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;

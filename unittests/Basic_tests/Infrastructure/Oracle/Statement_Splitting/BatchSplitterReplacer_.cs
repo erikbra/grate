@@ -3,7 +3,6 @@ using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.Logging.Abstractions;
 using TestCommon.TestInfrastructure;
-using Xunit;
 using Xunit.Abstractions;
 
 // ReSharper disable InconsistentNaming

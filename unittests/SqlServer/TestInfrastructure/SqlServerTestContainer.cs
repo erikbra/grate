@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using Testcontainers.MsSql;
-using static System.Runtime.InteropServices.Architecture;
+﻿using Testcontainers.MsSql;
 namespace TestCommon.TestInfrastructure;
 public class SqlServerTestContainer : ContainerFixture
 {

@@ -1,6 +1,4 @@
-﻿using Npgsql;
-
-namespace grate.Infrastructure.Npgsql;
+﻿namespace grate.Infrastructure.Npgsql;
 
 /// <summary>
 /// Simple, minimal dummy implementation of the Npgsql BatchCommand,

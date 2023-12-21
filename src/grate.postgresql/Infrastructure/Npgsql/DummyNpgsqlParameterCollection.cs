@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace grate.Infrastructure.Npgsql;
+﻿namespace grate.Infrastructure.Npgsql;
 
 public class DummyNpgsqlParameterCollection : Dictionary<string, DummyNpgsqlParameter>
 {

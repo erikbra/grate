@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace grate.Infrastructure.Npgsql;
+﻿namespace grate.Infrastructure.Npgsql;
 
 // These are just dummies, to be able to use the SqlQueryParser 100% as-is, without rewrites.
 // This makes updating the class easier if it should change in the future.
 using NpgsqlBatchCommand = DummyBatchCommand;
 using NpgsqlCommand = DummyNpgsqlCommand;
 using NpgsqlParameter = DummyNpgsqlParameter;
-using NpgsqlParameterCollection = DummyNpgsqlParameterCollection;
-using PlaceholderType = DummyPlaceholderType;
-using ThrowHelper = DummyThrowHelper;
 
 
 /// <summary>

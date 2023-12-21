@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace grate.Infrastructure;
+﻿namespace grate.Infrastructure;
 
 public class OracleSyntax : ISyntax
 {

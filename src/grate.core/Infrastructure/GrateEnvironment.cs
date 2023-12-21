@@ -1,5 +1,4 @@
-﻿using System.IO;
-using static System.StringComparison;
+﻿using static System.StringComparison;
 
 namespace grate.Infrastructure;
 

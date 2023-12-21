@@ -1,6 +1,5 @@
 ﻿using System.Data.Common;
 using System.Runtime.InteropServices;
-using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Data.SqlClient;

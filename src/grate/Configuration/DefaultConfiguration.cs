@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace grate.Configuration;
+﻿namespace grate.Configuration;
 
 // ReSharper disable once InconsistentNaming
 public static class DefaultConfiguration

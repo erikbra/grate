@@ -1,7 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-
-namespace grate.Exceptions;
+﻿namespace grate.Exceptions;
 
 public class InvalidFolderConfiguration : Exception
 {

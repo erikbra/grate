@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using grate.Infrastructure;
-using Xunit;
 
 namespace Basic_tests.Infrastructure;
 

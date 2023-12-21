@@ -1,6 +1,4 @@
 ﻿using System.Data.Common;
-using System.IO;
-using System.Threading.Tasks;
 using grate.Infrastructure;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;

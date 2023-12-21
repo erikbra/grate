@@ -1,6 +1,5 @@
 ﻿using PostgreSQL.TestInfrastructure;
 using TestCommon.TestInfrastructure;
-using Xunit.Abstractions;
 
 namespace PostgreSQL.Running_MigrationScripts;
 
