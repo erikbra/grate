@@ -1,22 +1,22 @@
 ﻿using System.Data.Common;
 using FluentAssertions;
 using grate.Configuration;
-using grate.Migration;
+using grate.MariaDb.Migration;
+using MariaDB.TestInfrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
-using TestCommon.TestInfrastructure;
 
 namespace Basic_tests.Infrastructure.MariaDB;
 
 // ReSharper disable once InconsistentNaming
-public class MariaDbDatabase_ : IClassFixture<SimpleService>
+public class MariaDbDatabase_ : IClassFixture<DependencyService>
 {
     private IServiceProvider _serviceProvider;
 
-    public MariaDbDatabase_(SimpleService simpleService)
+    public MariaDbDatabase_(DependencyService dependencyService)
     {
-        _serviceProvider = simpleService.ServiceProvider;
+        _serviceProvider = dependencyService.ServiceProvider;
     }
     [Fact]
     public async Task Disables_pipelining_if_not_explicitly_set_in_connection_string()

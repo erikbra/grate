@@ -1,9 +1,8 @@
 ﻿using FluentAssertions;
 using grate.Infrastructure;
-using grate.Migration;
-using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
+using SqlServer.TestInfrastructure;
 using TestCommon.TestInfrastructure;
-using Xunit.Abstractions;
 
 // ReSharper disable InconsistentNaming
 
@@ -17,15 +16,15 @@ public class BatchSplitterReplacer_
     private const string Symbols_to_check = "`~!@#$%^&*()-_+=,.;:'\"[]\\/?<>";
     private const string Words_to_check = "abcdefghijklmnopqrstuvwzyz0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    private static readonly IDatabase Database = new SqlServerDatabase(NullLogger<SqlServerDatabase>.Instance);
-    private static BatchSplitterReplacer Replacer => new(Database.StatementSeparatorRegex, StatementSplitter.BatchTerminatorReplacementString);
-
-    public class should_replace_on
+    public class should_replace_on : IClassFixture<DependencyService>
     {
         private ITestOutputHelper _testOutput;
-        public should_replace_on(ITestOutputHelper testOutput)
+        private BatchSplitterReplacer Replacer;
+
+        public should_replace_on(ITestOutputHelper testOutput, DependencyService dependencyService)
         {
             _testOutput = testOutput;
+            Replacer = dependencyService.ServiceProvider.GetRequiredService<BatchSplitterReplacer>()!;
         }
         [Fact]
         public void full_statement_without_issue()
@@ -278,12 +277,15 @@ select ''
 
     }
 
-    public class should_not_replace_on
+    public class should_not_replace_on : IClassFixture<DependencyService>
     {
         private ITestOutputHelper _testOutput;
-        public should_not_replace_on(ITestOutputHelper testOutput)
+        private BatchSplitterReplacer Replacer;
+
+        public should_not_replace_on(ITestOutputHelper testOutput, DependencyService serverDependencyService)
         {
             _testOutput = testOutput;
+            Replacer = serverDependencyService.ServiceProvider.GetRequiredService<BatchSplitterReplacer>()!;
         }
         [Fact]
         public void g()

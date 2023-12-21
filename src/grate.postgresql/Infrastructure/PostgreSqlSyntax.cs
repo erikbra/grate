@@ -1,4 +1,5 @@
-﻿namespace grate.Infrastructure;
+﻿using grate.Infrastructure;
+namespace grate.PostgreSql.Infrastructure;
 
 public class PostgreSqlSyntax : ISyntax
 {

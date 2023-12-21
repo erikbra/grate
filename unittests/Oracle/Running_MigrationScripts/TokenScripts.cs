@@ -4,13 +4,13 @@ using TestCommon.TestInfrastructure;
 namespace Oracle.Running_MigrationScripts;
 
 [Collection(nameof(OracleTestContainer))]
-public class TokenScripts : TestCommon.Generic.Running_MigrationScripts.TokenScripts, IClassFixture<SimpleService>
+public class TokenScripts : TestCommon.Generic.Running_MigrationScripts.TokenScripts, IClassFixture<DependencyService>
 {
     protected override IGrateTestContext Context { get; }
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public TokenScripts(OracleTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
+    public TokenScripts(OracleTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
     {
         Context = new OracleGrateTestContext(simpleService.ServiceProvider, testContainer);
         TestOutput = testOutput;

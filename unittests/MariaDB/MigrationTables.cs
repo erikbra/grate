@@ -5,15 +5,15 @@ using TestCommon.TestInfrastructure;
 namespace MariaDB;
 
 [Collection(nameof(MariaDbTestContainer))]
-public class MigrationTables : GenericMigrationTables, IClassFixture<SimpleService>
+public class MigrationTables : GenericMigrationTables, IClassFixture<DependencyService>
 {
     protected override IGrateTestContext Context { get; }
 
     protected ITestOutputHelper TestOutput { get; }
 
-    public MigrationTables(MariaDbTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
+    public MigrationTables(MariaDbTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new MariaDbGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new MariaDbGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 }

@@ -33,7 +33,7 @@ public record GrateConfiguration
 
     public DirectoryInfo OutputPath { get; init; } = new(Path.Combine(CurrentDirectory.FullName, "output"));
 
-    public string? ConnectionString { get; init; }
+    public string? ConnectionString { get; set; }
 
     public string SchemaName { get; init; } = "grate";
 

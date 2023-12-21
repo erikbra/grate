@@ -18,6 +18,8 @@ public class MariaDbGrateTestContext : IGrateTestContext
     {
         ServiceProvider = serviceProvider;
         _testContainer = container;
+        DatabaseMigrator = ServiceProvider.GetService<IDatabase>()!;
+        Syntax = ServiceProvider.GetService<ISyntax>()!;
     }
 
     // public string DockerCommand(string serverName, string adminPassword) =>
@@ -29,7 +31,7 @@ public class MariaDbGrateTestContext : IGrateTestContext
 
     public DbConnection GetDbConnection(string connectionString) => new MySqlConnection(connectionString);
 
-    public ISyntax Syntax => new MariaDbSyntax();
+    public ISyntax Syntax { get; init; }
     public Type DbExceptionType => typeof(MySqlException);
 
     public string DatabaseType => "mariadb";
@@ -37,7 +39,7 @@ public class MariaDbGrateTestContext : IGrateTestContext
     public string DatabaseTypeName => "MariaDB Server";
     public string MasterDatabase => "mysql";
 
-    public IDatabase DatabaseMigrator => new MariaDbDatabase(ServiceProvider.GetRequiredService<ILogger<MariaDbDatabase>>());
+    public IDatabase DatabaseMigrator { get; init; }
 
     public SqlStatements Sql => new()
     {

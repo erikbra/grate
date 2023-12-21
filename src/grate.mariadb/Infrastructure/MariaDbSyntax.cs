@@ -1,4 +1,5 @@
-﻿namespace grate.Infrastructure;
+﻿using grate.Infrastructure;
+namespace grate.MariaDb.Infrastructure;
 
 public class MariaDbSyntax : ISyntax
 {

@@ -2,7 +2,6 @@
 using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Oracle.ManagedDataAccess.Client;
 using TestCommon.TestInfrastructure;
 
@@ -16,6 +15,8 @@ public class OracleGrateTestContext : IGrateTestContext
     {
         ServiceProvider = serviceProvider;
         _testContainer = container;
+        DatabaseMigrator = ServiceProvider.GetService<IDatabase>()!;
+        Syntax = ServiceProvider.GetService<ISyntax>()!;
     }
     public string AdminPassword => _testContainer.AdminPassword;
     public int? Port => _testContainer.TestContainer!.GetMappedPublicPort(_testContainer.Port);
@@ -31,7 +32,7 @@ public class OracleGrateTestContext : IGrateTestContext
 
     public DbConnection GetDbConnection(string connectionString) => new OracleConnection(connectionString);
 
-    public ISyntax Syntax => new OracleSyntax();
+    public ISyntax Syntax { get; init; }
     public Type DbExceptionType => typeof(OracleException);
 
     public string DatabaseType => "oracle";
@@ -40,7 +41,7 @@ public class OracleGrateTestContext : IGrateTestContext
     public string DatabaseTypeName => "Oracle";
     public string MasterDatabase => "oracle";
 
-    public IDatabase DatabaseMigrator => new OracleDatabase(ServiceProvider.GetRequiredService<ILogger<OracleDatabase>>());
+    public IDatabase DatabaseMigrator { get; init; }
 
     public SqlStatements Sql => new()
     {

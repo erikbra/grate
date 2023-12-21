@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>$(NetTargetFrameworks)</TargetFrameworks>
-    <DebugType>Embedded</DebugType>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   
@@ -11,7 +10,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\..\src\grate.core\grate.core.csproj" />
+    <ProjectReference Include="..\grate.core\grate.core.csproj" />
   </ItemGroup>
 
 </Project>

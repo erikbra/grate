@@ -1,15 +1,15 @@
 ﻿using System.Data.Common;
 using System.Transactions;
 using grate.Configuration;
-using grate.Infrastructure;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
-namespace grate.Migration;
-
+using grate.Migration;
+using grate.SqlServer.Infrastructure;
+namespace grate.SqlServer.Migration;
 public class SqlServerDatabase : AnsiSqlDatabase
 {
-
-    public override string DatabaseType => "sqlserver";
+    public const string Type = "sqlserver";
+    public override string DatabaseType => Type;
     public SqlServerDatabase(ILogger<SqlServerDatabase> logger)
         : base(logger, new SqlServerSyntax())
     { }

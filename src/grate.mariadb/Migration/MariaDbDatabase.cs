@@ -1,15 +1,16 @@
 ﻿using System.Data.Common;
 using System.Diagnostics;
-using grate.Infrastructure;
 using Microsoft.Extensions.Logging;
+using grate.Migration;
 using MySqlConnector;
-
-namespace grate.Migration;
+using grate.MariaDb.Infrastructure;
+namespace grate.MariaDb.Migration;
 
 public class MariaDbDatabase : AnsiSqlDatabase
 {
 
-    public override string DatabaseType => "mariadb";
+    public const string Type = "mariadb";
+    public override string DatabaseType => Type;
     public MariaDbDatabase(ILogger<MariaDbDatabase> logger)
         : base(logger, new MariaDbSyntax())
     { }

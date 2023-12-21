@@ -51,26 +51,6 @@ public class TokenReplacerTests
     }
 
     [Fact]
-    public void EnsureDbMakesItToTokens()
-    {
-        var config = new GrateConfiguration()
-        {
-            ConnectionString = "Server=(LocalDb)\\mssqllocaldb;Database=TestDb;",
-            Folders = FoldersConfiguration.Default(null)
-        };
-
-
-        var db = new SqlServerDatabase(NullLogger<SqlServerDatabase>.Instance);
-        db.InitializeConnections(config);
-
-        var provider = new TokenProvider(config, db);
-        var tokens = provider.GetTokens();
-
-        tokens["DatabaseName"].Should().Be("TestDb");
-        tokens["ServerName"].Should().Be("(LocalDb)\\mssqllocaldb");
-    }
-
-    [Fact]
     public void EnsureUserTokenParserWorks()
     {
         // TestCase attribute didn't seem to like tuples...

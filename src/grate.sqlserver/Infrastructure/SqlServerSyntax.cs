@@ -1,4 +1,5 @@
-﻿namespace grate.Infrastructure;
+﻿using grate.Infrastructure;
+namespace grate.SqlServer.Infrastructure;
 
 public class SqlServerSyntax : ISyntax
 {

@@ -1,20 +1,21 @@
 ﻿using System.Data.Common;
 using FluentAssertions;
 using grate.Configuration;
-using grate.Migration;
+using grate.SqlServer.Migration;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SqlServer.TestInfrastructure;
 using TestCommon.TestInfrastructure;
 
 namespace Basic_tests.Infrastructure.SqlServer;
 
 // ReSharper disable once InconsistentNaming
-public class SqlServerDatabase_ : IClassFixture<SimpleService>
+public class SqlServerDatabase_ : IClassFixture<DependencyService>
 {
     private IServiceProvider _serviceProvider;
 
-    public SqlServerDatabase_(SimpleService simpleService)
+    public SqlServerDatabase_(DependencyService simpleService)
     {
         _serviceProvider = simpleService.ServiceProvider;
     }

@@ -3,20 +3,17 @@ using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using TestCommon.TestInfrastructure;
 
 namespace Sqlite.TestInfrastructure;
 
 public class SqliteGrateTestContext : IGrateTestContext
 {
-
-    private readonly SqliteTestContainer _testContainer;
-
     public SqliteGrateTestContext(IServiceProvider serviceProvider, SqliteTestContainer testContainer)
     {
         ServiceProvider = serviceProvider;
-        _testContainer = testContainer;
+        Syntax = ServiceProvider.GetService<ISyntax>()!;
+        DatabaseMigrator = ServiceProvider.GetService<IDatabase>()!;
     }
     public string AdminPassword { get; set; } = default!;
     public int? Port { get; set; }
@@ -27,7 +24,8 @@ public class SqliteGrateTestContext : IGrateTestContext
 
     public DbConnection GetDbConnection(string connectionString) => new SqliteConnection(connectionString);
 
-    public ISyntax Syntax => new SqliteSyntax();
+    //public ISyntax Syntax => new SqliteSyntax();
+    public ISyntax Syntax { get; init; }
     public Type DbExceptionType => typeof(SqliteException);
 
     public string DatabaseType => "sqlite";
@@ -35,7 +33,8 @@ public class SqliteGrateTestContext : IGrateTestContext
     public string DatabaseTypeName => "Sqlite";
     public string MasterDatabase => "master";
 
-    public IDatabase DatabaseMigrator => new SqliteDatabase(ServiceProvider.GetRequiredService<ILogger<SqliteDatabase>>());
+    // public IDatabase DatabaseMigrator => new SqliteDatabase(ServiceProvider.GetRequiredService<ILogger<SqliteDatabase>>());
+    public IDatabase DatabaseMigrator { get; init; }
 
     public SqlStatements Sql => new()
     {

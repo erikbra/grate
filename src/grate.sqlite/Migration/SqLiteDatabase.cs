@@ -1,13 +1,13 @@
 ﻿using System.Data.Common;
-using grate.Infrastructure;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
-
-namespace grate.Migration;
-
+using grate.Migration;
+using grate.Sqlite.Infrastructure;
+namespace grate.Sqlite.Migration;
 public class SqliteDatabase : AnsiSqlDatabase
 {
-    public override string DatabaseType => "sqlite";
+    public const string Type = "sqlite";
+    public override string DatabaseType => Type;
     private static readonly SqliteSyntax Syntax = new();
 
 

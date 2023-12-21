@@ -6,14 +6,14 @@ namespace SqlServer;
 
 [Collection(nameof(SqlServerTestContainer))]
 
-public class Database : TestCommon.Generic.GenericDatabase, IClassFixture<SimpleService>
+public class Database : TestCommon.Generic.GenericDatabase, IClassFixture<DependencyService>
 {
 
     protected override IGrateTestContext Context { get; }
 
     protected ITestOutputHelper TestOutput { get; }
 
-    public Database(SqlServerTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
+    public Database(SqlServerTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
     {
         Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
         TestOutput = testOutput;

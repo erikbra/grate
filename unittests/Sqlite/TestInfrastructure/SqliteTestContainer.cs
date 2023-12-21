@@ -1,20 +1,28 @@
 ﻿
 
 using Microsoft.Data.Sqlite;
+using Xunit.Sdk;
 namespace TestCommon.TestInfrastructure;
 public class SqliteTestContainer : IAsyncLifetime
 {
+    private readonly IMessageSink _messageSink;
+
+    public SqliteTestContainer(IMessageSink messageSink)
+    {
+        _messageSink = messageSink;
+    }
     public Task DisposeAsync()
     {
         SqliteConnection.ClearAllPools();
 
         var currentDirectory = Directory.GetCurrentDirectory();
         var dbFiles = Directory.GetFiles(currentDirectory, "*.db");
-
-        Console.WriteLine("After tests. Deleting DB files.");
+        var message = new DiagnosticMessage("After tests. Deleting DB files.");
+        _messageSink.OnMessage(message);
         foreach (var dbFile in dbFiles)
         {
-            //  Logger.LogDebug("File: {DbFile}", dbFile);
+            var deleteMessage = new DiagnosticMessage("File: {0}", dbFile);
+            _messageSink.OnMessage(deleteMessage);
             File.Delete(dbFile);
         }
         return Task.CompletedTask;
@@ -24,8 +32,8 @@ public class SqliteTestContainer : IAsyncLifetime
     {
         var currentDirectory = Directory.GetCurrentDirectory();
         var dbFiles = Directory.GetFiles(currentDirectory, "*.db");
-
-        Console.WriteLine($"Before tests. Deleting old DB files.");
+        var message = new DiagnosticMessage("Before tests. Deleting old DB files.");
+        _messageSink.OnMessage(message);
         foreach (var dbFile in dbFiles)
         {
             TryDeletingFile(dbFile);
@@ -41,7 +49,8 @@ public class SqliteTestContainer : IAsyncLifetime
         {
             try
             {
-                Console.WriteLine($"File: {dbFile}");
+                var message = new DiagnosticMessage("File: {0}", dbFile);
+                _messageSink.OnMessage(message);
                 File.Delete(dbFile);
                 return;
             }

@@ -1,20 +1,22 @@
 ﻿using FluentAssertions;
 using grate.Infrastructure;
 using grate.Migration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
+using PostgreSQL.TestInfrastructure;
 
 namespace Basic_tests.Infrastructure.PostgreSQL.Statement_Splitting;
 
 
 // ReSharper disable once InconsistentNaming
-public class StatementSplitter_
+public class StatementSplitter_ : IClassFixture<DependencyService>
 {
+    private StatementSplitter Splitter;
 
-#pragma warning disable NUnit1032
-    private static readonly IDatabase Database = new PostgreSqlDatabase(NullLogger<PostgreSqlDatabase>.Instance);
-#pragma warning restore NUnit1032
-
-    private static readonly StatementSplitter Splitter = new(Database.StatementSeparatorRegex);
+    public StatementSplitter_(DependencyService dependencyService)
+    {
+        Splitter = dependencyService.ServiceProvider.GetRequiredService<StatementSplitter>()!;
+    }
 
     [Fact]
     public void Splits_and_removes_semicolons()

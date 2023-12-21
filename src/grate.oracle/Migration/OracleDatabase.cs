@@ -3,16 +3,18 @@ using System.Data.Common;
 using System.Security.Claims;
 using Dapper;
 using grate.Configuration;
-using grate.Infrastructure;
+using grate.Migration;
+using grate.Oracle.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Oracle.ManagedDataAccess.Client;
 using static System.StringSplitOptions;
 
-namespace grate.Migration;
+namespace grate.Oracle.Migration;
 
 public class OracleDatabase : AnsiSqlDatabase
 {
-    public override string DatabaseType => "oracle";
+    public const string Type = "oracle";
+    public override string DatabaseType => Type;
     public OracleDatabase(ILogger<OracleDatabase> logger)
         : base(logger, new OracleSyntax())
     {

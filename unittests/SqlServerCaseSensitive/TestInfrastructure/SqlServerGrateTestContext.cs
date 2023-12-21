@@ -4,7 +4,6 @@ using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using TestCommon.TestInfrastructure;
 using static System.Runtime.InteropServices.Architecture;
 
@@ -19,6 +18,8 @@ class SqlServerGrateTestContext : IGrateTestContext
         ServiceProvider = serviceProvider;
         _testContainer = container;
         ServerCollation = serverCollation;
+        DatabaseMigrator = ServiceProvider.GetService<IDatabase>()!;
+        Syntax = ServiceProvider.GetService<ISyntax>()!;
     }
     public SqlServerGrateTestContext(IServiceProvider serviceProvider, SqlServerTestContainer container) : this("Danish_Norwegian_CI_AS", serviceProvider, container)
     {
@@ -32,7 +33,7 @@ class SqlServerGrateTestContext : IGrateTestContext
 
     public DbConnection GetDbConnection(string connectionString) => new SqlConnection(connectionString);
 
-    public ISyntax Syntax => new SqlServerSyntax();
+    public ISyntax Syntax { get; init; }
     public Type DbExceptionType => typeof(SqlException);
 
     public string DatabaseType => "sqlserver";
@@ -40,7 +41,7 @@ class SqlServerGrateTestContext : IGrateTestContext
     public string DatabaseTypeName => "SQL server";
     public string MasterDatabase => "master";
 
-    public IDatabase DatabaseMigrator => new SqlServerDatabase(ServiceProvider.GetRequiredService<ILogger<SqlServerDatabase>>());
+    public IDatabase DatabaseMigrator { get; init; }
 
     public SqlStatements Sql => new()
     {

@@ -6,13 +6,13 @@ using TestCommon.TestInfrastructure;
 
 namespace SqlServerCaseSensitive.Running_MigrationScripts;
 [Collection(nameof(SqlServerTestContainer))]
-public class RestoreDatabase : SqlServerScriptsBase, IClassFixture<SimpleService>
+public class RestoreDatabase : SqlServerScriptsBase, IClassFixture<DependencyService>
 {
     protected override IGrateTestContext Context { get; }
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public RestoreDatabase(SqlServerTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
+    public RestoreDatabase(SqlServerTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
     {
         Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
         TestOutput = testOutput;

@@ -1,15 +1,15 @@
 ﻿using System.Data.Common;
-using grate.Infrastructure;
 using grate.Infrastructure.Npgsql;
 using Microsoft.Extensions.Logging;
 using Npgsql;
-
-namespace grate.Migration;
+using grate.Migration;
+using grate.PostgreSql.Infrastructure;
+namespace grate.PostgreSql.Migration;
 
 public class PostgreSqlDatabase : AnsiSqlDatabase
 {
-
-    public override string DatabaseType => "postgresql";
+    public const string Type = "postgresql";
+    public override string DatabaseType => Type;
     public PostgreSqlDatabase(ILogger<PostgreSqlDatabase> logger)
         : base(logger, new PostgreSqlSyntax())
     { }

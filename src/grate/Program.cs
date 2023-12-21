@@ -116,21 +116,21 @@ public static class Program
 
         services.AddTransient<IGrateMigrator, GrateMigrator>();
 
-        services.AddTransient<MariaDbDatabase>();
-        services.AddTransient<OracleDatabase>();
-        services.AddTransient<PostgreSqlDatabase>();
-        services.AddTransient<SqlServerDatabase>();
-        services.AddTransient<SqliteDatabase>();
+        services.AddTransient<grate.MariaDb.Migration.MariaDbDatabase>();
+        services.AddTransient<grate.Oracle.Migration.OracleDatabase>();
+        services.AddTransient<grate.PostgreSql.Migration.PostgreSqlDatabase>();
+        services.AddTransient<grate.SqlServer.Migration.SqlServerDatabase>();
+        services.AddTransient<grate.Sqlite.Migration.SqliteDatabase>();
 
         services.AddTransient<IFactory>(serviceProvider =>
         {
             var fac = new Factory(serviceProvider);
 
-            fac.AddService(grate.MariaDb.Infrastructure.DatabaseType.Name, typeof(MariaDbDatabase));
-            fac.AddService(grate.Oracle.Infrastructure.DatabaseType.Name, typeof(OracleDatabase));
-            fac.AddService(grate.PostgreSql.Infrastructure.DatabaseType.Name, typeof(PostgreSqlDatabase));
-            fac.AddService(grate.SqlServer.Infrastructure.DatabaseType.Name, typeof(SqlServerDatabase));
-            fac.AddService(grate.Sqlite.Infrastructure.DatabaseType.Name, typeof(SqliteDatabase));
+            fac.AddService(grate.MariaDb.Migration.MariaDbDatabase.Type, typeof(grate.MariaDb.Migration.MariaDbDatabase));
+            fac.AddService(grate.Oracle.Migration.OracleDatabase.Type, typeof(grate.Oracle.Migration.OracleDatabase));
+            fac.AddService(grate.PostgreSql.Migration.PostgreSqlDatabase.Type, typeof(grate.PostgreSql.Migration.PostgreSqlDatabase));
+            fac.AddService(grate.SqlServer.Migration.SqlServerDatabase.Type, typeof(grate.SqlServer.Migration.SqlServerDatabase));
+            fac.AddService(grate.Sqlite.Migration.SqliteDatabase.Type, typeof(grate.Sqlite.Migration.SqliteDatabase));
 
             return fac;
         });

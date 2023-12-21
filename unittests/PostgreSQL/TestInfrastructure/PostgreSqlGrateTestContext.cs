@@ -16,6 +16,9 @@ public class PostgreSqlGrateTestContext : IGrateTestContext
     {
         ServiceProvider = serviceProvider;
         _testContainer = container;
+        DatabaseMigrator = serviceProvider.GetRequiredService<IDatabase>();
+        Syntax = serviceProvider.GetRequiredService<ISyntax>();
+
     }
     public string AdminPassword => _testContainer.AdminPassword;
     public int? Port => _testContainer.TestContainer!.GetMappedPublicPort(_testContainer.Port);
@@ -32,7 +35,7 @@ public class PostgreSqlGrateTestContext : IGrateTestContext
 
     public DbConnection GetDbConnection(string connectionString) => new NpgsqlConnection(connectionString);
 
-    public ISyntax Syntax => new PostgreSqlSyntax();
+    public ISyntax Syntax { get; init; }
     public Type DbExceptionType => typeof(PostgresException);
 
     public string DatabaseType => "postgresql";
@@ -40,7 +43,7 @@ public class PostgreSqlGrateTestContext : IGrateTestContext
     public string DatabaseTypeName => "PostgreSQL";
     public string MasterDatabase => "postgres";
 
-    public IDatabase DatabaseMigrator => new PostgreSqlDatabase(ServiceProvider.GetRequiredService<ILogger<PostgreSqlDatabase>>());
+    public IDatabase DatabaseMigrator { get; init; }
 
     public SqlStatements Sql => new()
     {

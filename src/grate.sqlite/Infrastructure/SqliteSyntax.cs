@@ -1,4 +1,5 @@
-﻿namespace grate.Infrastructure;
+﻿using grate.Infrastructure;
+namespace grate.Sqlite.Infrastructure;
 
 public class SqliteSyntax : ISyntax
 {

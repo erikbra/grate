@@ -1,21 +1,20 @@
 ﻿using FluentAssertions;
 using grate.Infrastructure;
-using grate.Migration;
-using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
+using Oracle.TestInfrastructure;
 
 namespace Basic_tests.Infrastructure.Oracle.Statement_Splitting;
 
 
 // ReSharper disable once InconsistentNaming
-public class StatementSplitter_
+public class StatementSplitter_ : IClassFixture<DependencyService>
 {
+    private StatementSplitter Splitter;
 
-#pragma warning disable NUnit1032
-    private static readonly IDatabase Database = new OracleDatabase(NullLogger<OracleDatabase>.Instance);
-#pragma warning restore NUnit1032
-
-    private static readonly StatementSplitter Splitter = new(Database.StatementSeparatorRegex);
-
+    public StatementSplitter_(DependencyService dependencyService)
+    {
+        Splitter = dependencyService.ServiceProvider.GetRequiredService<StatementSplitter>()!;
+    }
     [Fact]
     public void Splits_and_removes_GO_statements()
     {
