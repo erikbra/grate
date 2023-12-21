@@ -11,9 +11,9 @@ public class Anytime_scripts : TestCommon.Generic.Running_MigrationScripts.Anyti
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public Anytime_scripts(SqlServerTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public Anytime_scripts(SqlServerTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new SqlServerGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 }

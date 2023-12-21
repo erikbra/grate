@@ -11,9 +11,9 @@ public class ScriptsRun_Table : TestCommon.Generic.Running_MigrationScripts.Scri
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public ScriptsRun_Table(SqliteTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public ScriptsRun_Table(SqliteTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new SqliteGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new SqliteGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

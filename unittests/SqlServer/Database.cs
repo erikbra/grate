@@ -13,9 +13,9 @@ public class Database : TestCommon.Generic.GenericDatabase, IClassFixture<Depend
 
     protected ITestOutputHelper TestOutput { get; }
 
-    public Database(SqlServerTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public Database(SqlServerTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new SqlServerGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
     [Fact]

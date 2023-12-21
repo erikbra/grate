@@ -11,9 +11,9 @@ public class Database : GenericDatabase, IClassFixture<DependencyService>
 
     protected ITestOutputHelper TestOutput { get; }
 
-    public Database(OracleTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public Database(OracleTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new OracleGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new OracleGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 }

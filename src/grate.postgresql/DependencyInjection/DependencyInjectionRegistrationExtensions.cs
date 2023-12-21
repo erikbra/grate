@@ -1,9 +1,9 @@
 ﻿using grate.Configuration;
+using grate.Infrastructure;
 using grate.Migration;
 using grate.PostgreSql.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
 using grate.PostgreSql.Migration;
-using grate.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 namespace grate.PostgreSql;
 
 public static class DependencyInjectionRegistrationExtensions

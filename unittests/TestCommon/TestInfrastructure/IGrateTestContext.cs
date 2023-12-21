@@ -4,7 +4,6 @@ using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using NSubstitute;
 
 namespace TestCommon.TestInfrastructure;
 
@@ -66,36 +65,36 @@ public interface IGrateTestContext
             SqlFilesDirectory = sqlFilesDirectory
         };
 
-    public GrateMigrator GetMigrator(GrateConfiguration config)
+    public IGrateMigrator GetMigrator(GrateConfiguration config)
     {
-        var factory = Substitute.For<IFactory>();
-        factory
-            .GetService<string, IDatabase>(DatabaseType)
-            .Returns(DatabaseMigrator);
-
-        var dbMigrator = new DbMigrator(factory, ServiceProvider.GetRequiredService<ILogger<DbMigrator>>(), new HashGenerator(), config);
+        // var factory = Substitute.For<IFactory>();
+        // factory
+        //     .GetService<string, IDatabase>(DatabaseType)
+        //     .Returns(DatabaseMigrator);
+        var db = ServiceProvider.GetRequiredService<IDatabase>();
+        var dbMigrator = new DbMigrator(db, ServiceProvider.GetRequiredService<ILogger<DbMigrator>>(), new HashGenerator(), config);
         var migrator = new GrateMigrator(ServiceProvider.GetRequiredService<ILogger<GrateMigrator>>(), dbMigrator);
 
         return migrator;
     }
 
-    public GrateMigrator GetMigrator(string databaseName, DirectoryInfo sqlFilesDirectory, IFoldersConfiguration knownFolders)
+    public IGrateMigrator GetMigrator(string databaseName, DirectoryInfo sqlFilesDirectory, IFoldersConfiguration knownFolders)
     {
         return GetMigrator(databaseName, sqlFilesDirectory, knownFolders, null, false);
     }
 
-    public GrateMigrator GetMigrator(string databaseName, DirectoryInfo sqlFilesDirectory, IFoldersConfiguration knownFolders, bool runInTransaction)
+    public IGrateMigrator GetMigrator(string databaseName, DirectoryInfo sqlFilesDirectory, IFoldersConfiguration knownFolders, bool runInTransaction)
     {
         return GetMigrator(databaseName, sqlFilesDirectory, knownFolders, null, runInTransaction);
     }
 
 
-    public GrateMigrator GetMigrator(string databaseName, DirectoryInfo sqlFilesDirectory, IFoldersConfiguration knownFolders, string? env)
+    public IGrateMigrator GetMigrator(string databaseName, DirectoryInfo sqlFilesDirectory, IFoldersConfiguration knownFolders, string? env)
     {
         return GetMigrator(databaseName, sqlFilesDirectory, knownFolders, env, false);
     }
 
-    public GrateMigrator GetMigrator(string databaseName, DirectoryInfo sqlFilesDirectory, IFoldersConfiguration knownFolders, string? env, bool runInTransaction)
+    public IGrateMigrator GetMigrator(string databaseName, DirectoryInfo sqlFilesDirectory, IFoldersConfiguration knownFolders, string? env, bool runInTransaction)
     {
         var config = DefaultConfiguration with
         {

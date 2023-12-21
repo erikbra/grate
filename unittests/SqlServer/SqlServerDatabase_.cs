@@ -15,9 +15,9 @@ public class SqlServerDatabase_ : IClassFixture<DependencyService>
 {
     private IServiceProvider _serviceProvider;
 
-    public SqlServerDatabase_(DependencyService simpleService)
+    public SqlServerDatabase_(DependencyService dependencyService)
     {
-        _serviceProvider = simpleService.ServiceProvider;
+        _serviceProvider = dependencyService.ServiceProvider;
     }
     [Fact]
     public async Task Disables_pooling_if_not_explicitly_set_in_connection_string()

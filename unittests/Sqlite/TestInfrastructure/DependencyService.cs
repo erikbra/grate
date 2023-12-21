@@ -1,8 +1,8 @@
 ﻿using grate;
+using grate.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TestCommon.TestInfrastructure;
-using grate.Sqlite;
 namespace Sqlite.TestInfrastructure;
 public class DependencyService
 {

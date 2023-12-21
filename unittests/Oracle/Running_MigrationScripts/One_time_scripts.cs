@@ -11,9 +11,9 @@ public class One_time_scripts : TestCommon.Generic.Running_MigrationScripts.One_
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public One_time_scripts(OracleTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public One_time_scripts(OracleTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new OracleGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new OracleGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

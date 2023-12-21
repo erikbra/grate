@@ -12,9 +12,9 @@ public class Environment_scripts : TestCommon.Generic.Running_MigrationScripts.E
     protected override IGrateTestContext Context { get; }
     protected override ITestOutputHelper TestOutput { get; }
 
-    public Environment_scripts(PostgresqlTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public Environment_scripts(PostgresqlTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new PostgreSqlGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new PostgreSqlGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

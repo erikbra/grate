@@ -1,9 +1,9 @@
 ﻿using grate.Configuration;
+using grate.Infrastructure;
 using grate.Migration;
 using grate.SqlServer.Infrastructure;
 using grate.SqlServer.Migration;
 using Microsoft.Extensions.DependencyInjection;
-using grate.Infrastructure;
 namespace grate.SqlServer;
 
 public static class DependencyInjectionRegistrationExtensions

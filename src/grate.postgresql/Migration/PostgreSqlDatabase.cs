@@ -1,9 +1,9 @@
 ﻿using System.Data.Common;
 using grate.Infrastructure.Npgsql;
-using Microsoft.Extensions.Logging;
-using Npgsql;
 using grate.Migration;
 using grate.PostgreSql.Infrastructure;
+using Microsoft.Extensions.Logging;
+using Npgsql;
 namespace grate.PostgreSql.Migration;
 
 public class PostgreSqlDatabase : AnsiSqlDatabase

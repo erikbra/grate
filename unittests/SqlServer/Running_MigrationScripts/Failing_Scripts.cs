@@ -11,9 +11,9 @@ public class Failing_Scripts : TestCommon.Generic.Running_MigrationScripts.Faili
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public Failing_Scripts(SqlServerTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public Failing_Scripts(SqlServerTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new SqlServerGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

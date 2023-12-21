@@ -12,9 +12,9 @@ public class Anytime_scripts : TestCommon.Generic.Running_MigrationScripts.Anyti
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public Anytime_scripts(SqliteTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public Anytime_scripts(SqliteTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new SqliteGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new SqliteGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

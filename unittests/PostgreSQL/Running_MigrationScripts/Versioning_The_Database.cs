@@ -11,9 +11,9 @@ public class Versioning_The_Database : TestCommon.Generic.Running_MigrationScrip
     protected override IGrateTestContext Context { get; }
     protected override ITestOutputHelper TestOutput { get; }
 
-    public Versioning_The_Database(PostgresqlTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public Versioning_The_Database(PostgresqlTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new PostgreSqlGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new PostgreSqlGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

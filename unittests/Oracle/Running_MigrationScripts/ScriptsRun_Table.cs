@@ -10,9 +10,9 @@ public class ScriptsRun_Table : TestCommon.Generic.Running_MigrationScripts.Scri
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public ScriptsRun_Table(OracleTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public ScriptsRun_Table(OracleTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new OracleGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new OracleGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 }

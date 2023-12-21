@@ -11,9 +11,9 @@ public class Versioning_The_Database : TestCommon.Generic.Running_MigrationScrip
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public Versioning_The_Database(SqlServerTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public Versioning_The_Database(SqlServerTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new SqlServerGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 }

@@ -11,9 +11,9 @@ public class Order_Of_Scripts : TestCommon.Generic.Running_MigrationScripts.Orde
     protected override IGrateTestContext Context { get; }
     protected override ITestOutputHelper TestOutput { get; }
 
-    public Order_Of_Scripts(PostgresqlTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public Order_Of_Scripts(PostgresqlTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new PostgreSqlGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new PostgreSqlGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

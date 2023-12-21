@@ -16,7 +16,7 @@ public abstract class Order_Of_Scripts : MigrationsScriptsBase
     {
         var db = TestConfig.RandomDatabase();
 
-        GrateMigrator? migrator;
+        IGrateMigrator? migrator;
         await using (migrator = GetMigrator(db, true))
         {
             await migrator.Migrate();
@@ -61,7 +61,7 @@ public abstract class Order_Of_Scripts : MigrationsScriptsBase
     }
 
 
-    private GrateMigrator GetMigrator(string databaseName, bool createDatabase)
+    private IGrateMigrator GetMigrator(string databaseName, bool createDatabase)
     {
         var scriptsDir = CreateRandomTempDirectory();
 

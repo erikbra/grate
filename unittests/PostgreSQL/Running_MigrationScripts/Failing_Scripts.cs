@@ -11,9 +11,9 @@ public class Failing_Scripts : TestCommon.Generic.Running_MigrationScripts.Faili
     protected override IGrateTestContext Context { get; }
     protected override ITestOutputHelper TestOutput { get; }
 
-    public Failing_Scripts(PostgresqlTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public Failing_Scripts(PostgresqlTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new PostgreSqlGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new PostgreSqlGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

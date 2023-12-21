@@ -12,9 +12,9 @@ public class Database : TestCommon.Generic.GenericDatabase, IClassFixture<Depend
 
     protected ITestOutputHelper TestOutput { get; }
 
-    public Database(SqliteTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public Database(SqliteTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new SqliteGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new SqliteGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

@@ -12,9 +12,9 @@ public class Environment_scripts : TestCommon.Generic.Running_MigrationScripts.E
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public Environment_scripts(SqliteTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public Environment_scripts(SqliteTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new SqliteGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new SqliteGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

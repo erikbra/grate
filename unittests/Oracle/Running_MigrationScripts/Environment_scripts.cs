@@ -11,9 +11,9 @@ public class Environment_scripts : TestCommon.Generic.Running_MigrationScripts.E
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public Environment_scripts(OracleTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public Environment_scripts(OracleTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new OracleGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new OracleGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 }

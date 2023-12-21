@@ -10,9 +10,9 @@ public class TokenScripts : TestCommon.Generic.Running_MigrationScripts.TokenScr
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public TokenScripts(OracleTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public TokenScripts(OracleTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new OracleGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new OracleGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

@@ -10,9 +10,9 @@ public class One_time_scripts : TestCommon.Generic.Running_MigrationScripts.One_
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public One_time_scripts(SqlServerTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public One_time_scripts(SqlServerTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new SqlServerGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 }

@@ -9,9 +9,9 @@ public class DropDatabase : TestCommon.Generic.Running_MigrationScripts.DropData
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public DropDatabase(SqlServerTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public DropDatabase(SqlServerTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new SqlServerGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 }

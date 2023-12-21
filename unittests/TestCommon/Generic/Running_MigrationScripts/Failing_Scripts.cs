@@ -21,7 +21,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
     {
         var db = TestConfig.RandomDatabase();
 
-        GrateMigrator? migrator;
+        IGrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
@@ -39,7 +39,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
     {
         var db = TestConfig.RandomDatabase();
 
-        GrateMigrator? migrator;
+        IGrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
@@ -75,7 +75,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         var parent = TestConfig.CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
-        GrateMigrator? migrator;
+        IGrateMigrator? migrator;
 
         CreateLongInvalidSql(parent, knownFolders[Up]);
 
@@ -199,7 +199,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
     {
         var db = TestConfig.RandomDatabase();
 
-        GrateMigrator? migrator;
+        IGrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
@@ -241,7 +241,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         var db = TestConfig.RandomDatabase();
 
-        GrateMigrator? migrator;
+        IGrateMigrator? migrator;
 
         var root = CreateRandomTempDirectory();
 

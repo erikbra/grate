@@ -9,9 +9,9 @@ public class TokenScripts : TestCommon.Generic.Running_MigrationScripts.TokenScr
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public TokenScripts(SqlServerTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public TokenScripts(SqlServerTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new SqlServerGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 }

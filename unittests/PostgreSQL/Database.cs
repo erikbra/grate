@@ -12,9 +12,9 @@ public class Database : GenericDatabase, IClassFixture<DependencyService>
 
     protected ITestOutputHelper TestOutput { get; }
 
-    public Database(PostgresqlTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public Database(PostgresqlTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new PostgreSqlGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new PostgreSqlGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

@@ -11,9 +11,9 @@ public class MigrationTables : TestCommon.Generic.GenericMigrationTables, IClass
 
     protected ITestOutputHelper TestOutput { get; }
 
-    public MigrationTables(SqliteTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public MigrationTables(SqliteTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new SqliteGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new SqliteGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

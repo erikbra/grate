@@ -12,9 +12,9 @@ public class Everytime_scripts : TestCommon.Generic.Running_MigrationScripts.Eve
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public Everytime_scripts(SqliteTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public Everytime_scripts(SqliteTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new SqliteGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new SqliteGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

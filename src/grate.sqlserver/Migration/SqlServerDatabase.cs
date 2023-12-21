@@ -1,10 +1,10 @@
 ﻿using System.Data.Common;
 using System.Transactions;
 using grate.Configuration;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Logging;
 using grate.Migration;
 using grate.SqlServer.Infrastructure;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging;
 namespace grate.SqlServer.Migration;
 public class SqlServerDatabase : AnsiSqlDatabase
 {

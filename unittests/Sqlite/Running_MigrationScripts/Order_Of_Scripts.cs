@@ -12,9 +12,9 @@ public class Order_Of_Scripts : TestCommon.Generic.Running_MigrationScripts.Orde
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public Order_Of_Scripts(SqliteTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public Order_Of_Scripts(SqliteTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new SqliteGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new SqliteGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

@@ -1,7 +1,7 @@
 ﻿using grate;
+using grate.SqlServer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using grate.SqlServer;
 using TestCommon.TestInfrastructure;
 namespace SqlServer.TestInfrastructure;
 public class DependencyService

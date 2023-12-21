@@ -12,9 +12,9 @@ public class MigrationTables : GenericMigrationTables, IClassFixture<DependencyS
 
     protected ITestOutputHelper TestOutput { get; }
 
-    public MigrationTables(PostgresqlTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public MigrationTables(PostgresqlTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new PostgreSqlGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new PostgreSqlGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

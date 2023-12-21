@@ -16,7 +16,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
     {
         var db = TestConfig.RandomDatabase();
 
-        GrateMigrator? migrator;
+        IGrateMigrator? migrator;
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Sprocs]);
@@ -67,7 +67,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         var db = TestConfig.RandomDatabase();
         var dbVersion = "1.2.3.4";
 
-        GrateMigrator? migrator;
+        IGrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);

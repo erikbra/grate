@@ -12,9 +12,9 @@ public class RestoreDatabase : SqlServerScriptsBase, IClassFixture<DependencySer
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public RestoreDatabase(SqlServerTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public RestoreDatabase(SqlServerTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new SqlServerGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

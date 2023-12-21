@@ -11,9 +11,9 @@ public class Order_Of_Scripts : TestCommon.Generic.Running_MigrationScripts.Orde
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public Order_Of_Scripts(OracleTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public Order_Of_Scripts(OracleTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new OracleGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new OracleGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 }

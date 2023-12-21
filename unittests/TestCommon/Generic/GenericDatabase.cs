@@ -184,7 +184,7 @@ public abstract class GenericDatabase
     protected virtual bool ThrowOnMissingDatabase => true;
 
 
-    protected GrateMigrator GetMigrator(GrateConfiguration config) => Context.GetMigrator(config);
+    protected IGrateMigrator GetMigrator(GrateConfiguration config) => Context.GetMigrator(config);
 
     protected GrateConfiguration GetConfiguration(string databaseName, bool createDatabase)
         => GetConfiguration(databaseName, createDatabase, Context.AdminConnectionString);

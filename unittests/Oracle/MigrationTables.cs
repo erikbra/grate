@@ -12,9 +12,9 @@ public class MigrationTables : GenericMigrationTables, IClassFixture<DependencyS
 
     protected ITestOutputHelper TestOutput { get; }
 
-    public MigrationTables(OracleTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public MigrationTables(OracleTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new OracleGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new OracleGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

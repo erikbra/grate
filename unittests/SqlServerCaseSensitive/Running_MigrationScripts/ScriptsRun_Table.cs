@@ -9,9 +9,9 @@ public class ScriptsRun_Table : TestCommon.Generic.Running_MigrationScripts.Scri
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public ScriptsRun_Table(SqlServerTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public ScriptsRun_Table(SqlServerTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new SqlServerGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 }

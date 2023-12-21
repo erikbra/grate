@@ -11,12 +11,12 @@ public class DbMigrator : IDbMigrator
     private readonly ILogger<DbMigrator> _logger;
     private readonly IHashGenerator _hashGenerator;
 
-    public DbMigrator(IFactory factory, ILogger<DbMigrator> logger, IHashGenerator hashGenerator, GrateConfiguration? configuration = null)
+    public DbMigrator(IDatabase database, ILogger<DbMigrator> logger, IHashGenerator hashGenerator, GrateConfiguration? configuration = null)
     {
         _logger = logger;
         _hashGenerator = hashGenerator;
         Configuration = configuration ?? throw new ArgumentException("No configuration passed to DbMigrator.  Container setup error?", nameof(configuration));
-        Database = factory.GetService<string, IDatabase>(Configuration.DatabaseType!);
+        Database = database;
     }
 
     public Task InitializeConnections() => Database.InitializeConnections(Configuration);

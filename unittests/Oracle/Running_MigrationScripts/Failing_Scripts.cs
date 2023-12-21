@@ -11,9 +11,9 @@ public class Failing_Scripts : TestCommon.Generic.Running_MigrationScripts.Faili
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public Failing_Scripts(OracleTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public Failing_Scripts(OracleTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new OracleGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new OracleGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

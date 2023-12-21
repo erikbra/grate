@@ -12,9 +12,9 @@ public class One_time_scripts : TestCommon.Generic.Running_MigrationScripts.One_
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public One_time_scripts(SqliteTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public One_time_scripts(SqliteTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new SqliteGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new SqliteGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

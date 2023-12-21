@@ -11,9 +11,9 @@ public class Order_Of_Scripts : TestCommon.Generic.Running_MigrationScripts.Orde
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public Order_Of_Scripts(SqlServerTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public Order_Of_Scripts(SqlServerTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new SqlServerGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 }

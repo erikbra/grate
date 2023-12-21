@@ -10,9 +10,9 @@ public class DropDatabase : TestCommon.Generic.Running_MigrationScripts.DropData
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public DropDatabase(OracleTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public DropDatabase(OracleTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new OracleGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new OracleGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 }

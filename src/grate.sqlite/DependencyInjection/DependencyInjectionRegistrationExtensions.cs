@@ -1,9 +1,9 @@
 ﻿using grate.Configuration;
+using grate.Infrastructure;
 using grate.Migration;
 using grate.Sqlite.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
 using grate.Sqlite.Migration;
-using grate.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 namespace grate.Sqlite;
 
 public static class DependencyInjectionRegistrationExtensions
@@ -15,7 +15,7 @@ public static class DependencyInjectionRegistrationExtensions
         {
             throw new ArgumentNullException(nameof(configuration), "ServiceCollection is null, please use AddGrate to initilize GrateConfiguration");
         }
-        configuration.ServiceCollection.AddKeyedTransient<IDatabase, SqliteDatabase>(configuration.DatabaseType);
-        configuration.ServiceCollection.AddSingleton<ISyntax, SqliteSyntax>();
+        configuration.ServiceCollection.AddTransient<IDatabase, SqliteDatabase>();
+        configuration.ServiceCollection.AddTransient<ISyntax, SqliteSyntax>();
     }
 }

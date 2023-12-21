@@ -11,9 +11,9 @@ public class MigrationTables : GenericMigrationTables, IClassFixture<DependencyS
 
     protected ITestOutputHelper TestOutput { get; }
 
-    public MigrationTables(SqlServerTestContainer testContainer, DependencyService simpleService, ITestOutputHelper testOutput)
+    public MigrationTables(SqlServerTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
-        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
+        Context = new SqlServerGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 }

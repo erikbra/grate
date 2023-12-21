@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace grate.Migration;
 
-public class GrateMigrator : IGrateMigrator, IAsyncDisposable
+public class GrateMigrator : IGrateMigrator
 {
     private readonly ILogger<GrateMigrator> _logger;
     private readonly IDbMigrator _migrator;

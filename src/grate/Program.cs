@@ -8,7 +8,17 @@ using grate.Configuration;
 using grate.console.Commands;
 using grate.Exceptions;
 using grate.Infrastructure;
+using grate.MariaDb;
+using grate.MariaDb.Migration;
 using grate.Migration;
+using grate.Oracle;
+using grate.Oracle.Migration;
+using grate.PostgreSql;
+using grate.PostgreSql.Migration;
+using grate.Sqlite;
+using grate.Sqlite.Migration;
+using grate.SqlServer;
+using grate.SqlServer.Migration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
@@ -109,31 +119,52 @@ public static class Program
             })
             .SetMinimumLevel(config.Verbosity)
             .AddConsoleFormatter<GrateConsoleFormatter, SimpleConsoleFormatterOptions>());
-
-        services.AddSingleton(config);
-        services.AddTransient<IDbMigrator, DbMigrator>();
-        services.AddTransient<IHashGenerator, HashGenerator>();
-
-        services.AddTransient<IGrateMigrator, GrateMigrator>();
-
-        services.AddTransient<grate.MariaDb.Migration.MariaDbDatabase>();
-        services.AddTransient<grate.Oracle.Migration.OracleDatabase>();
-        services.AddTransient<grate.PostgreSql.Migration.PostgreSqlDatabase>();
-        services.AddTransient<grate.SqlServer.Migration.SqlServerDatabase>();
-        services.AddTransient<grate.Sqlite.Migration.SqliteDatabase>();
-
-        services.AddTransient<IFactory>(serviceProvider =>
+        services.AddGrate(config);
+        switch (config.DatabaseType)
         {
-            var fac = new Factory(serviceProvider);
+            case MariaDbDatabase.Type:
+                config.UseMariaDb();
+                break;
+            case OracleDatabase.Type:
+                config.UseOracle();
+                break;
+            case PostgreSqlDatabase.Type:
+                config.UsePostgreSql();
+                break;
+            case SqlServerDatabase.Type:
+                config.UseSqlServer();
+                break;
+            case SqliteDatabase.Type:
+                config.UseSqlite();
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(config), config.DatabaseType, "Unknown the target database type");
+        }
+        //services.AddSingleton(config);
 
-            fac.AddService(grate.MariaDb.Migration.MariaDbDatabase.Type, typeof(grate.MariaDb.Migration.MariaDbDatabase));
-            fac.AddService(grate.Oracle.Migration.OracleDatabase.Type, typeof(grate.Oracle.Migration.OracleDatabase));
-            fac.AddService(grate.PostgreSql.Migration.PostgreSqlDatabase.Type, typeof(grate.PostgreSql.Migration.PostgreSqlDatabase));
-            fac.AddService(grate.SqlServer.Migration.SqlServerDatabase.Type, typeof(grate.SqlServer.Migration.SqlServerDatabase));
-            fac.AddService(grate.Sqlite.Migration.SqliteDatabase.Type, typeof(grate.Sqlite.Migration.SqliteDatabase));
+        // services.AddTransient<IDbMigrator, DbMigrator>();
+        // services.AddTransient<IHashGenerator, HashGenerator>();
 
-            return fac;
-        });
+        // services.AddTransient<IGrateMigrator, GrateMigrator>();
+
+        // services.AddTransient<grate.MariaDb.Migration.MariaDbDatabase>();
+        // services.AddTransient<grate.Oracle.Migration.OracleDatabase>();
+        // services.AddTransient<grate.PostgreSql.Migration.PostgreSqlDatabase>();
+        // services.AddTransient<grate.SqlServer.Migration.SqlServerDatabase>();
+        // services.AddTransient<grate.Sqlite.Migration.SqliteDatabase>();
+
+        // services.AddTransient<IFactory>(serviceProvider =>
+        // {
+        //     var fac = new Factory(serviceProvider);
+
+        //     fac.AddService(grate.MariaDb.Migration.MariaDbDatabase.Type, typeof(grate.MariaDb.Migration.MariaDbDatabase));
+        //     fac.AddService(grate.Oracle.Migration.OracleDatabase.Type, typeof(grate.Oracle.Migration.OracleDatabase));
+        //     fac.AddService(grate.PostgreSql.Migration.PostgreSqlDatabase.Type, typeof(grate.PostgreSql.Migration.PostgreSqlDatabase));
+        //     fac.AddService(grate.SqlServer.Migration.SqlServerDatabase.Type, typeof(grate.SqlServer.Migration.SqlServerDatabase));
+        //     fac.AddService(grate.Sqlite.Migration.SqliteDatabase.Type, typeof(grate.Sqlite.Migration.SqliteDatabase));
+
+        //     return fac;
+        // });
 
 
         return services.BuildServiceProvider();

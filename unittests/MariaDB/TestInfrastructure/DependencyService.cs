@@ -1,7 +1,7 @@
 ﻿using grate;
+using grate.MariaDb;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using grate.MariaDb;
 using TestCommon.TestInfrastructure;
 namespace MariaDB.TestInfrastructure;
 public class DependencyService
