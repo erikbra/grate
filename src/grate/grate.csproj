@@ -1,9 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>$(TargetFramework)</TargetFramework>
-    <TargetFrameworks>$(NetTargetFrameworks)</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
     <DebugType>Embedded</DebugType>
     <Nullable>enable</Nullable>
   </PropertyGroup>
