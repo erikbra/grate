@@ -12,6 +12,6 @@ public static class DependencyInjectionRegistrationExtensions
     {
         configuration.DatabaseType = PostgreSqlDatabase.Type;
         configuration.ServiceCollection!.AddTransient<IDatabase, PostgreSqlDatabase>();
-        configuration.ServiceCollection!.AddSingleton<ISyntax, PostgreSqlSyntax>();
+        configuration.ServiceCollection!.AddTransient<ISyntax, PostgreSqlSyntax>();
     }
 }

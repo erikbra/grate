@@ -12,6 +12,6 @@ public static class DependencyInjectionRegistrationExtensions
     {
         configuration.DatabaseType = SqlServerDatabase.Type;
         configuration.ServiceCollection!.AddTransient<IDatabase, SqlServerDatabase>();
-        configuration.ServiceCollection!.AddSingleton<ISyntax, SqlServerSyntax>();
+        configuration.ServiceCollection!.AddTransient<ISyntax, SqlServerSyntax>();
     }
 }

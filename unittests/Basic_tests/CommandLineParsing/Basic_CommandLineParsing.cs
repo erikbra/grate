@@ -64,11 +64,11 @@ public class Basic_CommandLineParsing
     }
 
     // [Theory]
-    // [InlineData("mariadb")]
-    // [InlineData("oracle")]
-    // [InlineData("postgresql")]
-    // [InlineData("sqlite")]
-    // [InlineData("sqlserver")]
+    // [InlineData(grate.MariaDb.Migration.MariaDbDatabase.Type)]
+    // [InlineData(grate.Oracle.Migration.OracleDatabase.Type)]
+    // [InlineData(grate.PostgreSql.Migration.PostgreSqlDatabase.Type)]
+    // [InlineData(grate.Sqlite.Migration.SqliteDatabase.Type)]
+    // [InlineData(grate.SqlServer.Migration.SqlServerDatabase.Type)]
     // public async Task DefaultAdminConnectionString(string databaseType)
     // {
     //     var commandline = $"--connectionstring=;Database=jalla --databasetype={databaseType}";

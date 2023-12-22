@@ -12,6 +12,6 @@ public static class DependencyInjectionRegistrationExtensions
     {
         configuration.DatabaseType = MariaDbDatabase.Type;
         configuration.ServiceCollection!.AddTransient<IDatabase, MariaDbDatabase>();
-        configuration.ServiceCollection!.AddSingleton<ISyntax, MariaDbSyntax>();
+        configuration.ServiceCollection!.AddTransient<ISyntax, MariaDbSyntax>();
     }
 }

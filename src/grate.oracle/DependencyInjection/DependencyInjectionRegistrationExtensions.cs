@@ -13,6 +13,6 @@ public static class DependencyInjectionRegistrationExtensions
     {
         configuration.DatabaseType = OracleDatabase.Type;
         configuration.ServiceCollection!.AddTransient<IDatabase, OracleDatabase>();
-        configuration.ServiceCollection!.AddSingleton<ISyntax, OracleSyntax>();
+        configuration.ServiceCollection!.AddTransient<ISyntax, OracleSyntax>();
     }
 }
