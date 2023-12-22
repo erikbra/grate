@@ -9,7 +9,7 @@ namespace grate.console.Commands;
 
 public sealed class MigrateCommand : RootCommand
 {
-    public MigrateCommand(GrateMigrator mi) : base("Migrates the database")
+    public MigrateCommand(IGrateMigrator mi) : base("Migrates the database")
     {
         Add(Database());
         Add(ConnectionString());
