@@ -19,6 +19,7 @@ public class DependencyService
             {
                 cfg.UseOracle();
             })
+            .AddSingleton<IDatabaseConnectionFactory, OracleConnectionFactory>()
             .BuildServiceProvider();
     }
 }

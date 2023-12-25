@@ -14,6 +14,7 @@ namespace grate.Oracle.Migration;
 public class OracleDatabase : AnsiSqlDatabase
 {
     public const string Type = "oracle";
+    public override string MasterDatabaseName => "oracle";
     public override string DatabaseType => Type;
     public OracleDatabase(ILogger<OracleDatabase> logger)
         : base(logger, new OracleSyntax())

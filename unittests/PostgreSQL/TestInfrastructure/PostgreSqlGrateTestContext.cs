@@ -1,4 +1,5 @@
-﻿using System.Data.Common;
+﻿using System.Data;
+using System.Data.Common;
 using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,13 +11,15 @@ namespace PostgreSQL.TestInfrastructure;
 public class PostgreSqlGrateTestContext : IGrateTestContext
 {
     public IServiceProvider ServiceProvider { get; private set; }
-    private readonly PostgresqlTestContainer _testContainer;
-    public PostgreSqlGrateTestContext(IServiceProvider serviceProvider, PostgresqlTestContainer container)
+    private readonly PostgreSqlTestContainer _testContainer;
+    private readonly IDatabaseConnectionFactory _databaseConnectionFactory;
+    public PostgreSqlGrateTestContext(IServiceProvider serviceProvider, PostgreSqlTestContainer container)
     {
         ServiceProvider = serviceProvider;
         _testContainer = container;
         DatabaseMigrator = serviceProvider.GetRequiredService<IDatabase>();
         Syntax = serviceProvider.GetRequiredService<ISyntax>();
+        _databaseConnectionFactory = serviceProvider.GetRequiredService<IDatabaseConnectionFactory>();
 
     }
     public string AdminPassword => _testContainer.AdminPassword;
@@ -32,7 +35,7 @@ public class PostgreSqlGrateTestContext : IGrateTestContext
     public string UserConnectionString(string database) =>
         $"Host={_testContainer.TestContainer!.Hostname};Port={Port};Database={database};Username=postgres;Password={AdminPassword};Include Error Detail=true;Pooling=false";
 
-    public DbConnection GetDbConnection(string connectionString) => new NpgsqlConnection(connectionString);
+    public IDbConnection GetDbConnection(string connectionString) => _databaseConnectionFactory.GetDbConnection(connectionString);
 
     public ISyntax Syntax { get; init; }
     public Type DbExceptionType => typeof(PostgresException);

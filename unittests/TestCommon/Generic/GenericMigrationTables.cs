@@ -31,7 +31,7 @@ public abstract class GenericMigrationTables
         IEnumerable<string> scripts;
         string sql = $"SELECT modified_date FROM {fullTableName}";
 
-        await using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
+        using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
         {
             scripts = await conn.QueryAsync<string>(sql);
         }
@@ -65,7 +65,7 @@ public abstract class GenericMigrationTables
         IEnumerable<string> scripts;
         string sql = $"SELECT modified_date FROM {fullTableName}";
 
-        await using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
+        using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
         {
             scripts = await conn.QueryAsync<string>(sql);
         }
@@ -174,7 +174,7 @@ public abstract class GenericMigrationTables
         int count;
         string countSql = CountTableSql(tableSchema, fullTableName);
 
-        await using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
+        using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
         {
             count = await conn.ExecuteScalarAsync<int>(countSql);
         }
@@ -198,7 +198,7 @@ public abstract class GenericMigrationTables
         IEnumerable<(string version, string status)> entries;
         string sql = $"SELECT version, status FROM {Context.Syntax.TableWithSchema("grate", "Version")}";
 
-        await using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
+        using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
         {
             entries = await conn.QueryAsync<(string version, string status)>(sql);
         }

@@ -1,4 +1,4 @@
-﻿using System.Data.Common;
+﻿using System.Data;
 using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,12 +13,15 @@ public class MariaDbGrateTestContext : IGrateTestContext
     public int? Port => _testContainer.TestContainer!.GetMappedPublicPort(_testContainer.Port);
     public IServiceProvider ServiceProvider { get; private set; }
     private readonly MariaDbTestContainer _testContainer;
+    private readonly IDatabaseConnectionFactory _databaseConnectionFactory;
     public MariaDbGrateTestContext(IServiceProvider serviceProvider, MariaDbTestContainer container)
     {
         ServiceProvider = serviceProvider;
         _testContainer = container;
         DatabaseMigrator = ServiceProvider.GetService<IDatabase>()!;
         Syntax = ServiceProvider.GetService<ISyntax>()!;
+        _databaseConnectionFactory = ServiceProvider.GetService<IDatabaseConnectionFactory>()!;
+
     }
 
     // public string DockerCommand(string serverName, string adminPassword) =>
@@ -28,7 +31,7 @@ public class MariaDbGrateTestContext : IGrateTestContext
     public string ConnectionString(string database) => $"Server={_testContainer.TestContainer!.Hostname};Port={Port};Database={database};Uid=root;Pwd={AdminPassword}";
     public string UserConnectionString(string database) => $"Server={_testContainer.TestContainer!.Hostname};Port={Port};Database={database};Uid={database};Pwd=mooo1213";
 
-    public DbConnection GetDbConnection(string connectionString) => new MySqlConnection(connectionString);
+    public IDbConnection GetDbConnection(string connectionString) => _databaseConnectionFactory.GetDbConnection(connectionString);
 
     public ISyntax Syntax { get; init; }
     public Type DbExceptionType => typeof(MySqlException);

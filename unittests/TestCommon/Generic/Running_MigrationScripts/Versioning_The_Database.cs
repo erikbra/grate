@@ -85,7 +85,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         IEnumerable<(string version, string status)> entries;
         string sql = $"SELECT version, status FROM {Context.Syntax.TableWithSchema("grate", "Version")}";
 
-        await using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.CreateDbConnection(db))
         {
             entries = await conn.QueryAsync<(string version, string status)>(sql);
         }

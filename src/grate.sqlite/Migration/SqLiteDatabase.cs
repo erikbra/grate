@@ -7,6 +7,8 @@ namespace grate.Sqlite.Migration;
 public class SqliteDatabase : AnsiSqlDatabase
 {
     public const string Type = "sqlite";
+
+    public override string MasterDatabaseName => "master";
     public override string DatabaseType => Type;
     private static readonly SqliteSyntax Syntax = new();
 

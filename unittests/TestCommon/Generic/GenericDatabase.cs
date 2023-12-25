@@ -134,23 +134,24 @@ public abstract class GenericDatabase
             {
                 try
                 {
-                    await using var conn = Context.CreateAdminDbConnection();
-                    await conn.OpenAsync();
-                    await using var cmd = conn.CreateCommand();
+                    using var conn = Context.CreateAdminDbConnection();
+                    conn.Open();
+                    //using var cmd = conn.CreateCommand();
 
-                    cmd.CommandText = Context.Syntax.CreateDatabase(db, pwd);
-                    await cmd.ExecuteNonQueryAsync();
+                    var commandText = Context.Syntax.CreateDatabase(db, pwd);
+                    //await cmd.ExecuteNonQueryAsync();
+                    await conn.ExecuteAsync(commandText);
 
                     if (!string.IsNullOrWhiteSpace(Context.Sql.CreateUser))
                     {
-                        cmd.CommandText = string.Format(Context.Sql.CreateUser, uid, pwd);
-                        await cmd.ExecuteNonQueryAsync();
+                        commandText = string.Format(Context.Sql.CreateUser, uid, pwd);
+                        await conn.ExecuteAsync(commandText);
                     }
 
                     if (!string.IsNullOrWhiteSpace(Context.Sql.GrantAccess))
                     {
-                        cmd.CommandText = string.Format(Context.Sql.GrantAccess, db, uid);
-                        await cmd.ExecuteNonQueryAsync();
+                        commandText = string.Format(Context.Sql.GrantAccess, db, uid);
+                        await conn.ExecuteAsync(commandText);
                     }
 
                     break;
@@ -171,7 +172,7 @@ public abstract class GenericDatabase
             {
                 try
                 {
-                    await using var conn = Context.CreateAdminDbConnection();
+                    using var conn = Context.CreateAdminDbConnection();
                     databases = await conn.QueryAsync<string>(sql);
                     break;
                 }

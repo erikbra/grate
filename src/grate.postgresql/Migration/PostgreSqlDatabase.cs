@@ -9,6 +9,7 @@ namespace grate.PostgreSql.Migration;
 public class PostgreSqlDatabase : AnsiSqlDatabase
 {
     public const string Type = "postgresql";
+    public override string MasterDatabaseName => "postgres";
     public override string DatabaseType => Type;
     public PostgreSqlDatabase(ILogger<PostgreSqlDatabase> logger)
         : base(logger, new PostgreSqlSyntax())

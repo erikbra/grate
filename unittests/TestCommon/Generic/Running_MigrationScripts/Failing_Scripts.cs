@@ -61,7 +61,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
-            await using var conn = Context.CreateDbConnection(db);
+            using var conn = Context.CreateDbConnection(db);
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
 
@@ -97,7 +97,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
-            await using var conn = Context.CreateDbConnection(db);
+            using var conn = Context.CreateDbConnection(db);
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
 
@@ -227,7 +227,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
-            await using var conn = Context.CreateDbConnection(db);
+            using var conn = Context.CreateDbConnection(db);
             versions = (await conn.QueryAsync<string>(sql)).ToArray();
         }
 
@@ -262,7 +262,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        await using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }

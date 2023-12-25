@@ -119,27 +119,29 @@ public static class Program
             })
             .SetMinimumLevel(config.Verbosity)
             .AddConsoleFormatter<GrateConsoleFormatter, SimpleConsoleFormatterOptions>());
-        services.AddGrate(config);
-        switch (config.DatabaseType)
+        services.AddGrate(config, builder =>
         {
-            case MariaDbDatabase.Type:
-                config.UseMariaDb();
-                break;
-            case OracleDatabase.Type:
-                config.UseOracle();
-                break;
-            case PostgreSqlDatabase.Type:
-                config.UsePostgreSql();
-                break;
-            case SqlServerDatabase.Type:
-                config.UseSqlServer();
-                break;
-            case SqliteDatabase.Type:
-                config.UseSqlite();
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(config), config.DatabaseType, "Unknown the target database type");
-        }
+            switch (config.DatabaseType)
+            {
+                case MariaDbDatabase.Type:
+                    builder.UseMariaDb();
+                    break;
+                case OracleDatabase.Type:
+                    builder.UseOracle();
+                    break;
+                case PostgreSqlDatabase.Type:
+                    builder.UsePostgreSql();
+                    break;
+                case SqlServerDatabase.Type:
+                    builder.UseSqlServer();
+                    break;
+                case SqliteDatabase.Type:
+                    builder.UseSqlite();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(config), config.DatabaseType, "Unknown the target database type");
+            }
+        });
         //services.AddSingleton(config);
 
         // services.AddTransient<IDbMigrator, DbMigrator>();

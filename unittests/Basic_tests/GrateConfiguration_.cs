@@ -23,10 +23,10 @@ public class GrateConfiguration_
                opt.AddConsole();
                opt.SetMinimumLevel(TestConfig.GetLogLevel());
            })
-           .AddGrate(cfg =>
+           .AddGrate(builder =>
            {
-               cfg.ConnectionString = connectionString;
-               cfg.UseSqlServer();
+               builder.WithConnectionString(connectionString);
+               builder.UseSqlServer();
            })
            .BuildServiceProvider();
         var cfg = serviceProvider.GetRequiredService<GrateConfiguration>();
@@ -45,10 +45,10 @@ public class GrateConfiguration_
                opt.AddConsole();
                opt.SetMinimumLevel(TestConfig.GetLogLevel());
            })
-           .AddGrate(cfg =>
+           .AddGrate(builder =>
            {
-               cfg.ConnectionString = "Data source=localhost,1433;Initial Catalog=Øyenbryn;";
-               cfg.UseSqlServer();
+               builder.WithConnectionString("Data source=localhost,1433;Initial Catalog=Øyenbryn;");
+               builder.UseSqlServer();
            })
            .BuildServiceProvider();
         var cfg = serviceProvider.GetRequiredService<GrateConfiguration>();

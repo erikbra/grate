@@ -1,4 +1,5 @@
-﻿using System.Data.Common;
+﻿using System.Data;
+using System.Data.Common;
 using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Data.SqlClient;
@@ -11,6 +12,8 @@ class SqlServerGrateTestContext : IGrateTestContext
 {
     public IServiceProvider ServiceProvider { get; private set; }
     private readonly SqlServerTestContainer _testContainer;
+
+    private readonly IDatabaseConnectionFactory _databaseConnectionFactory;
     public SqlServerGrateTestContext(string serverCollation, IServiceProvider serviceProvider, SqlServerTestContainer container)
     {
         ServiceProvider = serviceProvider;
@@ -18,6 +21,7 @@ class SqlServerGrateTestContext : IGrateTestContext
         ServerCollation = serverCollation;
         DatabaseMigrator = ServiceProvider.GetService<IDatabase>()!;
         Syntax = ServiceProvider.GetService<ISyntax>()!;
+        _databaseConnectionFactory = ServiceProvider.GetService<IDatabaseConnectionFactory>()!;
     }
     public SqlServerGrateTestContext(IServiceProvider serviceProvider, SqlServerTestContainer container) : this("Danish_Norwegian_CI_AS", serviceProvider, container)
     {
@@ -40,7 +44,7 @@ class SqlServerGrateTestContext : IGrateTestContext
     public string UserConnectionString(string database) =>
         $"Data Source=localhost,{Port};Initial Catalog={database};User Id=sa;Password={AdminPassword};Encrypt=false;Pooling=false";
 
-    public DbConnection GetDbConnection(string connectionString) => new SqlConnection(connectionString);
+    public IDbConnection GetDbConnection(string connectionString) => _databaseConnectionFactory.GetDbConnection(connectionString);
 
 
 

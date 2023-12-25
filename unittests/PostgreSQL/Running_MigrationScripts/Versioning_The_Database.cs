@@ -3,7 +3,7 @@ using TestCommon.TestInfrastructure;
 
 namespace PostgreSQL.Running_MigrationScripts;
 
-[Collection(nameof(PostgresqlTestContainer))]
+[Collection(nameof(PostgreSqlTestContainer))]
 // ReSharper disable once InconsistentNaming
 public class Versioning_The_Database : TestCommon.Generic.Running_MigrationScripts.Versioning_The_Database, IClassFixture<DependencyService>
 {
@@ -11,7 +11,7 @@ public class Versioning_The_Database : TestCommon.Generic.Running_MigrationScrip
     protected override IGrateTestContext Context { get; }
     protected override ITestOutputHelper TestOutput { get; }
 
-    public Versioning_The_Database(PostgresqlTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
+    public Versioning_The_Database(PostgreSqlTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
         Context = new PostgreSqlGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;

@@ -1,23 +1,27 @@
-﻿using FluentAssertions;
+﻿using Dapper;
+using FluentAssertions;
 using grate;
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using TestCommon.Generic.Running_MigrationScripts;
+using TestCommon.TestInfrastructure;
+using static grate.Configuration.KnownFolderKeys;
+
 namespace TestCommon.DependencyInjection;
+
 public abstract class GrateServiceCollectionTest
 {
-    protected abstract void ConfigureService(GrateConfiguration grateConfiguration);
+    protected abstract void ConfigureService(GrateConfigurationBuilder grateConfiguration);
 
 
     [Fact]
     public void Should_inject_all_nescessary_service_to_container()
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddGrate(cfg =>
-        {
-            ConfigureService(cfg);
-        });
+        serviceCollection.AddGrate(ConfigureService);
 
         ValidateService(serviceCollection, typeof(IGrateMigrator), ServiceLifetime.Transient, typeof(GrateMigrator));
         ValidateService(serviceCollection, typeof(IDbMigrator), ServiceLifetime.Transient, typeof(DbMigrator));
@@ -27,9 +31,45 @@ public abstract class GrateServiceCollectionTest
         ValidateDatabaseService(serviceCollection);
     }
 
-    protected abstract void ValidateDatabaseService(ServiceCollection serviceCollection);
+    [Fact]
+    public async Task Should_migrate_database_successfully()
+    {
 
-    protected void ValidateService(ServiceCollection serviceCollection, Type serviceType, ServiceLifetime lifetime, Type? expectedImplementationType = null)
+        var knownFolders = FoldersConfiguration.Default(null);
+        var sqlFolder = MigrationsScriptsBase.CreateRandomTempDirectory();
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddLogging(opt =>
+        {
+            opt.AddConsole();
+            opt.SetMinimumLevel(TestConfig.GetLogLevel());
+        });
+        serviceCollection.AddGrate(builder =>
+        {
+            builder.WithFolder(knownFolders);
+            builder.WithSqlFilesDirectory(sqlFolder);
+            ConfigureService(builder);
+        });
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+        var syntax = serviceProvider.GetRequiredService<ISyntax>();
+        var tableName = CreateMigrationScript(sqlFolder, syntax);
+        var grateMigrator = serviceProvider.GetService<IGrateMigrator>();
+        await grateMigrator!.Migrate();
+
+        var grateConfiguration = serviceProvider.GetRequiredService<GrateConfiguration>();
+
+        var databaseConnectionFactory = serviceProvider.GetRequiredService<IDatabaseConnectionFactory>();
+        string sql = $"SELECT script_name FROM {syntax.TableWithSchema("grate", "ScriptsRun")} where script_name like '{tableName}_%'";
+
+        using var conn = databaseConnectionFactory.GetDbConnection(grateConfiguration.ConnectionString!);
+        var scripts = (await conn.QueryAsync<string>(sql)).ToArray();
+        var files = sqlFolder.GetFiles("*.sql", SearchOption.AllDirectories);
+
+        scripts.Should().HaveCount(files.Length);
+    }
+
+    protected abstract void ValidateDatabaseService(IServiceCollection serviceCollection);
+
+    protected void ValidateService(IServiceCollection serviceCollection, Type serviceType, ServiceLifetime lifetime, Type? expectedImplementationType = null)
     {
         var services = serviceCollection.Where(x => x.ServiceType == serviceType).ToArray();
         services.Should().HaveCount(1);
@@ -49,5 +89,22 @@ public abstract class GrateServiceCollectionTest
         var serviceProvider = serviceCollection.BuildServiceProvider();
         Action action = () => serviceProvider.GetService<IGrateMigrator>();
         action.Should().Throw<InvalidOperationException>("You forgot to configure the database. Please .UseXXX on the grate configuration.");
+    }
+
+    protected virtual string CreateMigrationScript(DirectoryInfo sqlFolder, ISyntax syntax)
+    {
+        var knownFolders = FoldersConfiguration.Default();
+        var tableName = "grate_test";
+        var create_table = @$"
+                        CREATE TABLE {tableName} (
+                            id {syntax.BigintType} NOT NULL PRIMARY KEY,
+                            name {syntax.VarcharType}(255) NOT NULL
+                        )";
+        MigrationsScriptsBase.WriteSql(sqlFolder, knownFolders[Up]!.Path, $"{tableName}_001_create_test_table.sql", create_table);
+        var insert_test_data = @$"
+                            INSERT INTO {tableName}(id, name) VALUES (1, 'test')
+                            ";
+        MigrationsScriptsBase.WriteSql(sqlFolder, knownFolders[RunFirstAfterUp]!.Path, $"{tableName}_001_insert_test_data.sql", insert_test_data);
+        return tableName;
     }
 }

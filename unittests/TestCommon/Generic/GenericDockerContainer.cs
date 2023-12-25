@@ -1,4 +1,4 @@
-﻿using System.Data;
+﻿using Dapper;
 using FluentAssertions;
 using TestCommon.TestInfrastructure;
 
@@ -12,15 +12,15 @@ public abstract class GenericDockerContainer
     public async Task Is_up_and_running()
     {
         string? res;
-        await using (var conn = Context.CreateAdminDbConnection())
+        using (var conn = Context.CreateAdminDbConnection())
         {
-            await conn.OpenAsync();
+            conn.Open();
 
-            var cmd = conn.CreateCommand();
-            cmd.CommandType = CommandType.Text;
-            cmd.CommandText = Context.Sql.SelectVersion;
+            // var cmd = conn.CreateCommand();
+            // cmd.CommandType = CommandType.Text;
+            var commandText = Context.Sql.SelectVersion;
 
-            res = (string?)await cmd.ExecuteScalarAsync();
+            res = (string?)await conn.ExecuteScalarAsync(commandText);
         }
 
         res.Should().StartWith(Context.ExpectedVersionPrefix);

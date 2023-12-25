@@ -5,15 +5,35 @@ using grate.Oracle;
 using grate.Oracle.Infrastructure;
 using grate.Oracle.Migration;
 using Microsoft.Extensions.DependencyInjection;
+using Oracle.TestInfrastructure;
+using TestCommon.Generic.Running_MigrationScripts;
+using TestCommon.TestInfrastructure;
+using static grate.Configuration.KnownFolderKeys;
+
 namespace Oracle.DependencyInjection;
+
+[Collection(nameof(OracleTestContainer))]
 public class ServiceCollectionTest : TestCommon.DependencyInjection.GrateServiceCollectionTest
 {
-    protected override void ConfigureService(GrateConfiguration grateConfiguration)
+    private readonly OracleTestContainer _oracleTestContainer;
+
+    public ServiceCollectionTest(OracleTestContainer oracleTestContainer)
     {
-        grateConfiguration.UseOracle();
+        _oracleTestContainer = oracleTestContainer;
+    }
+    protected override void ConfigureService(GrateConfigurationBuilder grateConfigurationBuilder)
+    {
+        var connectionString = $@"Data Source={_oracleTestContainer.TestContainer!.Hostname}:{_oracleTestContainer.TestContainer!.GetMappedPublicPort(_oracleTestContainer.Port)}/XEPDB1;User ID=oracle;Password={_oracleTestContainer.AdminPassword};Pooling=False";
+        var adminConnectionString = $@"Data Source={_oracleTestContainer.TestContainer!.Hostname}:{_oracleTestContainer.TestContainer!.GetMappedPublicPort(_oracleTestContainer.Port)}/XEPDB1;User ID=system;Password={_oracleTestContainer.AdminPassword};Pooling=False";
+
+        grateConfigurationBuilder.WithConnectionString(connectionString);
+        grateConfigurationBuilder.WithAdminConnectionString(adminConnectionString);
+        grateConfigurationBuilder.UseOracle();
+        grateConfigurationBuilder.ServiceCollection.AddSingleton<IDatabaseConnectionFactory, OracleConnectionFactory>();
     }
 
-    protected override void ValidateDatabaseService(ServiceCollection serviceCollection)
+
+    protected override void ValidateDatabaseService(IServiceCollection serviceCollection)
     {
         ValidateService(serviceCollection, typeof(IDatabase), ServiceLifetime.Transient, typeof(OracleDatabase));
         ValidateService(serviceCollection, typeof(ISyntax), ServiceLifetime.Transient, typeof(OracleSyntax));

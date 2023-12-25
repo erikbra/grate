@@ -37,7 +37,7 @@ public abstract class AnsiSqlDatabase : IDatabase
 
     public string ServerName => Connection.DataSource;
     public virtual string DatabaseName => Connection.Database;
-    public virtual string MasterDatabaseName => "master";
+    public abstract string MasterDatabaseName { get; }
     public abstract string DatabaseType { get; }
 
     private string? Password => ConnectionString?.Split(";", TrimEntries | RemoveEmptyEntries)
@@ -680,20 +680,21 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
         return await conn.ExecuteAsync(sql, parameters);
     }
 
-    protected async Task ExecuteNonQuery(DbConnection conn, string sql, int? timeout)
+    protected async Task ExecuteNonQuery(IDbConnection conn, string sql, int? timeout)
     {
         Logger.LogTrace("SQL: {Sql}", sql);
 
-        await using var cmd = conn.CreateCommand();
-        cmd.CommandText = sql;
-        cmd.CommandType = CommandType.Text;
+        // await using var cmd = conn.CreateCommand();
+        // cmd.CommandText = sql;
+        // cmd.CommandType = CommandType.Text;
 
-        if (timeout.HasValue)
-        {
-            cmd.CommandTimeout = timeout.Value;
-        }
+        // if (timeout.HasValue)
+        // {
+        //     cmd.CommandTimeout = timeout.Value;
+        // }
 
-        await cmd.ExecuteNonQueryAsync();
+        // await cmd.ExecuteNonQueryAsync();
+        await conn.ExecuteAsync(sql, commandTimeout: timeout);
     }
 
     public async ValueTask DisposeAsync()

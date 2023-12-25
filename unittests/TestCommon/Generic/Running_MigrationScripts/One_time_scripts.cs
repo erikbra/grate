@@ -33,7 +33,7 @@ public abstract class One_time_scripts : MigrationsScriptsBase
         string[] scripts;
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        await using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
@@ -67,7 +67,7 @@ public abstract class One_time_scripts : MigrationsScriptsBase
         string[] scripts;
         string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        await using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
@@ -107,7 +107,7 @@ public abstract class One_time_scripts : MigrationsScriptsBase
         string[] scripts;
         string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")} order by id";
 
-        await using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
@@ -151,7 +151,7 @@ public abstract class One_time_scripts : MigrationsScriptsBase
 
         string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")} order by id";
 
-        await using var conn = Context.CreateDbConnection(db);
+        using var conn = Context.CreateDbConnection(db);
         var scripts = await conn.QueryAsync<string>(sql);
         var result = (await conn.QueryAsync<string>("select col from grate")).Single();
 

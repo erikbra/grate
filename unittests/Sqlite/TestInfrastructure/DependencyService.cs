@@ -19,6 +19,7 @@ public class DependencyService
             {
                 cfg.UseSqlite();
             })
+            .AddSingleton<IDatabaseConnectionFactory, SqliteConnectionFactory>()
             .BuildServiceProvider();
     }
 }

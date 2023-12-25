@@ -8,7 +8,7 @@ using static grate.Configuration.KnownFolderKeys;
 
 namespace PostgreSQL.Running_MigrationScripts;
 
-[Collection(nameof(PostgresqlTestContainer))]
+[Collection(nameof(PostgreSqlTestContainer))]
 // ReSharper disable once InconsistentNaming
 public class Everytime_scripts : TestCommon.Generic.Running_MigrationScripts.Everytime_scripts, IClassFixture<DependencyService>
 {
@@ -16,7 +16,7 @@ public class Everytime_scripts : TestCommon.Generic.Running_MigrationScripts.Eve
     protected override IGrateTestContext Context { get; }
     protected override ITestOutputHelper TestOutput { get; }
 
-    public Everytime_scripts(PostgresqlTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
+    public Everytime_scripts(PostgreSqlTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
     {
         Context = new PostgreSqlGrateTestContext(dependencyService.ServiceProvider, testContainer);
         TestOutput = testOutput;
@@ -63,7 +63,7 @@ CREATE INDEX CONCURRENTLY IX_column2 ON public.table1
         string[] scripts;
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        await using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }

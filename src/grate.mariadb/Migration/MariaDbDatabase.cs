@@ -10,6 +10,7 @@ public class MariaDbDatabase : AnsiSqlDatabase
 {
 
     public const string Type = "mariadb";
+    public override string MasterDatabaseName => "mysql";
     public override string DatabaseType => Type;
     public MariaDbDatabase(ILogger<MariaDbDatabase> logger)
         : base(logger, new MariaDbSyntax())
@@ -17,6 +18,7 @@ public class MariaDbDatabase : AnsiSqlDatabase
 
     public override bool SupportsDdlTransactions => false;
     public override bool SupportsSchemas => false;
+
 
     protected override DbConnection GetSqlConnection(string? connectionString)
     {

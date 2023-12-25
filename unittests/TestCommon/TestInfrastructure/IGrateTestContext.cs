@@ -1,4 +1,4 @@
-﻿using System.Data.Common;
+﻿using System.Data;
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace TestCommon.TestInfrastructure;
 
-public interface IGrateTestContext
+public interface IGrateTestContext : IDatabaseConnectionFactory
 {
     string AdminPassword { get; }
     int? Port { get; }
@@ -16,10 +16,10 @@ public interface IGrateTestContext
     string ConnectionString(string database);
     string UserConnectionString(string database);
 
-    DbConnection GetDbConnection(string connectionString);
+    //DbConnection GetDbConnection(string connectionString);
 
-    DbConnection CreateAdminDbConnection() => GetDbConnection(AdminConnectionString);
-    DbConnection CreateDbConnection(string database) => GetDbConnection(ConnectionString(database));
+    IDbConnection CreateAdminDbConnection() => GetDbConnection(AdminConnectionString);
+    IDbConnection CreateDbConnection(string database) => GetDbConnection(ConnectionString(database));
 
     ISyntax Syntax { get; }
 

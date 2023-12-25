@@ -1,4 +1,4 @@
-﻿using System.Data.Common;
+﻿using System.Data;
 using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,12 +11,15 @@ public class OracleGrateTestContext : IGrateTestContext
 {
     public IServiceProvider ServiceProvider { get; private set; }
     private readonly OracleTestContainer _testContainer;
+
+    private readonly IDatabaseConnectionFactory _databaseConnectionFactory;
     public OracleGrateTestContext(IServiceProvider serviceProvider, OracleTestContainer container)
     {
         ServiceProvider = serviceProvider;
         _testContainer = container;
         DatabaseMigrator = ServiceProvider.GetService<IDatabase>()!;
         Syntax = ServiceProvider.GetService<ISyntax>()!;
+        _databaseConnectionFactory = ServiceProvider.GetService<IDatabaseConnectionFactory>()!;
     }
     public string AdminPassword => _testContainer.AdminPassword;
     public int? Port => _testContainer.TestContainer!.GetMappedPublicPort(_testContainer.Port);
@@ -30,7 +33,7 @@ public class OracleGrateTestContext : IGrateTestContext
     public string ConnectionString(string database) => $@"Data Source={_testContainer.TestContainer!.Hostname}:{Port}/XEPDB1;User ID={database.ToUpper()};Password={AdminPassword};Pooling=False";
     public string UserConnectionString(string database) => $@"Data Source={_testContainer.TestContainer!.Hostname}:{Port}/XEPDB1;User ID={database.ToUpper()};Password={AdminPassword};Pooling=False";
 
-    public DbConnection GetDbConnection(string connectionString) => new OracleConnection(connectionString);
+    public IDbConnection GetDbConnection(string connectionString) => _databaseConnectionFactory.GetDbConnection(connectionString);
 
     public ISyntax Syntax { get; init; }
     public Type DbExceptionType => typeof(OracleException);

@@ -1,9 +1,9 @@
 ﻿namespace TestCommon.TestInfrastructure;
-public class PostgresqlTestContainer : ContainerFixture
+public class PostgreSqlTestContainer : ContainerFixture
 {
-    public string? DockerImage => "postgres:latest";
+    public string? DockerImage => "postgres:15.5";
     public int Port = 5432;
-    public PostgresqlTestContainer()
+    public PostgreSqlTestContainer()
     {
         TestContainer = new PostgreSqlBuilder()
                             .WithImage(DockerImage)
@@ -13,7 +13,7 @@ public class PostgresqlTestContainer : ContainerFixture
     }
 }
 
-[CollectionDefinition(nameof(PostgresqlTestContainer))]
-public class PostgresqlTestCollection : ICollectionFixture<PostgresqlTestContainer>
+[CollectionDefinition(nameof(PostgreSqlTestContainer))]
+public class PostgresqlTestCollection : ICollectionFixture<PostgreSqlTestContainer>
 {
 }

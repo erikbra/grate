@@ -19,6 +19,7 @@ public class DependencyService
             {
                 cfg.UsePostgreSql();
             })
+            .AddSingleton<IDatabaseConnectionFactory, PostgreSqlConnectionFactory>()
             .BuildServiceProvider();
     }
 }

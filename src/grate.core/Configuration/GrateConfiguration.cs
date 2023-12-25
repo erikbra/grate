@@ -11,7 +11,7 @@ namespace grate.Configuration;
 public record GrateConfiguration
 {
     //private readonly string? _adminConnectionString;
-    public IServiceCollection? ServiceCollection { get; set; }
+    public IServiceCollection? ServiceCollection { get; init; }
 
     public IFoldersConfiguration? Folders { get; init; } = FoldersConfiguration.Default();
 

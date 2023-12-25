@@ -29,7 +29,7 @@ public abstract class TokenScripts : MigrationsScriptsBase
         }
 
         string sql = $"SELECT dbase FROM grate";
-        await using var conn = Context.CreateDbConnection(db);
+        using var conn = Context.CreateDbConnection(db);
         var actual = await conn.QuerySingleAsync<string>(sql);
         actual.Should().Be(db);
 
@@ -57,7 +57,7 @@ public abstract class TokenScripts : MigrationsScriptsBase
         }
 
         string sql = $"SELECT dbase FROM grate";
-        await using var conn = Context.CreateDbConnection(db);
+        using var conn = Context.CreateDbConnection(db);
         var actual = await conn.QuerySingleAsync<string>(sql);
         actual.Should().Be("token1");
     }

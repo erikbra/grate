@@ -19,6 +19,7 @@ public class DependencyService
             {
                 cfg.UseSqlServer();
             })
+            .AddSingleton<IDatabaseConnectionFactory, SqlServerConnectionFactory>()
             .BuildServiceProvider();
     }
 }

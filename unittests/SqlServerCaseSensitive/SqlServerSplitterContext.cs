@@ -1,69 +1,69 @@
 ﻿using grate.Infrastructure;
 // ReSharper disable StringLiteralTypo
 
-namespace TestCommon.TestInfrastructure;
+namespace SqlServerCaseSensitive.TestInfrastructure;
 
-public static class OracleSplitterContext
+public static class SqlServerSplitterContext
 {
 
     public static class FullSplitter
     {
-        public static readonly string PLSqlStatement = @"
+        public static readonly string tsql_statement = @"
 BOB1
-/
+GO
 
 /* COMMENT */
 BOB2
-/
+GO
 
--- /
+-- GO
 
-BOB3 /
+BOB3 GO
 
---`~!@#$%^&*()-_+=,.;:'""[]\/?<> /
+--`~!@#$%^&*()-_+=,.;:'""[]\/?<> GO
 
 BOB5
-   /
+   GO
 
 BOB6
-/
+GO
 
-/* / */
+/* GO */
 
 BOB7
 
 /* 
 
-/
+GO
 
 */
 
 BOB8
 
 --
-/
+GO
 
 BOB9
 
 -- `~!@#$%^&*()-_+=,.;:'""[]\/?<>
-/
+GO
 
-BOB10/
+BOB10GO
 
-CREATE TABLE PO/
+CREATE TABLE POGO
 {}
 
-INSERT INTO PO/ (id,desc) VALUES (1,'/')
+INSERT INTO POGO (id,desc) VALUES (1,'GO')
 
 BOB11
 
   -- TODO: To be good, there should be type column
 
--- dfgjhdfgdjkgk dfgdfg /
+-- dfgjhdfgdjkgk dfgdfg GO
 BOB12
 
-UPDATE Timmy SET id = 'something something /'
-UPDATE Timmy SET id = 'something something: /'
+UPDATE Timmy SET id = 'something something go'
+UPDATE Timmy SET id = 'something something: go'
 
 ALTER TABLE Inv.something ADD
 	gagagag decimal(20, 12) NULL,
@@ -74,7 +74,7 @@ ALTER TABLE Inv.something ADD
 	slsald varchar(15) NULL,
 	uhasdf varchar(15) NULL,
     daf_asdfasdf DECIMAL(20,6) NULL;
-/
+GO
 
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Daily job', 
 		@step_id=1, 
@@ -85,21 +85,21 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Daily jo
 		@on_fail_step_id=0, 
 		@retry_attempts=0, 
 		@retry_interval=0, 
-		@os_run_priority=0, @subsystem=N'PLSQL', 
+		@os_run_priority=0, @subsystem=N'TSQL', 
 		@command=N'
 dml statements
-/  
+GO  
 dml statements '
 
-/
+GO
 
 INSERT [dbo].[Foo] ([Bar]) VALUES (N'hello--world.
 Thanks!')
-INSERT [dbo].[Foo] ([Bar]) VALUES (N'/ speed racer, / speed racer, / speed racer /!!!!! ')
+INSERT [dbo].[Foo] ([Bar]) VALUES (N'Go speed racer, go speed racer, go speed racer go!!!!! ')
 
-/";
+GO";
 
-        public static readonly string PLSqlStatementScrubbed = @"
+        public static readonly string tsql_statement_scrubbed = @"
 BOB1
 " + StatementSplitter.BatchTerminatorReplacementString + @"
 
@@ -107,11 +107,11 @@ BOB1
 BOB2
 " + StatementSplitter.BatchTerminatorReplacementString + @"
 
--- /
+-- GO
 
 BOB3 " + StatementSplitter.BatchTerminatorReplacementString + @"
 
---`~!@#$%^&*()-_+=,.;:'""[]\/?<> /
+--`~!@#$%^&*()-_+=,.;:'""[]\/?<> GO
 
 BOB5
    " + StatementSplitter.BatchTerminatorReplacementString + @"
@@ -119,13 +119,13 @@ BOB5
 BOB6
 " + StatementSplitter.BatchTerminatorReplacementString + @"
 
-/* / */
+/* GO */
 
 BOB7
 
 /* 
 
-/
+GO
 
 */
 
@@ -139,22 +139,22 @@ BOB9
 -- `~!@#$%^&*()-_+=,.;:'""[]\/?<>
 " + StatementSplitter.BatchTerminatorReplacementString + @"
 
-BOB10/
+BOB10GO
 
-CREATE TABLE PO/
+CREATE TABLE POGO
 {}
 
-INSERT INTO PO/ (id,desc) VALUES (1,'/')
+INSERT INTO POGO (id,desc) VALUES (1,'GO')
 
 BOB11
 
   -- TODO: To be good, there should be type column
 
--- dfgjhdfgdjkgk dfgdfg /
+-- dfgjhdfgdjkgk dfgdfg GO
 BOB12
 
-UPDATE Timmy SET id = 'something something /'
-UPDATE Timmy SET id = 'something something: /'
+UPDATE Timmy SET id = 'something something go'
+UPDATE Timmy SET id = 'something something: go'
 
 ALTER TABLE Inv.something ADD
 	gagagag decimal(20, 12) NULL,
@@ -176,17 +176,17 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Daily jo
 		@on_fail_step_id=0, 
 		@retry_attempts=0, 
 		@retry_interval=0, 
-		@os_run_priority=0, @subsystem=N'PLSQL', 
+		@os_run_priority=0, @subsystem=N'TSQL', 
 		@command=N'
 dml statements
-/  
+GO  
 dml statements '
 
 " + StatementSplitter.BatchTerminatorReplacementString + @"
 
 INSERT [dbo].[Foo] ([Bar]) VALUES (N'hello--world.
 Thanks!')
-INSERT [dbo].[Foo] ([Bar]) VALUES (N'/ speed racer, / speed racer, / speed racer /!!!!! ')
+INSERT [dbo].[Foo] ([Bar]) VALUES (N'Go speed racer, go speed racer, go speed racer go!!!!! ')
 
 " + StatementSplitter.BatchTerminatorReplacementString + @"";
 

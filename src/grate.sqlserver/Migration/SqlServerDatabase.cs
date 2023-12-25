@@ -9,6 +9,7 @@ namespace grate.SqlServer.Migration;
 public class SqlServerDatabase : AnsiSqlDatabase
 {
     public const string Type = "sqlserver";
+    public override string MasterDatabaseName => "master";
     public override string DatabaseType => Type;
     public SqlServerDatabase(ILogger<SqlServerDatabase> logger)
         : base(logger, new SqlServerSyntax())
