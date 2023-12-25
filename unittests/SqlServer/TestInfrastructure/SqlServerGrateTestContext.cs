@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Data.Common;
 using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Data.SqlClient;

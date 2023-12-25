@@ -6,9 +6,7 @@ using grate.PostgreSql.Infrastructure;
 using grate.PostgreSql.Migration;
 using Microsoft.Extensions.DependencyInjection;
 using PostgreSQL.TestInfrastructure;
-using TestCommon.Generic.Running_MigrationScripts;
 using TestCommon.TestInfrastructure;
-using static grate.Configuration.KnownFolderKeys;
 namespace PostgreSQL.DependencyInjection;
 
 [Collection(nameof(PostgreSqlTestContainer))]

@@ -2,7 +2,6 @@
 using grate.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Oracle.TestInfrastructure;
-using TestCommon.TestInfrastructure;
 
 // ReSharper disable InconsistentNaming
 

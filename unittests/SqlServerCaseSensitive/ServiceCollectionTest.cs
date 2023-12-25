@@ -6,9 +6,7 @@ using grate.SqlServer.Infrastructure;
 using grate.SqlServer.Migration;
 using Microsoft.Extensions.DependencyInjection;
 using SqlServerCaseSensitive.TestInfrastructure;
-using TestCommon.Generic.Running_MigrationScripts;
 using TestCommon.TestInfrastructure;
-using static grate.Configuration.KnownFolderKeys;
 namespace SqlServerCaseSensitiveCaseSensitive.DependencyInjection;
 
 [Collection(nameof(SqlServerTestContainer))]
@@ -27,27 +25,6 @@ public class ServiceCollectionTest : TestCommon.DependencyInjection.GrateService
         grateConfigurationBuilder.UseSqlServer();
         grateConfigurationBuilder.ServiceCollection.AddSingleton<IDatabaseConnectionFactory, SqlServerConnectionFactory>();
     }
-
-    protected override DirectoryInfo CreateMigrationFolder()
-    {
-        var sqlFolder = MigrationsScriptsBase.CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
-        var create_table = @"
-                CREATE TABLE grate_test(
-                    id int NOT NULL,
-                    name varchar(255) NOT NULL,
-                    PRIMARY KEY (id)
-                )
-            ";
-        MigrationsScriptsBase.WriteSql(sqlFolder, knownFolders[Up]!.Path, "001_create_test_table.sql", create_table);
-        var insert_test_data = @"
-                INSERT INTO grate_test(id, name) VALUES(1, 'test');
-            ";
-        MigrationsScriptsBase.WriteSql(sqlFolder, knownFolders[RunFirstAfterUp]!.Path, "001_insert_test_data.sql", insert_test_data);
-        return sqlFolder;
-
-    }
-
     protected override void ValidateDatabaseService(IServiceCollection serviceCollection)
     {
         ValidateService(serviceCollection, typeof(IDatabase), ServiceLifetime.Transient, typeof(SqlServerDatabase));

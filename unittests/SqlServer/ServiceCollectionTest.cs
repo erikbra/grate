@@ -6,9 +6,7 @@ using grate.SqlServer.Infrastructure;
 using grate.SqlServer.Migration;
 using Microsoft.Extensions.DependencyInjection;
 using SqlServer.TestInfrastructure;
-using TestCommon.Generic.Running_MigrationScripts;
 using TestCommon.TestInfrastructure;
-using static grate.Configuration.KnownFolderKeys;
 namespace SqlServer.DependencyInjection;
 
 [Collection(nameof(SqlServerTestContainer))]

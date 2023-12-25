@@ -6,9 +6,7 @@ using grate.Oracle.Infrastructure;
 using grate.Oracle.Migration;
 using Microsoft.Extensions.DependencyInjection;
 using Oracle.TestInfrastructure;
-using TestCommon.Generic.Running_MigrationScripts;
 using TestCommon.TestInfrastructure;
-using static grate.Configuration.KnownFolderKeys;
 
 namespace Oracle.DependencyInjection;
 
