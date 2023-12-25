@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using grate.Infrastructure;
 using grate.Migration;
+using grate.Oracle.Migration;
 using Microsoft.Extensions.DependencyInjection;
 using Oracle.ManagedDataAccess.Client;
 using TestCommon.TestInfrastructure;
@@ -38,11 +39,11 @@ public class OracleGrateTestContext : IGrateTestContext
     public ISyntax Syntax { get; init; }
     public Type DbExceptionType => typeof(OracleException);
 
-    public string DatabaseType => "oracle";
+    public string DatabaseType => OracleDatabase.Type;
     public bool SupportsTransaction => false;
 
-    public string DatabaseTypeName => "Oracle";
-    public string MasterDatabase => "oracle";
+    // public string DatabaseTypeName => "Oracle";
+    // public string MasterDatabase => "oracle";
 
     public IDatabase DatabaseMigrator { get; init; }
 

@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using grate.Infrastructure;
 using grate.Migration;
+using grate.PostgreSql.Migration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using TestCommon.TestInfrastructure;
@@ -39,10 +40,10 @@ public class PostgreSqlGrateTestContext : IGrateTestContext
     public ISyntax Syntax { get; init; }
     public Type DbExceptionType => typeof(PostgresException);
 
-    public string DatabaseType => "postgresql";
+    public string DatabaseType => PostgreSqlDatabase.Type;
     public bool SupportsTransaction => true;
-    public string DatabaseTypeName => "PostgreSQL";
-    public string MasterDatabase => "postgres";
+    // public string DatabaseTypeName => "PostgreSQL";
+    // public string MasterDatabase => "postgres";
 
     public IDatabase DatabaseMigrator { get; init; }
 

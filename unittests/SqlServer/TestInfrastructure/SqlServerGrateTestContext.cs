@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using grate.Infrastructure;
 using grate.Migration;
+using grate.SqlServer.Migration;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using TestCommon.TestInfrastructure;
@@ -50,10 +51,10 @@ class SqlServerGrateTestContext : IGrateTestContext
     public ISyntax Syntax { get; init; }
     public Type DbExceptionType => typeof(SqlException);
 
-    public string DatabaseType => "sqlserver";
+    public string DatabaseType => SqlServerDatabase.Type;
     public bool SupportsTransaction => true;
-    public string DatabaseTypeName => "SQL server";
-    public string MasterDatabase => "master";
+    // public string DatabaseTypeName => "SQL server";
+    // public string MasterDatabase => "master";
 
     public IDatabase DatabaseMigrator { get; init; }
 

@@ -29,8 +29,8 @@ public interface IGrateTestContext : IDatabaseConnectionFactory
     IDatabase DatabaseMigrator { get; }
 
     SqlStatements Sql { get; }
-    string DatabaseTypeName { get; }
-    string MasterDatabase { get; }
+    //string DatabaseTypeName { get; }
+    //string MasterDatabase { get; }
     IServiceProvider ServiceProvider { get; }
     string ExpectedVersionPrefix { get; }
 

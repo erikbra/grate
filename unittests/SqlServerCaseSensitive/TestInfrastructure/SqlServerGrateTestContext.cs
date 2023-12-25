@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using grate.Infrastructure;
 using grate.Migration;
+using grate.SqlServer.Migration;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using TestCommon.TestInfrastructure;
@@ -39,10 +40,10 @@ class SqlServerGrateTestContext : IGrateTestContext
     public ISyntax Syntax { get; init; }
     public Type DbExceptionType => typeof(SqlException);
 
-    public string DatabaseType => "sqlserver";
+    public string DatabaseType => SqlServerDatabase.Type;
     public bool SupportsTransaction => true;
-    public string DatabaseTypeName => "SQL server";
-    public string MasterDatabase => "master";
+    // public string DatabaseTypeName => "SQL server";
+    // public string MasterDatabase => "master";
 
     public IDatabase DatabaseMigrator { get; init; }
 
@@ -52,12 +53,7 @@ class SqlServerGrateTestContext : IGrateTestContext
         SleepTwoSeconds = "WAITFOR DELAY '00:00:02'"
     };
 
-    public string ExpectedVersionPrefix => RuntimeInformation.ProcessArchitecture switch
-    {
-        Arm64 => "Microsoft Azure SQL Edge Developer",
-        X64 => "Microsoft SQL Server 2019",
-        var other => throw new PlatformNotSupportedException("Unsupported platform for running tests: " + other)
-    };
+    public string ExpectedVersionPrefix => "Microsoft SQL Server 2019";
 
     public bool SupportsCreateDatabase => true;
 

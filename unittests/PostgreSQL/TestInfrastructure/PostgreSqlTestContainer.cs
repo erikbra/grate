@@ -1,7 +1,7 @@
 ﻿namespace TestCommon.TestInfrastructure;
 public class PostgreSqlTestContainer : ContainerFixture
 {
-    public string? DockerImage => "postgres:15.5";
+    public string? DockerImage => "postgres:16";
     public int Port = 5432;
     public PostgreSqlTestContainer()
     {

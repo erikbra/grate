@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using grate.Infrastructure;
+using grate.MariaDb.Migration;
 using grate.Migration;
 using Microsoft.Extensions.DependencyInjection;
 using MySqlConnector;
@@ -36,10 +37,10 @@ public class MariaDbGrateTestContext : IGrateTestContext
     public ISyntax Syntax { get; init; }
     public Type DbExceptionType => typeof(MySqlException);
 
-    public string DatabaseType => "mariadb";
+    public string DatabaseType => MariaDbDatabase.Type;
     public bool SupportsTransaction => false;
-    public string DatabaseTypeName => "MariaDB Server";
-    public string MasterDatabase => "mysql";
+    // public string DatabaseTypeName => "MariaDB Server";
+    // public string MasterDatabase => "mysql";
 
     public IDatabase DatabaseMigrator { get; init; }
 
@@ -52,6 +53,6 @@ public class MariaDbGrateTestContext : IGrateTestContext
     };
 
 
-    public string ExpectedVersionPrefix => "10.5.9-MariaDB";
+    public string ExpectedVersionPrefix => "10.10.7-MariaDB";
     public bool SupportsCreateDatabase => true;
 }

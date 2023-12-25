@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using grate.Infrastructure;
 using grate.Migration;
+using grate.Sqlite.Migration;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using TestCommon.TestInfrastructure;
@@ -10,7 +11,7 @@ namespace Sqlite.TestInfrastructure;
 public class SqliteGrateTestContext : IGrateTestContext
 {
     private readonly IDatabaseConnectionFactory _databaseConnectionFactory;
-    public SqliteGrateTestContext(IServiceProvider serviceProvider, SqliteTestContainer testContainer)
+    public SqliteGrateTestContext(IServiceProvider serviceProvider, SqliteTestContainer _)
     {
         ServiceProvider = serviceProvider;
         Syntax = ServiceProvider.GetService<ISyntax>()!;
@@ -31,10 +32,10 @@ public class SqliteGrateTestContext : IGrateTestContext
     public ISyntax Syntax { get; init; }
     public Type DbExceptionType => typeof(SqliteException);
 
-    public string DatabaseType => "sqlite";
+    public string DatabaseType => SqliteDatabase.Type;
     public bool SupportsTransaction => false;
-    public string DatabaseTypeName => "Sqlite";
-    public string MasterDatabase => "master";
+    // public string DatabaseTypeName => "Sqlite";
+    // public string MasterDatabase => "master";
 
     // public IDatabase DatabaseMigrator => new SqliteDatabase(ServiceProvider.GetRequiredService<ILogger<SqliteDatabase>>());
     public IDatabase DatabaseMigrator { get; init; }
@@ -45,7 +46,7 @@ public class SqliteGrateTestContext : IGrateTestContext
     };
 
 
-    public string ExpectedVersionPrefix => "3.32.3";
+    public string ExpectedVersionPrefix => throw new NotSupportedException("Sqlite does not support versioning");
     public bool SupportsCreateDatabase => false;
 
     public IServiceProvider ServiceProvider { get; }

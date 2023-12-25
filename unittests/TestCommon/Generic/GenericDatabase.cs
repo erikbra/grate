@@ -14,6 +14,24 @@ public abstract class GenericDatabase
     protected abstract IGrateTestContext Context { get; }
 
     [Fact]
+    public virtual async Task Is_up_and_running_with_appropriate_database_version()
+    {
+        string? res;
+        using (var conn = Context.CreateAdminDbConnection())
+        {
+            conn.Open();
+
+            // var cmd = conn.CreateCommand();
+            // cmd.CommandType = CommandType.Text;
+            var commandText = Context.Sql.SelectVersion;
+
+            res = (string?)await conn.ExecuteScalarAsync(commandText);
+        }
+
+        res.Should().StartWith(Context.ExpectedVersionPrefix);
+    }
+
+    [Fact]
     public async Task Is_created_if_confed_and_it_does_not_exist()
     {
         var db = "NEWDATABASE";

@@ -51,5 +51,7 @@ public class Database : TestCommon.Generic.GenericDatabase, IClassFixture<Depend
     public override Task Is_created_with_custom_script_if_custom_create_database_folder_exists() =>
         Task.CompletedTask;
 
+    [Fact(Skip = "SQLite does not support docker container")]
+    public override Task Is_up_and_running_with_appropriate_database_version() => Task.CompletedTask;
     protected override bool ThrowOnMissingDatabase => false;
 }
