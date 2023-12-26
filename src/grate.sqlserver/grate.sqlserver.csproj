@@ -6,7 +6,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Npgsql" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
   </ItemGroup>
   
   <ItemGroup>

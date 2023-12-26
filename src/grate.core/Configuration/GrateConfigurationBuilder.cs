@@ -22,6 +22,10 @@ public class GrateConfigurationBuilder
     {
         _grateConfiguration = _grateConfiguration with { SqlFilesDirectory = sqlFilesDirectory };
     }
+    public void WithSqlFilesDirectory(string sqlFilesDirectory)
+    {
+        _grateConfiguration = _grateConfiguration with { SqlFilesDirectory = new DirectoryInfo(sqlFilesDirectory) };
+    }
     public void WithConnectionString(string connectionString)
     {
         _grateConfiguration = _grateConfiguration with { ConnectionString = connectionString };

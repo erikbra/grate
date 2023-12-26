@@ -1,1 +1,1 @@
-INSERT INTO grate_test(name) VALUES ('Hello from grate!');
+INSERT INTO grate_test(name) VALUES ('Hello grate from docker !');

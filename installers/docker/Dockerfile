@@ -18,5 +18,6 @@ ENTRYPOINT ./grate \
             --sqlfilesdirectory=/db \
             --version=$VERSION \
             --connstring="$APP_CONNSTRING" \
+            --databasetype=$DATABASE_TYPE
             --silent \
             --outputPath=/output

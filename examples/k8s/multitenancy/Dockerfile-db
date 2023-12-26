@@ -1,0 +1,7 @@
+FROM erikbra/grate:latest as base
+WORKDIR /app
+COPY sql/ /db
+COPY script/ ./
+RUN chmod +x ./migrate.sh
+RUN mkdir /output
+ENTRYPOINT ["./migrate.sh"]

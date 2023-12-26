@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mssql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mssql
+  template:
+    metadata:
+      labels:
+        app: mssql
+    spec:
+      containers:
+        - name: mssql
+          image: mcr.microsoft.com/mssql/server:2019-latest
+          env:
+          - name: SA_PASSWORD
+            value: "gs8j4AS7h87jHg"
+          - name: ACCEPT_EULA
+            value: "Y"
+          - name: MSSQL_PID
+            value: "Express"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grate-k8s-example
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grate-k8s
+  template:
+    metadata:
+      labels:
+        app: grate-k8s
+    spec:
+      initContainers:
+        - name: db-migration
+          image: erikbra/grate-sample-service:migration-latest
+          env:
+          - name: ADMIN_CONNSTRING
+            value: "Server=db;Database=master;User Id=sa;Password=gs8j4AS7h87jHg;TrustServerCertificate=True"
+          - name: APP_CONNSTRING
+            value: "Server=db;Database={{targetDatabase}};User Id=sa;Password=gs8j4AS7h87jHg;TrustServerCertificate=True"
+          - name: Database__Databases
+            value: "tenant_a,tenant_b,tenant_c" # comma separate
+          - name: Database__Env
+            value: "PROD"
+          - name: Database__Type
+            value: "sqlserver" # mariadb | oracle | postgresql | sqlite | sqlserver
+      containers:
+        - name: sample-service
+          image: erikbra/grate-sample-service:latest
+          env:
+          - name: ConnectionStrings__DefaultConnection
+            value: "Server=db;Database=example;User Id=sa;Password=gs8j4AS7h87jHg;TrustServerCertificate=True"
+          - name: ConnectionStrings__AdminConnection
+            value: "Server=db;Database=master;User Id=sa;Password=gs8j4AS7h87jHg;TrustServerCertificate=True"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  labels:
+    app: db
+spec:
+  ports:
+  - port: 1433
+    targetPort: 1433
+    protocol: TCP
+  selector:
+    app: mssql
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grate-k8s
+  labels:
+    app: db
+spec:
+  ports:
+  - port: 5000
+    targetPort: 80
+    protocol: TCP
+    name: http
+  selector:
+    app: grate-k8s
+  type: ClusterIP
