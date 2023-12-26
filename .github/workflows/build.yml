@@ -144,7 +144,7 @@ jobs:
     name: Build and push docker image
     needs: 
      - set-version-number
-     - build-standalone
+     #- build-standalone
     runs-on: ubuntu-latest
     if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
     env:
@@ -154,10 +154,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/download-artifact@v3
-      with:
-        name: grate-linux-musl-x64-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
-        path: installers/docker/
+    # - uses: actions/download-artifact@v3 # download from another artifact is a bad idea, we need to build directly from source
+    #   with:
+    #     name: grate-linux-musl-x64-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
+    #     path: installers/docker/
         
 
     - name: Log in to the Container registry
@@ -183,7 +183,8 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56
       with:
-        context: ./installers/docker/
+        file: ./installers/docker/Dockerfile
+        context: .
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
@@ -212,7 +213,7 @@ jobs:
         arch=$(echo ${{ matrix.arch }} | cut -d- -f2 | sed 's/x64/amd64/')
         echo "::set-output name=arch::$arch"
 
-    - name: Create dpkg
+    - name: Create dpkg # Linux with powershell script? really?
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       run: ./installers/deb/Create-Package.ps1 -grateExe ./${{ matrix.arch }}/grate -Version "${{ needs.set-version-number.outputs.nuGetVersion }}" -arch ${{ steps.get-arch.outputs.arch}}
       env:
