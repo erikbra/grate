@@ -35,7 +35,6 @@ public abstract class GrateServiceCollectionTest
     public async Task Should_migrate_database_successfully()
     {
 
-        var knownFolders = FoldersConfiguration.Default(null);
         var sqlFolder = MigrationsScriptsBase.CreateRandomTempDirectory();
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddLogging(opt =>
@@ -45,7 +44,6 @@ public abstract class GrateServiceCollectionTest
         });
         serviceCollection.AddGrate(builder =>
         {
-            builder.WithFolder(knownFolders);
             builder.WithSqlFilesDirectory(sqlFolder);
             ConfigureService(builder);
         });

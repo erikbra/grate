@@ -2,7 +2,7 @@
 
 namespace grate.Infrastructure;
 
-public class GrateEnvironment
+public record GrateEnvironment
 {
     /// <summary>
     /// The name of the Environment

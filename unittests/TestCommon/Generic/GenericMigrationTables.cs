@@ -103,24 +103,24 @@ public abstract class GenericMigrationTables
     [InlineData("vErSiON")]
     public async Task Does_not_create_Version_table_if_it_exists_with_another_casing(string existingTable)
     {
-        await CheckTableCasing("Version", existingTable, (config, name) => config.VersionTableName = name);
+        await CheckTableCasing("Version", existingTable, (config, name) => config with { VersionTableName = name });
     }
     [Theory]
     [InlineData("scriptsrun")]
     [InlineData("SCRiptSrUN")]
     public async Task Does_not_create_ScriptsRun_table_if_it_exists_with_another_casing(string existingTable)
     {
-        await CheckTableCasing("ScriptsRun", existingTable, (config, name) => config.ScriptsRunTableName = name);
+        await CheckTableCasing("ScriptsRun", existingTable, (config, name) => config with { ScriptsRunTableName = name });
     }
     [Theory]
     [InlineData("scriptsrunerrors")]
     [InlineData("ScripTSRunErrors")]
     public async Task Does_not_create_ScriptsRunErrors_table_if_it_exists_with_another_casing(string existingTable)
     {
-        await CheckTableCasing("ScriptsRunErrors", existingTable, (config, name) => config.ScriptsRunErrorsTableName = name);
+        await CheckTableCasing("ScriptsRunErrors", existingTable, (config, name) => config with { ScriptsRunErrorsTableName = name });
     }
 
-    protected virtual async Task CheckTableCasing(string tableName, string funnyCasing, Action<GrateConfiguration, string> setTableName)
+    protected virtual async Task CheckTableCasing(string tableName, string funnyCasing, Func<GrateConfiguration, string, GrateConfiguration> setTableName)
     {
         var db = TestConfig.RandomDatabase();
 
