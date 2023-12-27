@@ -130,7 +130,7 @@ public abstract class GenericMigrationTables
         // Set the version table name to be lower-case first, and run one migration.
         var config = Context.GetConfiguration(db, parent, knownFolders);
 
-        setTableName(config, funnyCasing);
+        config = setTableName(config, funnyCasing);
 
         await using (var migrator = Context.GetMigrator(config))
         {
