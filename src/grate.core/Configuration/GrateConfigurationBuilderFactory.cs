@@ -23,12 +23,4 @@ public class GrateConfigurationBuilderFactory
     {
         return new GrateConfigurationBuilder(serviceCollection, GrateConfiguration.Default with { NonInteractive = true });
     }
-    /// <summary>
-    /// Create the default grate configuration builder. This will create new service collection and default grate configuration.
-    /// </summary>
-    /// <returns></returns>
-    public static GrateConfigurationBuilder Create()
-    {
-        return new GrateConfigurationBuilder(new ServiceCollection(), GrateConfiguration.Default with { NonInteractive = true });
-    }
 }

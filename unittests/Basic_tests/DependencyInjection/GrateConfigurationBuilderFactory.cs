@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using grate.Configuration;
 using grate.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using static TestCommon.Generic.Running_MigrationScripts.MigrationsScriptsBase;
 namespace Basic_tests.DependencyInjection;
 
@@ -10,7 +11,9 @@ public class GrateConfigurationBuilderFactoryTest
     [Fact]
     public void Should_create_default_builder_with_non_interactive()
     {
-        var builder = GrateConfigurationBuilderFactory.Create();
+
+        var serviceCollection = new ServiceCollection();
+        var builder = GrateConfigurationBuilderFactory.Create(serviceCollection);
         var grateConfiguration = builder.Build();
         grateConfiguration.NonInteractive.Should().Be(true);
     }
@@ -21,7 +24,8 @@ public class GrateConfigurationBuilderFactoryTest
     {
         var outputDir = Directory.CreateDirectory(outputFolder);
         WriteSql(Wrap(outputDir, "views"), "01_test_view.sql", "create view v_test as select 1");
-        var builder = GrateConfigurationBuilderFactory.Create();
+        var serviceCollection = new ServiceCollection();
+        var builder = GrateConfigurationBuilderFactory.Create(serviceCollection);
         builder.WithOutputFolder(outputFolder);
         var grateConfiguration = builder.Build();
         grateConfiguration.OutputPath.Should().NotBeNull();
@@ -35,7 +39,8 @@ public class GrateConfigurationBuilderFactoryTest
     {
         var sqlDir = Directory.CreateDirectory(sqlFolder);
         WriteSql(Wrap(sqlDir, "views"), "01_test_view.sql", "create view v_test as select 1");
-        var builder = GrateConfigurationBuilderFactory.Create();
+        var serviceCollection = new ServiceCollection();
+        var builder = GrateConfigurationBuilderFactory.Create(serviceCollection);
         builder.WithSqlFilesDirectory(sqlFolder);
         var grateConfiguration = builder.Build();
         grateConfiguration.SqlFilesDirectory.Should().NotBeNull();
@@ -47,7 +52,8 @@ public class GrateConfigurationBuilderFactoryTest
     [InlineData("roundhouse")]
     public void Should_create_default_builder_with_schema(string schemaName)
     {
-        var builder = GrateConfigurationBuilderFactory.Create();
+        var serviceCollection = new ServiceCollection();
+        var builder = GrateConfigurationBuilderFactory.Create(serviceCollection);
         builder.WithSchema(schemaName);
         var grateConfiguration = builder.Build();
         grateConfiguration.SchemaName.Should().Be(schemaName);
@@ -58,7 +64,8 @@ public class GrateConfigurationBuilderFactoryTest
     [InlineData("Data source=whatever;Database=;")]
     public void Should_create_default_builder_with_connection_string(string connectionString)
     {
-        var builder = GrateConfigurationBuilderFactory.Create();
+        var serviceCollection = new ServiceCollection();
+        var builder = GrateConfigurationBuilderFactory.Create(serviceCollection);
         builder.WithConnectionString(connectionString);
         var grateConfiguration = builder.Build();
         grateConfiguration.ConnectionString.Should().Be(connectionString);
@@ -69,7 +76,8 @@ public class GrateConfigurationBuilderFactoryTest
     [InlineData("Data source=whatever;Database=master;")]
     public void Should_create_default_builder_with_admin_connection_string(string adminConnectionString)
     {
-        var builder = GrateConfigurationBuilderFactory.Create();
+        var serviceCollection = new ServiceCollection();
+        var builder = GrateConfigurationBuilderFactory.Create(serviceCollection);
         builder.WithAdminConnectionString(adminConnectionString);
         var grateConfiguration = builder.Build();
         grateConfiguration.AdminConnectionString.Should().Be(adminConnectionString);
@@ -80,7 +88,8 @@ public class GrateConfigurationBuilderFactoryTest
     [InlineData("1.0.0.0")]
     public void Should_create_default_builder_with_version(string version)
     {
-        var builder = GrateConfigurationBuilderFactory.Create();
+        var serviceCollection = new ServiceCollection();
+        var builder = GrateConfigurationBuilderFactory.Create(serviceCollection);
         builder.WithVersion(version);
         var grateConfiguration = builder.Build();
         grateConfiguration.Version.Should().Be(version);
@@ -88,7 +97,8 @@ public class GrateConfigurationBuilderFactoryTest
     [Fact]
     public void Should_create_default_builder_with_do_not_create_database()
     {
-        var builder = GrateConfigurationBuilderFactory.Create();
+        var serviceCollection = new ServiceCollection();
+        var builder = GrateConfigurationBuilderFactory.Create(serviceCollection);
         builder.DoNotCreateDatabase();
         var grateConfiguration = builder.Build();
         grateConfiguration.CreateDatabase.Should().Be(false);
@@ -97,7 +107,8 @@ public class GrateConfigurationBuilderFactoryTest
     [Fact]
     public void Should_create_default_builder_with_transaction()
     {
-        var builder = GrateConfigurationBuilderFactory.Create();
+        var serviceCollection = new ServiceCollection();
+        var builder = GrateConfigurationBuilderFactory.Create(serviceCollection);
         builder.WithTransaction();
         var grateConfiguration = builder.Build();
         grateConfiguration.Transaction.Should().Be(true);
@@ -110,7 +121,8 @@ public class GrateConfigurationBuilderFactoryTest
     [InlineData("prod")]
     public void Should_create_default_builder_with_environment_name(string environmentName)
     {
-        var builder = GrateConfigurationBuilderFactory.Create();
+        var serviceCollection = new ServiceCollection();
+        var builder = GrateConfigurationBuilderFactory.Create(serviceCollection);
         builder.WithEnvironment(environmentName);
         var grateConfiguration = builder.Build();
         grateConfiguration.Environment.Should().NotBeNull();
