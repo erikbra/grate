@@ -66,6 +66,39 @@ jobs:
     - name: Push to Nuget.org
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_ORG_KEY}} --skip-duplicate
+  
+  build-nuget-package:
+    needs: set-version-number
+    name: Build Nuget Packages
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: [  "grate.mariadb", 
+                "grate.oracle", 
+                "grate.postgresql",
+                "grate.sqlite", 
+                "grate.sqlserver"
+              ]
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Pack Nuget package ${{ matrix.package }}
+      run: dotnet pack ${{ matrix.package }} -c Release -o /tmp/grate/nupkg /p:Version=${{ env.VERSION }}
+      env:
+        VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
+
+   - name: Push to Nuget.org
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+      run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_ORG_KEY}} --skip-duplicate
 
   build-standalone:
     name: Build
@@ -144,7 +177,7 @@ jobs:
     name: Build and push docker image
     needs: 
      - set-version-number
-     #- build-standalone
+     #- build-standalone ## no need, we build directly from source
     runs-on: ubuntu-latest
     if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
     env:
