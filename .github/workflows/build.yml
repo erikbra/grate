@@ -92,7 +92,7 @@ jobs:
       run: dotnet restore
 
     - name: Pack Nuget package ${{ matrix.package }}
-      run: dotnet pack ./src/${{ matrix.package }} -c Release -o /tmp/grate/nupkg /p:Version=${{ env.VERSION }}
+      run: dotnet pack ./src/${{ matrix.package }} -c Release --include-symbols -o /tmp/grate/nupkg /p:Version=${{ env.VERSION }}
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
 
