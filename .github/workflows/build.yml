@@ -187,7 +187,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    # - uses: actions/download-artifact@v3 # download from another artifact is a bad idea, we need to build directly from source
+    # - uses: actions/download-artifact@v3 # download from another artifact is not a good idea, we need to build directly from source
     #   with:
     #     name: grate-linux-musl-x64-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
     #     path: installers/docker/
