@@ -4,10 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TestCommon.TestInfrastructure;
 namespace SqlServer.TestInfrastructure;
-public class DependencyService
+public class SimpleService
 {
     public IServiceProvider ServiceProvider { get; }
-    public DependencyService()
+    public SimpleService()
     {
         ServiceProvider = new ServiceCollection()
             .AddLogging(opt =>

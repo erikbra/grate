@@ -5,7 +5,7 @@ using grate.Infrastructure;
 using grate.Migration;
 using static grate.Configuration.DefaultConfiguration;
 
-namespace grate.console.Commands;
+namespace grate.Commands;
 
 public sealed class MigrateCommand : RootCommand
 {

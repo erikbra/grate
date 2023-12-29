@@ -15,15 +15,15 @@ public class BatchSplitterReplacer_
     private const string Symbols_to_check = "`~!@#$%^&*()-_+=,.;:'\"[]\\/?<>";
     private const string Words_to_check = "abcdefghijklmnopqrstuvwzyz0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    public class should_replace_on : IClassFixture<DependencyService>
+    public class should_replace_on : IClassFixture<SimpleService>
     {
         private ITestOutputHelper _testOutput;
         private BatchSplitterReplacer Replacer;
 
-        public should_replace_on(ITestOutputHelper testOutput, DependencyService dependencyService)
+        public should_replace_on(ITestOutputHelper testOutput, SimpleService simpleService)
         {
             _testOutput = testOutput;
-            Replacer = dependencyService.ServiceProvider.GetRequiredService<BatchSplitterReplacer>()!;
+            Replacer = simpleService.ServiceProvider.GetRequiredService<BatchSplitterReplacer>()!;
         }
         [Fact]
         public void full_statement_without_issue()
@@ -276,15 +276,15 @@ select ''
 
     }
 
-    public class should_not_replace_on : IClassFixture<DependencyService>
+    public class should_not_replace_on : IClassFixture<SimpleService>
     {
         private ITestOutputHelper _testOutput;
         private BatchSplitterReplacer Replacer;
 
-        public should_not_replace_on(ITestOutputHelper testOutput, DependencyService serverDependencyService)
+        public should_not_replace_on(ITestOutputHelper testOutput, SimpleService serversimpleService)
         {
             _testOutput = testOutput;
-            Replacer = serverDependencyService.ServiceProvider.GetRequiredService<BatchSplitterReplacer>()!;
+            Replacer = serversimpleService.ServiceProvider.GetRequiredService<BatchSplitterReplacer>()!;
         }
         [Fact]
         public void g()

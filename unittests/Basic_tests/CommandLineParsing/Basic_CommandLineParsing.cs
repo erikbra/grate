@@ -3,9 +3,14 @@ using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using FluentAssertions;
+using grate.Commands;
 using grate.Configuration;
-using grate.console.Commands;
 using grate.Infrastructure;
+using grate.MariaDb.Migration;
+using grate.Oracle.Migration;
+using grate.PostgreSql.Migration;
+using grate.Sqlite.Migration;
+using grate.SqlServer.Migration;
 
 namespace Basic_tests.CommandLineParsing;
 
@@ -321,11 +326,13 @@ public class Basic_CommandLineParsing
 
 
     [Theory]
-    [InlineData("", "sqlserver")] // default
-    [InlineData("--dbt=postgresql", "postgresql")]
-    [InlineData("--dbt=mariadb", "mariadb")]
-    [InlineData("--databasetype=mariadb", "mariadb")]
-    [InlineData("--databasetype=MariaDB", "mariadb")]
+    [InlineData("", SqlServerDatabase.Type)] // default
+    [InlineData("--dbt=postgresql", PostgreSqlDatabase.Type)]
+    [InlineData("--dbt=sqlite", SqliteDatabase.Type)]
+    [InlineData("--dbt=oracle", OracleDatabase.Type)]
+    [InlineData("--dbt=mariadb", MariaDbDatabase.Type)]
+    [InlineData("--databasetype=mariadb", MariaDbDatabase.Type)]
+    [InlineData("--databasetype=MariaDB", MariaDbDatabase.Type)]
     public async Task TestDatabaseType(string args, string expected)
     {
         var cfg = await ParseGrateConfiguration(args);

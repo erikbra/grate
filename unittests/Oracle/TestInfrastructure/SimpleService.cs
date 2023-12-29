@@ -1,13 +1,13 @@
 ﻿using grate;
-using grate.MariaDb;
+using grate.Oracle;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TestCommon.TestInfrastructure;
-namespace MariaDB.TestInfrastructure;
-public class DependencyService
+namespace Oracle.TestInfrastructure;
+public class SimpleService
 {
     public IServiceProvider ServiceProvider { get; }
-    public DependencyService()
+    public SimpleService()
     {
         ServiceProvider = new ServiceCollection()
             .AddLogging(opt =>
@@ -17,9 +17,9 @@ public class DependencyService
             })
             .AddGrate(cfg =>
             {
-                cfg.UseMariaDb();
+                cfg.UseOracle();
             })
-            .AddSingleton<IDatabaseConnectionFactory, MariaDbConnectionFactory>()
+            .AddSingleton<IDatabaseConnectionFactory, OracleConnectionFactory>()
             .BuildServiceProvider();
     }
 }

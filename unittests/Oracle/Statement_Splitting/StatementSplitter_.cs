@@ -7,13 +7,13 @@ namespace Basic_tests.Infrastructure.Oracle.Statement_Splitting;
 
 
 // ReSharper disable once InconsistentNaming
-public class StatementSplitter_ : IClassFixture<DependencyService>
+public class StatementSplitter_ : IClassFixture<SimpleService>
 {
     private StatementSplitter Splitter;
 
-    public StatementSplitter_(DependencyService dependencyService)
+    public StatementSplitter_(SimpleService simpleService)
     {
-        Splitter = dependencyService.ServiceProvider.GetRequiredService<StatementSplitter>()!;
+        Splitter = simpleService.ServiceProvider.GetRequiredService<StatementSplitter>()!;
     }
     [Fact]
     public void Splits_and_removes_GO_statements()

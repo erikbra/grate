@@ -10,13 +10,13 @@ using SqlServer.TestInfrastructure;
 namespace Basic_tests.Infrastructure.SqlServer;
 
 // ReSharper disable once InconsistentNaming
-public class SqlServerDatabase_ : IClassFixture<DependencyService>
+public class SqlServerDatabase_ : IClassFixture<SimpleService>
 {
     private IServiceProvider _serviceProvider;
 
-    public SqlServerDatabase_(DependencyService dependencyService)
+    public SqlServerDatabase_(SimpleService simpleService)
     {
-        _serviceProvider = dependencyService.ServiceProvider;
+        _serviceProvider = simpleService.ServiceProvider;
     }
     [Fact]
     public async Task Disables_pooling_if_not_explicitly_set_in_connection_string()

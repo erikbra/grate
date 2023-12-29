@@ -6,7 +6,7 @@ This directory shows a very simple way of building a docker container to apply y
 
 Simply `docker-compose up` to:
 - start a sql database server
-- run the `grate` migration against the server with script locate in `sql` folder and store the backup script in `output`
+- run the `grate` migration against the server with script locate in `db` folder and store the backup script in `output`
 
 ## Notes
 

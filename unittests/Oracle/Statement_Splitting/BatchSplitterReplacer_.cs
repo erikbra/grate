@@ -20,15 +20,15 @@ public class BatchSplitterReplacer_
     // private static BatchSplitterReplacer Replacer => new(Database.StatementSeparatorRegex, StatementSplitter.BatchTerminatorReplacementString);
 
 
-    public class should_replace_on : IClassFixture<DependencyService>
+    public class should_replace_on : IClassFixture<SimpleService>
     {
         private ITestOutputHelper _testOutput;
         private BatchSplitterReplacer Replacer;
 
-        public should_replace_on(ITestOutputHelper testOutput, DependencyService dependencyService)
+        public should_replace_on(ITestOutputHelper testOutput, SimpleService simpleService)
         {
             _testOutput = testOutput;
-            Replacer = dependencyService.ServiceProvider.GetRequiredService<BatchSplitterReplacer>()!;
+            Replacer = simpleService.ServiceProvider.GetRequiredService<BatchSplitterReplacer>()!;
         }
         [Fact]
         public void full_statement_without_issue()
@@ -281,15 +281,15 @@ select ''
 
     }
 
-    public class should_not_replace_on : IClassFixture<DependencyService>
+    public class should_not_replace_on : IClassFixture<SimpleService>
     {
         private ITestOutputHelper _testOutput;
         private BatchSplitterReplacer Replacer;
 
-        public should_not_replace_on(ITestOutputHelper testOutput, DependencyService dependencyService)
+        public should_not_replace_on(ITestOutputHelper testOutput, SimpleService simpleService)
         {
             _testOutput = testOutput;
-            Replacer = dependencyService.ServiceProvider.GetRequiredService<BatchSplitterReplacer>()!;
+            Replacer = simpleService.ServiceProvider.GetRequiredService<BatchSplitterReplacer>()!;
         }
         [Fact]
         public void slash_when_slash_is_the_last_part_of_the_last_word_on_a_line()

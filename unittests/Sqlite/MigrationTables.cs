@@ -4,16 +4,16 @@ using TestCommon.TestInfrastructure;
 namespace Sqlite;
 
 [Collection(nameof(SqliteTestContainer))]
-public class MigrationTables : TestCommon.Generic.GenericMigrationTables, IClassFixture<DependencyService>
+public class MigrationTables : TestCommon.Generic.GenericMigrationTables, IClassFixture<SimpleService>
 {
 
     protected override IGrateTestContext Context { get; }
 
     protected ITestOutputHelper TestOutput { get; }
 
-    public MigrationTables(SqliteTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
+    public MigrationTables(SqliteTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
     {
-        Context = new SqliteGrateTestContext(dependencyService.ServiceProvider, testContainer);
+        Context = new SqliteGrateTestContext(simpleService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

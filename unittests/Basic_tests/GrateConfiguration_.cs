@@ -25,8 +25,8 @@ public class GrateConfiguration_
            })
            .AddGrate(builder =>
            {
-               builder.WithConnectionString(connectionString);
-               builder.UseSqlServer();
+               builder.WithConnectionString(connectionString)
+                        .UseSqlServer();
            })
            .BuildServiceProvider();
         var cfg = serviceProvider.GetRequiredService<GrateConfiguration>();
@@ -47,8 +47,8 @@ public class GrateConfiguration_
            })
            .AddGrate(builder =>
            {
-               builder.WithConnectionString("Data source=localhost,1433;Initial Catalog=Øyenbryn;");
-               builder.UseSqlServer();
+               builder.WithConnectionString("Data source=localhost,1433;Initial Catalog=Øyenbryn;")
+                        .UseSqlServer();
            })
            .BuildServiceProvider();
         var cfg = serviceProvider.GetRequiredService<GrateConfiguration>();

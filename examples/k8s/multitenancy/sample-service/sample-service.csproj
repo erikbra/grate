@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\src\grate.sqlserver\grate.sqlserver.csproj" />
+    <ProjectReference Include="..\..\..\..\src\grate.sqlserver\grate.sqlserver.csproj" /> <!-- will use nuget package when publish-->
   </ItemGroup>
 
 </Project>

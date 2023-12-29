@@ -5,16 +5,16 @@ namespace SqlServer;
 
 [Collection(nameof(SqlServerTestContainer))]
 
-public class MigrationTables : TestCommon.Generic.GenericMigrationTables, IClassFixture<DependencyService>
+public class MigrationTables : TestCommon.Generic.GenericMigrationTables, IClassFixture<SimpleService>
 {
 
     protected override IGrateTestContext Context { get; }
 
     protected ITestOutputHelper TestOutput { get; }
 
-    public MigrationTables(SqlServerTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
+    public MigrationTables(SqlServerTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
     {
-        Context = new SqlServerGrateTestContext(dependencyService.ServiceProvider, testContainer);
+        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
     protected override string CountTableSql(string schemaName, string tableName)

@@ -8,12 +8,12 @@ using SqlServer.TestInfrastructure;
 namespace Basic_tests.Infrastructure;
 
 
-public class TokenReplacerTests : IClassFixture<DependencyService>
+public class TokenReplacerTests : IClassFixture<SimpleService>
 {
     private readonly IServiceProvider _serviceProvider;
-    public TokenReplacerTests(DependencyService sqlServerDependencyService)
+    public TokenReplacerTests(SimpleService sqlServersimpleService)
     {
-        _serviceProvider = sqlServerDependencyService.ServiceProvider;
+        _serviceProvider = sqlServersimpleService.ServiceProvider;
     }
 
     [Fact]

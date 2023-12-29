@@ -4,15 +4,15 @@ using TestCommon.TestInfrastructure;
 namespace SqlServerCaseSensitive.Running_MigrationScripts;
 [Collection(nameof(SqlServerTestContainer))]
 // ReSharper disable once InconsistentNaming
-public class Environment_scripts : TestCommon.Generic.Running_MigrationScripts.Environment_scripts, IClassFixture<DependencyService>
+public class Environment_scripts : TestCommon.Generic.Running_MigrationScripts.Environment_scripts, IClassFixture<SimpleService>
 {
     protected override IGrateTestContext Context { get; }
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public Environment_scripts(SqlServerTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
+    public Environment_scripts(SqlServerTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
     {
-        Context = new SqlServerGrateTestContext(dependencyService.ServiceProvider, testContainer);
+        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 }

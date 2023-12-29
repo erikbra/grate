@@ -1,13 +1,13 @@
 ﻿using grate;
-using grate.SqlServer;
+using grate.PostgreSql;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TestCommon.TestInfrastructure;
-namespace SqlServerCaseSensitive.TestInfrastructure;
-public class DependencyService
+namespace PostgreSQL.TestInfrastructure;
+public class SimpleService
 {
     public IServiceProvider ServiceProvider { get; }
-    public DependencyService()
+    public SimpleService()
     {
         ServiceProvider = new ServiceCollection()
             .AddLogging(opt =>
@@ -17,9 +17,9 @@ public class DependencyService
             })
             .AddGrate(cfg =>
             {
-                cfg.UseSqlServer();
+                cfg.UsePostgreSql();
             })
-            .AddSingleton<IDatabaseConnectionFactory, SqlServerConnectionFactory>()
+            .AddSingleton<IDatabaseConnectionFactory, PostgreSqlConnectionFactory>()
             .BuildServiceProvider();
     }
 }

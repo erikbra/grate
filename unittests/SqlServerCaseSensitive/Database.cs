@@ -4,16 +4,16 @@ using TestCommon.TestInfrastructure;
 
 namespace SqlServerCaseSensitive;
 [Collection(nameof(SqlServerTestContainer))]
-public class Database : GenericDatabase, IClassFixture<DependencyService>
+public class Database : GenericDatabase, IClassFixture<SimpleService>
 {
 
     protected override IGrateTestContext Context { get; }
 
     protected ITestOutputHelper TestOutput { get; }
 
-    public Database(SqlServerTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
+    public Database(SqlServerTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
     {
-        Context = new SqlServerGrateTestContext(dependencyService.ServiceProvider, testContainer);
+        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 }

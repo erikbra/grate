@@ -5,15 +5,15 @@ using TestCommon.TestInfrastructure;
 namespace MariaDB;
 
 [Collection(nameof(MariaDbTestContainer))]
-public class Database : GenericDatabase, IClassFixture<DependencyService>
+public class Database : GenericDatabase, IClassFixture<SimpleService>
 {
     protected override IGrateTestContext Context { get; }
 
     protected ITestOutputHelper TestOutput { get; }
 
-    public Database(MariaDbTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
+    public Database(MariaDbTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
     {
-        Context = new MariaDbGrateTestContext(dependencyService.ServiceProvider, testContainer);
+        Context = new MariaDbGrateTestContext(simpleService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 }

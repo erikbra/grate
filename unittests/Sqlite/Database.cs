@@ -5,16 +5,16 @@ using TestCommon.TestInfrastructure;
 namespace Sqlite;
 
 [Collection(nameof(SqliteTestContainer))]
-public class Database : TestCommon.Generic.GenericDatabase, IClassFixture<DependencyService>
+public class Database : TestCommon.Generic.GenericDatabase, IClassFixture<SimpleService>
 {
 
     protected override IGrateTestContext Context { get; }
 
     protected ITestOutputHelper TestOutput { get; }
 
-    public Database(SqliteTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
+    public Database(SqliteTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
     {
-        Context = new SqliteGrateTestContext(dependencyService.ServiceProvider, testContainer);
+        Context = new SqliteGrateTestContext(simpleService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

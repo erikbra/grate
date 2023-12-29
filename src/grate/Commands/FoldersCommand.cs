@@ -2,7 +2,7 @@
 using grate.Configuration;
 using grate.Exceptions;
 
-namespace grate.console.Commands;
+namespace grate.Commands;
 
 public static class FoldersCommand
 {

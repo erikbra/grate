@@ -7,15 +7,15 @@ using TestCommon.TestInfrastructure;
 namespace SqlServer.Running_MigrationScripts;
 
 [Collection(nameof(SqlServerTestContainer))]
-public class RestoreDatabase : SqlServerScriptsBase, IClassFixture<DependencyService>
+public class RestoreDatabase : SqlServerScriptsBase, IClassFixture<SimpleService>
 {
     protected override IGrateTestContext Context { get; }
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public RestoreDatabase(SqlServerTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
+    public RestoreDatabase(SqlServerTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
     {
-        Context = new SqlServerGrateTestContext(dependencyService.ServiceProvider, testContainer);
+        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

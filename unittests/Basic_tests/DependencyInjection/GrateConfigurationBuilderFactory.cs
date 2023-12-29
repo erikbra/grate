@@ -11,7 +11,6 @@ public class GrateConfigurationBuilderFactoryTest
     [Fact]
     public void Should_create_default_builder_with_non_interactive()
     {
-
         var serviceCollection = new ServiceCollection();
         var builder = GrateConfigurationBuilderFactory.Create(serviceCollection);
         var grateConfiguration = builder.Build();

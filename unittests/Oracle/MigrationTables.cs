@@ -6,15 +6,15 @@ using TestCommon.TestInfrastructure;
 namespace Oracle;
 
 [Collection(nameof(OracleTestContainer))]
-public class MigrationTables : GenericMigrationTables, IClassFixture<DependencyService>
+public class MigrationTables : GenericMigrationTables, IClassFixture<SimpleService>
 {
     protected override IGrateTestContext Context { get; }
 
     protected ITestOutputHelper TestOutput { get; }
 
-    public MigrationTables(OracleTestContainer testContainer, DependencyService dependencyService, ITestOutputHelper testOutput)
+    public MigrationTables(OracleTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
     {
-        Context = new OracleGrateTestContext(dependencyService.ServiceProvider, testContainer);
+        Context = new OracleGrateTestContext(simpleService.ServiceProvider, testContainer);
         TestOutput = testOutput;
     }
 

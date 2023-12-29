@@ -10,13 +10,13 @@ using MySqlConnector;
 namespace Basic_tests.Infrastructure.MariaDB;
 
 // ReSharper disable once InconsistentNaming
-public class MariaDbDatabase_ : IClassFixture<DependencyService>
+public class MariaDbDatabase_ : IClassFixture<SimpleService>
 {
     private IServiceProvider _serviceProvider;
 
-    public MariaDbDatabase_(DependencyService dependencyService)
+    public MariaDbDatabase_(SimpleService simpleService)
     {
-        _serviceProvider = dependencyService.ServiceProvider;
+        _serviceProvider = simpleService.ServiceProvider;
     }
     [Fact]
     public async Task Disables_pipelining_if_not_explicitly_set_in_connection_string()
