@@ -1,23 +1,16 @@
 ﻿using Dapper;
 using FluentAssertions;
 using grate.Configuration;
-using SqlServer.TestInfrastructure;
 using TestCommon.TestInfrastructure;
 
 namespace SqlServer.Running_MigrationScripts;
 
+
 [Collection(nameof(SqlServerTestContainer))]
-public class RestoreDatabase : SqlServerScriptsBase, IClassFixture<SimpleService>
+// ReSharper disable once InconsistentNaming
+public class RestoreDatabase(IGrateTestContext testContext, ITestOutputHelper testOutput)
+    : SqlServerScriptsBase(testContext, testOutput)
 {
-    protected override IGrateTestContext Context { get; }
-
-    protected override ITestOutputHelper TestOutput { get; }
-
-    public RestoreDatabase(SqlServerTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
-    {
-        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
-        TestOutput = testOutput;
-    }
 
     private readonly string _backupPath = "/var/opt/mssql/backup/test.bak";
 

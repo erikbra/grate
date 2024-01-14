@@ -2,20 +2,11 @@
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
-using Microsoft.Extensions.DependencyInjection;
-using SqlServer.TestInfrastructure;
 
 namespace Basic_tests.Infrastructure;
 
-
-public class TokenReplacerTests : IClassFixture<SimpleService>
+public class TokenReplacerTests(IDatabase database)
 {
-    private readonly IServiceProvider _serviceProvider;
-    public TokenReplacerTests(SimpleService sqlServersimpleService)
-    {
-        _serviceProvider = sqlServersimpleService.ServiceProvider;
-    }
-
     [Fact]
     public void EnsureDbMakesItToTokens()
     {
@@ -26,10 +17,9 @@ public class TokenReplacerTests : IClassFixture<SimpleService>
         };
 
 
-        var db = _serviceProvider.GetRequiredService<IDatabase>();
-        db.InitializeConnections(config);
+        database.InitializeConnections(config);
 
-        var provider = new TokenProvider(config, db);
+        var provider = new TokenProvider(config, database);
         var tokens = provider.GetTokens();
 
         tokens["DatabaseName"].Should().Be("TestDb");

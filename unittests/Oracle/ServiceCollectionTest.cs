@@ -6,6 +6,7 @@ using grate.Oracle.Infrastructure;
 using grate.Oracle.Migration;
 using Microsoft.Extensions.DependencyInjection;
 using Oracle.TestInfrastructure;
+using TestCommon.DependencyInjection;
 using TestCommon.TestInfrastructure;
 
 namespace Oracle.DependencyInjection;

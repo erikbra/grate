@@ -1,12 +1,19 @@
-﻿using Testcontainers.MariaDb;
+﻿using DotNet.Testcontainers.Configurations;
+using Microsoft.Extensions.Logging;
+using TestCommon.TestInfrastructure;
+using Testcontainers.MariaDb;
 
-namespace TestCommon.TestInfrastructure;
+namespace MariaDB.TestInfrastructure;
+
+// ReSharper disable once ClassNeverInstantiated.Global
 public class MariaDbTestContainer : ContainerFixture
 {
-    public string? DockerImage => "mariadb:10.10";
-    public int Port = 3306;
-    public MariaDbTestContainer() : base()
+    public string DockerImage => "mariadb:10.10";
+    public readonly int Port = 3306;
+
+    public MariaDbTestContainer(ILogger<MariaDbTestContainer> logger) : base()
     {
+        TestcontainersSettings.Logger = logger;
         TestContainer = new MariaDbBuilder()
                             .WithImage(DockerImage)
                             .WithPassword(AdminPassword)

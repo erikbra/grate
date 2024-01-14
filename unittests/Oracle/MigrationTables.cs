@@ -1,22 +1,13 @@
 ﻿using grate.Configuration;
-using Oracle.TestInfrastructure;
 using TestCommon.Generic;
 using TestCommon.TestInfrastructure;
 
 namespace Oracle;
 
 [Collection(nameof(OracleTestContainer))]
-public class MigrationTables : GenericMigrationTables, IClassFixture<SimpleService>
+public class MigrationTables(IGrateTestContext testContext, ITestOutputHelper testOutput)
+    : GenericMigrationTables(testContext, testOutput)
 {
-    protected override IGrateTestContext Context { get; }
-
-    protected ITestOutputHelper TestOutput { get; }
-
-    public MigrationTables(OracleTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
-    {
-        Context = new OracleGrateTestContext(simpleService.ServiceProvider, testContainer);
-        TestOutput = testOutput;
-    }
 
     protected override Task CheckTableCasing(string tableName, string funnyCasing, Func<GrateConfiguration, string, GrateConfiguration> setTableName)
     {

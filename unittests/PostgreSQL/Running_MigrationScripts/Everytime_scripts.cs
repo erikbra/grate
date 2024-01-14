@@ -2,7 +2,6 @@
 using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
-using PostgreSQL.TestInfrastructure;
 using TestCommon.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
 
@@ -10,18 +9,9 @@ namespace PostgreSQL.Running_MigrationScripts;
 
 [Collection(nameof(PostgreSqlTestContainer))]
 // ReSharper disable once InconsistentNaming
-public class Everytime_scripts : TestCommon.Generic.Running_MigrationScripts.Everytime_scripts, IClassFixture<SimpleService>
+public class Everytime_scripts(IGrateTestContext testContext, ITestOutputHelper testOutput)
+    : TestCommon.Generic.Running_MigrationScripts.Everytime_scripts(testContext, testOutput)
 {
-
-    protected override IGrateTestContext Context { get; }
-    protected override ITestOutputHelper TestOutput { get; }
-
-    public Everytime_scripts(PostgreSqlTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
-    {
-        Context = new PostgreSqlGrateTestContext(simpleService.ServiceProvider, testContainer);
-        TestOutput = testOutput;
-    }
-
     [Fact]
     public async Task Create_index_concurrently_works()
     {

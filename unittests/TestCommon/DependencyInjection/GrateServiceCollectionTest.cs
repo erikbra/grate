@@ -18,7 +18,7 @@ public abstract class GrateServiceCollectionTest
 
 
     [Fact]
-    public void Should_inject_all_nescessary_service_to_container()
+    public void Should_inject_all_necessary_services_to_container()
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddGrate(ConfigureService);

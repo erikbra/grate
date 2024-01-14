@@ -5,6 +5,7 @@ using grate.Configuration;
 using grate.Exceptions;
 using grate.Migration;
 using TestCommon.TestInfrastructure;
+using Xunit.Abstractions;
 using static grate.Configuration.KnownFolderKeys;
 using static TestCommon.TestInfrastructure.DescriptiveTestObjects;
 
@@ -12,8 +13,13 @@ namespace TestCommon.Generic.Running_MigrationScripts;
 
 
 // ReSharper disable once InconsistentNaming
-public abstract class Failing_Scripts : MigrationsScriptsBase
+public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelper testOutput) 
+    : MigrationsScriptsBase(context, testOutput)
 {
+    protected Failing_Scripts(): this(null!, null!)
+    {
+    }
+    
     protected abstract string ExpectedErrorMessageForInvalidSql { get; }
 
     [Fact]

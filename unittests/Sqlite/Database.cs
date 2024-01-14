@@ -5,20 +5,12 @@ using TestCommon.TestInfrastructure;
 namespace Sqlite;
 
 [Collection(nameof(SqliteTestContainer))]
-public class Database : TestCommon.Generic.GenericDatabase, IClassFixture<SimpleService>
+// ReSharper disable once InconsistentNaming
+// ReSharper disable once UnusedType.Global
+public class Database(IGrateTestContext testContext, ITestOutputHelper testOutput)
+    : TestCommon.Generic.GenericDatabase(testContext, testOutput)
 {
-
-    protected override IGrateTestContext Context { get; }
-
-    protected ITestOutputHelper TestOutput { get; }
-
-    public Database(SqliteTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
-    {
-        Context = new SqliteGrateTestContext(simpleService.ServiceProvider, testContainer);
-        TestOutput = testOutput;
-    }
-
-
+    
     protected override async Task CreateDatabaseFromConnectionString(string db, string connectionString)
     {
         await using var conn = new SqliteConnection(connectionString);
@@ -54,4 +46,5 @@ public class Database : TestCommon.Generic.GenericDatabase, IClassFixture<Simple
     [Fact(Skip = "SQLite does not support docker container")]
     public override Task Is_up_and_running_with_appropriate_database_version() => Task.CompletedTask;
     protected override bool ThrowOnMissingDatabase => false;
+    
 }

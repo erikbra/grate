@@ -1,29 +1,18 @@
-﻿using System.Data.Common;
-using FluentAssertions;
+﻿using FluentAssertions;
 using grate.Configuration;
-using grate.SqlServer.Migration;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using SqlServer.TestInfrastructure;
 
 namespace Basic_tests.Infrastructure.SqlServer;
 
 // ReSharper disable once InconsistentNaming
-public class SqlServerDatabase_ : IClassFixture<SimpleService>
+public class SqlServerDatabase_(InspectableSqlServerDatabase sqlServerDatabase)
 {
-    private IServiceProvider _serviceProvider;
-
-    public SqlServerDatabase_(SimpleService simpleService)
-    {
-        _serviceProvider = simpleService.ServiceProvider;
-    }
     [Fact]
     public async Task Disables_pooling_if_not_explicitly_set_in_connection_string()
     {
         var connStr = "Server=dummy";
         var cfg = new GrateConfiguration() { ConnectionString = connStr };
-        var sqlServerDatabase = new InspectableSqlServerDatabase(_serviceProvider);
         await sqlServerDatabase.InitializeConnections(cfg);
 
         var conn = sqlServerDatabase.GetConnection();
@@ -36,20 +25,10 @@ public class SqlServerDatabase_ : IClassFixture<SimpleService>
     {
         var connStr = "Server=dummy;Pooling=true";
         var cfg = new GrateConfiguration() { ConnectionString = connStr };
-        var sqlServerDatabase = new InspectableSqlServerDatabase(_serviceProvider);
         await sqlServerDatabase.InitializeConnections(cfg);
 
         var conn = sqlServerDatabase.GetConnection();
         var builder = new SqlConnectionStringBuilder(conn.ConnectionString);
         builder.Pooling.Should().BeTrue();
-    }
-
-    private class InspectableSqlServerDatabase : SqlServerDatabase
-    {
-        public InspectableSqlServerDatabase(IServiceProvider serviceProvider) : base(serviceProvider.GetRequiredService<ILogger<SqlServerDatabase>>())
-        {
-        }
-
-        public DbConnection GetConnection() => base.Connection;
     }
 }

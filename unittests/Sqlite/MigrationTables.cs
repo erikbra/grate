@@ -4,20 +4,11 @@ using TestCommon.TestInfrastructure;
 namespace Sqlite;
 
 [Collection(nameof(SqliteTestContainer))]
-public class MigrationTables : TestCommon.Generic.GenericMigrationTables, IClassFixture<SimpleService>
+// ReSharper disable once InconsistentNaming
+// ReSharper disable once UnusedType.Global
+public class MigrationTables(IGrateTestContext testContext, ITestOutputHelper testOutput)
+    : TestCommon.Generic.GenericMigrationTables(testContext, testOutput)
 {
-
-    protected override IGrateTestContext Context { get; }
-
-    protected ITestOutputHelper TestOutput { get; }
-
-    public MigrationTables(SqliteTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
-    {
-        Context = new SqliteGrateTestContext(simpleService.ServiceProvider, testContainer);
-        TestOutput = testOutput;
-    }
-
-
 
     protected override string CountTableSql(string schemaName, string tableName)
     {

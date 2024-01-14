@@ -1,8 +1,8 @@
 ﻿using System.Data;
+using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
 using grate.PostgreSql.Migration;
-using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using TestCommon.TestInfrastructure;
 
@@ -13,15 +13,25 @@ public class PostgreSqlGrateTestContext : IGrateTestContext
     public IServiceProvider ServiceProvider { get; private set; }
     private readonly PostgreSqlTestContainer _testContainer;
     private readonly IDatabaseConnectionFactory _databaseConnectionFactory;
-    public PostgreSqlGrateTestContext(IServiceProvider serviceProvider, PostgreSqlTestContainer container)
+    private readonly Func<GrateConfiguration, GrateMigrator> _getGrateMigrator;
+    
+    public PostgreSqlGrateTestContext(
+        Func<GrateConfiguration, GrateMigrator> getGrateMigrator,
+        IDatabase dbMigrator, 
+        ISyntax syntax, 
+        IDatabaseConnectionFactory databaseConnectionFactory, 
+        PostgreSqlTestContainer container)
     {
-        ServiceProvider = serviceProvider;
+        ServiceProvider = null!;
+        _getGrateMigrator = getGrateMigrator;
         _testContainer = container;
-        DatabaseMigrator = serviceProvider.GetRequiredService<IDatabase>();
-        Syntax = serviceProvider.GetRequiredService<ISyntax>();
-        _databaseConnectionFactory = serviceProvider.GetRequiredService<IDatabaseConnectionFactory>();
-
+        DatabaseMigrator = dbMigrator;
+        Syntax = syntax;
+        _databaseConnectionFactory = databaseConnectionFactory;
     }
+    
+    public IGrateMigrator GetMigrator(GrateConfiguration config) => _getGrateMigrator(config);
+    
     public string AdminPassword => _testContainer.AdminPassword;
     public int? Port => _testContainer.TestContainer!.GetMappedPublicPort(_testContainer.Port);
 

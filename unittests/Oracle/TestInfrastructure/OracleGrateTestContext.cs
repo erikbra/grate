@@ -1,8 +1,8 @@
 ﻿using System.Data;
+using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
 using grate.Oracle.Migration;
-using Microsoft.Extensions.DependencyInjection;
 using Oracle.ManagedDataAccess.Client;
 using TestCommon.TestInfrastructure;
 
@@ -11,17 +11,29 @@ namespace Oracle.TestInfrastructure;
 public class OracleGrateTestContext : IGrateTestContext
 {
     public IServiceProvider ServiceProvider { get; private set; }
+    private readonly Func<GrateConfiguration, GrateMigrator> _getGrateMigrator;
     private readonly OracleTestContainer _testContainer;
 
     private readonly IDatabaseConnectionFactory _databaseConnectionFactory;
-    public OracleGrateTestContext(IServiceProvider serviceProvider, OracleTestContainer container)
+    
+    public OracleGrateTestContext(
+        //IServiceProvider serviceProvider,
+        Func<GrateConfiguration, GrateMigrator> getGrateMigrator,
+        IDatabase dbMigrator, 
+        ISyntax syntax, 
+        IDatabaseConnectionFactory databaseConnectionFactory, 
+        OracleTestContainer container)
     {
-        ServiceProvider = serviceProvider;
+        ServiceProvider = null!;
+        _getGrateMigrator = getGrateMigrator;
         _testContainer = container;
-        DatabaseMigrator = ServiceProvider.GetService<IDatabase>()!;
-        Syntax = ServiceProvider.GetService<ISyntax>()!;
-        _databaseConnectionFactory = ServiceProvider.GetService<IDatabaseConnectionFactory>()!;
+        DatabaseMigrator = dbMigrator;
+        Syntax = syntax;
+        _databaseConnectionFactory = databaseConnectionFactory;
     }
+    
+    public IGrateMigrator GetMigrator(GrateConfiguration config) => _getGrateMigrator(config);
+   
     public string AdminPassword => _testContainer.AdminPassword;
     public int? Port => _testContainer.TestContainer!.GetMappedPublicPort(_testContainer.Port);
 

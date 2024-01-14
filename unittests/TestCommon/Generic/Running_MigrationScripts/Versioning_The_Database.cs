@@ -4,13 +4,19 @@ using FluentAssertions.Execution;
 using grate.Configuration;
 using grate.Migration;
 using TestCommon.TestInfrastructure;
+using Xunit.Abstractions;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace TestCommon.Generic.Running_MigrationScripts;
 
 // ReSharper disable once InconsistentNaming
-public abstract class Versioning_The_Database : MigrationsScriptsBase
+public abstract class Versioning_The_Database(IGrateTestContext context, ITestOutputHelper testOutput) 
+    : MigrationsScriptsBase(context, testOutput)
 {
+    protected Versioning_The_Database(): this(null!, null!)
+    {
+    }
+    
     [Fact]
     public async Task Returns_the_new_version_id()
     {

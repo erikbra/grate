@@ -5,13 +5,19 @@ using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
 using TestCommon.TestInfrastructure;
+using Xunit.Abstractions;
 using static System.StringSplitOptions;
 
 namespace TestCommon.Generic;
 
-public abstract class GenericDatabase
+public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelper testOutput)
 {
-    protected abstract IGrateTestContext Context { get; }
+    protected GenericDatabase(): this(null!, null!)
+    {
+    }
+
+    protected IGrateTestContext Context { get; init; } = context;
+    protected ITestOutputHelper TestOutput { get; init; } = testOutput;
 
     [Fact]
     public virtual async Task Is_up_and_running_with_appropriate_database_version()

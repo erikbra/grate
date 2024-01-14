@@ -3,12 +3,18 @@ using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
 using TestCommon.TestInfrastructure;
+using Xunit.Abstractions;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace TestCommon.Generic.Running_MigrationScripts;
 
-public abstract class ScriptsRun_Table : MigrationsScriptsBase
+public abstract class ScriptsRun_Table(IGrateTestContext context, ITestOutputHelper testOutput) 
+    : MigrationsScriptsBase(context, testOutput)
 {
+    protected ScriptsRun_Table(): this(null!, null!)
+    {
+    }
+    
     [Fact]
     public async Task Includes_the_folder_name_in_the_script_name_if_subfolders()
     {

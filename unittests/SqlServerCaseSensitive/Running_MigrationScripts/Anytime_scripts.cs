@@ -1,18 +1,9 @@
-﻿using SqlServerCaseSensitive.TestInfrastructure;
-using TestCommon.TestInfrastructure;
+﻿using TestCommon.TestInfrastructure;
 
 namespace SqlServerCaseSensitive.Running_MigrationScripts;
+
 [Collection(nameof(SqlServerTestContainer))]
 // ReSharper disable once InconsistentNaming
-public class Anytime_scripts : TestCommon.Generic.Running_MigrationScripts.Anytime_scripts, IClassFixture<SimpleService>
-{
-    protected override IGrateTestContext Context { get; }
+public class Anytime_scripts(IGrateTestContext testContext, ITestOutputHelper testOutput)
+    : TestCommon.Generic.Running_MigrationScripts.Anytime_scripts(testContext, testOutput);
 
-    protected override ITestOutputHelper TestOutput { get; }
-
-    public Anytime_scripts(SqlServerTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
-    {
-        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
-        TestOutput = testOutput;
-    }
-}

@@ -4,13 +4,19 @@ using FluentAssertions.Execution;
 using grate.Configuration;
 using grate.Migration;
 using TestCommon.TestInfrastructure;
+using Xunit.Abstractions;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace TestCommon.Generic.Running_MigrationScripts;
 
 // ReSharper disable once InconsistentNaming
-public abstract class Order_Of_Scripts : MigrationsScriptsBase
+public abstract class Order_Of_Scripts(IGrateTestContext context, ITestOutputHelper testOutput) 
+    : MigrationsScriptsBase(context, testOutput)
 {
+    protected Order_Of_Scripts(): this(null!, null!)
+    {
+    }
+    
     [Fact]
     public async Task Is_as_expected()
     {
