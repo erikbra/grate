@@ -24,7 +24,6 @@
     <NetTargetFrameworks Condition=" '$(NetTargetFrameworks)' == '' ">
       net6.0;net7.0;net8.0
     </NetTargetFrameworks>
-    <TargetFramework Condition=" '$(TargetFramework)' == '' ">net8.0</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup>

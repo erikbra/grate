@@ -1,10 +1,9 @@
 ﻿using PostgreSQL.TestInfrastructure;
 using TestCommon.TestInfrastructure;
-using Xunit.Abstractions;
 
 namespace PostgreSQL.Running_MigrationScripts;
 
-[Collection(nameof(PostgresqlTestContainer))]
+[Collection(nameof(PostgreSqlTestContainer))]
 // ReSharper disable once InconsistentNaming
 public class Anytime_scripts : TestCommon.Generic.Running_MigrationScripts.Anytime_scripts, IClassFixture<SimpleService>
 {
@@ -13,7 +12,7 @@ public class Anytime_scripts : TestCommon.Generic.Running_MigrationScripts.Anyti
 
     protected override ITestOutputHelper TestOutput { get; }
 
-    public Anytime_scripts(PostgresqlTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
+    public Anytime_scripts(PostgreSqlTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
     {
         Context = new PostgreSqlGrateTestContext(simpleService.ServiceProvider, testContainer);
         TestOutput = testOutput;

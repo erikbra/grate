@@ -1,11 +1,17 @@
+version: "3.7"
 services:
   db-migration:
-    build: .
-    image: myapp-dbmigration
+    #build: .
+    image: erikbra/grate:latest
     environment:
       # don't configure passwords here for real.  This is just a sample!
-      - APP_CONNSTRING="Server=db;Database=grate_test;User Id=sa;Password=gs8j4AS7h87jHg"
-    
+      APP_CONNSTRING: "Server=db;Database=grate_test;User Id=sa;Password=gs8j4AS7h87jHg;TrustServerCertificate=True"
+      VERSION: "1.0.0.0"
+      DATABASE_TYPE: "sqlserver" # sqlite, oracle, postgresql, sqlserver, mariadb
+    volumes:
+      - ./db:/db
+      - ./output:/output
+
     depends_on:
       - db
   db:
@@ -14,3 +20,5 @@ services:
       - SA_PASSWORD=gs8j4AS7h87jHg # again, plain text passwords are bad mmkay!
       - ACCEPT_EULA=Y
       - MSSQL_PID=Express
+    ports:
+      - "1433:1433"

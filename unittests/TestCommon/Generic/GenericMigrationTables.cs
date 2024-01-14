@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Dapper;
+﻿using Dapper;
 using FluentAssertions;
 using grate.Configuration;
 using grate.Exceptions;
@@ -36,7 +31,7 @@ public abstract class GenericMigrationTables
         IEnumerable<string> scripts;
         string sql = $"SELECT modified_date FROM {fullTableName}";
 
-        await using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
+        using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
         {
             scripts = await conn.QueryAsync<string>(sql);
         }
@@ -70,13 +65,13 @@ public abstract class GenericMigrationTables
         IEnumerable<string> scripts;
         string sql = $"SELECT modified_date FROM {fullTableName}";
 
-        await using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
+        using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
         {
             scripts = await conn.QueryAsync<string>(sql);
         }
         scripts.Should().NotBeNull();
     }
-    
+
     // [Theory]
     // [InlineData("ScriptsRun")]
     // [InlineData("ScriptsRunErrors")]
@@ -102,30 +97,30 @@ public abstract class GenericMigrationTables
             Assert.Null(exception);
         }
     }
-    
+
     [Theory]
     [InlineData("version")]
     [InlineData("vErSiON")]
     public async Task Does_not_create_Version_table_if_it_exists_with_another_casing(string existingTable)
     {
-        await CheckTableCasing("Version", existingTable, (config, name) => config.VersionTableName = name);
+        await CheckTableCasing("Version", existingTable, (config, name) => config with { VersionTableName = name });
     }
     [Theory]
     [InlineData("scriptsrun")]
     [InlineData("SCRiptSrUN")]
     public async Task Does_not_create_ScriptsRun_table_if_it_exists_with_another_casing(string existingTable)
     {
-        await CheckTableCasing("ScriptsRun", existingTable, (config, name) => config.ScriptsRunTableName = name);
+        await CheckTableCasing("ScriptsRun", existingTable, (config, name) => config with { ScriptsRunTableName = name });
     }
     [Theory]
     [InlineData("scriptsrunerrors")]
     [InlineData("ScripTSRunErrors")]
     public async Task Does_not_create_ScriptsRunErrors_table_if_it_exists_with_another_casing(string existingTable)
     {
-        await CheckTableCasing("ScriptsRunErrors", existingTable, (config, name) => config.ScriptsRunErrorsTableName = name);
+        await CheckTableCasing("ScriptsRunErrors", existingTable, (config, name) => config with { ScriptsRunErrorsTableName = name });
     }
 
-    protected virtual async Task CheckTableCasing(string tableName, string funnyCasing, Action<GrateConfiguration, string> setTableName)
+    protected virtual async Task CheckTableCasing(string tableName, string funnyCasing, Func<GrateConfiguration, string, GrateConfiguration> setTableName)
     {
         var db = TestConfig.RandomDatabase();
 
@@ -135,7 +130,7 @@ public abstract class GenericMigrationTables
         // Set the version table name to be lower-case first, and run one migration.
         var config = Context.GetConfiguration(db, parent, knownFolders);
 
-        setTableName(config, funnyCasing);
+        config = setTableName(config, funnyCasing);
 
         await using (var migrator = Context.GetMigrator(config))
         {
@@ -179,7 +174,7 @@ public abstract class GenericMigrationTables
         int count;
         string countSql = CountTableSql(tableSchema, fullTableName);
 
-        await using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
+        using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
         {
             count = await conn.ExecuteScalarAsync<int>(countSql);
         }
@@ -203,7 +198,7 @@ public abstract class GenericMigrationTables
         IEnumerable<(string version, string status)> entries;
         string sql = $"SELECT version, status FROM {Context.Syntax.TableWithSchema("grate", "Version")}";
 
-        await using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
+        using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
         {
             entries = await conn.QueryAsync<(string version, string status)>(sql);
         }

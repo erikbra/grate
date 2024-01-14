@@ -4,12 +4,11 @@ using grate.Configuration;
 using grate.Migration;
 using PostgreSQL.TestInfrastructure;
 using TestCommon.TestInfrastructure;
-using Xunit.Abstractions;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace PostgreSQL.Running_MigrationScripts;
 
-[Collection(nameof(PostgresqlTestContainer))]
+[Collection(nameof(PostgreSqlTestContainer))]
 // ReSharper disable once InconsistentNaming
 public class Everytime_scripts : TestCommon.Generic.Running_MigrationScripts.Everytime_scripts, IClassFixture<SimpleService>
 {
@@ -17,7 +16,7 @@ public class Everytime_scripts : TestCommon.Generic.Running_MigrationScripts.Eve
     protected override IGrateTestContext Context { get; }
     protected override ITestOutputHelper TestOutput { get; }
 
-    public Everytime_scripts(PostgresqlTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
+    public Everytime_scripts(PostgreSqlTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
     {
         Context = new PostgreSqlGrateTestContext(simpleService.ServiceProvider, testContainer);
         TestOutput = testOutput;
@@ -28,7 +27,7 @@ public class Everytime_scripts : TestCommon.Generic.Running_MigrationScripts.Eve
     {
         var db = TestConfig.RandomDatabase();
 
-        GrateMigrator? migrator;
+        IGrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
@@ -64,7 +63,7 @@ CREATE INDEX CONCURRENTLY IX_column2 ON public.table1
         string[] scripts;
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        await using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }

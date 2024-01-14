@@ -5,9 +5,8 @@ This directory shows a very simple way of building a docker container to apply y
 ## Usage
 
 Simply `docker-compose up` to:
-- build a local `myapp-dbmigration` image that contains both grate and the migration scripts based on the published `grate` image.
 - start a sql database server
-- run the `myapp-dbmigration` migration against the server
+- run the `grate` migration against the server with script locate in `db` folder and store the backup script in `output`
 
 ## Notes
 

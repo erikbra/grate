@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>$(NetTargetFrameworks)</TargetFrameworks>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\grate.core\grate.core.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="NuGet.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

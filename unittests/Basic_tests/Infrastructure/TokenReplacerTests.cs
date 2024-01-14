@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using FluentAssertions;
+﻿using FluentAssertions;
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
-using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
-using TestCommon;
-using Xunit;
 
 namespace Basic_tests.Infrastructure;
 
@@ -52,26 +47,6 @@ public class TokenReplacerTests
         //RH Only uses the name of a folder, not it's full path.  Make sure we're compat
         tokens["UpFolderName"].Should().Be("up");
 
-    }
-
-    [Fact]
-    public void EnsureDbMakesItToTokens()
-    {
-        var config = new GrateConfiguration()
-        {
-            ConnectionString = "Server=(LocalDb)\\mssqllocaldb;Database=TestDb;",
-            Folders = FoldersConfiguration.Default(null)
-        };
-
-
-        var db = new SqlServerDatabase(NullLogger<SqlServerDatabase>.Instance);
-        db.InitializeConnections(config);
-
-        var provider = new TokenProvider(config, db);
-        var tokens = provider.GetTokens();
-
-        tokens["DatabaseName"].Should().Be("TestDb");
-        tokens["ServerName"].Should().Be("(LocalDb)\\mssqllocaldb");
     }
 
     [Fact]

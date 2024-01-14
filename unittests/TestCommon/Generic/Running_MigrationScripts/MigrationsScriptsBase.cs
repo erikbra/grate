@@ -7,7 +7,7 @@ namespace TestCommon.Generic.Running_MigrationScripts;
 
 public abstract class MigrationsScriptsBase
 {
-    protected static DirectoryInfo CreateRandomTempDirectory() => TestConfig.CreateRandomTempDirectory();
+    public static DirectoryInfo CreateRandomTempDirectory() => TestConfig.CreateRandomTempDirectory();
 
     protected void CreateDummySql(DirectoryInfo root, MigrationsFolder? folder, string filename = "1_jalla.sql")
         => CreateDummySql(Wrap(root, folder?.Path), filename);
@@ -61,10 +61,10 @@ public abstract class MigrationsScriptsBase
         WriteSql(path, filename, dummySql);
     }
 
-    protected static void WriteSql(DirectoryInfo root, string path, string filename, string? sql) =>
+    public static void WriteSql(DirectoryInfo root, string path, string filename, string? sql) =>
         TestConfig.WriteContent(Wrap(root, path), filename, sql);
 
-    protected static void WriteSql(DirectoryInfo? path, string filename, string? sql) =>
+    public static void WriteSql(DirectoryInfo? path, string filename, string? sql) =>
         TestConfig.WriteContent(path, filename, sql);
 
     protected static DirectoryInfo MakeSurePathExists(DirectoryInfo root, MigrationsFolder? folder)
@@ -73,7 +73,7 @@ public abstract class MigrationsScriptsBase
     protected abstract IGrateTestContext Context { get; }
     protected abstract ITestOutputHelper TestOutput { get; }
 
-    protected static DirectoryInfo Wrap(DirectoryInfo root, string? subFolder) =>
+    public static DirectoryInfo Wrap(DirectoryInfo root, string? subFolder) =>
         new(Path.Combine(root.ToString(), subFolder ?? ""));
 
 }

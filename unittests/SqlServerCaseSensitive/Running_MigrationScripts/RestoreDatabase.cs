@@ -23,7 +23,7 @@ public class RestoreDatabase : SqlServerScriptsBase, IClassFixture<SimpleService
 
     private async Task RunBeforeTest()
     {
-        await using var conn = Context.CreateDbConnection("master");
+        using var conn = Context.CreateDbConnection("master");
         await conn.ExecuteAsync("use [master] CREATE DATABASE [test]");
         await conn.ExecuteAsync("use [test] CREATE TABLE dbo.Table_1 (column1 int NULL)");
         await conn.ExecuteAsync($"BACKUP DATABASE [test] TO  DISK = '{_backupPath}'");
@@ -53,7 +53,7 @@ public class RestoreDatabase : SqlServerScriptsBase, IClassFixture<SimpleService
         int[] results;
         string sql = $"select count(1) from sys.tables where [name]='Table_1'";
 
-        await using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.CreateDbConnection(db))
         {
             results = (await conn.QueryAsync<int>(sql)).ToArray();
         }

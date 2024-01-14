@@ -1,4 +1,4 @@
-using Dapper;
+﻿using Dapper;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using grate.Configuration;
@@ -16,7 +16,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
     {
         var db = TestConfig.RandomDatabase();
 
-        GrateMigrator? migrator;
+        IGrateMigrator? migrator;
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Sprocs]);
@@ -67,7 +67,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         var db = TestConfig.RandomDatabase();
         var dbVersion = "1.2.3.4";
 
-        GrateMigrator? migrator;
+        IGrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
@@ -85,7 +85,7 @@ public abstract class Versioning_The_Database : MigrationsScriptsBase
         IEnumerable<(string version, string status)> entries;
         string sql = $"SELECT version, status FROM {Context.Syntax.TableWithSchema("grate", "Version")}";
 
-        await using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.CreateDbConnection(db))
         {
             entries = await conn.QueryAsync<(string version, string status)>(sql);
         }

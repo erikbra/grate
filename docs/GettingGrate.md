@@ -16,6 +16,23 @@ The [github site](https://github.com/erikbra/grate/) has both the raw source cod
 
 There's a `{{ site.github.repository_nwo }}` docker image published to [dockerhub](https://hub.docker.com/r/{{ site.github.repository_nwo }}) on every release.  See the [examples](https://github.com/erikbra/grate/tree/main/examples) folder for a demo using this to a migration.
 
+Start the sqlserver database 
+```sh
+docker network create grate_network && docker run -e SA_PASSWORD=gs8j4AS7h87jHg -e ACCEPT_EULA=Y --name db --network grate_network -d mcr.microsoft.com/mssql/server:2019-latest
+```
+Run grate migration
+```sh
+docker run -v ./examples/docker/db:/db  -e APP_CONNSTRING="Server=db;Database=grate_test_db;User Id=sa;Password=gs8j4AS7h87jHg;TrustServerCertificate=True" --network grate_network erikbra/grate
+# run with database type, accept: sqlserver, postgresql, mariadb, sqlite, oracle
+# docker run -v ./examples/docker/db:/db -e DATABASE_TYPE=sqlserver -e CREATE_DATABASE=true -e ENVIRONMENT=Dev -e TRANSACTION=true -e APP_CONNSTRING="Server=db;Database=grate_test_db;User Id=sa;Password=gs8j4AS7h87jHg;TrustServerCertificate=True" --network grate_network erikbra/grate  
+```
+
+Cleanup resources
+```sh
+
+docker kill db  || docker network rm grate_network  || docker rm $(docker ps -f status=exited | awk '{print $1}')  
+```
+
 ## Dotnet Tool
 
 grate is available as a [dotnet global tool](https://docs.microsoft.com/en-us/dotnet/core/tools/global-tools).  Simply `dotnet tool install -g grate` to get the [package](https://www.nuget.org/packages/grate/).

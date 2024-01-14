@@ -1,0 +1,1 @@
+INSERT INTO grate_test(name) VALUES ('Hello grate from docker !');

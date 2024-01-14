@@ -1,9 +1,8 @@
-﻿using System.Data.Common;
-using grate.Configuration;
+﻿using System.Data;
 using grate.Infrastructure;
+using grate.MariaDb.Migration;
 using grate.Migration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using TestCommon.TestInfrastructure;
 
@@ -15,10 +14,15 @@ public class MariaDbGrateTestContext : IGrateTestContext
     public int? Port => _testContainer.TestContainer!.GetMappedPublicPort(_testContainer.Port);
     public IServiceProvider ServiceProvider { get; private set; }
     private readonly MariaDbTestContainer _testContainer;
+    private readonly IDatabaseConnectionFactory _databaseConnectionFactory;
     public MariaDbGrateTestContext(IServiceProvider serviceProvider, MariaDbTestContainer container)
     {
         ServiceProvider = serviceProvider;
         _testContainer = container;
+        DatabaseMigrator = ServiceProvider.GetService<IDatabase>()!;
+        Syntax = ServiceProvider.GetService<ISyntax>()!;
+        _databaseConnectionFactory = ServiceProvider.GetService<IDatabaseConnectionFactory>()!;
+
     }
 
     // public string DockerCommand(string serverName, string adminPassword) =>
@@ -28,17 +32,17 @@ public class MariaDbGrateTestContext : IGrateTestContext
     public string ConnectionString(string database) => $"Server={_testContainer.TestContainer!.Hostname};Port={Port};Database={database};Uid=root;Pwd={AdminPassword}";
     public string UserConnectionString(string database) => $"Server={_testContainer.TestContainer!.Hostname};Port={Port};Database={database};Uid={database};Pwd=mooo1213";
 
-    public DbConnection GetDbConnection(string connectionString) => new MySqlConnection(connectionString);
+    public IDbConnection GetDbConnection(string connectionString) => _databaseConnectionFactory.GetDbConnection(connectionString);
 
-    public ISyntax Syntax => new MariaDbSyntax();
+    public ISyntax Syntax { get; init; }
     public Type DbExceptionType => typeof(MySqlException);
 
-    public DatabaseType DatabaseType => DatabaseType.mariadb;
+    public string DatabaseType => MariaDbDatabase.Type;
     public bool SupportsTransaction => false;
-    public string DatabaseTypeName => "MariaDB Server";
-    public string MasterDatabase => "mysql";
+    // public string DatabaseTypeName => "MariaDB Server";
+    // public string MasterDatabase => "mysql";
 
-    public IDatabase DatabaseMigrator => new MariaDbDatabase(ServiceProvider.GetRequiredService<ILogger<MariaDbDatabase>>());
+    public IDatabase DatabaseMigrator { get; init; }
 
     public SqlStatements Sql => new()
     {
@@ -49,6 +53,6 @@ public class MariaDbGrateTestContext : IGrateTestContext
     };
 
 
-    public string ExpectedVersionPrefix => "10.5.9-MariaDB";
+    public string ExpectedVersionPrefix => "10.10.7-MariaDB";
     public bool SupportsCreateDatabase => true;
 }

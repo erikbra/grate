@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>$(TargetFramework)</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
@@ -18,7 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\grate\grate.csproj" />
+      <ProjectReference Include="..\..\src\grate\grate.csproj" />
       <ProjectReference Include="..\TestCommon\TestCommon.csproj" />
     </ItemGroup>
 

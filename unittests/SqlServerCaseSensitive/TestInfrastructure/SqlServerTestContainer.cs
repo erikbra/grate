@@ -4,13 +4,8 @@ using static System.Runtime.InteropServices.Architecture;
 namespace TestCommon.TestInfrastructure;
 public class SqlServerTestContainer : ContainerFixture
 {
-    // on arm64 (M1), the standard mssql/server image is not available
-    public string? DockerImage => RuntimeInformation.ProcessArchitecture switch
-    {
-        Arm64 => "mcr.microsoft.com/azure-sql-edge:latest",
-        X64 => "mcr.microsoft.com/mssql/server:2019-latest",
-        var other => throw new PlatformNotSupportedException("Unsupported platform for running tests: " + other)
-    };
+    // Run with linux/amd86 on ARM architectures too, the docker emulation is good enough
+    public string? DockerImage => "mcr.microsoft.com/mssql/server:2019-latest";
     public int Port = 1433;
     public SqlServerTestContainer()
     {

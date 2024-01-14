@@ -16,7 +16,7 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
 
         var parent = TestConfig.CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
-        GrateMigrator? migrator;
+        IGrateMigrator? migrator;
 
         var folder = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.Path, "sub", "folder", "long", "way"));
 
@@ -31,7 +31,7 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
         string[] scripts;
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        await using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
@@ -48,7 +48,7 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
 
-        GrateMigrator? migrator;
+        IGrateMigrator? migrator;
 
         string filename = "any_filename.sql";
 
@@ -62,7 +62,7 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
         string[] scripts;
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        await using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
@@ -82,7 +82,7 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
 
         var parent = TestConfig.CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
-        GrateMigrator? migrator;
+        IGrateMigrator? migrator;
 
         string filename = "any_filename.sql";
         var folder1 = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.Path, "dub", "folder", "long", "way"));
@@ -100,7 +100,7 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
         Result[] scripts;
         string sql = $"SELECT script_name, text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        await using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<Result>(sql)).ToArray();
         }
@@ -126,7 +126,7 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
 
         var parent = TestConfig.CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
-        GrateMigrator? migrator;
+        IGrateMigrator? migrator;
 
         var folder = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.Path));
 
@@ -143,7 +143,7 @@ public abstract class ScriptsRun_Table : MigrationsScriptsBase
         string[] scripts;
         string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        await using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }

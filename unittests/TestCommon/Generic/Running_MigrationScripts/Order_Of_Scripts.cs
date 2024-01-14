@@ -16,7 +16,7 @@ public abstract class Order_Of_Scripts : MigrationsScriptsBase
     {
         var db = TestConfig.RandomDatabase();
 
-        GrateMigrator? migrator;
+        IGrateMigrator? migrator;
         await using (migrator = GetMigrator(db, true))
         {
             await migrator.Migrate();
@@ -25,7 +25,7 @@ public abstract class Order_Of_Scripts : MigrationsScriptsBase
         string[] scripts;
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")} ORDER BY id";
 
-        await using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
@@ -61,7 +61,7 @@ public abstract class Order_Of_Scripts : MigrationsScriptsBase
     }
 
 
-    private GrateMigrator GetMigrator(string databaseName, bool createDatabase)
+    private IGrateMigrator GetMigrator(string databaseName, bool createDatabase)
     {
         var scriptsDir = CreateRandomTempDirectory();
 

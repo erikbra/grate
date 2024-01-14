@@ -21,7 +21,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
     {
         var db = TestConfig.RandomDatabase();
 
-        GrateMigrator? migrator;
+        IGrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
@@ -39,7 +39,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
     {
         var db = TestConfig.RandomDatabase();
 
-        GrateMigrator? migrator;
+        IGrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
@@ -61,7 +61,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
-            await using var conn = Context.CreateDbConnection(db);
+            using var conn = Context.CreateDbConnection(db);
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
 
@@ -75,7 +75,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         var parent = TestConfig.CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
-        GrateMigrator? migrator;
+        IGrateMigrator? migrator;
 
         CreateLongInvalidSql(parent, knownFolders[Up]);
 
@@ -97,7 +97,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
-            await using var conn = Context.CreateDbConnection(db);
+            using var conn = Context.CreateDbConnection(db);
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
 
@@ -166,7 +166,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
             await migrator.Migrate();
             Assert.Fail("Should have thrown a timeout exception prior to this!");
         });
-        
+
         exception.Should().NotBeNull();
     }
 
@@ -199,7 +199,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
     {
         var db = TestConfig.RandomDatabase();
 
-        GrateMigrator? migrator;
+        IGrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
@@ -227,7 +227,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
-            await using var conn = Context.CreateDbConnection(db);
+            using var conn = Context.CreateDbConnection(db);
             versions = (await conn.QueryAsync<string>(sql)).ToArray();
         }
 
@@ -241,7 +241,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         var db = TestConfig.RandomDatabase();
 
-        GrateMigrator? migrator;
+        IGrateMigrator? migrator;
 
         var root = CreateRandomTempDirectory();
 
@@ -262,7 +262,7 @@ public abstract class Failing_Scripts : MigrationsScriptsBase
 
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        await using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }

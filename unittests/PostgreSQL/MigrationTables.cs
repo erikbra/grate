@@ -4,7 +4,7 @@ using TestCommon.TestInfrastructure;
 
 namespace PostgreSQL;
 
-[Collection(nameof(PostgresqlTestContainer))]
+[Collection(nameof(PostgreSqlTestContainer))]
 public class MigrationTables : GenericMigrationTables, IClassFixture<SimpleService>
 {
 
@@ -12,7 +12,7 @@ public class MigrationTables : GenericMigrationTables, IClassFixture<SimpleServi
 
     protected ITestOutputHelper TestOutput { get; }
 
-    public MigrationTables(PostgresqlTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
+    public MigrationTables(PostgreSqlTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
     {
         Context = new PostgreSqlGrateTestContext(simpleService.ServiceProvider, testContainer);
         TestOutput = testOutput;

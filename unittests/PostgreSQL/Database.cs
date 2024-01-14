@@ -4,7 +4,7 @@ using TestCommon.TestInfrastructure;
 
 namespace PostgreSQL;
 
-[Collection(nameof(PostgresqlTestContainer))]
+[Collection(nameof(PostgreSqlTestContainer))]
 public class Database : GenericDatabase, IClassFixture<SimpleService>
 {
 
@@ -12,7 +12,7 @@ public class Database : GenericDatabase, IClassFixture<SimpleService>
 
     protected ITestOutputHelper TestOutput { get; }
 
-    public Database(PostgresqlTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
+    public Database(PostgreSqlTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
     {
         Context = new PostgreSqlGrateTestContext(simpleService.ServiceProvider, testContainer);
         TestOutput = testOutput;

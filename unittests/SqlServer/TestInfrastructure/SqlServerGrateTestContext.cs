@@ -1,13 +1,10 @@
-﻿using System.Data.Common;
-using System.Runtime.InteropServices;
-using grate.Configuration;
+﻿using System.Data;
 using grate.Infrastructure;
 using grate.Migration;
+using grate.SqlServer.Migration;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using TestCommon.TestInfrastructure;
-using static System.Runtime.InteropServices.Architecture;
 
 namespace SqlServer.TestInfrastructure;
 
@@ -15,11 +12,16 @@ class SqlServerGrateTestContext : IGrateTestContext
 {
     public IServiceProvider ServiceProvider { get; private set; }
     private readonly SqlServerTestContainer _testContainer;
+
+    private readonly IDatabaseConnectionFactory _databaseConnectionFactory;
     public SqlServerGrateTestContext(string serverCollation, IServiceProvider serviceProvider, SqlServerTestContainer container)
     {
         ServiceProvider = serviceProvider;
         _testContainer = container;
         ServerCollation = serverCollation;
+        DatabaseMigrator = ServiceProvider.GetService<IDatabase>()!;
+        Syntax = ServiceProvider.GetService<ISyntax>()!;
+        _databaseConnectionFactory = ServiceProvider.GetService<IDatabaseConnectionFactory>()!;
     }
     public SqlServerGrateTestContext(IServiceProvider serviceProvider, SqlServerTestContainer container) : this("Danish_Norwegian_CI_AS", serviceProvider, container)
     {
@@ -42,19 +44,19 @@ class SqlServerGrateTestContext : IGrateTestContext
     public string UserConnectionString(string database) =>
         $"Data Source=localhost,{Port};Initial Catalog={database};User Id=sa;Password={AdminPassword};Encrypt=false;Pooling=false";
 
-    public DbConnection GetDbConnection(string connectionString) => new SqlConnection(connectionString);
+    public IDbConnection GetDbConnection(string connectionString) => _databaseConnectionFactory.GetDbConnection(connectionString);
 
 
 
-    public ISyntax Syntax => new SqlServerSyntax();
+    public ISyntax Syntax { get; init; }
     public Type DbExceptionType => typeof(SqlException);
 
-    public DatabaseType DatabaseType => DatabaseType.sqlserver;
+    public string DatabaseType => SqlServerDatabase.Type;
     public bool SupportsTransaction => true;
-    public string DatabaseTypeName => "SQL server";
-    public string MasterDatabase => "master";
+    // public string DatabaseTypeName => "SQL server";
+    // public string MasterDatabase => "master";
 
-    public IDatabase DatabaseMigrator => new SqlServerDatabase(ServiceProvider.GetRequiredService<ILogger<SqlServerDatabase>>());
+    public IDatabase DatabaseMigrator { get; init; }
 
     public SqlStatements Sql => new()
     {

@@ -2,7 +2,6 @@
 using grate.Commands;
 using grate.Configuration;
 using grate.Migration;
-using Xunit;
 
 namespace Basic_tests.CommandLineParsing;
 

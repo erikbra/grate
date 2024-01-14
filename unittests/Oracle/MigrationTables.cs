@@ -18,7 +18,7 @@ public class MigrationTables : GenericMigrationTables, IClassFixture<SimpleServi
         TestOutput = testOutput;
     }
 
-    protected override Task CheckTableCasing(string tableName, string funnyCasing, Action<GrateConfiguration, string> setTableName)
+    protected override Task CheckTableCasing(string tableName, string funnyCasing, Func<GrateConfiguration, string, GrateConfiguration> setTableName)
     {
         TestOutput.WriteLine("Oracle has never been case-sensitive for grate. No need to introduce that now.");
         return Task.CompletedTask;

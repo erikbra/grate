@@ -1,4 +1,4 @@
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using grate.Configuration;
 
 namespace TestCommon.TestInfrastructure;
@@ -10,7 +10,7 @@ public static class DescriptiveTestObjects
         folder is { } ? new MigrationsFolderWithDescription(folder, description) : null;
 }
 
-public record MigrationsFolderWithDescription: MigrationsFolder
+public record MigrationsFolderWithDescription : MigrationsFolder
 {
     public MigrationsFolderWithDescription(MigrationsFolder baseFolder, string description) : base(baseFolder)
     {

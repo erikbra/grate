@@ -14,6 +14,24 @@ public abstract class GenericDatabase
     protected abstract IGrateTestContext Context { get; }
 
     [Fact]
+    public virtual async Task Is_up_and_running_with_appropriate_database_version()
+    {
+        string? res;
+        using (var conn = Context.CreateAdminDbConnection())
+        {
+            conn.Open();
+
+            // var cmd = conn.CreateCommand();
+            // cmd.CommandType = CommandType.Text;
+            var commandText = Context.Sql.SelectVersion;
+
+            res = (string?)await conn.ExecuteScalarAsync(commandText);
+        }
+
+        res.Should().StartWith(Context.ExpectedVersionPrefix);
+    }
+
+    [Fact]
     public async Task Is_created_if_confed_and_it_does_not_exist()
     {
         var db = "NEWDATABASE";
@@ -134,23 +152,24 @@ public abstract class GenericDatabase
             {
                 try
                 {
-                    await using var conn = Context.CreateAdminDbConnection();
-                    await conn.OpenAsync();
-                    await using var cmd = conn.CreateCommand();
+                    using var conn = Context.CreateAdminDbConnection();
+                    conn.Open();
+                    //using var cmd = conn.CreateCommand();
 
-                    cmd.CommandText = Context.Syntax.CreateDatabase(db, pwd);
-                    await cmd.ExecuteNonQueryAsync();
+                    var commandText = Context.Syntax.CreateDatabase(db, pwd);
+                    //await cmd.ExecuteNonQueryAsync();
+                    await conn.ExecuteAsync(commandText);
 
                     if (!string.IsNullOrWhiteSpace(Context.Sql.CreateUser))
                     {
-                        cmd.CommandText = string.Format(Context.Sql.CreateUser, uid, pwd);
-                        await cmd.ExecuteNonQueryAsync();
+                        commandText = string.Format(Context.Sql.CreateUser, uid, pwd);
+                        await conn.ExecuteAsync(commandText);
                     }
 
                     if (!string.IsNullOrWhiteSpace(Context.Sql.GrantAccess))
                     {
-                        cmd.CommandText = string.Format(Context.Sql.GrantAccess, db, uid);
-                        await cmd.ExecuteNonQueryAsync();
+                        commandText = string.Format(Context.Sql.GrantAccess, db, uid);
+                        await conn.ExecuteAsync(commandText);
                     }
 
                     break;
@@ -171,7 +190,7 @@ public abstract class GenericDatabase
             {
                 try
                 {
-                    await using var conn = Context.CreateAdminDbConnection();
+                    using var conn = Context.CreateAdminDbConnection();
                     databases = await conn.QueryAsync<string>(sql);
                     break;
                 }
@@ -184,7 +203,7 @@ public abstract class GenericDatabase
     protected virtual bool ThrowOnMissingDatabase => true;
 
 
-    protected GrateMigrator GetMigrator(GrateConfiguration config) => Context.GetMigrator(config);
+    protected IGrateMigrator GetMigrator(GrateConfiguration config) => Context.GetMigrator(config);
 
     protected GrateConfiguration GetConfiguration(string databaseName, bool createDatabase)
         => GetConfiguration(databaseName, createDatabase, Context.AdminConnectionString);
