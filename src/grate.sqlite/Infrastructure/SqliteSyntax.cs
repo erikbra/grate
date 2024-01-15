@@ -36,4 +36,5 @@ public readonly struct SqliteSyntax : ISyntax
     public string Quote(string text) => $"\"{text}\"";
     public string PrimaryKeyConstraint(string tableName, string column) => "";
     public string LimitN(string sql, int n) => sql + $"\nLIMIT {n}";
+    public string ResetIdentity(string schemaName, string tableName, long value) => $"UPDATE SQLITE_SEQUENCE SET SEQ={value} WHERE NAME='{TableWithSchema(schemaName, tableName)}';";
 }

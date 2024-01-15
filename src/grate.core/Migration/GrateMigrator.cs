@@ -118,7 +118,7 @@ internal record GrateMigrator : IGrateMigrator
         Separator('=');
         _logger.LogInformation("Migration Scripts");
         Separator('=');
-
+        bool anySqlRun = false;
         try
         {
             // Start the transaction, if configured
@@ -151,14 +151,16 @@ internal record GrateMigrator : IGrateMigrator
                 {
                     if (processingFolderInDefaultTransaction)
                     {
-                        await LogAndProcess(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
+                        LogAndProcess(config.SqlFilesDirectory, folder!);
+                        anySqlRun |= await Process(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
                     }
                     else
                     {
                         using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
                         using (await dbMigrator.OpenNewActiveConnection())
                         {
-                            await LogAndProcess(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
+                            LogAndProcess(config.SqlFilesDirectory, folder!);
+                            anySqlRun |= await Process(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
                         }
                         s.Complete();
                     }
@@ -195,7 +197,15 @@ internal record GrateMigrator : IGrateMigrator
         if (!config.DryRun)
         {
             //If we get here this means no exceptions are thrown above, so we can conclude the migration was successfull!
-            await DbMigrator.Database.ChangeVersionStatus(MigrationStatus.Finished, versionId);
+            if (anySqlRun)
+            {
+                await DbMigrator.Database.ChangeVersionStatus(MigrationStatus.Finished, versionId);
+            }
+            else
+            {
+                // as we have an issue with the versioning table, we need to delete the version record
+                await DbMigrator.Database.DeleteVersionRecord(versionId);
+            }
         }
 
         _logger.LogInformation(
@@ -303,7 +313,7 @@ internal record GrateMigrator : IGrateMigrator
 
     private static DirectoryInfo Wrap(DirectoryInfo root, string subFolder) => new(Path.Combine(root.ToString(), subFolder));
 
-    private async Task LogAndProcess(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId, ConnectionType connectionType, TransactionHandling transactionHandling)
+    private void LogAndProcess(DirectoryInfo root, MigrationsFolder folder)
     {
         var path = Wrap(root, folder.Path);
 
@@ -335,12 +345,12 @@ internal record GrateMigrator : IGrateMigrator
             msg);
 
         Separator('-');
-        await Process(root, folder, changeDropFolder, versionId, connectionType, transactionHandling);
+        //await Process(root, folder, changeDropFolder, versionId, connectionType, transactionHandling);
         Separator('-');
         Separator(' ');
     }
 
-    private async Task Process(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId,
+    private async Task<bool> Process(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId,
         ConnectionType connectionType, TransactionHandling transactionHandling)
     {
         var path = Wrap(root, folder.Path);
@@ -382,6 +392,7 @@ internal record GrateMigrator : IGrateMigrator
         {
             _logger.LogInformation(" No sql run, either an empty folder, or all files run against destination previously.");
         }
+        return anySqlRun;
 
     }
 

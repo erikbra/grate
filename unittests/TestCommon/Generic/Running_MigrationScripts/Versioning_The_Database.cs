@@ -1,7 +1,10 @@
 ﻿using Dapper;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using grate;
 using grate.Configuration;
+using grate.Migration;
+using Microsoft.Extensions.DependencyInjection;
 using TestCommon.TestInfrastructure;
 using Xunit.Abstractions;
 using static grate.Configuration.KnownFolderKeys;
@@ -109,4 +112,90 @@ public abstract class Versioning_The_Database(IGrateTestContext context, ITestOu
         var version = entries.Single(x => x.version == dbVersion);
         version.status.Should().Be(MigrationStatus.InProgress);
     }
+
+
+
+    // [Fact]
+    // [Trait("Category", "Versioning")]
+    // [Trait("Bug", "388")]
+    // public async Task Should_reset_the_version_table_to_desire_value()
+    // {
+    //     var serviceCollection = new ServiceCollection().AddGrate(ConfigureService).AddLogging(opt =>
+    //     {
+    //         opt.AddConsole();
+    //         opt.SetMinimumLevel(TestConfig.GetLogLevel());
+    //     });
+    //     var serviceProvider = serviceCollection.BuildServiceProvider();
+    //     var dbMigrator = serviceProvider.GetRequiredService<IDbMigrator>();
+    //     await dbMigrator.InitializeConnections();
+    //     dbMigrator.SetDefaultConnectionActive();
+    //     await dbMigrator.CreateDatabase();
+    //     // insert into version table
+    //     var v1 = await dbMigrator.Database.VersionTheDatabase("1.0.0.1");
+    //     var v2 = await dbMigrator.Database.VersionTheDatabase("1.0.0.2");
+    //     var v3 = await dbMigrator.Database.VersionTheDatabase("1.0.0.3");
+
+    //     // should reset to v2 
+    //     await dbMigrator.Database.DeleteVersionRecord(v3);
+    //     var newV3 = await dbMigrator.Database.VersionTheDatabase("1.0.0.3-new");
+    //     newV3.Should().Be(v3);
+
+    // }
+    [Fact]
+    [Trait("Category", "Versioning")]
+    [Trait("Bug", "388")]
+    public async Task Does_not_create_versions_when_no_script_existing()
+    {
+        var sqlFolder = CreateRandomTempDirectory();
+        var originalVersion = "1.0.0.0-alpha";
+        var serviceProvider = new ServiceCollection().AddLogging().AddGrate(builder =>
+        {
+            builder.WithSqlFilesDirectory(sqlFolder);
+            builder.WithVersion(originalVersion);
+            ConfigureService(builder);
+        }).BuildServiceProvider();
+
+        var migrator = serviceProvider.GetRequiredService<IGrateMigrator>();
+        await migrator.Migrate();
+        var currentVersion = await migrator.DbMigrator.Database.GetCurrentVersion();
+        currentVersion.Should().NotBe(originalVersion);
+        currentVersion.Should().Be(AnsiSqlDatabase.NotVersioning);
+    }
+
+    [Fact]
+    [Trait("Category", "Versioning")]
+    [Trait("Bug", "388")]
+    public async Task Does_not_create_versions_when_no_script_changed()
+    {
+        //for bug #388 - no script change, should not create new version entry
+        var sqlFolder = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+        CreateDummySql(sqlFolder, knownFolders[Up]);
+        var originalVersion = "1.0.0.0-alpha";
+        var migrator = new ServiceCollection().AddLogging().AddGrate(builder =>
+        {
+            builder.WithSqlFilesDirectory(sqlFolder);
+            builder.WithVersion(originalVersion);
+            ConfigureService(builder);
+        }).BuildServiceProvider().GetRequiredService<IGrateMigrator>();
+
+        await migrator.Migrate();
+
+        var serviceProvider = new ServiceCollection().AddLogging().AddGrate(builder =>
+        {
+            builder.WithSqlFilesDirectory(sqlFolder);
+            builder.WithVersion("1.0.0.2");
+            ConfigureService(builder);
+        }).BuildServiceProvider();
+
+        migrator = serviceProvider.GetRequiredService<IGrateMigrator>();
+        await migrator.Migrate();
+
+        var grateConfig = serviceProvider.GetRequiredService<GrateConfiguration>();
+
+        // migrate again, but don't change the script, shouldn't create a new version record
+        var currrentVersion = await migrator.DbMigrator.Database.GetCurrentVersion();
+        currrentVersion.Should().Be(grateConfig.Version, "DB version should not be changed due to no new script detected");
+    }
+    protected abstract void ConfigureService(GrateConfigurationBuilder grateConfiguration);
 }

@@ -130,23 +130,24 @@ RETURNING id into :id
         }
     }
 
-    public override async Task ChangeVersionStatus(string status, long versionId)
-    {
-        var sql = (string)$@"
-            UPDATE {VersionTable}
-            SET status = :status
-            WHERE id = :versionId";
+    // since the sql is parameterized, we no longer need to override this method anymore.
+    // public override async Task ChangeVersionStatus(string status, long versionId)
+    // {
+    //     var sql = (string)$@"
+    //         UPDATE {VersionTable}
+    //         SET status = :status
+    //         WHERE id = :versionId";
 
-        var parameters = new
-        {
-            status,
-            versionId,
-        };
+    //     var parameters = new
+    //     {
+    //         status,
+    //         versionId,
+    //     };
 
-        await Connection.ExecuteAsync(
-            sql,
-            parameters);
-    }
+    //     await Connection.ExecuteAsync(
+    //         sql,
+    //         parameters);
+    // }
 
     private static IDictionary<string, string?> Tokenize(string? connectionString)
     {
