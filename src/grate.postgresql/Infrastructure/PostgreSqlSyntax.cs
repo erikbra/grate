@@ -35,5 +35,5 @@ public readonly struct PostgreSqlSyntax : ISyntax
     public string Quote(string text) => $"\"{text}\"";
     public string PrimaryKeyConstraint(string tableName, string column) => $",\nCONSTRAINT PK_{tableName}_{column} PRIMARY KEY ({column})";
     public string LimitN(string sql, int n) => sql + $"\nLIMIT {n}";
-    public string ResetIdentity(string schemaName, string tableName, long value) => $"ALTER SEQUENCE {TableWithSchema(schemaName, tableName)}_seq RESTART WITH {value}";
+    public string ResetIdentity(string schemaName, string tableName, long _) => @$"SELECT setval(pg_get_serial_sequence('{TableWithSchema(schemaName, tableName)}', 'id'), coalesce(MAX(id), 1)) from {TableWithSchema(schemaName, tableName)};";
 }

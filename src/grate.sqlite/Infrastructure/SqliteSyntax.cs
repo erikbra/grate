@@ -21,7 +21,7 @@ public readonly struct SqliteSyntax : ISyntax
     public string TextType => "ntext";
     public string BigintType => "BIGINT";
     public string BooleanType => "bit";
-    public string PrimaryKeyColumn(string columnName) => $"{columnName} INTEGER PRIMARY KEY NOT NULL";
+    public string PrimaryKeyColumn(string columnName) => $"{columnName} INTEGER PRIMARY KEY AUTOINCREMENT";
     public string CreateSchema(string schemaName) => @$"CREATE SCHEMA ""{schemaName}"";";
 
     // The "Create database" is a no-op with Sqlite, so we just provide a dummy SQL that just selects current DB
@@ -36,5 +36,7 @@ public readonly struct SqliteSyntax : ISyntax
     public string Quote(string text) => $"\"{text}\"";
     public string PrimaryKeyConstraint(string tableName, string column) => "";
     public string LimitN(string sql, int n) => sql + $"\nLIMIT {n}";
-    public string ResetIdentity(string schemaName, string tableName, long value) => $"UPDATE SQLITE_SEQUENCE SET SEQ={value} WHERE NAME='{TableWithSchema(schemaName, tableName)}';";
+    public string ResetIdentity(string schemaName, string tableName, long _) => @$"UPDATE `sqlite_sequence`
+                                                                                    SET `seq` = (SELECT MAX(`id`) FROM '{TableWithSchema(schemaName, tableName)}')
+                                                                                    WHERE `name` = '{TableWithSchema(schemaName, tableName)}';";
 }

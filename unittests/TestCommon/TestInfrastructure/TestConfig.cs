@@ -18,7 +18,8 @@ public static class TestConfig
         var scriptsDir = Directory.CreateDirectory(dummyFile);
         return scriptsDir;
     }
-
+    public static DirectoryInfo Wrap(DirectoryInfo root, string? subFolder) =>
+        new(Path.Combine(root.ToString(), subFolder ?? ""));
     public static string? Username(string connectionString) => connectionString.Split(";", TrimEntries | RemoveEmptyEntries)
         .SingleOrDefault(entry => entry.StartsWith("Uid", OrdinalIgnoreCase) || entry.StartsWith("User Id", OrdinalIgnoreCase))?
         .Split("=", TrimEntries | RemoveEmptyEntries).Last();

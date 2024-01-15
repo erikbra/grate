@@ -1,4 +1,4 @@
-﻿using TestCommon.TestInfrastructure;
+using TestCommon.TestInfrastructure;
 
 namespace SqlServerCaseSensitive.Running_MigrationScripts;
 

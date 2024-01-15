@@ -151,16 +151,14 @@ internal record GrateMigrator : IGrateMigrator
                 {
                     if (processingFolderInDefaultTransaction)
                     {
-                        LogAndProcess(config.SqlFilesDirectory, folder!);
-                        anySqlRun |= await Process(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
+                        anySqlRun |= await LogAndProcess(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
                     }
                     else
                     {
                         using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
                         using (await dbMigrator.OpenNewActiveConnection())
                         {
-                            LogAndProcess(config.SqlFilesDirectory, folder!);
-                            anySqlRun |= await Process(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
+                            anySqlRun |= await LogAndProcess(config.SqlFilesDirectory, folder!, changeDropFolder, versionId, folder!.ConnectionType, folder.TransactionHandling);
                         }
                         s.Complete();
                     }
@@ -313,20 +311,21 @@ internal record GrateMigrator : IGrateMigrator
 
     private static DirectoryInfo Wrap(DirectoryInfo root, string subFolder) => new(Path.Combine(root.ToString(), subFolder));
 
-    private void LogAndProcess(DirectoryInfo root, MigrationsFolder folder)
+    private async ValueTask<bool> LogAndProcess(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId,
+        ConnectionType connectionType, TransactionHandling transactionHandling)
     {
         var path = Wrap(root, folder.Path);
 
         if (!path.Exists)
         {
             _logger.LogInformation("Skipping '{FolderName}', {Path} does not exist.", folder.Name, folder.Path);
-            return;
+            return false;
         }
 
         if (!path.EnumerateFileSystemInfos().Any()) // Ensure we check for subdirectories as well as files
         {
             _logger.LogInformation("Skipping '{FolderName}', {Path} is empty.", folder.Name, folder.Path);
-            return;
+            return false;
         }
 
         Separator(' ');
@@ -345,12 +344,13 @@ internal record GrateMigrator : IGrateMigrator
             msg);
 
         Separator('-');
-        //await Process(root, folder, changeDropFolder, versionId, connectionType, transactionHandling);
+        var result = await Process(root, folder, changeDropFolder, versionId, connectionType, transactionHandling);
         Separator('-');
         Separator(' ');
+        return result;
     }
 
-    private async Task<bool> Process(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId,
+    private async ValueTask<bool> Process(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId,
         ConnectionType connectionType, TransactionHandling transactionHandling)
     {
         var path = Wrap(root, folder.Path);
@@ -396,7 +396,7 @@ internal record GrateMigrator : IGrateMigrator
 
     }
 
-    private async Task<bool> ProcessWithoutLogging(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder,
+    private async ValueTask<bool> ProcessWithoutLogging(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder,
         ConnectionType connectionType, TransactionHandling transactionHandling)
     {
         var path = Wrap(root, folder.Path);

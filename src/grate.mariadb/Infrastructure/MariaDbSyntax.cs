@@ -31,5 +31,7 @@ public readonly struct MariaDbSyntax : ISyntax
     public string Quote(string text) => $"`{text}`";
     public string PrimaryKeyConstraint(string tableName, string column) => $",\nCONSTRAINT PK_{tableName}_{column} PRIMARY KEY ({column})";
     public string LimitN(string sql, int n) => sql + "\nLIMIT 1";
-    public string ResetIdentity(string schemaName, string tableName, long value) => $"ALTER TABLE {TableWithSchema(schemaName, tableName)} AUTO_INCREMENT = {value}";
+
+    // any ideal to reset identity without using value is welcome.
+    public string ResetIdentity(string schemaName, string tableName, long value) => @$"ALTER TABLE {TableWithSchema(schemaName, tableName)} AUTO_INCREMENT = {value}";
 }

@@ -1,7 +1,7 @@
-using grate.Configuration;
+﻿using grate.Configuration;
+using grate.MariaDb;
 using Microsoft.Extensions.DependencyInjection;
 using TestCommon.TestInfrastructure;
-using grate.MariaDb;
 namespace MariaDB.TestInfrastructure;
 public static class ServiceCollectionExtension
 {
