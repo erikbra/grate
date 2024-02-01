@@ -1,8 +1,8 @@
 ﻿using System.Data;
+using grate.Configuration;
 using grate.Infrastructure;
 using grate.MariaDb.Migration;
 using grate.Migration;
-using Microsoft.Extensions.DependencyInjection;
 using MySqlConnector;
 using TestCommon.TestInfrastructure;
 
@@ -13,20 +13,28 @@ public class MariaDbGrateTestContext : IGrateTestContext
     public string AdminPassword => _testContainer.AdminPassword;
     public int? Port => _testContainer.TestContainer!.GetMappedPublicPort(_testContainer.Port);
     public IServiceProvider ServiceProvider { get; private set; }
+    //private readonly IGrateMigrator _grateMigrator;
+    private readonly Func<GrateConfiguration, GrateMigrator> _getGrateMigrator;
     private readonly MariaDbTestContainer _testContainer;
     private readonly IDatabaseConnectionFactory _databaseConnectionFactory;
-    public MariaDbGrateTestContext(IServiceProvider serviceProvider, MariaDbTestContainer container)
+    
+    public MariaDbGrateTestContext(
+        //IServiceProvider serviceProvider,
+        Func<GrateConfiguration, GrateMigrator> getGrateMigrator,
+        IDatabase dbMigrator, 
+        ISyntax syntax, 
+        IDatabaseConnectionFactory databaseConnectionFactory, 
+        MariaDbTestContainer container)
     {
-        ServiceProvider = serviceProvider;
+        ServiceProvider = null!;
+        _getGrateMigrator = getGrateMigrator;
         _testContainer = container;
-        DatabaseMigrator = ServiceProvider.GetService<IDatabase>()!;
-        Syntax = ServiceProvider.GetService<ISyntax>()!;
-        _databaseConnectionFactory = ServiceProvider.GetService<IDatabaseConnectionFactory>()!;
-
+        DatabaseMigrator = dbMigrator;
+        Syntax = syntax;
+        _databaseConnectionFactory = databaseConnectionFactory;
     }
 
-    // public string DockerCommand(string serverName, string adminPassword) =>
-    //     $"run -d --name {serverName} -e MYSQL_ROOT_PASSWORD={adminPassword} -P mariadb:10.5.9";
+    public IGrateMigrator GetMigrator(GrateConfiguration config) => _getGrateMigrator(config);
 
     public string AdminConnectionString => $"Server={_testContainer.TestContainer!.Hostname};Port={Port};Database=mysql;Uid=root;Pwd={AdminPassword}";
     public string ConnectionString(string database) => $"Server={_testContainer.TestContainer!.Hostname};Port={Port};Database={database};Uid=root;Pwd={AdminPassword}";
@@ -42,7 +50,7 @@ public class MariaDbGrateTestContext : IGrateTestContext
     // public string DatabaseTypeName => "MariaDB Server";
     // public string MasterDatabase => "mysql";
 
-    public IDatabase DatabaseMigrator { get; init; }
+    public IDatabase DatabaseMigrator { get; }
 
     public SqlStatements Sql => new()
     {

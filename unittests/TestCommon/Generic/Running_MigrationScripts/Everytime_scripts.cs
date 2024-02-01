@@ -3,14 +3,20 @@ using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
 using TestCommon.TestInfrastructure;
+using Xunit.Abstractions;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace TestCommon.Generic.Running_MigrationScripts;
 
 //[TestFixture]
 // ReSharper disable once InconsistentNaming
-public abstract class Everytime_scripts : MigrationsScriptsBase
+public abstract class Everytime_scripts(IGrateTestContext context, ITestOutputHelper testOutput) 
+    : MigrationsScriptsBase(context, testOutput)
 {
+    protected Everytime_scripts(): this(null!, null!)
+    {
+    }
+    
     [Fact]
     public async Task Are_run_every_time_even_when_unchanged()
     {

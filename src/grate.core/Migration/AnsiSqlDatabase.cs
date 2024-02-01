@@ -649,7 +649,7 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
 
     private static async Task Close(DbConnection? conn)
     {
-        if (conn?.State == ConnectionState.Open)
+        if (conn?.State is ConnectionState.Open or ConnectionState.Connecting)
         {
             await conn.CloseAsync();
         }
@@ -657,7 +657,8 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
 
     protected virtual async Task Open(DbConnection? conn)
     {
-        if (conn != null && conn.State != ConnectionState.Open)
+        //if (conn != null && conn.State != ConnectionState.Open)
+        if (conn is not null && conn is not { State: ConnectionState.Open or ConnectionState.Connecting })
         {
             await conn.OpenAsync();
             await conn.QueryAsync<string>(_syntax.CurrentDatabase);

@@ -3,13 +3,19 @@ using FluentAssertions;
 using grate.Configuration;
 using grate.Exceptions;
 using TestCommon.TestInfrastructure;
+using Xunit.Abstractions;
 
 namespace TestCommon.Generic;
 
 
-public abstract class GenericMigrationTables
+public abstract class GenericMigrationTables(IGrateTestContext context, ITestOutputHelper testOutput)
 {
-    protected abstract IGrateTestContext Context { get; }
+    protected GenericMigrationTables(): this(null!, null!)
+    {
+    }
+
+    protected IGrateTestContext Context { get; init; } = context;
+    public ITestOutputHelper TestOutput { get; init; } = testOutput;
 
     [Theory]
     [InlineData("ScriptsRun")]

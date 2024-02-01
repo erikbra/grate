@@ -8,7 +8,6 @@ namespace grate.MariaDb.Migration;
 
 public class MariaDbDatabase : AnsiSqlDatabase
 {
-
     public const string Type = "mariadb";
     public override string MasterDatabaseName => "mysql";
     public override string DatabaseType => Type;

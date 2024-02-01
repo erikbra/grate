@@ -15,16 +15,11 @@ public class BatchSplitterReplacer_
     private const string Symbols_to_check = "`~!@#$%^&*()-_+=,.;:'\"[]\\/?<>";
     private const string Words_to_check = "abcdefghijklmnopqrstuvwzyz0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    public class should_replace_on : IClassFixture<SimpleService>
+    public class should_replace_on(ITestOutputHelper testOutput, BatchSplitterReplacer replacer)
     {
-        private ITestOutputHelper _testOutput;
-        private BatchSplitterReplacer Replacer;
+        private ITestOutputHelper _testOutput = testOutput;
+        private BatchSplitterReplacer Replacer = replacer;
 
-        public should_replace_on(ITestOutputHelper testOutput, SimpleService simpleService)
-        {
-            _testOutput = testOutput;
-            Replacer = simpleService.ServiceProvider.GetRequiredService<BatchSplitterReplacer>()!;
-        }
         [Fact]
         public void full_statement_without_issue()
         {
@@ -276,16 +271,8 @@ select ''
 
     }
 
-    public class should_not_replace_on : IClassFixture<SimpleService>
+    public class should_not_replace_on(ITestOutputHelper testOutput, BatchSplitterReplacer replacer)
     {
-        private ITestOutputHelper _testOutput;
-        private BatchSplitterReplacer Replacer;
-
-        public should_not_replace_on(ITestOutputHelper testOutput, SimpleService serversimpleService)
-        {
-            _testOutput = testOutput;
-            Replacer = serversimpleService.ServiceProvider.GetRequiredService<BatchSplitterReplacer>()!;
-        }
         [Fact]
         public void g()
         {
@@ -293,8 +280,8 @@ select ''
 ";
             const string expected_scrubbed = @" G
 ";
-            _testOutput.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
+            testOutput.WriteLine(sql_to_match);
+            string sql_statement_scrubbed = replacer.Replace(sql_to_match);
             sql_statement_scrubbed.Should().Be(expected_scrubbed);
         }
 
@@ -305,8 +292,8 @@ select ''
 ";
             const string expected_scrubbed = @" O
 ";
-            _testOutput.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
+            testOutput.WriteLine(sql_to_match);
+            string sql_statement_scrubbed = replacer.Replace(sql_to_match);
             sql_statement_scrubbed.Should().Be(expected_scrubbed);
         }
 
@@ -317,8 +304,8 @@ select ''
 ";
             string expected_scrubbed = Words_to_check + @"GO
 ";
-            _testOutput.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
+            testOutput.WriteLine(sql_to_match);
+            string sql_statement_scrubbed = replacer.Replace(sql_to_match);
             sql_statement_scrubbed.Should().Be(expected_scrubbed);
         }
 
@@ -329,8 +316,8 @@ select ''
 ";
             string expected_scrubbed = @"--GO
 ";
-            _testOutput.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
+            testOutput.WriteLine(sql_to_match);
+            string sql_statement_scrubbed = replacer.Replace(sql_to_match);
             sql_statement_scrubbed.Should().Be(expected_scrubbed);
         }
 
@@ -341,8 +328,8 @@ select ''
 ";
             string expected_scrubbed = @"-- GO
 ";
-            _testOutput.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
+            testOutput.WriteLine(sql_to_match);
+            string sql_statement_scrubbed = replacer.Replace(sql_to_match);
             sql_statement_scrubbed.Should().Be(expected_scrubbed);
         }
 
@@ -353,8 +340,8 @@ select ''
 ";
             string expected_scrubbed = @"-- GO " + Words_to_check + @"
 ";
-            _testOutput.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
+            testOutput.WriteLine(sql_to_match);
+            string sql_statement_scrubbed = replacer.Replace(sql_to_match);
             sql_statement_scrubbed.Should().Be(expected_scrubbed);
         }
 
@@ -365,8 +352,8 @@ select ''
 ";
             string expected_scrubbed = @"-- GO " + Symbols_to_check + @"
 ";
-            _testOutput.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
+            testOutput.WriteLine(sql_to_match);
+            string sql_statement_scrubbed = replacer.Replace(sql_to_match);
             sql_statement_scrubbed.Should().Be(expected_scrubbed);
         }
 
@@ -377,8 +364,8 @@ select ''
 ";
             string expected_scrubbed = @"--" + "\t" + @"GO
 ";
-            _testOutput.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
+            testOutput.WriteLine(sql_to_match);
+            string sql_statement_scrubbed = replacer.Replace(sql_to_match);
             sql_statement_scrubbed.Should().Be(expected_scrubbed);
         }
 
@@ -389,8 +376,8 @@ select ''
 ";
             string expected_scrubbed = @"--" + "\t" + @"GO " + Words_to_check + @"
 ";
-            _testOutput.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
+            testOutput.WriteLine(sql_to_match);
+            string sql_statement_scrubbed = replacer.Replace(sql_to_match);
             sql_statement_scrubbed.Should().Be(expected_scrubbed);
         }
 
@@ -401,8 +388,8 @@ select ''
 ";
             string expected_scrubbed = @"--" + "\t" + @"GO " + Symbols_to_check + @"
 ";
-            _testOutput.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
+            testOutput.WriteLine(sql_to_match);
+            string sql_statement_scrubbed = replacer.Replace(sql_to_match);
             sql_statement_scrubbed.Should().Be(expected_scrubbed);
         }
 
@@ -413,8 +400,8 @@ select ''
 ";
             string expected_scrubbed = @"-- " + Words_to_check + @" GO
 ";
-            _testOutput.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
+            testOutput.WriteLine(sql_to_match);
+            string sql_statement_scrubbed = replacer.Replace(sql_to_match);
             sql_statement_scrubbed.Should().Be(expected_scrubbed);
         }
 
@@ -425,8 +412,8 @@ select ''
             '";
             const string expected_scrubbed = @"' GO
             '";
-            _testOutput.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
+            testOutput.WriteLine(sql_to_match);
+            string sql_statement_scrubbed = replacer.Replace(sql_to_match);
             sql_statement_scrubbed.Should().Be(expected_scrubbed);
         }
 
@@ -437,8 +424,8 @@ select ''
             string sql_to_match = @"' " + Symbols_to_check.Replace("'", string.Empty) + Words_to_check + @" GO'";
             string expected_scrubbed =
                 @"' " + Symbols_to_check.Replace("'", string.Empty) + Words_to_check + @" GO'";
-            _testOutput.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
+            testOutput.WriteLine(sql_to_match);
+            string sql_statement_scrubbed = replacer.Replace(sql_to_match);
             sql_statement_scrubbed.Should().Be(expected_scrubbed);
         }
 
@@ -449,8 +436,8 @@ select ''
             '";
             string expected_scrubbed = @"' " + Symbols_to_check.Replace("'", string.Empty) + Words_to_check + @" GO
             '";
-            _testOutput.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
+            testOutput.WriteLine(sql_to_match);
+            string sql_statement_scrubbed = replacer.Replace(sql_to_match);
             sql_statement_scrubbed.Should().Be(expected_scrubbed);
         }
 
@@ -461,8 +448,8 @@ select ''
             " + Symbols_to_check.Replace("'", string.Empty) + Words_to_check + @"'";
             string expected_scrubbed = @"' GO
             " + Symbols_to_check.Replace("'", string.Empty) + Words_to_check + @"'";
-            _testOutput.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
+            testOutput.WriteLine(sql_to_match);
+            string sql_statement_scrubbed = replacer.Replace(sql_to_match);
             sql_statement_scrubbed.Should().Be(expected_scrubbed);
         }
 
@@ -473,8 +460,8 @@ select ''
 ";
             string expected_scrubbed = @"--" + Symbols_to_check + @" GO
 ";
-            _testOutput.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
+            testOutput.WriteLine(sql_to_match);
+            string sql_statement_scrubbed = replacer.Replace(sql_to_match);
             sql_statement_scrubbed.Should().Be(expected_scrubbed);
         }
 
@@ -486,8 +473,8 @@ select ''
 ";
             string expected_scrubbed = @"--" + Symbols_to_check + Words_to_check + @" GO
 ";
-            _testOutput.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
+            testOutput.WriteLine(sql_to_match);
+            string sql_statement_scrubbed = replacer.Replace(sql_to_match);
             sql_statement_scrubbed.Should().Be(expected_scrubbed);
         }
 
@@ -496,8 +483,8 @@ select ''
         {
             string sql_to_match = @"/* GO */";
             string expected_scrubbed = @"/* GO */";
-            _testOutput.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
+            testOutput.WriteLine(sql_to_match);
+            string sql_statement_scrubbed = replacer.Replace(sql_to_match);
             sql_statement_scrubbed.Should().Be(expected_scrubbed);
         }
 
@@ -508,8 +495,8 @@ select ''
 */";
             string expected_scrubbed = @"/* GO 
 */";
-            _testOutput.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
+            testOutput.WriteLine(sql_to_match);
+            string sql_statement_scrubbed = replacer.Replace(sql_to_match);
             sql_statement_scrubbed.Should().Be(expected_scrubbed);
         }
 
@@ -526,8 +513,8 @@ select ''
 " + Words_to_check + @" GO
 
 */";
-            _testOutput.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
+            testOutput.WriteLine(sql_to_match);
+            string sql_statement_scrubbed = replacer.Replace(sql_to_match);
             sql_statement_scrubbed.Should().Be(expected_scrubbed);
         }
 
@@ -546,8 +533,8 @@ GO
 GO
 
 */";
-            _testOutput.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
+            testOutput.WriteLine(sql_to_match);
+            string sql_statement_scrubbed = replacer.Replace(sql_to_match);
             sql_statement_scrubbed.Should().Be(expected_scrubbed);
         }
 
@@ -568,8 +555,8 @@ GO
 
 " + Words_to_check + @"
 */";
-            _testOutput.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
+            testOutput.WriteLine(sql_to_match);
+            string sql_statement_scrubbed = replacer.Replace(sql_to_match);
             sql_statement_scrubbed.Should().Be(expected_scrubbed);
         }
 
@@ -588,8 +575,8 @@ GO
 
 " + Symbols_to_check + @" 
 */";
-            _testOutput.WriteLine(sql_to_match);
-            string sql_statement_scrubbed = Replacer.Replace(sql_to_match);
+            testOutput.WriteLine(sql_to_match);
+            string sql_statement_scrubbed = replacer.Replace(sql_to_match);
             sql_statement_scrubbed.Should().Be(expected_scrubbed);
         }
     }

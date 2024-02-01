@@ -3,13 +3,19 @@ using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
 using TestCommon.TestInfrastructure;
+using Xunit.Abstractions;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace TestCommon.Generic.Running_MigrationScripts;
 
 // ReSharper disable once InconsistentNaming
-public abstract class One_time_scripts : MigrationsScriptsBase
+public abstract class One_time_scripts(IGrateTestContext context, ITestOutputHelper testOutput) 
+    : MigrationsScriptsBase(context, testOutput)
 {
+    protected One_time_scripts(): this(null!, null!)
+    {
+    }
+    
     [Fact]
     public async Task Are_not_run_more_than_once_when_unchanged()
     {

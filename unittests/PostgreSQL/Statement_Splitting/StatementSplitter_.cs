@@ -7,15 +7,8 @@ namespace Basic_tests.Infrastructure.PostgreSQL.Statement_Splitting;
 
 
 // ReSharper disable once InconsistentNaming
-public class StatementSplitter_ : IClassFixture<SimpleService>
+public class StatementSplitter_(StatementSplitter statementSplitter)
 {
-    private StatementSplitter Splitter;
-
-    public StatementSplitter_(SimpleService simpleService)
-    {
-        Splitter = simpleService.ServiceProvider.GetRequiredService<StatementSplitter>()!;
-    }
-
     [Fact]
     public void Splits_and_removes_semicolons()
     {
@@ -34,7 +27,7 @@ CREATE INDEX CONCURRENTLY IX_column2 ON public.table1
 	  column2
 	);
 ";
-        var batches = Splitter.Split(original);
+        var batches = statementSplitter.Split(original);
 
         batches.Should().HaveCount(4);
     }
@@ -56,7 +49,7 @@ BEGIN
 END
 ';
 ";
-        var batches = Splitter.Split(original);
+        var batches = statementSplitter.Split(original);
 
         batches.Should().HaveCount(1);
     }
@@ -81,7 +74,7 @@ BEGIN
 END
 {tag};
 ";
-        var batches = Splitter.Split(original);
+        var batches = statementSplitter.Split(original);
         batches.Should().HaveCount(1);
     }
 
@@ -89,7 +82,7 @@ END
     public void Splits_on_semicolon_after_single_quotes_when_there_is_another_semicolon_in_the_quote()
     {
         var original = @"SELECT 1 WHERE whatnot = '; ' ; MOO";
-        var batches = Splitter.Split(original).ToList();
+        var batches = statementSplitter.Split(original).ToList();
         batches.Should().HaveCount(2);
 
         batches.First().Should().Be("SELECT 1 WHERE whatnot = '; ' ");
@@ -100,7 +93,7 @@ END
     public void Ignores_semicolon_in_single_quotes_when_there_is_no_other_semicolon()
     {
         var original = @"SELECT 1 WHERE whatnot = '; '";
-        var batches = Splitter.Split(original);
+        var batches = statementSplitter.Split(original);
         batches.Should().HaveCount(1);
     }
 
@@ -121,7 +114,7 @@ BEGIN
 END
 ';
 ";
-        var batches = Splitter.Split(original);
+        var batches = statementSplitter.Split(original);
 
         batches.Should().HaveCount(1);
     }

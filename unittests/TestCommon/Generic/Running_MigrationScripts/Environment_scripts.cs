@@ -3,14 +3,20 @@ using FluentAssertions;
 using grate.Configuration;
 using grate.Migration;
 using TestCommon.TestInfrastructure;
+using Xunit.Abstractions;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace TestCommon.Generic.Running_MigrationScripts;
 
 //[TestFixture]
 // ReSharper disable once InconsistentNaming
-public abstract class Environment_scripts : MigrationsScriptsBase
+public abstract class Environment_scripts(IGrateTestContext context, ITestOutputHelper testOutput) 
+    : MigrationsScriptsBase(context, testOutput)
 {
+    protected Environment_scripts(): this(null!, null!)
+    {
+    }
+    
     [Fact]
     public async Task Are_not_run_if_not_in_environment()
     {

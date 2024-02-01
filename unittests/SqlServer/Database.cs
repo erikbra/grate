@@ -1,23 +1,13 @@
 ﻿using FluentAssertions;
-using SqlServer.TestInfrastructure;
 using TestCommon.TestInfrastructure;
 
 namespace SqlServer;
 
 [Collection(nameof(SqlServerTestContainer))]
-
-public class Database : TestCommon.Generic.GenericDatabase, IClassFixture<SimpleService>
+public class Database(IGrateTestContext testContext, ITestOutputHelper testOutput)
+    : TestCommon.Generic.GenericDatabase(testContext, testOutput)
 {
-
-    protected override IGrateTestContext Context { get; }
-
-    protected ITestOutputHelper TestOutput { get; }
-
-    public Database(SqlServerTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
-    {
-        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
-        TestOutput = testOutput;
-    }
+  
     [Fact]
     public async Task Does_not_needlessly_apply_case_sensitive_database_name_checks_Issue_167()
     {

@@ -2,12 +2,17 @@
 using FluentAssertions;
 using grate.Configuration;
 using TestCommon.TestInfrastructure;
+using Xunit.Abstractions;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace TestCommon.Generic.Running_MigrationScripts;
 
-public abstract class TokenScripts : MigrationsScriptsBase
+public abstract class TokenScripts(IGrateTestContext context, ITestOutputHelper testOutput) 
+    : MigrationsScriptsBase(context, testOutput)
 {
+    protected TokenScripts(): this(null!, null!)
+    {
+    }
 
     protected virtual string CreateDatabaseName => "create view grate as select '{{DatabaseName}}' as dbase";
     protected virtual string CreateViewMyCustomToken => "create view grate as select '{{MyCustomToken}}' as dbase";

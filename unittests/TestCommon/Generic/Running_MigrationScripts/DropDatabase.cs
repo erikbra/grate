@@ -2,12 +2,18 @@
 using FluentAssertions;
 using grate.Configuration;
 using TestCommon.TestInfrastructure;
+using Xunit.Abstractions;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace TestCommon.Generic.Running_MigrationScripts;
 
-public abstract class DropDatabase : MigrationsScriptsBase
+public abstract class DropDatabase(IGrateTestContext context, ITestOutputHelper testOutput) 
+    : MigrationsScriptsBase(context, testOutput)
 {
+    protected DropDatabase(): this(null!, null!)
+    {
+    }
+    
     [Fact]
     public async Task Ensure_database_gets_dropped()
     {

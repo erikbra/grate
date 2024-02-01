@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using grate.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
 using Oracle.TestInfrastructure;
 
 // ReSharper disable InconsistentNaming
@@ -19,17 +18,12 @@ public class BatchSplitterReplacer_
 
     // private static BatchSplitterReplacer Replacer => new(Database.StatementSeparatorRegex, StatementSplitter.BatchTerminatorReplacementString);
 
-
-    public class should_replace_on : IClassFixture<SimpleService>
+    // ReSharper disable once InconsistentNaming
+    public class should_replace_on(ITestOutputHelper testOutput, BatchSplitterReplacer replacer)
     {
-        private ITestOutputHelper _testOutput;
-        private BatchSplitterReplacer Replacer;
+        private ITestOutputHelper _testOutput = testOutput;
+        private BatchSplitterReplacer Replacer = replacer;
 
-        public should_replace_on(ITestOutputHelper testOutput, SimpleService simpleService)
-        {
-            _testOutput = testOutput;
-            Replacer = simpleService.ServiceProvider.GetRequiredService<BatchSplitterReplacer>()!;
-        }
         [Fact]
         public void full_statement_without_issue()
         {
@@ -281,16 +275,17 @@ select ''
 
     }
 
-    public class should_not_replace_on : IClassFixture<SimpleService>
+    public class should_not_replace_on
     {
         private ITestOutputHelper _testOutput;
         private BatchSplitterReplacer Replacer;
 
-        public should_not_replace_on(ITestOutputHelper testOutput, SimpleService simpleService)
+        public should_not_replace_on(ITestOutputHelper testOutput, BatchSplitterReplacer replacer)
         {
             _testOutput = testOutput;
-            Replacer = simpleService.ServiceProvider.GetRequiredService<BatchSplitterReplacer>()!;
+            Replacer = replacer;
         }
+        
         [Fact]
         public void slash_when_slash_is_the_last_part_of_the_last_word_on_a_line()
         {

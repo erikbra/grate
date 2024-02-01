@@ -9,14 +9,9 @@ namespace TestCommon.TestInfrastructure;
 
 public interface IGrateTestContext : IDatabaseConnectionFactory
 {
-    string AdminPassword { get; }
-    int? Port { get; }
-
     string AdminConnectionString { get; }
     string ConnectionString(string database);
     string UserConnectionString(string database);
-
-    //DbConnection GetDbConnection(string connectionString);
 
     IDbConnection CreateAdminDbConnection() => GetDbConnection(AdminConnectionString);
     IDbConnection CreateDbConnection(string database) => GetDbConnection(ConnectionString(database));
@@ -29,8 +24,6 @@ public interface IGrateTestContext : IDatabaseConnectionFactory
     IDatabase DatabaseMigrator { get; }
 
     SqlStatements Sql { get; }
-    //string DatabaseTypeName { get; }
-    //string MasterDatabase { get; }
     IServiceProvider ServiceProvider { get; }
     string ExpectedVersionPrefix { get; }
 
@@ -67,10 +60,6 @@ public interface IGrateTestContext : IDatabaseConnectionFactory
 
     public IGrateMigrator GetMigrator(GrateConfiguration config)
     {
-        // var factory = Substitute.For<IFactory>();
-        // factory
-        //     .GetService<string, IDatabase>(DatabaseType)
-        //     .Returns(DatabaseMigrator);
         var db = ServiceProvider.GetRequiredService<IDatabase>();
         var dbMigrator = new DbMigrator(db, ServiceProvider.GetRequiredService<ILogger<DbMigrator>>(), new HashGenerator(), config);
         var migrator = new GrateMigrator(ServiceProvider.GetRequiredService<ILogger<GrateMigrator>>(), dbMigrator);

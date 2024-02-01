@@ -68,32 +68,6 @@ public class Basic_CommandLineParsing
         cfg?.AdminConnectionString.Should().Be(database);
     }
 
-    // [Theory]
-    // [InlineData(grate.MariaDb.Migration.MariaDbDatabase.Type)]
-    // [InlineData(grate.Oracle.Migration.OracleDatabase.Type)]
-    // [InlineData(grate.PostgreSql.Migration.PostgreSqlDatabase.Type)]
-    // [InlineData(grate.Sqlite.Migration.SqliteDatabase.Type)]
-    // [InlineData(grate.SqlServer.Migration.SqlServerDatabase.Type)]
-    // public async Task DefaultAdminConnectionString(string databaseType)
-    // {
-    //     var commandline = $"--connectionstring=;Database=jalla --databasetype={databaseType}";
-    //     var cfg = await ParseGrateConfiguration(commandline);
-
-    //     var masterDbName = GetMasterDatabaseName(databaseType);
-
-    //     cfg?.AdminConnectionString.Should().Be($";Database=" + masterDbName);
-    // }
-
-    // private string GetMasterDatabaseName(DatabaseType databaseType) => databaseType switch
-    // {
-    //     DatabaseType.mariadb => "mysql",
-    //     DatabaseType.oracle => "oracle",
-    //     DatabaseType.postgresql => "postgres",
-    //     DatabaseType.sqlite => "master",
-    //     DatabaseType.sqlserver => "master",
-    //     _ => throw new ArgumentOutOfRangeException(nameof(databaseType), databaseType, "Invalid database type: " + databaseType)
-    // };
-
     [Theory]
     [InlineData("-f ")]
     [InlineData("--files=")]

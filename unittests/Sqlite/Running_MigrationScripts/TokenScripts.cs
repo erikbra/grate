@@ -4,17 +4,8 @@ using TestCommon.TestInfrastructure;
 namespace Sqlite.Running_MigrationScripts;
 
 [Collection(nameof(SqliteTestContainer))]
-public class TokenScripts : TestCommon.Generic.Running_MigrationScripts.TokenScripts, IClassFixture<SimpleService>
-{
+// ReSharper disable once InconsistentNaming
+// ReSharper disable once UnusedType.Global
+public class TokenScripts(IGrateTestContext testContext, ITestOutputHelper testOutput)
+    : TestCommon.Generic.Running_MigrationScripts.TokenScripts(testContext, testOutput);
 
-    protected override IGrateTestContext Context { get; }
-
-    protected override ITestOutputHelper TestOutput { get; }
-
-    public TokenScripts(SqliteTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
-    {
-        Context = new SqliteGrateTestContext(simpleService.ServiceProvider, testContainer);
-        TestOutput = testOutput;
-    }
-
-}

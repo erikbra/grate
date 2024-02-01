@@ -9,14 +9,6 @@ public static class TestConfig
 
     public static string RandomDatabase() => Random.GetString(15);
 
-    // public static readonly ILoggerFactory LogFactory = LoggerFactory.Create(builder =>
-    // {
-    //     builder
-    //         //.AddProvider(new ConsoleLoggerProvider(GetLogLevel()))
-    //         .AddProvider(new XunitLoggerProvider(GetLogLevel()));
-    //         .SetMinimumLevel(GetLogLevel());
-    // });
-
     public static DirectoryInfo CreateRandomTempDirectory()
     {
         var dummyFile = Path.GetTempFileName();
@@ -34,7 +26,10 @@ public static class TestConfig
         .SingleOrDefault(entry => entry.StartsWith("Password") || entry.StartsWith("Pwd"))?
         .Split("=", TrimEntries | RemoveEmptyEntries).Last();
 
-    public static LogLevel GetLogLevel()
+    public static LogLevel GetLogLevel() => LogLevelFromEnvironmentVariable();
+    
+    
+    private static LogLevel LogLevelFromEnvironmentVariable()
     {
         if (!Enum.TryParse(Environment.GetEnvironmentVariable("LogLevel"), out LogLevel logLevel))
         {
@@ -42,6 +37,7 @@ public static class TestConfig
         }
         return logLevel;
     }
+
 
     public static void WriteContent(DirectoryInfo? path, string filename, string? content)
     {

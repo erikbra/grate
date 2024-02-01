@@ -1,22 +1,12 @@
-﻿using SqlServer.TestInfrastructure;
+﻿using TestCommon.Generic;
 using TestCommon.TestInfrastructure;
 
 namespace SqlServer;
 
 [Collection(nameof(SqlServerTestContainer))]
-
-public class MigrationTables : TestCommon.Generic.GenericMigrationTables, IClassFixture<SimpleService>
+public class MigrationTables(IGrateTestContext testContext, ITestOutputHelper testOutput)
+    : GenericMigrationTables(testContext, testOutput)
 {
-
-    protected override IGrateTestContext Context { get; }
-
-    protected ITestOutputHelper TestOutput { get; }
-
-    public MigrationTables(SqlServerTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
-    {
-        Context = new SqlServerGrateTestContext(simpleService.ServiceProvider, testContainer);
-        TestOutput = testOutput;
-    }
     protected override string CountTableSql(string schemaName, string tableName)
     {
         return $@"

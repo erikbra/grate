@@ -1,21 +1,9 @@
-﻿using PostgreSQL.TestInfrastructure;
-using TestCommon.TestInfrastructure;
+﻿using TestCommon.TestInfrastructure;
 
 namespace PostgreSQL.Running_MigrationScripts;
 
 [Collection(nameof(PostgreSqlTestContainer))]
 // ReSharper disable once InconsistentNaming
-public class Anytime_scripts : TestCommon.Generic.Running_MigrationScripts.Anytime_scripts, IClassFixture<SimpleService>
-{
-
-    protected override IGrateTestContext Context { get; }
-
-    protected override ITestOutputHelper TestOutput { get; }
-
-    public Anytime_scripts(PostgreSqlTestContainer testContainer, SimpleService simpleService, ITestOutputHelper testOutput)
-    {
-        Context = new PostgreSqlGrateTestContext(simpleService.ServiceProvider, testContainer);
-        TestOutput = testOutput;
-    }
-
-}
+// ReSharper disable once UnusedType.Global
+public class Anytime_scripts(IGrateTestContext testContext, ITestOutputHelper testOutput)
+    : TestCommon.Generic.Running_MigrationScripts.Anytime_scripts(testContext, testOutput);

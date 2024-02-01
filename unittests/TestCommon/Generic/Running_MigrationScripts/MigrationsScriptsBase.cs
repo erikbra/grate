@@ -5,8 +5,13 @@ using Xunit.Abstractions;
 
 namespace TestCommon.Generic.Running_MigrationScripts;
 
-public abstract class MigrationsScriptsBase
+public abstract class MigrationsScriptsBase(IGrateTestContext context, ITestOutputHelper testOutput)
 {
+    protected MigrationsScriptsBase(): this(null!, null!)
+    {
+        
+    }
+    
     public static DirectoryInfo CreateRandomTempDirectory() => TestConfig.CreateRandomTempDirectory();
 
     protected void CreateDummySql(DirectoryInfo root, MigrationsFolder? folder, string filename = "1_jalla.sql")
@@ -70,8 +75,8 @@ public abstract class MigrationsScriptsBase
     protected static DirectoryInfo MakeSurePathExists(DirectoryInfo root, MigrationsFolder? folder)
         => TestConfig.MakeSurePathExists(Wrap(root, folder?.Path));
 
-    protected abstract IGrateTestContext Context { get; }
-    protected abstract ITestOutputHelper TestOutput { get; }
+    protected IGrateTestContext Context { get; set; } = context;
+    protected ITestOutputHelper TestOutput { get; set; } = testOutput;
 
     public static DirectoryInfo Wrap(DirectoryInfo root, string? subFolder) =>
         new(Path.Combine(root.ToString(), subFolder ?? ""));

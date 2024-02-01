@@ -1,21 +1,12 @@
 ﻿using FluentAssertions;
 using grate.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
-using SqlServer.TestInfrastructure;
 
-namespace Basic_tests.Infrastructure.SqlServer.Statement_Splitting;
+namespace SqlServer.Statement_Splitting;
 
 
 // ReSharper disable once InconsistentNaming
-public class StatementSplitter_ : IClassFixture<SimpleService>
+public class StatementSplitter_(StatementSplitter splitter)
 {
-    private StatementSplitter Splitter;
-
-    public StatementSplitter_(SimpleService simpleService)
-    {
-        Splitter = simpleService.ServiceProvider.GetRequiredService<StatementSplitter>()!;
-    }
-
     [Fact]
     public void Splits_and_removes_GO_statements()
     {
@@ -26,7 +17,7 @@ SELECT @@VERSION;
 GO
 SELECT 1
 ";
-        var batches = Splitter.Split(original);
+        var batches = splitter.Split(original);
 
         batches.Should().HaveCount(2);
     }

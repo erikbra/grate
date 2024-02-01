@@ -10,17 +10,13 @@ using TestCommon.TestInfrastructure;
 namespace MariaDB.DependencyInjection;
 
 [Collection(nameof(MariaDbTestContainer))]
-public class ServiceCollectionTest : TestCommon.DependencyInjection.GrateServiceCollectionTest
+// ReSharper disable once UnusedType.Global
+public class ServiceCollectionTest(MariaDbTestContainer mariaDbTestContainer)
+    : TestCommon.DependencyInjection.GrateServiceCollectionTest
 {
-    private readonly MariaDbTestContainer _mariaDbTestContainer;
-
-    public ServiceCollectionTest(MariaDbTestContainer mariaDbTestContainer)
-    {
-        _mariaDbTestContainer = mariaDbTestContainer; ;
-    }
     protected override void ConfigureService(GrateConfigurationBuilder grateConfigurationBuilder)
     {
-        var connectionString = $"Server={_mariaDbTestContainer.TestContainer!.Hostname};Port={_mariaDbTestContainer.TestContainer!.GetMappedPublicPort(_mariaDbTestContainer.Port)};Database={TestConfig.RandomDatabase()};Uid=root;Pwd={_mariaDbTestContainer.AdminPassword}";
+        var connectionString = $"Server={mariaDbTestContainer.TestContainer!.Hostname};Port={mariaDbTestContainer.TestContainer!.GetMappedPublicPort(mariaDbTestContainer.Port)};Database={TestConfig.RandomDatabase()};Uid=root;Pwd={mariaDbTestContainer.AdminPassword}";
         grateConfigurationBuilder.WithConnectionString(connectionString);
         grateConfigurationBuilder.UseMariaDb();
         grateConfigurationBuilder.ServiceCollection.AddSingleton<IDatabaseConnectionFactory, MariaDbConnectionFactory>();
