@@ -1,7 +1,7 @@
 ﻿using grate.Infrastructure;
 namespace grate.SqlServer.Infrastructure;
 
-public class SqlServerSyntax : ISyntax
+public readonly struct SqlServerSyntax : ISyntax
 {
     public string StatementSeparatorRegex
     {

@@ -2,7 +2,7 @@
 
 namespace grate.Infrastructure;
 
-public static class TokenReplacer // When we have a second impl we'll add an interface :)
+internal static class TokenReplacer // When we have a second impl we'll add an interface :)
 {
     public static string ReplaceTokens(Dictionary<string, string?> tokens, string? textToReplace)
     {

@@ -3,7 +3,7 @@ using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
 
-namespace Basic_tests.Infrastructure;
+namespace SqlServer.Basic_tests;
 
 public class TokenReplacerTests(IDatabase database)
 {

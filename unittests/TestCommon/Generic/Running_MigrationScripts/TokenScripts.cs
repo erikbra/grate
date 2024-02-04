@@ -28,7 +28,13 @@ public abstract class TokenScripts(IGrateTestContext context, ITestOutputHelper 
 
         WriteSql(path, "token.sql", CreateDatabaseName);
 
-        await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .Build();
+
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }
@@ -50,13 +56,14 @@ public abstract class TokenScripts(IGrateTestContext context, ITestOutputHelper 
         var path = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Views]?.Path ?? throw new Exception("Config Fail")));
 
         WriteSql(path, "token.sql", CreateViewMyCustomToken);
-
-        var config = Context.GetConfiguration(db, parent, knownFolders) with
-        {
-            UserTokens = new[] { "mycustomtoken=token1" }, // This is important!
-        };
-
-        await using (var migrator = Context.GetMigrator(config))
+        
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithUserTokens("mycustomtoken=token1")
+            .WithSqlFilesDirectory(parent)
+            .Build();
+        
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }

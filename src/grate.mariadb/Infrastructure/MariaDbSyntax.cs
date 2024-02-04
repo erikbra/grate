@@ -1,7 +1,7 @@
 ﻿using grate.Infrastructure;
 namespace grate.MariaDb.Infrastructure;
 
-public class MariaDbSyntax : ISyntax
+public readonly struct MariaDbSyntax : ISyntax
 {
     public string StatementSeparatorRegex
     {

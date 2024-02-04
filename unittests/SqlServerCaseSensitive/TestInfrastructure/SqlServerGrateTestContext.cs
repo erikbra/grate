@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using grate.Infrastructure;
 using grate.Migration;
+using grate.SqlServer.Infrastructure;
 using grate.SqlServer.Migration;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,20 +11,22 @@ namespace SqlServerCaseSensitive.TestInfrastructure;
 
 class SqlServerGrateTestContext : IGrateTestContext
 {
-    public IServiceProvider ServiceProvider { get; private set; }
+    public IGrateMigrator Migrator { get; }
     private readonly SqlServerTestContainer _testContainer;
 
-    private readonly IDatabaseConnectionFactory _databaseConnectionFactory;
-    public SqlServerGrateTestContext(string serverCollation, IServiceProvider serviceProvider, SqlServerTestContainer container)
+    public SqlServerGrateTestContext(
+        IGrateMigrator migrator,
+        string serverCollation, 
+        SqlServerTestContainer container)
     {
-        ServiceProvider = serviceProvider;
+        Migrator = migrator;
         _testContainer = container;
         ServerCollation = serverCollation;
-        DatabaseMigrator = ServiceProvider.GetService<IDatabase>()!;
-        Syntax = ServiceProvider.GetService<ISyntax>()!;
-        _databaseConnectionFactory = ServiceProvider.GetService<IDatabaseConnectionFactory>()!;
+        Syntax = new SqlServerSyntax();
     }
-    public SqlServerGrateTestContext(IServiceProvider serviceProvider, SqlServerTestContainer container) : this("Danish_Norwegian_CI_AS", serviceProvider, container)
+    public SqlServerGrateTestContext(
+        IGrateMigrator migrator, 
+        SqlServerTestContainer container) : this(migrator, "Danish_Norwegian_CI_AS", container)
     {
     }
     public string AdminPassword => _testContainer.AdminPassword;
@@ -33,17 +36,13 @@ class SqlServerGrateTestContext : IGrateTestContext
     public string ConnectionString(string database) => $"Data Source=localhost,{Port};Initial Catalog={database};User Id=sa;Password={AdminPassword};Encrypt=false;Pooling=false";
     public string UserConnectionString(string database) => $"Data Source=localhost,{Port};Initial Catalog={database};User Id=sa;Password={AdminPassword};Encrypt=false;Pooling=false";
 
-    public IDbConnection GetDbConnection(string connectionString) => _databaseConnectionFactory.GetDbConnection(connectionString);
+    public IDbConnection GetDbConnection(string connectionString) => new SqlConnection(connectionString);
 
     public ISyntax Syntax { get; init; }
     public Type DbExceptionType => typeof(SqlException);
 
-    public string DatabaseType => SqlServerDatabase.Type;
+    public Type DatabaseType => typeof(SqlServerDatabase);
     public bool SupportsTransaction => true;
-    // public string DatabaseTypeName => "SQL server";
-    // public string MasterDatabase => "master";
-
-    public IDatabase DatabaseMigrator { get; init; }
 
     public SqlStatements Sql => new()
     {

@@ -12,7 +12,7 @@ using IsolationLevel = System.Transactions.IsolationLevel;
 
 namespace grate.Migration;
 
-public abstract class AnsiSqlDatabase : IDatabase
+public abstract record AnsiSqlDatabase : IDatabase
 {
     private const string Now = "now";
     private const string User = "usr";
@@ -32,9 +32,9 @@ public abstract class AnsiSqlDatabase : IDatabase
     {
         Logger = logger;
         _syntax = syntax;
-        StatementSplitter = new StatementSplitter(StatementSeparatorRegex);
+        StatementSplitter = new StatementSplitter(syntax);
     }
-
+    
     public string ServerName => Connection.DataSource;
     public virtual string DatabaseName => Connection.Database;
     public abstract string MasterDatabaseName { get; }
@@ -649,7 +649,8 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
 
     private static async Task Close(DbConnection? conn)
     {
-        if (conn?.State is ConnectionState.Open or ConnectionState.Connecting)
+        //if (conn?.State is ConnectionState.Open or ConnectionState.Connecting)
+        if (conn is {} && conn.State != ConnectionState.Closed && conn.State != ConnectionState.Connecting)
         {
             await conn.CloseAsync();
         }

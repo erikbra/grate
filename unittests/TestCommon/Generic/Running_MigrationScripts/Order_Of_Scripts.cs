@@ -77,7 +77,6 @@ public abstract class Order_Of_Scripts(IGrateTestContext context, ITestOutputHel
             ConnectionString = Context.ConnectionString(databaseName),
             Folders = FoldersConfiguration.Default(null),
             SqlFilesDirectory = scriptsDir
-
         };
 
         var knownFolders = config.Folders;
@@ -97,7 +96,7 @@ public abstract class Order_Of_Scripts(IGrateTestContext context, ITestOutputHel
         CreateDummySql(scriptsDir, knownFolders[Up], "1_up.sql");
         CreateDummySql(scriptsDir, knownFolders[Views], "1_views.sql");
 
-        return Context.GetMigrator(config);
+        return Context.Migrator.WithConfiguration(config);
 
     }
 }

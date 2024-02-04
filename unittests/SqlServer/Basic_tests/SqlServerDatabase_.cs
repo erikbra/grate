@@ -3,7 +3,7 @@ using grate.Configuration;
 using Microsoft.Data.SqlClient;
 using SqlServer.TestInfrastructure;
 
-namespace Basic_tests.Infrastructure.SqlServer;
+namespace SqlServer.Basic_tests;
 
 // ReSharper disable once InconsistentNaming
 public class SqlServerDatabase_(InspectableSqlServerDatabase sqlServerDatabase)

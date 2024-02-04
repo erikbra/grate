@@ -1,14 +1,21 @@
 ﻿using FluentAssertions;
 using grate.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
-using PostgreSQL.TestInfrastructure;
+using grate.Migration;
+using grate.PostgreSql.Infrastructure;
 
 namespace Basic_tests.Infrastructure.PostgreSQL.Statement_Splitting;
 
 
 // ReSharper disable once InconsistentNaming
-public class StatementSplitter_(StatementSplitter statementSplitter)
+public class StatementSplitter_
 {
+    private readonly StatementSplitter _statementSplitter;
+
+    public StatementSplitter_()
+    {
+        _statementSplitter =  new StatementSplitter(new PostgreSqlSyntax());
+    }
+
     [Fact]
     public void Splits_and_removes_semicolons()
     {
@@ -27,7 +34,7 @@ CREATE INDEX CONCURRENTLY IX_column2 ON public.table1
 	  column2
 	);
 ";
-        var batches = statementSplitter.Split(original);
+        var batches = _statementSplitter.Split(original);
 
         batches.Should().HaveCount(4);
     }
@@ -49,7 +56,7 @@ BEGIN
 END
 ';
 ";
-        var batches = statementSplitter.Split(original);
+        var batches = _statementSplitter.Split(original);
 
         batches.Should().HaveCount(1);
     }
@@ -74,7 +81,7 @@ BEGIN
 END
 {tag};
 ";
-        var batches = statementSplitter.Split(original);
+        var batches = _statementSplitter.Split(original);
         batches.Should().HaveCount(1);
     }
 
@@ -82,7 +89,7 @@ END
     public void Splits_on_semicolon_after_single_quotes_when_there_is_another_semicolon_in_the_quote()
     {
         var original = @"SELECT 1 WHERE whatnot = '; ' ; MOO";
-        var batches = statementSplitter.Split(original).ToList();
+        var batches = _statementSplitter.Split(original).ToList();
         batches.Should().HaveCount(2);
 
         batches.First().Should().Be("SELECT 1 WHERE whatnot = '; ' ");
@@ -93,7 +100,7 @@ END
     public void Ignores_semicolon_in_single_quotes_when_there_is_no_other_semicolon()
     {
         var original = @"SELECT 1 WHERE whatnot = '; '";
-        var batches = statementSplitter.Split(original);
+        var batches = _statementSplitter.Split(original);
         batches.Should().HaveCount(1);
     }
 
@@ -114,7 +121,7 @@ BEGIN
 END
 ';
 ";
-        var batches = statementSplitter.Split(original);
+        var batches = _statementSplitter.Split(original);
 
         batches.Should().HaveCount(1);
     }

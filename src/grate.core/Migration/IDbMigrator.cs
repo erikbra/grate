@@ -3,7 +3,7 @@ using grate.Infrastructure;
 
 namespace grate.Migration;
 
-public interface IDbMigrator : IAsyncDisposable
+internal interface IDbMigrator : IAsyncDisposable, ICloneable
 {
     GrateConfiguration Configuration { get; set; }
     IDatabase Database { get; set; }

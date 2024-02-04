@@ -1,14 +1,16 @@
-﻿namespace grate.Infrastructure;
+﻿using grate.Migration;
 
-public class StatementSplitter
+namespace grate.Infrastructure;
+
+internal class StatementSplitter
 {
     public const string BatchTerminatorReplacementString = @" |{[_REMOVE_]}| ";
 
     private readonly BatchSplitterReplacer _replacer;
 
-    public StatementSplitter(string separatorRegex)
+    public StatementSplitter(ISyntax syntax)
     {
-        _replacer = new BatchSplitterReplacer(separatorRegex, BatchTerminatorReplacementString);
+        _replacer = new BatchSplitterReplacer(syntax);
     }
 
     public IEnumerable<string> Split(string statement)

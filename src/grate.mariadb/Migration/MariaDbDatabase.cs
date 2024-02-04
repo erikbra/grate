@@ -1,22 +1,25 @@
 ﻿using System.Data.Common;
 using System.Diagnostics;
+using grate.Infrastructure;
 using grate.MariaDb.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
 namespace grate.MariaDb.Migration;
 
-public class MariaDbDatabase : AnsiSqlDatabase
+public record MariaDbDatabase : AnsiSqlDatabase
 {
-    public const string Type = "mariadb";
     public override string MasterDatabaseName => "mysql";
     public override string DatabaseType => Type;
     public MariaDbDatabase(ILogger<MariaDbDatabase> logger)
-        : base(logger, new MariaDbSyntax())
+        : base(logger, Syntax)
     { }
 
     public override bool SupportsDdlTransactions => false;
     public override bool SupportsSchemas => false;
+    
+    public static string Type => "mariadb";
+    public static ISyntax Syntax { get; } = new MariaDbSyntax();
 
 
     protected override DbConnection GetSqlConnection(string? connectionString)

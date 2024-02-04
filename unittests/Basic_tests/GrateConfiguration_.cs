@@ -1,9 +1,9 @@
 ﻿using FluentAssertions;
-using grate;
 using grate.Configuration;
+using grate.DependencyInjection;
 using grate.Infrastructure;
 using grate.Migration;
-using grate.SqlServer;
+using grate.SqlServer.Migration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TestCommon.TestInfrastructure;
@@ -25,9 +25,10 @@ public class GrateConfiguration_
            })
            .AddGrate(builder =>
            {
-               builder.WithConnectionString(connectionString)
-                        .UseSqlServer();
+               builder
+                   .WithConnectionString(connectionString);
            })
+           .UseDatabase<SqlServerDatabase>()
            .BuildServiceProvider();
         var cfg = serviceProvider.GetRequiredService<GrateConfiguration>();
         var database = serviceProvider.GetService<IDatabase>()!;
@@ -47,9 +48,10 @@ public class GrateConfiguration_
            })
            .AddGrate(builder =>
            {
-               builder.WithConnectionString("Data source=localhost,1433;Initial Catalog=Øyenbryn;")
-                        .UseSqlServer();
+               builder
+                   .WithConnectionString("Data source=localhost,1433;Initial Catalog=Øyenbryn;");
            })
+           .UseDatabase<SqlServerDatabase>()
            .BuildServiceProvider();
         var cfg = serviceProvider.GetRequiredService<GrateConfiguration>();
         var db = serviceProvider.GetService<IDatabase>()!;

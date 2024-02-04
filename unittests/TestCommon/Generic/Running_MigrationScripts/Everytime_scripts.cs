@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using FluentAssertions;
 using grate.Configuration;
-using grate.Migration;
 using TestCommon.TestInfrastructure;
 using Xunit.Abstractions;
 using static grate.Configuration.KnownFolderKeys;
@@ -25,10 +24,16 @@ public abstract class Everytime_scripts(IGrateTestContext context, ITestOutputHe
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Permissions]);
+        
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .Build();
 
         for (var i = 0; i < 3; i++)
         {
-            await using var migrator = Context.GetMigrator(db, parent, knownFolders);
+            await using var migrator = Context.Migrator.WithConfiguration(config);
             await migrator.Migrate();
         }
 
@@ -47,13 +52,14 @@ public abstract class Everytime_scripts(IGrateTestContext context, ITestOutputHe
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Permissions]);
-
-        var config = Context.GetConfiguration(db, parent, knownFolders) with
-        {
-            DryRun = true, // this is important!
-        };
-
-        await using var migrator = Context.GetMigrator(config);
+        
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithSqlFilesDirectory(parent)
+            .DryRun()  // this is important!
+            .Build();
+        
+        await using var migrator = Context.Migrator.WithConfiguration(config);
         await migrator.Migrate();
 
         string[] scripts;
@@ -80,8 +86,6 @@ public abstract class Everytime_scripts(IGrateTestContext context, ITestOutputHe
     {
         var db = TestConfig.RandomDatabase();
 
-        IGrateMigrator? migrator;
-
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
 
@@ -90,13 +94,17 @@ public abstract class Everytime_scripts(IGrateTestContext context, ITestOutputHe
         CreateDummySql(parent, folder);
         CreateEveryTimeScriptFile(parent, folder);
         CreateOtherEveryTimeScriptFile(parent, folder);
+        
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .Build();
 
         for (var i = 0; i < 3; i++)
         {
-            await using (migrator = Context.GetMigrator(db, parent, knownFolders))
-            {
-                await migrator.Migrate();
-            }
+            await using var migrator = Context.Migrator.WithConfiguration(config);
+            await migrator.Migrate();
         }
 
         string[] scripts;
@@ -117,17 +125,18 @@ public abstract class Everytime_scripts(IGrateTestContext context, ITestOutputHe
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
-
-        var config = Context.GetConfiguration(db, parent, knownFolders) with
-        {
-            Baseline = true, // this is important!
-        };
+        
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithSqlFilesDirectory(parent)
+            .Baseline()  // this is important!
+            .Build();
 
         var path = Wrap(parent, knownFolders[Views]?.Path ?? throw new Exception("Config Fail"));
 
         WriteSql(path, "view.sql", "create view grate as select '1' as col");
 
-        await using (var migrator = Context.GetMigrator(config))
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }

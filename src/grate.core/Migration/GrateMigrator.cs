@@ -7,22 +7,56 @@ using Microsoft.Extensions.Logging;
 
 namespace grate.Migration;
 
-public class GrateMigrator : IGrateMigrator
+internal record GrateMigrator : IGrateMigrator
 {
     private readonly ILogger<GrateMigrator> _logger;
-    private readonly IDbMigrator _migrator;
+    
+    internal IDbMigrator DbMigrator { get; private init; }
 
-    public IDbMigrator DbMigrator => _migrator;
+    public GrateConfiguration Configuration
+    {
+        get => DbMigrator.Configuration;
+        private init
+        {
+            DbMigrator = (IDbMigrator) DbMigrator.Clone();
+            DbMigrator.Configuration = value;
+        }
+    }
+
+    public IDatabase Database
+    {
+        get => DbMigrator.Database;
+        private init
+        {
+            DbMigrator = (IDbMigrator) DbMigrator.Clone();
+            DbMigrator.Database = value;
+        }
+    }
+    
+    public IGrateMigrator WithConfiguration(GrateConfiguration configuration)
+    {
+        return this with { Configuration = configuration };
+    }
+
+    public IGrateMigrator WithConfiguration(Action<GrateConfigurationBuilder> builder)
+    {
+        var b = GrateConfigurationBuilder.Create(Configuration);
+        builder.Invoke(b);
+        return this with { Configuration = b.Build() };
+    }
+
+    public IGrateMigrator WithDatabase(IDatabase database) => this with { Database = database };
+    
 
     public GrateMigrator(ILogger<GrateMigrator> logger, IDbMigrator migrator)
     {
         _logger = logger;
-        _migrator = migrator;
+        DbMigrator = migrator;
     }
 
     public async Task Migrate()
     {
-        IDbMigrator dbMigrator = _migrator;
+        IDbMigrator dbMigrator = DbMigrator;
         await dbMigrator.InitializeConnections();
 
         var silent = dbMigrator.Configuration.Silent;
@@ -31,8 +65,9 @@ public class GrateMigrator : IGrateMigrator
         IFoldersConfiguration knownFolders = config.Folders ?? throw new ArgumentException(nameof(config.Folders));
 
 
-        _logger.LogInformation("Running grate v{Version} against {ServerName} - {DatabaseName}.",
+        _logger.LogInformation("Running grate v{Version} (build date {BuildDate}) against {ServerName} - {DatabaseName}.",
             ApplicationInfo.Version,
+            ApplicationInfo.BuildDate,
             database.ServerName,
             database.DatabaseName
         );
@@ -160,12 +195,13 @@ public class GrateMigrator : IGrateMigrator
         if (!config.DryRun)
         {
             //If we get here this means no exceptions are thrown above, so we can conclude the migration was successfull!
-            await _migrator.Database.ChangeVersionStatus(MigrationStatus.Finished, versionId);
+            await DbMigrator.Database.ChangeVersionStatus(MigrationStatus.Finished, versionId);
         }
 
         _logger.LogInformation(
-            "\n\ngrate v{Version} has grated your database ({DatabaseName})! You are now at version {NewVersion}. All changes and backups can be found at \"{ChangeDropFolder}\".",
+            "\n\ngrate v{Version} (build date {}) has grated your database ({DatabaseName})! You are now at version {NewVersion}. All changes and backups can be found at \"{ChangeDropFolder}\".",
             ApplicationInfo.Version,
+            ApplicationInfo.BuildDate,
             dbMigrator.Database.DatabaseName,
             newVersion,
             changeDropFolder);
@@ -180,10 +216,10 @@ public class GrateMigrator : IGrateMigrator
         switch (connectionType)
         {
             case ConnectionType.Default:
-                await _migrator.OpenActiveConnection();
+                await DbMigrator.OpenActiveConnection();
                 break;
             case ConnectionType.Admin:
-                await _migrator.OpenAdminConnection();
+                await DbMigrator.OpenAdminConnection();
                 break;
             default:
                 throw new UnknownConnectionType(connectionType);
@@ -236,7 +272,7 @@ public class GrateMigrator : IGrateMigrator
         {
             var config = dbMigrator.Configuration;
             var createDatabaseFolder = config.Folders?.CreateDatabase;
-            var database = _migrator.Database;
+            var database = DbMigrator.Database;
 
             var path = Wrap(config.SqlFilesDirectory, createDatabaseFolder?.Path ?? "zz-xx-øø-definitely-does-not-exist");
 
@@ -312,7 +348,7 @@ public class GrateMigrator : IGrateMigrator
         await EnsureConnectionIsOpen(connectionType);
 
         var pattern = "*.sql";
-        var files = FileSystem.GetFiles(path, pattern, _migrator.Configuration.IgnoreDirectoryNames);
+        var files = FileSystem.GetFiles(path, pattern, DbMigrator.Configuration.IgnoreDirectoryNames);
 
         var anySqlRun = false;
 
@@ -321,11 +357,11 @@ public class GrateMigrator : IGrateMigrator
             var sql = await File.ReadAllTextAsync(file.FullName);
 
             // Normalize file names to log, so that results won't vary if you run on *nix VS Windows
-            var fileNameToLog = _migrator.Configuration.IgnoreDirectoryNames
+            var fileNameToLog = DbMigrator.Configuration.IgnoreDirectoryNames
                 ? file.Name
                 : string.Join('/', Path.GetRelativePath(path.ToString(), file.FullName).Split(Path.DirectorySeparatorChar));
 
-            bool theSqlRan = await _migrator.RunSql(sql, fileNameToLog, folder.Type, versionId, _migrator.Configuration.Environment,
+            bool theSqlRan = await DbMigrator.RunSql(sql, fileNameToLog, folder.Type, versionId, DbMigrator.Configuration.Environment,
                 connectionType, transactionHandling);
 
             if (theSqlRan)
@@ -342,7 +378,7 @@ public class GrateMigrator : IGrateMigrator
             }
         }
 
-        if (!anySqlRun && !_migrator.Configuration.DryRun)
+        if (!anySqlRun && !DbMigrator.Configuration.DryRun)
         {
             _logger.LogInformation(" No sql run, either an empty folder, or all files run against destination previously.");
         }
@@ -357,7 +393,7 @@ public class GrateMigrator : IGrateMigrator
         await EnsureConnectionIsOpen(connectionType);
 
         var pattern = "*.sql";
-        var files = FileSystem.GetFiles(path, pattern, _migrator.Configuration.IgnoreDirectoryNames);
+        var files = FileSystem.GetFiles(path, pattern, DbMigrator.Configuration.IgnoreDirectoryNames);
 
         var anySqlRun = false;
 
@@ -366,11 +402,11 @@ public class GrateMigrator : IGrateMigrator
             var sql = await File.ReadAllTextAsync(file.FullName);
 
             // Normalize file names to log, so that results won't vary if you run on *nix VS Windows
-            var fileNameToLog = _migrator.Configuration.IgnoreDirectoryNames
+            var fileNameToLog = DbMigrator.Configuration.IgnoreDirectoryNames
             ? file.Name
             : string.Join('/', Path.GetRelativePath(path.ToString(), file.FullName).Split(Path.DirectorySeparatorChar));
 
-            bool theSqlRan = await _migrator.RunSqlWithoutLogging(sql, fileNameToLog, _migrator.Configuration.Environment,
+            bool theSqlRan = await DbMigrator.RunSqlWithoutLogging(sql, fileNameToLog, DbMigrator.Configuration.Environment,
                 connectionType, transactionHandling);
 
             if (theSqlRan)
@@ -481,7 +517,7 @@ public class GrateMigrator : IGrateMigrator
 
     public async ValueTask DisposeAsync()
     {
-        await _migrator.DisposeAsync();
+        await DbMigrator.DisposeAsync();
         GC.SuppressFinalize(this);
     }
 }

@@ -3,7 +3,7 @@ using System.Text;
 
 namespace grate.Infrastructure;
 
-public class HashGenerator : IHashGenerator
+internal class HashGenerator : IHashGenerator
 {
     private const string WindowsLineEnding = "\r\n";
     private const string UnixLineEnding = "\n";

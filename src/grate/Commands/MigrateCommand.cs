@@ -7,7 +7,7 @@ using static grate.Configuration.DefaultConfiguration;
 
 namespace grate.Commands;
 
-public sealed class MigrateCommand : RootCommand
+internal sealed class MigrateCommand : RootCommand
 {
     public MigrateCommand(IGrateMigrator mi) : base("Migrates the database")
     {
@@ -174,9 +174,9 @@ the last one will expect the folders to be named 'folder1', 'folder2', and 'fold
 
     //DATABASE OPTIONS
     private static Option DatabaseType() =>
-        new Option<string>(
+        new Option<DatabaseType>(
             new[] { "--databasetype", "--dt", "--dbt" },
-            () => "sqlserver",
+            () => Configuration.DatabaseType.SQLServer,
             "Tells grate what type of database it is running on."
         );
 

@@ -1,18 +1,22 @@
-﻿using grate.Configuration;
-using grate.Infrastructure;
+﻿using grate.DependencyInjection;
 using grate.Migration;
-using grate.Oracle.Infrastructure;
 using grate.Oracle.Migration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace grate.Oracle;
+namespace grate.oracle.DependencyInjection;
 
 public static class RegistrationExtensions
 {
-    public static void UseOracle(this GrateConfigurationBuilder configurationBuilder)
+    public static void UseOracle(this IServiceCollection services)
     {
-        configurationBuilder.WithDatabaseType(OracleDatabase.Type);
-        configurationBuilder.ServiceCollection.AddTransient<IDatabase, OracleDatabase>();
-        configurationBuilder.ServiceCollection.AddTransient<ISyntax, OracleSyntax>();
+        services.TryAddTransient<IDatabase, OracleDatabase>();
+    }
+    
+    public static void AddGrateWithOracle(this IServiceCollection services)
+    {
+        services
+            .AddGrate()
+            .UseOracle();
     }
 }

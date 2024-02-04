@@ -1,19 +1,18 @@
-﻿using grate.Configuration;
-using grate.Infrastructure;
+﻿using Basic_tests.Infrastructure;
+using FluentAssertions;
+using grate.Configuration;
 using grate.Migration;
-using Microsoft.Extensions.Logging;
-using NSubstitute;
 using TestCommon.TestInfrastructure;
 
 namespace Basic_tests;
 
 public class Migration
 {
-    private readonly ILogger<GrateMigrator> _logger;
+    private readonly MockGrateLogger  _logger;
 
     public Migration()
     {
-        _logger = Substitute.For<ILogger<GrateMigrator>>();
+        _logger = new MockGrateLogger();
     }
 
     [Fact]
@@ -22,7 +21,7 @@ public class Migration
         var dbMigrator = GetDbMigrator(true);
         var migrator = new GrateMigrator(_logger, dbMigrator);
         await migrator.Migrate();
-        _logger.DidNotReceive().LogInformation(" No sql run, either an empty folder, or all files run against destination previously.");
+        _logger.LoggedMessages.Should().NotContain(" No sql run, either an empty folder, or all files run against destination previously.");
     }
 
     [Fact]
@@ -31,24 +30,14 @@ public class Migration
         var dbMigrator = GetDbMigrator(false);
         var migrator = new GrateMigrator(_logger, dbMigrator);
         await migrator.Migrate();
-        _logger.Received().LogInformation(" No sql run, either an empty folder, or all files run against destination previously.");
+        _logger.LoggedMessages.Should().Contain(" No sql run, either an empty folder, or all files run against destination previously.");
     }
 
-    protected static DirectoryInfo Wrap(DirectoryInfo root, string? subFolder) =>
+    private static DirectoryInfo Wrap(DirectoryInfo root, string? subFolder) =>
         new(Path.Combine(root.ToString(), subFolder ?? ""));
 
     private static IDbMigrator GetDbMigrator(bool dryRun)
     {
-        var dbMigrator = Substitute.For<IDbMigrator>();
-        dbMigrator.RunSql(
-            Arg.Any<string>(),
-            Arg.Any<string>(),
-            Arg.Any<MigrationType>(),
-            Arg.Any<long>(),
-            Arg.Any<GrateEnvironment>(),
-            Arg.Any<ConnectionType>(),
-            Arg.Any<TransactionHandling>()
-        ).ReturnsForAnyArgs(false);
         var parent = TestConfig.CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default();
 
@@ -64,7 +53,7 @@ public class Migration
             SqlFilesDirectory = parent,
             DryRun = dryRun
         };
-        dbMigrator.Configuration.Returns(configuration);
+        var dbMigrator = new MockDbMigrator() { Configuration = configuration };
 
         return dbMigrator;
     }

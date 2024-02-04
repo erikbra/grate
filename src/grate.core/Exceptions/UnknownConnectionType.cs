@@ -2,10 +2,8 @@
 
 namespace grate.Exceptions;
 
-public class UnknownConnectionType : ArgumentOutOfRangeException
-{
-    public UnknownConnectionType(object? connectionType,
-        [CallerArgumentExpression(nameof(connectionType))] string argumentName = "")
-        : base(argumentName, connectionType, "Unknown connection type: " + connectionType)
-    { }
-}
+public class UnknownConnectionType(
+    object? connectionType,
+    [CallerArgumentExpression(nameof(connectionType))]
+    string argumentName = "")
+    : ArgumentOutOfRangeException(argumentName, connectionType, "Unknown connection type: " + connectionType);

@@ -6,11 +6,6 @@ using FluentAssertions;
 using grate.Commands;
 using grate.Configuration;
 using grate.Infrastructure;
-using grate.MariaDb.Migration;
-using grate.Oracle.Migration;
-using grate.PostgreSql.Migration;
-using grate.Sqlite.Migration;
-using grate.SqlServer.Migration;
 
 namespace Basic_tests.CommandLineParsing;
 
@@ -300,14 +295,14 @@ public class Basic_CommandLineParsing
 
 
     [Theory]
-    [InlineData("", SqlServerDatabase.Type)] // default
-    [InlineData("--dbt=postgresql", PostgreSqlDatabase.Type)]
-    [InlineData("--dbt=sqlite", SqliteDatabase.Type)]
-    [InlineData("--dbt=oracle", OracleDatabase.Type)]
-    [InlineData("--dbt=mariadb", MariaDbDatabase.Type)]
-    [InlineData("--databasetype=mariadb", MariaDbDatabase.Type)]
-    [InlineData("--databasetype=MariaDB", MariaDbDatabase.Type)]
-    public async Task TestDatabaseType(string args, string expected)
+    [InlineData("", DatabaseType.SQLServer)] // default
+    [InlineData("--dbt=postgresql", DatabaseType.PostgreSQL)]
+    [InlineData("--dbt=sqlite", DatabaseType.SQLite)]
+    [InlineData("--dbt=oracle", DatabaseType.Oracle)]
+    [InlineData("--dbt=mariadb", DatabaseType.MariaDB)]
+    [InlineData("--databasetype=mariadb", DatabaseType.MariaDB)]
+    [InlineData("--databasetype=MariaDB", DatabaseType.MariaDB)]
+    public async Task TestDatabaseType(string args, DatabaseType expected)
     {
         var cfg = await ParseGrateConfiguration(args);
         cfg?.DatabaseType.Should().Be(expected);
@@ -325,10 +320,10 @@ public class Basic_CommandLineParsing
         cfg?.IgnoreDirectoryNames.Should().Be(expected);
     }
 
-    private static async Task<GrateConfiguration?> ParseGrateConfiguration(string commandline)
+    private static async Task<CommandLineGrateConfiguration?> ParseGrateConfiguration(string commandline)
     {
-        GrateConfiguration? cfg = null;
-        var cmd = CommandHandler.Create((GrateConfiguration config) => cfg = config);
+        CommandLineGrateConfiguration? cfg = null;
+        var cmd = CommandHandler.Create((CommandLineGrateConfiguration config) => cfg = config);
 
         ParseResult p =
             new Parser(new MigrateCommand(null!)).Parse(commandline);

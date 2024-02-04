@@ -4,7 +4,7 @@ using grate.Exceptions;
 
 namespace grate.Commands;
 
-public static class FoldersCommand
+internal static class FoldersCommand
 {
     public static IFoldersConfiguration Parse(string? arg)
     {

@@ -17,23 +17,28 @@ public abstract class Anytime_scripts(IGrateTestContext context, ITestOutputHelp
     protected Anytime_scripts(): this(null!, null!)
     {
     }
+  
     
     [Fact]
     public async Task Are_not_run_more_than_once_when_unchanged()
     {
         var db = TestConfig.RandomDatabase();
 
-        IGrateMigrator? migrator;
-
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Sprocs]);
-
-        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
+        
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .Build();
+        
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }
-        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }
@@ -54,20 +59,24 @@ public abstract class Anytime_scripts(IGrateTestContext context, ITestOutputHelp
     {
         var db = TestConfig.RandomDatabase();
 
-        IGrateMigrator? migrator;
-
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Sprocs]);
 
-        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .Build();
+        
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }
 
         WriteSomeOtherSql(parent, knownFolders[Sprocs]);
 
-        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }
@@ -99,13 +108,14 @@ public abstract class Anytime_scripts(IGrateTestContext context, ITestOutputHelp
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Sprocs]);
+        
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithSqlFilesDirectory(parent)
+            .DoNotStoreScriptsRunText() // important
+            .Build();
 
-        var config = Context.GetConfiguration(db, parent, knownFolders) with
-        {
-            DoNotStoreScriptsRunText = true, // important
-        };
-
-        await using (migrator = Context.GetMigrator(config))
+        await using (migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }
@@ -132,13 +142,13 @@ public abstract class Anytime_scripts(IGrateTestContext context, ITestOutputHelp
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Sprocs]);
+        
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithSqlFilesDirectory(parent)
+            .Build();
 
-        var config = Context.GetConfiguration(db, parent, knownFolders) with
-        {
-            DoNotStoreScriptsRunText = false, // important
-        };
-
-        await using (migrator = Context.GetMigrator(config))
+        await using (migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }
@@ -165,17 +175,18 @@ public abstract class Anytime_scripts(IGrateTestContext context, ITestOutputHelp
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Sprocs]);
+        
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithSqlFilesDirectory(parent)
+            .RunAllAnyTimeScripts() // important
+            .Build();
 
-        var config = Context.GetConfiguration(db, parent, knownFolders) with
-        {
-            RunAllAnyTimeScripts = true, // important
-        };
-
-        await using (migrator = Context.GetMigrator(config))
+        await using (migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }
-        await using (migrator = Context.GetMigrator(config))
+        await using (migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }

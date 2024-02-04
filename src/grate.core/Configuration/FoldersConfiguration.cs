@@ -3,7 +3,7 @@ using static grate.Configuration.MigrationType;
 
 namespace grate.Configuration;
 
-public class FoldersConfiguration : Dictionary<string, MigrationsFolder?>, IFoldersConfiguration
+internal class FoldersConfiguration : Dictionary<string, MigrationsFolder?>, IFoldersConfiguration
 {
     public FoldersConfiguration(IEnumerable<MigrationsFolder> folders) :
         base(folders.ToDictionary(folder => folder.Name, folder => (MigrationsFolder?)folder))

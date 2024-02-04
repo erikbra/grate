@@ -29,7 +29,13 @@ public abstract class GenericMigrationTables(IGrateTestContext context, ITestOut
         var parent = TestConfig.CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
 
-        await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .Build();
+        
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }
@@ -56,8 +62,14 @@ public abstract class GenericMigrationTables(IGrateTestContext context, ITestOut
         var parent = TestConfig.CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateInvalidSql(parent, knownFolders[KnownFolderKeys.Up]);
-
-        await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
+        
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .Build();
+        
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             try
             {
@@ -67,6 +79,7 @@ public abstract class GenericMigrationTables(IGrateTestContext context, ITestOut
             {
             }
         }
+
 
         IEnumerable<string> scripts;
         string sql = $"SELECT modified_date FROM {fullTableName}";
@@ -90,14 +103,20 @@ public abstract class GenericMigrationTables(IGrateTestContext context, ITestOut
 
         var parent = TestConfig.CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
+        
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .Build();
 
-        await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }
 
         // Run migration again - make sure it does not throw an exception
-        await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             var exception = await Record.ExceptionAsync(() => migrator.Migrate());
             Assert.Null(exception);
@@ -134,11 +153,16 @@ public abstract class GenericMigrationTables(IGrateTestContext context, ITestOut
         var knownFolders = FoldersConfiguration.Default();
 
         // Set the version table name to be lower-case first, and run one migration.
-        var config = Context.GetConfiguration(db, parent, knownFolders);
+
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .Build();
 
         config = setTableName(config, funnyCasing);
 
-        await using (var migrator = Context.GetMigrator(config))
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }
@@ -154,7 +178,7 @@ public abstract class GenericMigrationTables(IGrateTestContext context, ITestOut
 
         // Run migration again - make sure it does not create the table with different casing too
         setTableName(config, tableName);
-        await using (var migrator = Context.GetMigrator(config))
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }
@@ -172,7 +196,7 @@ public abstract class GenericMigrationTables(IGrateTestContext context, ITestOut
     private async Task<int> TableCountIn(string db, string tableName)
     {
         var schemaName = Context.DefaultConfiguration.SchemaName;
-        var supportsSchemas = Context.DatabaseMigrator.SupportsSchemas;
+        var supportsSchemas = Context.SupportsSchemas;
 
         var fullTableName = supportsSchemas ? tableName : Context.Syntax.TableWithSchema(schemaName, tableName);
         var tableSchema = supportsSchemas ? schemaName : db;
@@ -195,8 +219,14 @@ public abstract class GenericMigrationTables(IGrateTestContext context, ITestOut
 
         var parent = TestConfig.CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
+        
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .Build();
 
-        await using (var migrator = Context.GetMigrator(db, parent, knownFolders))
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }

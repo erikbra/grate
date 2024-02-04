@@ -22,20 +22,21 @@ public abstract class DropDatabase(IGrateTestContext context, ITestOutputHelper 
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Sprocs]);
-
-        var dropConfig = Context.GetConfiguration(db, parent, knownFolders) with
-        {
-            Drop = true, // This is important!
-        };
-
-        await using (var migrator = Context.GetMigrator(dropConfig))
+        
+        var dropConfig = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithSqlFilesDirectory(parent)
+            .DropDatabase()  // This is important!
+            .Build();
+        
+        await using (var migrator = Context.Migrator.WithConfiguration(dropConfig))
         {
             await migrator.Migrate();
         }
 
         WriteSomeOtherSql(parent, knownFolders[Sprocs]);
 
-        await using (var migrator = Context.GetMigrator(dropConfig))
+        await using (var migrator = Context.Migrator.WithConfiguration(dropConfig))
         {
             // This second migration should drop and recreate, so only one script run afterwards
             await migrator.Migrate();

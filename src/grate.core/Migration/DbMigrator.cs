@@ -1,12 +1,13 @@
 ﻿using System.Diagnostics;
 using System.Transactions;
 using grate.Configuration;
+using grate.Exceptions;
 using grate.Infrastructure;
 using Microsoft.Extensions.Logging;
 
 namespace grate.Migration;
 
-public class DbMigrator : IDbMigrator
+internal record DbMigrator : IDbMigrator
 {
     private readonly ILogger<DbMigrator> _logger;
     private readonly IHashGenerator _hashGenerator;
@@ -348,7 +349,7 @@ public class DbMigrator : IDbMigrator
     /// <param name="scriptName"></param>
     /// <param name="versionId"></param>
     /// <returns></returns>
-    /// <exception cref="Migration.OneTimeScriptChanged"></exception>
+    /// <exception cref="Exceptions.OneTimeScriptChanged"></exception>
     private async Task OneTimeScriptChanged(string sql, string scriptName, long versionId)
     {
         Database.Rollback();
@@ -402,4 +403,6 @@ public class DbMigrator : IDbMigrator
         await Database.DisposeAsync();
         GC.SuppressFinalize(this);
     }
+
+    object ICloneable.Clone() => this with { };
 }

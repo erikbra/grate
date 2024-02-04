@@ -4,7 +4,7 @@ using static System.StringComparer;
 
 namespace grate.Migration;
 
-public static class FileSystem
+internal static class FileSystem
 {
     public static IEnumerable<FileSystemInfo> GetFiles(DirectoryInfo folderPath, string pattern, bool ignoreDirectoryNames = false)
     {

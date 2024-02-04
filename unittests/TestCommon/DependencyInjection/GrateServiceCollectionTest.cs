@@ -1,7 +1,7 @@
 ﻿using Dapper;
 using FluentAssertions;
-using grate;
 using grate.Configuration;
+using grate.DependencyInjection;
 using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,29 +12,41 @@ using static grate.Configuration.KnownFolderKeys;
 
 namespace TestCommon.DependencyInjection;
 
-public abstract class GrateServiceCollectionTest
+public abstract class GrateServiceCollectionTest(IGrateTestContext context)
 {
-    protected abstract void ConfigureService(GrateConfigurationBuilder grateConfiguration);
+    protected IGrateTestContext Context { get; } = context;
+    
+    private void ConfigureService(GrateConfigurationBuilder grateConfigurationBuilder)
+    {
+        var connectionString = Context.ConnectionString(TestConfig.RandomDatabase());
+        var adminConnectionString = Context.AdminConnectionString;
+
+        grateConfigurationBuilder
+            .WithConnectionString(connectionString)
+            .WithAdminConnectionString(adminConnectionString);
+    }
+    
 
 
     [Fact]
     public void Should_inject_all_necessary_services_to_container()
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddGrate(ConfigureService);
+        serviceCollection
+            .AddGrate(ConfigureService)
+            .UseDatabase(Context.DatabaseType);
 
         ValidateService(serviceCollection, typeof(IGrateMigrator), ServiceLifetime.Transient, typeof(GrateMigrator));
         ValidateService(serviceCollection, typeof(IDbMigrator), ServiceLifetime.Transient, typeof(DbMigrator));
         ValidateService(serviceCollection, typeof(IHashGenerator), ServiceLifetime.Transient, typeof(HashGenerator));
-        ValidateService(serviceCollection, typeof(BatchSplitterReplacer), ServiceLifetime.Transient);
-        ValidateService(serviceCollection, typeof(StatementSplitter), ServiceLifetime.Transient);
-        ValidateDatabaseService(serviceCollection);
+        //ValidateService(serviceCollection, typeof(BatchSplitterReplacer), ServiceLifetime.Transient);
+        //ValidateService(serviceCollection, typeof(StatementSplitter), ServiceLifetime.Transient);
+        ValidateService(serviceCollection, typeof(IDatabase), ServiceLifetime.Transient, Context.DatabaseType);
     }
 
     [Fact]
     public async Task Should_migrate_database_successfully()
     {
-
         var sqlFolder = MigrationsScriptsBase.CreateRandomTempDirectory();
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddLogging(opt =>
@@ -46,32 +58,29 @@ public abstract class GrateServiceCollectionTest
         {
             builder.WithSqlFilesDirectory(sqlFolder);
             ConfigureService(builder);
-        });
+        })
+        .UseDatabase(Context.DatabaseType);
         var serviceProvider = serviceCollection.BuildServiceProvider();
-        var syntax = serviceProvider.GetRequiredService<ISyntax>();
+        var syntax = Context.Syntax;
         var tableName = CreateMigrationScript(sqlFolder, syntax);
         var grateMigrator = serviceProvider.GetService<IGrateMigrator>();
         await grateMigrator!.Migrate();
 
         var grateConfiguration = serviceProvider.GetRequiredService<GrateConfiguration>();
 
-        var databaseConnectionFactory = serviceProvider.GetRequiredService<IDatabaseConnectionFactory>();
         string sql = $"SELECT script_name FROM {syntax.TableWithSchema("grate", "ScriptsRun")} where script_name like '{tableName}_%'";
 
-        using var conn = databaseConnectionFactory.GetDbConnection(grateConfiguration.ConnectionString!);
+        using var conn = Context.GetDbConnection(grateConfiguration.ConnectionString!);
         var scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         var files = sqlFolder.GetFiles("*.sql", SearchOption.AllDirectories);
 
         scripts.Should().HaveCount(files.Length);
     }
 
-    protected abstract void ValidateDatabaseService(IServiceCollection serviceCollection);
-
     protected void ValidateService(IServiceCollection serviceCollection, Type serviceType, ServiceLifetime lifetime, Type? expectedImplementationType = null)
     {
-        var services = serviceCollection.Where(x => x.ServiceType == serviceType).ToArray();
-        services.Should().HaveCount(1);
-        var service = services.First();
+        serviceCollection.Should().ContainSingle(x => x.ServiceType == serviceType);
+        var service = serviceCollection.Single(x => x.ServiceType == serviceType);
         service.Lifetime.Should().Be(lifetime);
         if (expectedImplementationType is not null)
         {
