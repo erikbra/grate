@@ -5,14 +5,24 @@ no EF migrations. It gives you full flexibility, and full control of your migrat
 all the fancy features of you particular database system. You are not constrained to any lowest common
 feature set of all supported databases.
 
-## grate.mariadb
+# grate.core
+[![NuGet](https://img.shields.io/nuget/v/grate.core.svg)](https://www.nuget.org/packages/grate.core/)
 
-This is the MariaDB/MySQL provider for grate. It is used to deploy SQL scripts 
-programmatically to a MariaDB or MySQL database. For command line usage, please see the
-[grate (dotnet tool)](https://www.nuget.org/packages/grate/) package.
+This is the core package, which does nothing by itself. You need to add a database specific package to use it.
+See below for the list of supported databases.
 
 
-## Minimal code example
+# grate (dotnet tool)
+[![NuGet](https://img.shields.io/nuget/v/grate.svg)](https://www.nuget.org/packages/grate/)
+
+grate is also available as a dotnet tool, which can be installed with the following command:
+
+```shell
+dotnet tool install -g grate
+```
+
+
+## Minimal example
 The only required argument to pass to grate is a **connection string** to tell it where to find your database. 
 It will deploy to that database, looking for sql scripts in the current directory.
 
@@ -37,6 +47,7 @@ public async Task Run_migration_agains_target_db()
 
 for more configuration options, see the [documentation](https://erikbra.github.io/grate/configuration-options/).
 
+
 ## grate supports the following DMBS's
 
 | Database  | NuGet package |
@@ -46,16 +57,6 @@ for more configuration options, see the [documentation](https://erikbra.github.i
 | MariaDB/MySQL (mariadb) | [![NuGet](https://img.shields.io/nuget/v/grate.mariadb.svg)](https://www.nuget.org/packages/grate.mariadb/) |
 | Sqlite (sqlite) | [![NuGet](https://img.shields.io/nuget/v/grate.sqlite.svg)](https://www.nuget.org/packages/grate.sqlite/) |
 | Oracle (oracle) | [![NuGet](https://img.shields.io/nuget/v/grate.oracle.svg)](https://www.nuget.org/packages/grate.oracle/) |
-
-
-## grate.core
-[![NuGet](https://img.shields.io/nuget/v/grate.core.svg)](https://www.nuget.org/packages/grate.core/)
-
-This is the core package, which does nothing by itself. It is mostly useful for writing extensions to grate, 
-or for writing your own database provider. Please feel free to create your own database provider, and submit it a pull request,
-if you need support for a database that is not supported yet.
-
-
 
 Full documentation can be found at [https://erikbra.github.io/grate/](https://erikbra.github.io/grate/).
 
