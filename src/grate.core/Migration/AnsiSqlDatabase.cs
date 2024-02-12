@@ -649,16 +649,30 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
 
     private static async Task Close(DbConnection? conn)
     {
-        //if (conn?.State is ConnectionState.Open or ConnectionState.Connecting)
-        if (conn is {} && conn.State != ConnectionState.Closed && conn.State != ConnectionState.Connecting)
+        const int maxNumberOfAttempts = 3;
+        var attempts = 0;
+        
+        // try to close the connection a few times, in case it is in a transient state (e.g. connecting),
+        // which will make the close operation fail for some databases.
+        do 
         {
-            await conn.CloseAsync();
-        }
+            try
+            {
+                if (conn?.State is ConnectionState.Open or ConnectionState.Connecting)
+                {
+                    await conn.CloseAsync();
+                }
+                return;
+            }
+            catch (Exception) when (attempts++ < maxNumberOfAttempts)
+            {
+                await Task.Delay(100);
+            }
+        } while (attempts < maxNumberOfAttempts);
     }
 
     protected virtual async Task Open(DbConnection? conn)
     {
-        //if (conn != null && conn.State != ConnectionState.Open)
         if (conn is not null && conn is not { State: ConnectionState.Open or ConnectionState.Connecting })
         {
             await conn.OpenAsync();

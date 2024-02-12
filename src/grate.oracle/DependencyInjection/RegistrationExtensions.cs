@@ -1,4 +1,5 @@
-﻿using grate.DependencyInjection;
+﻿using grate.Configuration;
+using grate.DependencyInjection;
 using grate.Migration;
 using grate.Oracle.Migration;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,15 +9,14 @@ namespace grate.oracle.DependencyInjection;
 
 public static class RegistrationExtensions
 {
-    public static void UseOracle(this IServiceCollection services)
+    public static IServiceCollection UseOracle(this IServiceCollection services)
     {
         services.TryAddTransient<IDatabase, OracleDatabase>();
+        return services;
     }
     
-    public static void AddGrateWithOracle(this IServiceCollection services)
-    {
+    public static IServiceCollection AddGrateWithOracle(this IServiceCollection services, GrateConfiguration? config = null) =>
         services
-            .AddGrate()
+            .AddGrate(config ?? GrateConfiguration.Default)
             .UseOracle();
-    }
 }

@@ -229,7 +229,6 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
             AdminConnectionString = adminConnectionString,
             Folders = FoldersConfiguration.Default(null),
             NonInteractive = true,
-            //DatabaseType = Context.DatabaseType,
             SqlFilesDirectory = parent
         };
     }

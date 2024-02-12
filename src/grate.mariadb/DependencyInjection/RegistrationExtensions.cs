@@ -1,4 +1,5 @@
-﻿using grate.DependencyInjection;
+﻿using grate.Configuration;
+using grate.DependencyInjection;
 using grate.MariaDb.Migration;
 using grate.Migration;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,15 +9,14 @@ namespace grate.mariadb.DependencyInjection;
 
 public static class RegistrationExtensions
 {
-    public static void UseMariaDb(this IServiceCollection services)
+    public static IServiceCollection UseMariaDb(this IServiceCollection services)
     {
         services.TryAddTransient<IDatabase, MariaDbDatabase>();
+        return services;
     }
     
-    public static void AddGrateWithMariaDb(this IServiceCollection services)
-    {
+    public static IServiceCollection AddGrateWithMariaDb(this IServiceCollection services, GrateConfiguration? config = null) =>
         services
-            .AddGrate()
+            .AddGrate(config ?? GrateConfiguration.Default)
             .UseMariaDb();
-    }
 }

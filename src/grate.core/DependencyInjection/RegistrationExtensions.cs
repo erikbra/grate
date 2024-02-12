@@ -73,16 +73,6 @@ public static class RegistrationExtensions
         collection.TryAddTransient<IDbMigrator, DbMigrator>();
         collection.TryAddTransient<IHashGenerator, HashGenerator>();
         collection.TryAddTransient<IGrateMigrator, GrateMigrator>();
-        // collection.TryAddTransient(service =>
-        // {
-        //     var database = service.GetRequiredService<IDatabase>();
-        //     return new BatchSplitterReplacer(database.StatementSeparatorRegex, StatementSplitter.BatchTerminatorReplacementString);
-        // });
-        // collection.TryAddTransient(service =>
-        // {
-        //     var database = service.GetRequiredService<IDatabase>();
-        //     return new StatementSplitter(database.StatementSeparatorRegex);
-        // });
         
         return collection;
     }

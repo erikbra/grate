@@ -13,7 +13,7 @@ internal static class DefaultConfiguration
     public const string DefaultFilesDirectory = @".";
     public const string DefaultServerName = "(local)";
     public static readonly string DefaultOutputPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.DoNotVerify), "grate");
-    public const string LoggingFile = @"C:\Temp\grate\grate.changes.log";
+    public static readonly string LoggingFile = Path.Combine(Path.GetTempPath(), ApplicationInfo.Name, $"{ApplicationInfo.Name}.changes.log");
     public const int DefaultCommandTimeout = 60;
     public const int DefaultAdminCommandTimeout = 300;
     public const int DefaultRestoreTimeout = 900;

@@ -39,8 +39,6 @@ public abstract class GrateServiceCollectionTest(IGrateTestContext context)
         ValidateService(serviceCollection, typeof(IGrateMigrator), ServiceLifetime.Transient, typeof(GrateMigrator));
         ValidateService(serviceCollection, typeof(IDbMigrator), ServiceLifetime.Transient, typeof(DbMigrator));
         ValidateService(serviceCollection, typeof(IHashGenerator), ServiceLifetime.Transient, typeof(HashGenerator));
-        //ValidateService(serviceCollection, typeof(BatchSplitterReplacer), ServiceLifetime.Transient);
-        //ValidateService(serviceCollection, typeof(StatementSplitter), ServiceLifetime.Transient);
         ValidateService(serviceCollection, typeof(IDatabase), ServiceLifetime.Transient, Context.DatabaseType);
     }
 

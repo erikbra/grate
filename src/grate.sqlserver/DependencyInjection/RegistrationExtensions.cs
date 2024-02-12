@@ -1,4 +1,5 @@
-﻿using grate.DependencyInjection;
+﻿using grate.Configuration;
+using grate.DependencyInjection;
 using grate.Migration;
 using grate.SqlServer.Migration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,16 +10,15 @@ namespace grate.sqlserver.DependencyInjection;
 public static class RegistrationExtensions
 {
     // ReSharper disable once InconsistentNaming
-    public static void UseSqlServer(this IServiceCollection services)
+    public static IServiceCollection UseSqlServer(this IServiceCollection services)
     {
         services.TryAddTransient<IDatabase, SqlServerDatabase>();
+        return services;
     }
     
     // ReSharper disable once InconsistentNaming
-    public static void AddGrateUseSqlServer(this IServiceCollection services)
-    {
+    public static IServiceCollection AddGrateWithSqlServer(this IServiceCollection services, GrateConfiguration? config = null) =>
         services
-            .AddGrate()
+            .AddGrate(config ?? GrateConfiguration.Default)
             .UseSqlServer();
-    }
 }

@@ -10,15 +10,20 @@ using grate.DependencyInjection;
 using grate.Exceptions;
 using grate.Infrastructure;
 using grate.MariaDb;
+using grate.mariadb.DependencyInjection;
 using grate.MariaDb.Migration;
 using grate.Migration;
 using grate.Oracle;
+using grate.oracle.DependencyInjection;
 using grate.Oracle.Migration;
 using grate.PostgreSql;
+using grate.postgresql.DependencyInjection;
 using grate.PostgreSql.Migration;
 using grate.Sqlite;
+using grate.sqlite.DependencyInjection;
 using grate.Sqlite.Migration;
 using grate.SqlServer;
+using grate.sqlserver.DependencyInjection;
 using grate.SqlServer.Migration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -123,11 +128,11 @@ public static class Program
         
         services = config.DatabaseType switch
         {
-            DatabaseType.MariaDB => services.AddGrate<MariaDbDatabase>(config),
-            DatabaseType.Oracle => services.AddGrate<OracleDatabase>(config),
-            DatabaseType.PostgreSQL => services.AddGrate<PostgreSqlDatabase>(config),
-            DatabaseType.SQLServer => services.AddGrate<SqlServerDatabase>(config),
-            DatabaseType.SQLite => services.AddGrate<SqliteDatabase>(config),
+            DatabaseType.MariaDB => services.AddGrateWithMariaDb(config),
+            DatabaseType.Oracle => services.AddGrateWithOracle(config),
+            DatabaseType.PostgreSQL => services.AddGrateWithPostgreSQL(config),
+            DatabaseType.SQLServer => services.AddGrateWithSqlServer(config),
+            DatabaseType.SQLite => services.AddGrateWithSqlite(config),
             _ => throw new ArgumentOutOfRangeException(nameof(config), 
                 config.DatabaseType, 
                 "Unknown target database type: " + config.DatabaseType)
