@@ -29,5 +29,16 @@
     <PackageReference Include="Microsoft.Extensions.Hosting"  />
     <PackageReference Include="Dapper" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="NuGet.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="NuGet.md">
+      <Pack>true</Pack>
+      <PackagePath>/</PackagePath>
+    </None>
+  </ItemGroup>
   
 </Project>

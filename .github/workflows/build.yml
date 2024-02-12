@@ -74,10 +74,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        package: [  "grate.mariadb", 
-                "grate.oracle", 
+        package: [
+                "grate.core",
+                "grate.mariadb",
+                "grate.oracle",
                 "grate.postgresql",
-                "grate.sqlite", 
+                "grate.sqlite",
                 "grate.sqlserver"
               ]
     steps:
