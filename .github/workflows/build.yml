@@ -69,7 +69,7 @@ jobs:
   
   build-nuget-package:
     needs: set-version-number
-    name: Build Nuget Packages
+    name: Build Nuget
 
     runs-on: ubuntu-latest
     strategy:
@@ -103,7 +103,7 @@ jobs:
       run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_ORG_KEY}} --skip-duplicate
 
   build-standalone:
-    name: Build
+    name: Build cli
     needs: set-version-number
 
     runs-on: ubuntu-latest
