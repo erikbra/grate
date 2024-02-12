@@ -1,4 +1,5 @@
 ﻿using grate.Infrastructure;
+
 // ReSharper disable StringLiteralTypo
 
 namespace SqlServerCaseSensitive.TestInfrastructure;

@@ -12,7 +12,6 @@ public interface IDatabase : IAsyncDisposable
     bool SupportsDdlTransactions { get; }
 
     bool SplitBatchStatements { get; }
-    string StatementSeparatorRegex { get; }
     public string ScriptsRunTable { get; }
     public string ScriptsRunErrorsTable { get; }
     public string VersionTable { get; }

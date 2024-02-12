@@ -3,7 +3,7 @@ using grate.Configuration;
 using grate.Migration;
 
 namespace grate.Infrastructure;
-public static class ConnectionStringExtension
+internal static class ConnectionStringExtension
 {
     public static string? GetAdminConnectionString(this IDatabase database, GrateConfiguration grateConfiguration)
     {

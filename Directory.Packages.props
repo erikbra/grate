@@ -3,6 +3,7 @@
     <!--
       .net sdk
     -->
+    <PackageVersion Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
@@ -29,6 +30,6 @@
     <PackageVersion Include="Testcontainers.Oracle" Version="3.7.0" />
     <PackageVersion Include="Testcontainers.MsSql" Version="3.7.0" />
     <PackageVersion Include="Xunit.DependencyInjection" Version="8.9.1" />
-    <PackageVersion Include="Xunit.DependencyInjection.Logging" Version="8.1.0" />   
+    <PackageVersion Include="Xunit.DependencyInjection.Logging" Version="8.1.0" />
   </ItemGroup>
 </Project>

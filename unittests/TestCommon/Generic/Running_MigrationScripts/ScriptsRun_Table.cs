@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using FluentAssertions;
 using grate.Configuration;
-using grate.Migration;
 using TestCommon.TestInfrastructure;
 using Xunit.Abstractions;
 using static grate.Configuration.KnownFolderKeys;
@@ -22,14 +21,20 @@ public abstract class ScriptsRun_Table(IGrateTestContext context, ITestOutputHel
 
         var parent = TestConfig.CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
-        IGrateMigrator? migrator;
 
         var folder = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.Path, "sub", "folder", "long", "way"));
 
         string filename = "any_filename.sql";
 
         CreateDummySql(folder, filename);
-        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
+        
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .Build();
+
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }
@@ -54,13 +59,17 @@ public abstract class ScriptsRun_Table(IGrateTestContext context, ITestOutputHel
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
 
-        IGrateMigrator? migrator;
-
         string filename = "any_filename.sql";
 
         CreateDummySql(parent, knownFolders[Up], filename);
 
-        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .Build();
+
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }
@@ -88,7 +97,6 @@ public abstract class ScriptsRun_Table(IGrateTestContext context, ITestOutputHel
 
         var parent = TestConfig.CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
-        IGrateMigrator? migrator;
 
         string filename = "any_filename.sql";
         var folder1 = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.Path, "dub", "folder", "long", "way"));
@@ -97,7 +105,13 @@ public abstract class ScriptsRun_Table(IGrateTestContext context, ITestOutputHel
         CreateDummySql(folder1, filename);
         WriteSomeOtherSql(folder2, filename);
 
-        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .Build();
+
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }
@@ -132,14 +146,20 @@ public abstract class ScriptsRun_Table(IGrateTestContext context, ITestOutputHel
 
         var parent = TestConfig.CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
-        IGrateMigrator? migrator;
 
         var folder = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.Path));
 
         const string filename = "large_file.sql";
 
         CreateLargeDummySql(folder, filename: filename);
-        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
+        
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .Build();
+
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }

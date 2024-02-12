@@ -1,21 +1,22 @@
 ﻿using System.Data.Common;
+using grate.Infrastructure;
 using grate.Migration;
 using grate.Sqlite.Infrastructure;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 namespace grate.Sqlite.Migration;
-public class SqliteDatabase : AnsiSqlDatabase
+public record SqliteDatabase : AnsiSqlDatabase
 {
-    public const string Type = "sqlite";
-
     public override string MasterDatabaseName => "master";
     public override string DatabaseType => Type;
-    private static readonly SqliteSyntax Syntax = new();
 
 
     public SqliteDatabase(ILogger<SqliteDatabase> logger)
         : base(logger, Syntax)
     { }
+    
+    public static string Type => "sqlite";
+    public static ISyntax Syntax { get; } = new SqliteSyntax();
 
     public override bool SupportsDdlTransactions => false;
     public override bool SupportsSchemas => false;

@@ -1,7 +1,7 @@
 ﻿using grate.Infrastructure;
 namespace grate.Sqlite.Infrastructure;
 
-public class SqliteSyntax : ISyntax
+public readonly struct SqliteSyntax : ISyntax
 {
     public string StatementSeparatorRegex
     {

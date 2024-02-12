@@ -32,13 +32,14 @@ public class RestoreDatabase(IGrateTestContext testContext, ITestOutputHelper te
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[KnownFolderKeys.Sprocs]);
+        
+        var restoreConfig = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithSqlFilesDirectory(parent)
+            .RestoreFrom(_backupPath)
+            .Build();
 
-        var restoreConfig = Context.GetConfiguration(db, parent, knownFolders) with
-        {
-            Restore = _backupPath
-        };
-
-        await using (var migrator = Context.GetMigrator(restoreConfig))
+        await using (var migrator = Context.Migrator.WithConfiguration(restoreConfig))
         {
             await migrator.Migrate();
         }

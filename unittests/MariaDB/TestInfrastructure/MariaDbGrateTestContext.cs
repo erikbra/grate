@@ -1,6 +1,6 @@
 ﻿using System.Data;
-using grate.Configuration;
 using grate.Infrastructure;
+using grate.MariaDb.Infrastructure;
 using grate.MariaDb.Migration;
 using grate.Migration;
 using MySqlConnector;
@@ -10,47 +10,34 @@ namespace MariaDB.TestInfrastructure;
 
 public class MariaDbGrateTestContext : IGrateTestContext
 {
-    public string AdminPassword => _testContainer.AdminPassword;
-    public int? Port => _testContainer.TestContainer!.GetMappedPublicPort(_testContainer.Port);
-    public IServiceProvider ServiceProvider { get; private set; }
-    //private readonly IGrateMigrator _grateMigrator;
-    private readonly Func<GrateConfiguration, GrateMigrator> _getGrateMigrator;
     private readonly MariaDbTestContainer _testContainer;
-    private readonly IDatabaseConnectionFactory _databaseConnectionFactory;
     
     public MariaDbGrateTestContext(
-        //IServiceProvider serviceProvider,
-        Func<GrateConfiguration, GrateMigrator> getGrateMigrator,
-        IDatabase dbMigrator, 
-        ISyntax syntax, 
-        IDatabaseConnectionFactory databaseConnectionFactory, 
+        IGrateMigrator migrator, 
         MariaDbTestContainer container)
     {
-        ServiceProvider = null!;
-        _getGrateMigrator = getGrateMigrator;
+        Migrator = migrator;
         _testContainer = container;
-        DatabaseMigrator = dbMigrator;
-        Syntax = syntax;
-        _databaseConnectionFactory = databaseConnectionFactory;
     }
 
-    public IGrateMigrator GetMigrator(GrateConfiguration config) => _getGrateMigrator(config);
+    public IGrateMigrator Migrator { get; }
+    
+    private string AdminPassword => _testContainer.AdminPassword;
+    private int? Port => _testContainer.TestContainer!.GetMappedPublicPort(_testContainer.Port);
+    private string Hostname => _testContainer.TestContainer!.Hostname;
 
-    public string AdminConnectionString => $"Server={_testContainer.TestContainer!.Hostname};Port={Port};Database=mysql;Uid=root;Pwd={AdminPassword}";
+
+    public string AdminConnectionString => $"Server={Hostname};Port={Port};Database=mysql;Uid=root;Pwd={AdminPassword}";
     public string ConnectionString(string database) => $"Server={_testContainer.TestContainer!.Hostname};Port={Port};Database={database};Uid=root;Pwd={AdminPassword}";
     public string UserConnectionString(string database) => $"Server={_testContainer.TestContainer!.Hostname};Port={Port};Database={database};Uid={database};Pwd=mooo1213";
 
-    public IDbConnection GetDbConnection(string connectionString) => _databaseConnectionFactory.GetDbConnection(connectionString);
+    public IDbConnection GetDbConnection(string connectionString) => new MySqlConnection(connectionString);
 
-    public ISyntax Syntax { get; init; }
+    public ISyntax Syntax { get; } = new MariaDbSyntax();
     public Type DbExceptionType => typeof(MySqlException);
 
-    public string DatabaseType => MariaDbDatabase.Type;
+    public Type DatabaseType => typeof(MariaDbDatabase);
     public bool SupportsTransaction => false;
-    // public string DatabaseTypeName => "MariaDB Server";
-    // public string MasterDatabase => "mysql";
-
-    public IDatabase DatabaseMigrator { get; }
 
     public SqlStatements Sql => new()
     {

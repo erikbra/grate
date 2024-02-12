@@ -3,14 +3,16 @@ using static System.Text.RegularExpressions.RegexOptions;
 
 namespace grate.Infrastructure;
 
-public class BatchSplitterReplacer
+internal class BatchSplitterReplacer
 {
     private string Replacement { get; }
     private readonly Regex _regex;
 
-    public BatchSplitterReplacer(string pattern, string replacement)
+    public BatchSplitterReplacer(ISyntax syntax)
     {
-        Replacement = replacement;
+        var pattern = syntax.StatementSeparatorRegex;
+        Replacement = StatementSplitter.BatchTerminatorReplacementString;
+        
         _regex = new Regex(pattern, IgnoreCase | Multiline);
     }
 

@@ -7,10 +7,6 @@ namespace TestCommon.Generic.Running_MigrationScripts;
 
 public abstract class MigrationsScriptsBase(IGrateTestContext context, ITestOutputHelper testOutput)
 {
-    protected MigrationsScriptsBase(): this(null!, null!)
-    {
-        
-    }
     
     public static DirectoryInfo CreateRandomTempDirectory() => TestConfig.CreateRandomTempDirectory();
 

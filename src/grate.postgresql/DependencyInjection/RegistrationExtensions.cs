@@ -1,17 +1,24 @@
 ﻿using grate.Configuration;
-using grate.Infrastructure;
+using grate.DependencyInjection;
 using grate.Migration;
-using grate.PostgreSql.Infrastructure;
 using grate.PostgreSql.Migration;
 using Microsoft.Extensions.DependencyInjection;
-namespace grate.PostgreSql;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+
+namespace grate.postgresql.DependencyInjection;
 
 public static class RegistrationExtensions
 {
-    public static void UsePostgreSql(this GrateConfigurationBuilder configurationBuilder)
+    // ReSharper disable once InconsistentNaming
+    public static IServiceCollection UsePostgreSQL(this IServiceCollection services)
     {
-        configurationBuilder.WithDatabaseType(PostgreSqlDatabase.Type);
-        configurationBuilder.ServiceCollection.AddTransient<IDatabase, PostgreSqlDatabase>();
-        configurationBuilder.ServiceCollection.AddTransient<ISyntax, PostgreSqlSyntax>();
+        services.TryAddTransient<IDatabase, PostgreSqlDatabase>();
+        return services;
     }
+    
+    // ReSharper disable once InconsistentNaming
+    public static IServiceCollection AddGrateWithPostgreSQL(this IServiceCollection services, GrateConfiguration? config = null) =>
+        services
+            .AddGrate(config ?? GrateConfiguration.Default)
+            .UsePostgreSQL();
 }

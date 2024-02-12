@@ -11,30 +11,11 @@ namespace grate.Configuration;
 public record GrateConfiguration
 {
     /// <summary>
-    /// Service collection to use for dependency injection.
-    /// </summary>
-    public IServiceCollection? ServiceCollection { get; init; }
-
-    /// <summary>
-    /// Set of predefine folder name to use for the migration.
+    /// Set of predefined folder names to use for the migration.
     /// </summary>
 
     public IFoldersConfiguration? Folders { get; init; } = FoldersConfiguration.Default();
-
-    private string? _databaseType;
-
-    /// <summary>
-    /// Database type to use.
-    /// </summary>
-    public string? DatabaseType
-    {
-        get => _databaseType;
-        set
-        {
-            _databaseType = value?.ToLowerInvariant();
-        }
-    }
-
+  
     /// <summary>
     /// The folder used by grate to find the scripts. The subfolders must follow the naming convention of grate. See grate default folder structure for more information.
     /// </summary>

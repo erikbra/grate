@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using FluentAssertions;
 using grate.Configuration;
-using grate.Migration;
 using TestCommon.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
 
@@ -16,8 +15,6 @@ public class Everytime_scripts(IGrateTestContext testContext, ITestOutputHelper 
     public async Task Create_index_concurrently_works()
     {
         var db = TestConfig.RandomDatabase();
-
-        IGrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
@@ -44,8 +41,16 @@ CREATE INDEX CONCURRENTLY IX_column2 ON public.table1
 	  column2
 	);
 ");
-
-        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
+        
+        
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .WithTransaction(false)
+            .Build();
+        
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }

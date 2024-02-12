@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 
 namespace grate.Infrastructure;
 
-public class GrateConsoleFormatter : ConsoleFormatter, IDisposable
+internal class GrateConsoleFormatter : ConsoleFormatter, IDisposable
 {
     public const string FormatterName = "grate-output";
     private readonly IDisposable? _optionsReloadToken;

@@ -1,5 +1,4 @@
-﻿using PostgreSQL.TestInfrastructure;
-using TestCommon.Generic;
+﻿using TestCommon.Generic;
 using TestCommon.TestInfrastructure;
 
 namespace PostgreSQL;

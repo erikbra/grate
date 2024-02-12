@@ -3,7 +3,7 @@ using grate.Configuration;
 using MariaDB.TestInfrastructure;
 using MySqlConnector;
 
-namespace Basic_tests.Infrastructure.MariaDB;
+namespace MariaDB.Basic_tests;
 
 // ReSharper disable once InconsistentNaming
 public class MariaDbDatabase_(InspectableMariaDbDatabase mariaDb)

@@ -1,6 +1,6 @@
 ﻿namespace grate.Configuration;
 
-public static class KnownFolderKeys
+internal static class KnownFolderKeys
 {
     public const string BeforeMigration = nameof(BeforeMigration);
     public const string CreateDatabase = nameof(CreateDatabase);

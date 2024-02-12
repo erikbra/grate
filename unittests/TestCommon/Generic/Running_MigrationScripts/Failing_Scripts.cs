@@ -27,13 +27,17 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
     {
         var db = TestConfig.RandomDatabase();
 
-        IGrateMigrator? migrator;
-
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateInvalidSql(parent, knownFolders[Up]);
 
-        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .Build();
+
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             var ex = await Assert.ThrowsAsync<MigrationFailed>(migrator.Migrate);
             ex?.Message.Should().Be($"Migration failed due to errors:\n * {ExpectedErrorMessageForInvalidSql}");
@@ -45,13 +49,17 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
     {
         var db = TestConfig.RandomDatabase();
 
-        IGrateMigrator? migrator;
-
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateInvalidSql(parent, knownFolders[Up]);
 
-        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .Build();
+
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             try
             {
@@ -81,11 +89,16 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
 
         var parent = TestConfig.CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
-        IGrateMigrator? migrator;
 
         CreateLongInvalidSql(parent, knownFolders[Up]);
 
-        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .Build();
+
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             try
             {
@@ -126,16 +139,17 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
         var knownFolders = FoldersConfiguration.Default(null);
         var path = MakeSurePathExists(parent, knownFolders[Up]);
         WriteSql(path, "goodnight.sql", sql);
-
+        
         // run it with a timeout shorter than the 1 second sleep, should timeout
-        var config = Context.GetConfiguration(db, parent, knownFolders) with
-        {
-            CommandTimeout = 1, // shorter than the script runs for
-        };
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithSqlFilesDirectory(parent)
+            .CommandTimeout(1) // shorter than the script runs for
+            .Build();
 
         var exception = Record.ExceptionAsync(async () =>
         {
-            await using var migrator = Context.GetMigrator(config);
+            await using var migrator = Context.Migrator.WithConfiguration(config);
             await migrator.Migrate();
             Assert.Fail("Should have thrown a timeout exception prior to this!");
         });
@@ -159,16 +173,17 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
         var knownFolders = FoldersConfiguration.Default(null);
         var path = MakeSurePathExists(parent, knownFolders[AlterDatabase]); //so it's run on the admin connection
         WriteSql(path, "goodnight.sql", sql);
-
+        
         // run it with a timeout shorter than the 1 second sleep, should timeout
-        var config = Context.GetConfiguration(db, parent, knownFolders) with
-        {
-            AdminCommandTimeout = 1, // shorter than the script runs for
-        };
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithSqlFilesDirectory(parent)
+            .AdminCommandTimeout(1) // shorter than the script runs for
+            .Build();
 
         var exception = Record.ExceptionAsync(async () =>
         {
-            await using var migrator = Context.GetMigrator(config);
+            await using var migrator = Context.Migrator.WithConfiguration(config);
             await migrator.Migrate();
             Assert.Fail("Should have thrown a timeout exception prior to this!");
         });
@@ -210,13 +225,14 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateInvalidSql(parent, knownFolders[Up]);
+        
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithSqlFilesDirectory(parent)
+            .WithTransaction(false) // This is the important bit
+            .Build();
 
-        var config = Context.GetConfiguration(db, parent, knownFolders) with
-        {
-            Transaction = false
-        };
-
-        await using (migrator = Context.GetMigrator(config))
+        await using (migrator = Context.Migrator.WithConfiguration(config))
         {
             try
             {
@@ -247,15 +263,20 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
 
         var db = TestConfig.RandomDatabase();
 
-        IGrateMigrator? migrator;
-
         var root = CreateRandomTempDirectory();
 
         var knownFolders = Folders;
         CreateDummySql(root, folder, filename);
         CreateInvalidSql(root, knownFolders[Up]);
+        
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithTransaction()
+            .WithSqlFilesDirectory(root)
+            .Build();
 
-        await using (migrator = Context.GetMigrator(db, root, knownFolders, true))
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             try
             {

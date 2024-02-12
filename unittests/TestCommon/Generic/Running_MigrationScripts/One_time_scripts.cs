@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using FluentAssertions;
 using grate.Configuration;
+using grate.Exceptions;
 using grate.Migration;
 using TestCommon.TestInfrastructure;
 using Xunit.Abstractions;
@@ -21,17 +22,21 @@ public abstract class One_time_scripts(IGrateTestContext context, ITestOutputHel
     {
         var db = TestConfig.RandomDatabase();
 
-        IGrateMigrator? migrator;
-
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Up]);
 
-        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .Build();
+
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }
-        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }
@@ -52,20 +57,24 @@ public abstract class One_time_scripts(IGrateTestContext context, ITestOutputHel
     {
         var db = TestConfig.RandomDatabase();
 
-        IGrateMigrator? migrator;
-
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Up]);
 
-        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .Build();
+
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }
 
         WriteSomeOtherSql(parent, knownFolders[Up]);
 
-        await using (migrator = Context.GetMigrator(db, parent, knownFolders))
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
             await Assert.ThrowsAsync<OneTimeScriptChanged>(() => migrator.Migrate());
         }
@@ -92,20 +101,21 @@ public abstract class One_time_scripts(IGrateTestContext context, ITestOutputHel
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
         CreateDummySql(parent, knownFolders[Up]);
+        
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithSqlFilesDirectory(parent)
+            .WarnOnOneTimeScriptChanges() // This is the important bit
+            .Build();
 
-        var config = Context.GetConfiguration(db, parent, knownFolders) with
-        {
-            WarnOnOneTimeScriptChanges = true, // this is important!
-        };
-
-        await using (migrator = Context.GetMigrator(config))
+        await using (migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }
 
         WriteSomeOtherSql(parent, knownFolders[Up]);
 
-        await using (migrator = Context.GetMigrator(config))
+        await using (migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate(); // no exceptions this time
         }
@@ -137,20 +147,21 @@ public abstract class One_time_scripts(IGrateTestContext context, ITestOutputHel
         var path = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]?.Path ?? throw new Exception("Config Fail")));
 
         WriteSql(path, "token.sql", CreateView1);
+        
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithSqlFilesDirectory(parent)
+            .WarnAndIgnoreOnOneTimeScriptChanges() // This is the important bit
+            .Build();
 
-        var config = Context.GetConfiguration(db, parent, knownFolders) with
-        {
-            WarnAndIgnoreOnOneTimeScriptChanges = true, // this is important!
-        };
-
-        await using (migrator = Context.GetMigrator(config))
+        await using (migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }
 
         WriteSql(path, "token.sql", CreateView2);
 
-        await using (migrator = Context.GetMigrator(config))
+        await using (migrator = Context.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate(); // no exceptions this time
         }

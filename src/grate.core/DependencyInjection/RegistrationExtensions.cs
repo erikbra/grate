@@ -2,44 +2,78 @@
 using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace grate;
+namespace grate.DependencyInjection;
 
 public static class RegistrationExtensions
 {
     public static IServiceCollection AddGrate(this IServiceCollection serviceCollection, GrateConfiguration presetGrateConfiguration, Action<GrateConfigurationBuilder>? builder = null)
     {
-        var configurationBuilder = GrateConfigurationBuilderFactory.Create(serviceCollection, presetGrateConfiguration);
+        var configurationBuilder = GrateConfigurationBuilder.Create(presetGrateConfiguration);
         builder?.Invoke(configurationBuilder);
         var grateConfiguration = configurationBuilder.Build();
-        serviceCollection.AddSingleton(grateConfiguration);
-        AddGrateService(serviceCollection);
-        return serviceCollection;
+        
+        // Remove any existing grate configuration in the service collection, 
+        // and overwrite with this one.
+        serviceCollection.RemoveAll(grateConfiguration.GetType());
+        serviceCollection.TryAddSingleton(grateConfiguration);
+        
+        return AddGrateService(serviceCollection);
     }
+    
     public static IServiceCollection AddGrate(this IServiceCollection serviceCollection, Action<GrateConfigurationBuilder>? builder = null)
     {
-        var configurationBuilder = GrateConfigurationBuilderFactory.Create(serviceCollection);
+        var configurationBuilder = GrateConfigurationBuilder.Create();
         builder?.Invoke(configurationBuilder);
         var grateConfiguration = configurationBuilder.Build();
-        serviceCollection.AddSingleton(grateConfiguration);
-        AddGrateService(serviceCollection);
+        
+        // Remove any existing grate configuration in the service collection, 
+        // and overwrite with this one.
+        serviceCollection.RemoveAll(grateConfiguration.GetType());
+        serviceCollection.TryAddSingleton(grateConfiguration);
+        
+        return AddGrateService(serviceCollection);
+    }
+    
+    public static IServiceCollection AddGrate<TDatabase>(
+        this IServiceCollection serviceCollection, GrateConfiguration presetGrateConfiguration, Action<GrateConfigurationBuilder>? builder = null)
+        where TDatabase : class, IDatabase
+    {
+        return serviceCollection
+            .AddGrate(presetGrateConfiguration, builder)
+            .UseDatabase<TDatabase>();
+    }
+    
+    public static IServiceCollection AddGrate<TDatabase>(
+        this IServiceCollection serviceCollection, Action<GrateConfigurationBuilder>? builder = null)
+        where TDatabase : class, IDatabase
+    {
+        return serviceCollection
+            .AddGrate(builder)
+            .UseDatabase<TDatabase>();
+    }
+
+    public static IServiceCollection UseDatabase<TDatabase>(this IServiceCollection serviceCollection)
+        where TDatabase : class, IDatabase
+    {
+        serviceCollection.TryAddTransient<IDatabase, TDatabase>();
         return serviceCollection;
     }
+    
+    public static IServiceCollection UseDatabase(this IServiceCollection serviceCollection, Type databaseType)
+    {
+        serviceCollection.TryAddTransient(typeof(IDatabase), databaseType);
+        return serviceCollection;
+    }
+    
+    
     private static IServiceCollection AddGrateService(IServiceCollection collection)
     {
-        collection.AddTransient<IDbMigrator, DbMigrator>();
-        collection.AddTransient<IHashGenerator, HashGenerator>();
-        collection.AddTransient<IGrateMigrator, GrateMigrator>();
-        collection.AddTransient(service =>
-        {
-            var database = service.GetService<IDatabase>()!;
-            return new BatchSplitterReplacer(database.StatementSeparatorRegex, StatementSplitter.BatchTerminatorReplacementString);
-        });
-        collection.AddTransient(service =>
-        {
-            var database = service.GetService<IDatabase>()!;
-            return new StatementSplitter(database.StatementSeparatorRegex);
-        });
+        collection.TryAddTransient<IDbMigrator, DbMigrator>();
+        collection.TryAddTransient<IHashGenerator, HashGenerator>();
+        collection.TryAddTransient<IGrateMigrator, GrateMigrator>();
+        
         return collection;
     }
 }

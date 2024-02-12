@@ -1,9 +1,8 @@
-﻿namespace grate.Configuration
+﻿namespace grate.Configuration;
+
+public static class MigrationStatus
 {
-    public static class MigrationStatus
-    {
-        public static readonly string InProgress = "In Progress";
-        public static readonly string Error = "Error";
-        public static readonly string Finished = "Finished";
-    }
+    public const string InProgress = "In Progress";
+    public const string Error = "Error";
+    public const string Finished = "Finished";
 }

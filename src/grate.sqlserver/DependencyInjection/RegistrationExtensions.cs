@@ -1,17 +1,24 @@
 ﻿using grate.Configuration;
-using grate.Infrastructure;
+using grate.DependencyInjection;
 using grate.Migration;
-using grate.SqlServer.Infrastructure;
 using grate.SqlServer.Migration;
 using Microsoft.Extensions.DependencyInjection;
-namespace grate.SqlServer;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+
+namespace grate.sqlserver.DependencyInjection;
 
 public static class RegistrationExtensions
 {
-    public static void UseSqlServer(this GrateConfigurationBuilder configurationBuilder)
+    // ReSharper disable once InconsistentNaming
+    public static IServiceCollection UseSqlServer(this IServiceCollection services)
     {
-        configurationBuilder.WithDatabaseType(SqlServerDatabase.Type);
-        configurationBuilder.ServiceCollection.AddTransient<IDatabase, SqlServerDatabase>();
-        configurationBuilder.ServiceCollection.AddTransient<ISyntax, SqlServerSyntax>();
+        services.TryAddTransient<IDatabase, SqlServerDatabase>();
+        return services;
     }
+    
+    // ReSharper disable once InconsistentNaming
+    public static IServiceCollection AddGrateWithSqlServer(this IServiceCollection services, GrateConfiguration? config = null) =>
+        services
+            .AddGrate(config ?? GrateConfiguration.Default)
+            .UseSqlServer();
 }

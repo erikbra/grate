@@ -1,15 +1,22 @@
-﻿namespace TestCommon.TestInfrastructure;
+﻿using Microsoft.Extensions.Logging;
+
+namespace TestCommon.TestInfrastructure;
 public class PostgreSqlTestContainer : ContainerFixture
 {
-    public string? DockerImage => "postgres:16";
-    public int Port = 5432;
-    public PostgreSqlTestContainer()
+    public override string DockerImage => "postgres:16";
+    public override int Port => 5432;
+    
+    public PostgreSqlTestContainer(ILogger<PostgreSqlTestContainer> logger) : base(logger)
     {
-        TestContainer = new PostgreSqlBuilder()
-                            .WithImage(DockerImage)
-                            .WithPassword(AdminPassword)
-                            .WithPortBinding(Port, true)
-                        .Build();
+    }
+
+    protected override PostgreSqlContainer InitializeTestContainer()
+    {
+        return new PostgreSqlBuilder()
+            .WithImage(DockerImage)
+            .WithPassword(AdminPassword)
+            .WithPortBinding(Port, true)
+            .Build();
     }
 }
 

@@ -1,7 +1,7 @@
 ﻿using grate.Infrastructure;
 namespace grate.PostgreSql.Infrastructure;
 
-public class PostgreSqlSyntax : ISyntax
+public readonly struct PostgreSqlSyntax : ISyntax
 {
     public string StatementSeparatorRegex
     {

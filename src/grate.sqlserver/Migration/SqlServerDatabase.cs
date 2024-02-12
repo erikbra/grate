@@ -1,19 +1,22 @@
 ﻿using System.Data.Common;
 using System.Transactions;
 using grate.Configuration;
+using grate.Infrastructure;
 using grate.Migration;
 using grate.SqlServer.Infrastructure;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 namespace grate.SqlServer.Migration;
-public class SqlServerDatabase : AnsiSqlDatabase
+public record SqlServerDatabase : AnsiSqlDatabase
 {
-    public const string Type = "sqlserver";
     public override string MasterDatabaseName => "master";
     public override string DatabaseType => Type;
     public SqlServerDatabase(ILogger<SqlServerDatabase> logger)
-        : base(logger, new SqlServerSyntax())
+        : base(logger, Syntax)
     { }
+    
+    public static string Type => "sqlserver";
+    public static ISyntax Syntax { get; } = new SqlServerSyntax();
 
     public override bool SupportsDdlTransactions => true;
     public override bool SupportsSchemas => true;

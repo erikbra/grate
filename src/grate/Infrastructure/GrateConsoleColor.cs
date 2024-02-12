@@ -1,6 +1,6 @@
 ﻿namespace grate.Infrastructure;
 
-public record GrateConsoleColor
+internal record GrateConsoleColor
 {
     public string AnsiColorCode { get; }
     private ConsoleColor Fallback { get; }

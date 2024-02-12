@@ -1,17 +1,22 @@
 ﻿using grate.Configuration;
-using grate.Infrastructure;
-using grate.MariaDb.Infrastructure;
+using grate.DependencyInjection;
 using grate.MariaDb.Migration;
 using grate.Migration;
 using Microsoft.Extensions.DependencyInjection;
-namespace grate.MariaDb;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+
+namespace grate.mariadb.DependencyInjection;
 
 public static class RegistrationExtensions
 {
-    public static void UseMariaDb(this GrateConfigurationBuilder configurationBuilder)
+    public static IServiceCollection UseMariaDb(this IServiceCollection services)
     {
-        configurationBuilder.WithDatabaseType(MariaDbDatabase.Type);
-        configurationBuilder.ServiceCollection.AddTransient<IDatabase, MariaDbDatabase>();
-        configurationBuilder.ServiceCollection.AddTransient<ISyntax, MariaDbSyntax>();
+        services.TryAddTransient<IDatabase, MariaDbDatabase>();
+        return services;
     }
+    
+    public static IServiceCollection AddGrateWithMariaDb(this IServiceCollection services, GrateConfiguration? config = null) =>
+        services
+            .AddGrate(config ?? GrateConfiguration.Default)
+            .UseMariaDb();
 }

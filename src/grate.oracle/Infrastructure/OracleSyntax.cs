@@ -2,7 +2,7 @@
 
 namespace grate.Oracle.Infrastructure;
 
-public class OracleSyntax : ISyntax
+public readonly struct OracleSyntax : ISyntax
 {
     public string StatementSeparatorRegex
     {

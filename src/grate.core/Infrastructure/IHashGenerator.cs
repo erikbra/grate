@@ -1,6 +1,6 @@
 ﻿namespace grate.Infrastructure;
 
-public interface IHashGenerator
+internal interface IHashGenerator
 {
     string Hash(string text);
 }

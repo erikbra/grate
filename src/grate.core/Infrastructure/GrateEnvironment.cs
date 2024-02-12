@@ -2,15 +2,14 @@
 
 namespace grate.Infrastructure;
 
-public record GrateEnvironment
+public record GrateEnvironment(string Current)
 {
     /// <summary>
     /// The name of the Environment
     /// </summary>
-    public string Current { get; }
-    private const string EnvironmentMarker = ".ENV.";
+    public string Current { get; } = Current;
 
-    public GrateEnvironment(string current) => Current = current;
+    private const string EnvironmentMarker = ".ENV.";
 
     public bool ShouldRun(string path) => !IsEnvironmentFile(path) || IsForCurrentEnvironment(path);
 

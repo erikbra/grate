@@ -1,7 +1,7 @@
 ﻿using System.Data;
-using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
+using grate.Oracle.Infrastructure;
 using grate.Oracle.Migration;
 using Oracle.ManagedDataAccess.Client;
 using TestCommon.TestInfrastructure;
@@ -10,30 +10,18 @@ namespace Oracle.TestInfrastructure;
 
 public class OracleGrateTestContext : IGrateTestContext
 {
-    public IServiceProvider ServiceProvider { get; private set; }
-    private readonly Func<GrateConfiguration, GrateMigrator> _getGrateMigrator;
     private readonly OracleTestContainer _testContainer;
 
-    private readonly IDatabaseConnectionFactory _databaseConnectionFactory;
-    
     public OracleGrateTestContext(
-        //IServiceProvider serviceProvider,
-        Func<GrateConfiguration, GrateMigrator> getGrateMigrator,
-        IDatabase dbMigrator, 
-        ISyntax syntax, 
-        IDatabaseConnectionFactory databaseConnectionFactory, 
+        IGrateMigrator grateMigrator, 
         OracleTestContainer container)
     {
-        ServiceProvider = null!;
-        _getGrateMigrator = getGrateMigrator;
+        Migrator = grateMigrator;
         _testContainer = container;
-        DatabaseMigrator = dbMigrator;
-        Syntax = syntax;
-        _databaseConnectionFactory = databaseConnectionFactory;
     }
     
-    public IGrateMigrator GetMigrator(GrateConfiguration config) => _getGrateMigrator(config);
-   
+    public IGrateMigrator Migrator { get; }
+
     public string AdminPassword => _testContainer.AdminPassword;
     public int? Port => _testContainer.TestContainer!.GetMappedPublicPort(_testContainer.Port);
 
@@ -46,18 +34,13 @@ public class OracleGrateTestContext : IGrateTestContext
     public string ConnectionString(string database) => $@"Data Source={_testContainer.TestContainer!.Hostname}:{Port}/XEPDB1;User ID={database.ToUpper()};Password={AdminPassword};Pooling=False";
     public string UserConnectionString(string database) => $@"Data Source={_testContainer.TestContainer!.Hostname}:{Port}/XEPDB1;User ID={database.ToUpper()};Password={AdminPassword};Pooling=False";
 
-    public IDbConnection GetDbConnection(string connectionString) => _databaseConnectionFactory.GetDbConnection(connectionString);
+    public IDbConnection GetDbConnection(string connectionString) => new OracleConnection(connectionString);
 
-    public ISyntax Syntax { get; init; }
+    public ISyntax Syntax => new OracleSyntax();
     public Type DbExceptionType => typeof(OracleException);
 
-    public string DatabaseType => OracleDatabase.Type;
+    public Type DatabaseType => typeof(OracleDatabase);
     public bool SupportsTransaction => false;
-
-    // public string DatabaseTypeName => "Oracle";
-    // public string MasterDatabase => "oracle";
-
-    public IDatabase DatabaseMigrator { get; init; }
 
     public SqlStatements Sql => new()
     {

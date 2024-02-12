@@ -209,7 +209,7 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
     protected virtual bool ThrowOnMissingDatabase => true;
 
 
-    protected IGrateMigrator GetMigrator(GrateConfiguration config) => Context.GetMigrator(config);
+    protected IGrateMigrator GetMigrator(GrateConfiguration config) => Context.Migrator.WithConfiguration(config);
 
     protected GrateConfiguration GetConfiguration(string databaseName, bool createDatabase)
         => GetConfiguration(databaseName, createDatabase, Context.AdminConnectionString);
@@ -229,7 +229,6 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
             AdminConnectionString = adminConnectionString,
             Folders = FoldersConfiguration.Default(null),
             NonInteractive = true,
-            DatabaseType = Context.DatabaseType,
             SqlFilesDirectory = parent
         };
     }

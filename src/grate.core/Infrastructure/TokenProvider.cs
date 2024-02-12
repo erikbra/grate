@@ -4,7 +4,7 @@ using static System.StringSplitOptions;
 
 namespace grate.Infrastructure;
 
-public class TokenProvider
+internal class TokenProvider
 {
     private readonly GrateConfiguration _config;
     private readonly IDatabase _db;

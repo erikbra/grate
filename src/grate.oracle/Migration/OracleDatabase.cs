@@ -3,6 +3,7 @@ using System.Data.Common;
 using System.Security.Claims;
 using Dapper;
 using grate.Configuration;
+using grate.Infrastructure;
 using grate.Migration;
 using grate.Oracle.Infrastructure;
 using Microsoft.Extensions.Logging;
@@ -11,18 +12,20 @@ using static System.StringSplitOptions;
 
 namespace grate.Oracle.Migration;
 
-public class OracleDatabase : AnsiSqlDatabase
+public record OracleDatabase : AnsiSqlDatabase
 {
-    public const string Type = "oracle";
     public override string MasterDatabaseName => "oracle";
     public override string DatabaseType => Type;
     public OracleDatabase(ILogger<OracleDatabase> logger)
-        : base(logger, new OracleSyntax())
+        : base(logger, Syntax)
     {
     }
 
     public override bool SupportsDdlTransactions => false;
     public override bool SupportsSchemas => false;
+    
+    public static string Type => "oracle";
+    public static ISyntax Syntax { get; } = new OracleSyntax();
 
     protected override DbConnection GetSqlConnection(string? connectionString) => new OracleConnection(connectionString);
 

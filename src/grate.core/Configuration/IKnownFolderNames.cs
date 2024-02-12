@@ -1,6 +1,6 @@
 ﻿namespace grate.Configuration;
 
-public interface IKnownFolderNames
+internal interface IKnownFolderNames
 {
     string BeforeMigration { get; }
     string CreateDatabase { get; }

@@ -1,17 +1,24 @@
 ﻿using grate.Configuration;
-using grate.Infrastructure;
+using grate.DependencyInjection;
 using grate.Migration;
-using grate.Sqlite.Infrastructure;
 using grate.Sqlite.Migration;
 using Microsoft.Extensions.DependencyInjection;
-namespace grate.Sqlite;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+
+namespace grate.sqlite.DependencyInjection;
 
 public static class RegistrationExtensions
 {
-    public static void UseSqlite(this GrateConfigurationBuilder configurationBuilder)
+    // ReSharper disable once InconsistentNaming
+    public static IServiceCollection UseSqlite(this IServiceCollection services)
     {
-        configurationBuilder.WithDatabaseType(SqliteDatabase.Type);
-        configurationBuilder.ServiceCollection.AddTransient<IDatabase, SqliteDatabase>();
-        configurationBuilder.ServiceCollection.AddTransient<ISyntax, SqliteSyntax>();
+        services.TryAddTransient<IDatabase, SqliteDatabase>();
+        return services;
     }
+    
+    // ReSharper disable once InconsistentNaming
+    public static IServiceCollection AddGrateWithSqlite(this IServiceCollection services, GrateConfiguration? config = null) =>
+        services
+            .AddGrate(config ?? GrateConfiguration.Default)
+            .UseSqlite();
 }
