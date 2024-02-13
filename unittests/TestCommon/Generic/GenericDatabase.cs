@@ -26,11 +26,7 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
         using (var conn = Context.CreateAdminDbConnection())
         {
             conn.Open();
-
-            // var cmd = conn.CreateCommand();
-            // cmd.CommandType = CommandType.Text;
             var commandText = Context.Sql.SelectVersion;
-
             res = (string?)await conn.ExecuteScalarAsync(commandText);
         }
 
@@ -104,7 +100,7 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
     }
 
     [Fact]
-    public async Task Does_not_error_if_confed_to_create_but_already_exists()
+    public async Task Does_not_error_if_configured_to_create_but_already_exists()
     {
         var db = "DAATAA";
 
@@ -119,7 +115,9 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
         await using var migrator = GetMigrator(config);
 
         // There should be no errors running the migration
-        // Assert.DoesNotThrowAsync(() => migrator.Migrate());
+        Exception? ex = await Record.ExceptionAsync(async () => await migrator.Migrate());
+        ex.Should().BeNull();
+        
     }
 
     [Theory]
@@ -127,7 +125,7 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
     [InlineData(null)]
     public async Task Does_not_need_admin_connection_if_database_already_exists(string? adminConnectionString)
     {
-        var db = "DATADATADATABASE";
+        var db = "DATADATBADATABASE";
 
         // Create the database manually before running the migration
         await CreateDatabaseFromConnectionString(db, Context.UserConnectionString(db));
@@ -135,13 +133,14 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
         // Check that the database has been created
         IEnumerable<string> databasesBeforeMigration = await GetDatabases();
         databasesBeforeMigration.Should().Contain(db);
+        
 
         // Change the admin connection string to rubbish and run the migration
         var config = GetConfiguration(true, Context.UserConnectionString(db), adminConnectionString);
         await using var migrator = GetMigrator(config);
 
-        // There should be no errors running the migration
-        //Assert.DoesNotThrowAsync(() => migrator.Migrate());
+        Exception? ex = await Record.ExceptionAsync(async () => await migrator.Migrate());
+        ex.Should().BeNull();
     }
 
 
@@ -160,27 +159,28 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
                 {
                     using var conn = Context.CreateAdminDbConnection();
                     conn.Open();
-                    //using var cmd = conn.CreateCommand();
-
+                    
                     var commandText = Context.Syntax.CreateDatabase(db, pwd);
-                    //await cmd.ExecuteNonQueryAsync();
                     await conn.ExecuteAsync(commandText);
 
-                    if (!string.IsNullOrWhiteSpace(Context.Sql.CreateUser))
+                    var createUserSql = Context.Sql.CreateUser(db, uid, pwd);
+                    if (createUserSql is not null)
                     {
-                        commandText = string.Format(Context.Sql.CreateUser, uid, pwd);
-                        await conn.ExecuteAsync(commandText);
+                        await conn.ExecuteAsync(createUserSql);
                     }
 
-                    if (!string.IsNullOrWhiteSpace(Context.Sql.GrantAccess))
+                    var grantAccessSql = Context.Sql.GrantAccess(db, uid);
+                    if (grantAccessSql is not null)
                     {
-                        commandText = string.Format(Context.Sql.GrantAccess, db, uid);
-                        await conn.ExecuteAsync(commandText);
+                        await conn.ExecuteAsync(grantAccessSql);
                     }
 
                     break;
                 }
-                catch (DbException) { }
+                catch (DbException)
+                {
+                }
+                
             }
         }
     }

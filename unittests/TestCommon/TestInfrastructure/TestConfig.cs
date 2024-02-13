@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using static System.StringComparison;
 using static System.StringSplitOptions;
 
 namespace TestCommon.TestInfrastructure;
@@ -19,11 +20,11 @@ public static class TestConfig
     }
 
     public static string? Username(string connectionString) => connectionString.Split(";", TrimEntries | RemoveEmptyEntries)
-        .SingleOrDefault(entry => entry.StartsWith("Uid"))?
+        .SingleOrDefault(entry => entry.StartsWith("Uid", OrdinalIgnoreCase) || entry.StartsWith("User Id", OrdinalIgnoreCase))?
         .Split("=", TrimEntries | RemoveEmptyEntries).Last();
 
     public static string? Password(string connectionString) => connectionString.Split(";", TrimEntries | RemoveEmptyEntries)
-        .SingleOrDefault(entry => entry.StartsWith("Password") || entry.StartsWith("Pwd"))?
+        .SingleOrDefault(entry => entry.StartsWith("Password", OrdinalIgnoreCase) || entry.StartsWith("Pwd", OrdinalIgnoreCase))?
         .Split("=", TrimEntries | RemoveEmptyEntries).Last();
 
     public static LogLevel GetLogLevel() => LogLevelFromEnvironmentVariable();

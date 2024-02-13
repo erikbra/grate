@@ -31,21 +31,15 @@ class SqlServerGrateTestContext : IGrateTestContext
     }
     public string AdminPassword => _testContainer.AdminPassword;
     public int? Port => _testContainer.TestContainer!.GetMappedPublicPort(_testContainer.Port);
-
-    //private int? ContainerPort => 1433;
-
-
-    // public string DockerCommand(string serverName, string adminPassword) =>
-    //     $"run -d --name {serverName} -e ACCEPT_EULA=Y -e SA_PASSWORD={adminPassword} -e MSSQL_PID=Developer -e MSSQL_COLLATION={ServerCollation} -P {DockerImage}";
-
+    
     public string AdminConnectionString =>
         $"Data Source=localhost,{Port};Initial Catalog=master;User Id=sa;Password={AdminPassword};Encrypt=false;Pooling=false";
 
     public string ConnectionString(string database) =>
-        $"Data Source=localhost,{Port};Initial Catalog={database};User Id=sa;Password={AdminPassword};Encrypt=false;Pooling=false";
+        $"Data Source=localhost,{Port};Initial Catalog={database};User Id=sa;Password={AdminPassword};Encrypt=false;Pooling=false;Connect Timeout=2";
 
     public string UserConnectionString(string database) =>
-        $"Data Source=localhost,{Port};Initial Catalog={database};User Id=sa;Password={AdminPassword};Encrypt=false;Pooling=false";
+        $"Data Source=localhost,{Port};Initial Catalog={database};User Id=zorro;Password=batmanZZ4;Encrypt=false;Pooling=false;Connect Timeout=2";
 
     public IDbConnection GetDbConnection(string connectionString) => new SqlConnection(connectionString);
 
@@ -60,7 +54,18 @@ class SqlServerGrateTestContext : IGrateTestContext
     public SqlStatements Sql => new()
     {
         SelectVersion = "SELECT @@VERSION",
-        SleepTwoSeconds = "WAITFOR DELAY '00:00:02'"
+        SleepTwoSeconds = "WAITFOR DELAY '00:00:02'",
+        CreateUser = (db, user, password) => 
+$"""
+    USE {db};
+    CREATE LOGIN {user} WITH PASSWORD = '{password}';
+    CREATE USER {user} FOR LOGIN {user};
+""",
+        GrantAccess = (db, user) => 
+$"""
+    USE {db};
+    ALTER ROLE db_owner ADD MEMBER {user};
+""",
     };
 
     public string ExpectedVersionPrefix => "Microsoft SQL Server 2019";

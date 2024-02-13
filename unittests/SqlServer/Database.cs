@@ -23,7 +23,7 @@ public class Database(IGrateTestContext testContext, ITestOutputHelper testOutpu
 
         await using var migrator = GetMigrator(GetConfiguration(db.ToLower(), true)); // ToLower is important here, this reproduces the bug in #167
         // There should be no errors running the migration
-        //Assert.DoesNotThrowAsync(() => migrator.Migrate());
-        await migrator.Migrate();
+        Action action = () => migrator.Migrate();
+        action.Should().NotThrow();
     }
 }

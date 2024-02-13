@@ -45,36 +45,39 @@ public record SqlServerDatabase : AnsiSqlDatabase
         AccessToken = configuration.AccessToken;
         return base.InitializeConnections(configuration);
     }
-
-    public override async Task<bool> DatabaseExists()
-    {
-        var sql = @$"USE master;
-                    SELECT 1 FROM sys.databases WHERE [name] = @dbname";
-        try
-        {
-
-            Logger.LogInformation("Trying to check the database {DbName} database on {Server}", DatabaseName, ServerName);
-            await OpenAdminConnection();
-            var cmd = AdminConnection.CreateCommand();
-            cmd.CommandText = sql;
-
-            // dbName parameter
-            var dbNameParam = cmd.CreateParameter();
-            dbNameParam.ParameterName = "@dbname";
-            dbNameParam.Value = DatabaseName;
-            cmd.Parameters.Add(dbNameParam);
-            var result = await cmd.ExecuteScalarAsync();
-            Logger.LogInformation("Database {DbName} querying with result {Result}", DatabaseName, result);
-            return result is not null;
-
-        }
-        catch (DbException e)
-        {
-            Logger.LogDebug(e, "Got error: {ErrorMessage}", e.Message);
-            return false;
-        }
-
-    }
+    
+    // Needs admin connection, which we do not always have.
+    // Could we use the optimization _if_ we have an admin connection, and turn it off if we don't?
+    
+    // public override async Task<bool> DatabaseExists()
+    // {
+    //     var sql = @$"USE master;
+    //                 SELECT 1 FROM sys.databases WHERE [name] = @dbname";
+    //     try
+    //     {
+    //
+    //         Logger.LogInformation("Trying to check the database {DbName} database on {Server}", DatabaseName, ServerName);
+    //         await OpenAdminConnection();
+    //         var cmd = AdminConnection.CreateCommand();
+    //         cmd.CommandText = sql;
+    //
+    //         // dbName parameter
+    //         var dbNameParam = cmd.CreateParameter();
+    //         dbNameParam.ParameterName = "@dbname";
+    //         dbNameParam.Value = DatabaseName;
+    //         cmd.Parameters.Add(dbNameParam);
+    //         var result = await cmd.ExecuteScalarAsync();
+    //         Logger.LogInformation("Database {DbName} querying with result {Result}", DatabaseName, result);
+    //         return result is not null;
+    //
+    //     }
+    //     catch (DbException e)
+    //     {
+    //         Logger.LogDebug(e, "Got error: {ErrorMessage}", e.Message);
+    //         return false;
+    //     }
+    //
+    // }
     public override async Task RestoreDatabase(string backupPath)
     {
         try
