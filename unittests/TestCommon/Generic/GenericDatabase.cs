@@ -159,14 +159,26 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
                 {
                     using var conn = Context.CreateAdminDbConnection();
                     conn.Open();
-                    
-                    var commandText = Context.Syntax.CreateDatabase(db, pwd);
-                    await conn.ExecuteAsync(commandText);
 
-                    var createUserSql = Context.Sql.CreateUser(db, uid, pwd);
-                    if (createUserSql is not null)
+                    try
                     {
-                        await conn.ExecuteAsync(createUserSql);
+                        var commandText = Context.Syntax.CreateDatabase(db, pwd);
+                        await conn.ExecuteAsync(commandText);
+                    }
+                    catch (DbException)
+                    {
+                    }
+                    
+                    try
+                    {
+                        var createUserSql = Context.Sql.CreateUser(db, uid, pwd);
+                        if (createUserSql is not null)
+                        {
+                            await conn.ExecuteAsync(createUserSql);
+                        }
+                    }
+                    catch (DbException)
+                    {
                     }
 
                     var grantAccessSql = Context.Sql.GrantAccess(db, uid);
