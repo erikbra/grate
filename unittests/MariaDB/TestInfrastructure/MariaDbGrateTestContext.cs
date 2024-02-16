@@ -43,8 +43,13 @@ public class MariaDbGrateTestContext : IGrateTestContext
     {
         SelectVersion = "SELECT VERSION()",
         SleepTwoSeconds = "SELECT SLEEP(2);",
-        CreateUser = "CREATE USER '{0}'@'%' IDENTIFIED BY '{1}';",
-        GrantAccess = "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, DROP, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES ON {0}.* TO '{1}'@'%';FLUSH PRIVILEGES;"
+        CreateUser = (_, user, password) => $"CREATE USER '{user}'@'%' IDENTIFIED BY '{password}';",
+        GrantAccess =  (db, user) =>
+            $"""
+             GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, DROP, ALTER, CREATE TEMPORARY TABLES, 
+             LOCK TABLES ON {db}.* TO '{user}'@'%';
+             FLUSH PRIVILEGES;
+             """
     };
 
 
