@@ -480,6 +480,7 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy, @status)
 
         s.Complete();
     }
+    
     public virtual async Task DeleteVersionRecord(long versionId)
     {
         var deleteSql = Parameterize($@"
@@ -488,7 +489,8 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy, @status)
 
         using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
         await ExecuteAsync(Connection, deleteSql, new { versionId });
-        // reset the identity to the previous value
+        
+        // reset the identity column of the table to the previous value
         await ExecuteAsync(Connection, _syntax.ResetIdentity(SchemaName, VersionTableName, versionId - 1));
 
         s.Complete();

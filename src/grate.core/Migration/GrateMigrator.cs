@@ -194,7 +194,7 @@ internal record GrateMigrator : IGrateMigrator
 
         if (!config.DryRun)
         {
-            //If we get here this means no exceptions are thrown above, so we can conclude the migration was successfull!
+            //If we get here this means no exceptions are thrown above, so we can conclude the migration was successful!
             if (anySqlRun)
             {
                 await DbMigrator.Database.ChangeVersionStatus(MigrationStatus.Finished, versionId);

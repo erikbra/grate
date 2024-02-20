@@ -117,21 +117,22 @@ public abstract class Versioning_The_Database(IGrateTestContext context, ITestOu
     [Fact]
     [Trait("Category", "Versioning")]
     [Trait("Bug", "388")]
-    public virtual async Task Does_not_create_versions_when_no_script_existing()
+    public virtual async Task Does_not_create_versions_when_no_scripts_exist()
     {
         var database = TestConfig.RandomDatabase();
         var sqlFolder = CreateRandomTempDirectory();
-        var originalVersion = "1.0.0.0-alpha";
+        var newVersion = "1.0.0.0-alpha";
         
         var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
             .WithConnectionString(Context.ConnectionString(database))
+            .WithVersion(newVersion)
             .WithSqlFilesDirectory(sqlFolder)
             .Build();
         
         await using var migrator = Context.Migrator.WithConfiguration(config);
         await migrator.Migrate();
         var currentVersion = await migrator.GetDbMigrator().Database.GetCurrentVersion();
-        currentVersion.Should().NotBe(originalVersion);
+        currentVersion.Should().NotBe(newVersion);
         currentVersion.Should().Be(AnsiSqlDatabase.NotVersioning);
     }
 
@@ -177,7 +178,7 @@ public abstract class Versioning_The_Database(IGrateTestContext context, ITestOu
     [Fact]
     [Trait("Category", "Versioning")]
     [Trait("Bug", "388")]
-    public async Task Should_reset_the_version_table_to_desired_value()
+    public async Task Should_set_the_version_table_to_new_version_value_when_migrating()
     {
         var sqlFolder = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
