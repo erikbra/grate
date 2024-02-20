@@ -61,12 +61,16 @@ public abstract class GrateServiceCollectionTest(IGrateTestContext context)
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var syntax = Context.Syntax;
         var tableName = CreateMigrationScript(sqlFolder, syntax);
-        var grateMigrator = serviceProvider.GetService<IGrateMigrator>();
-        await grateMigrator!.Migrate();
+
+        await using (var grateMigrator = serviceProvider.GetService<IGrateMigrator>())
+        {
+            await grateMigrator!.Migrate();
+        }
 
         var grateConfiguration = serviceProvider.GetRequiredService<GrateConfiguration>();
 
-        string sql = $"SELECT script_name FROM {syntax.TableWithSchema("grate", "ScriptsRun")} where script_name like '{tableName}_%'";
+        string sql =
+            $"SELECT script_name FROM {syntax.TableWithSchema("grate", "ScriptsRun")} where script_name like '{tableName}_%'";
 
         using var conn = Context.GetDbConnection(grateConfiguration.ConnectionString!);
         var scripts = (await conn.QueryAsync<string>(sql)).ToArray();

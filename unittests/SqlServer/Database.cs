@@ -20,8 +20,9 @@ public class Database(IGrateTestContext testContext, ITestOutputHelper testOutpu
         // Check that the database has been created
         IEnumerable<string> databasesBeforeMigration = await GetDatabases();
         databasesBeforeMigration.Should().Contain(db);
-
-        await using var migrator = GetMigrator(GetConfiguration(db.ToLower(), true)); // ToLower is important here, this reproduces the bug in #167
+        
+        // ToLower is important here, this reproduces the bug in #167
+        await using var migrator = GetMigrator(GetConfiguration(db.ToLower(), true));
         // There should be no errors running the migration
         Action action = () => migrator.Migrate();
         action.Should().NotThrow();

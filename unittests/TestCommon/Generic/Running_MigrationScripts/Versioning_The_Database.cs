@@ -155,24 +155,29 @@ public abstract class Versioning_The_Database(IGrateTestContext context, ITestOu
             .WithVersion(originalVersion)
             .Build();
         
-        await using var migrator = Context.Migrator.WithConfiguration(config);
-        await migrator.Migrate();
-        
-        var newConfig = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
-            // important: should be use the same database as with previous run.
-            .WithConnectionString(migrator.GetDbMigrator().Configuration.ConnectionString!)
-            .WithAdminConnectionString(migrator.GetDbMigrator().Configuration.AdminConnectionString!)
-            .WithSqlFilesDirectory(sqlFolder)
-            .WithVersion("1.0.0.2")
-            .Build();
+        GrateConfiguration newConfig;
+
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
+        {
+            await migrator.Migrate();
+
+            newConfig = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+                // important: should be use the same database as with previous run.
+                .WithConnectionString(migrator.GetDbMigrator().Configuration.ConnectionString!)
+                .WithAdminConnectionString(migrator.GetDbMigrator().Configuration.AdminConnectionString!)
+                .WithSqlFilesDirectory(sqlFolder)
+                .WithVersion("1.0.0.2")
+                .Build();
+        }
 
         await using var newMigrator = Context.Migrator.WithConfiguration(newConfig);
 
         // migrate again, but don't change the script, shouldn't create a new version record
         await newMigrator.Migrate();
 
-        var currentVersion = await migrator.GetDbMigrator().Database.GetCurrentVersion();
-        currentVersion.Should().Be(originalVersion, "DB version should not be changed due to no new script detected");
+        var currentVersion = await newMigrator.GetDbMigrator().Database.GetCurrentVersion();
+        currentVersion.Should()
+            .Be(originalVersion, "DB version should not be changed due to no new script detected");
     }
 
     [Fact]
@@ -189,19 +194,22 @@ public abstract class Versioning_The_Database(IGrateTestContext context, ITestOu
             .WithSqlFilesDirectory(sqlFolder)
             .WithVersion("1.0.0.1")
             .Build();
-        
-        await using var migrator = Context.Migrator.WithConfiguration(config);
-        await migrator.Migrate();
 
-        CreateDummySql(sqlFolder, knownFolders[Sprocs], "2_sproc.sql");
+        GrateConfiguration newConfig;
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
+        {
+            await migrator.Migrate();
+
+            CreateDummySql(sqlFolder, knownFolders[Sprocs], "2_sproc.sql");
         
-        var newConfig = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
-            .WithSqlFilesDirectory(sqlFolder)
-             // important: should be use the same database as with previous run.
-            .WithConnectionString(migrator.GetDbMigrator().Configuration.ConnectionString!)
-            .WithAdminConnectionString(migrator.GetDbMigrator().Configuration.AdminConnectionString!)
-            .WithVersion("1.0.0.2")
-            .Build();
+            newConfig = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+                .WithSqlFilesDirectory(sqlFolder)
+                // important: should be use the same database as with previous run.
+                .WithConnectionString(migrator.GetDbMigrator().Configuration.ConnectionString!)
+                .WithAdminConnectionString(migrator.GetDbMigrator().Configuration.AdminConnectionString!)
+                .WithVersion("1.0.0.2")
+                .Build();
+        }
 
         await using var newMigrator = Context.Migrator.WithConfiguration(newConfig);
         await newMigrator.Migrate();
