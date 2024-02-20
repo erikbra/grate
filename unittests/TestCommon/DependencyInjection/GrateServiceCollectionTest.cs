@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System.Data.Common;
+using Dapper;
 using FluentAssertions;
 using grate.Configuration;
 using grate.DependencyInjection;
@@ -62,19 +63,50 @@ public abstract class GrateServiceCollectionTest(IGrateTestContext context)
         var syntax = Context.Syntax;
         var tableName = CreateMigrationScript(sqlFolder, syntax);
 
-        await using (var grateMigrator = serviceProvider.GetService<IGrateMigrator>())
-        {
-            await grateMigrator!.Migrate();
-        }
+        var scope = serviceProvider.CreateScope();
+        
+        var provider = scope.ServiceProvider;
+        var grateConfiguration = provider.GetRequiredService<GrateConfiguration>();
+        
+        const int maxTries = 10;
 
-        var grateConfiguration = serviceProvider.GetRequiredService<GrateConfiguration>();
+        await using (var grateMigrator = provider.GetService<IGrateMigrator>())
+        {
+            var numberOfTries = 0;
+            do
+            {
+                try
+                {
+                    await grateMigrator!.Migrate();
+                    break;
+                }
+                catch (DbException)
+                {
+                    await Task.Delay(100);
+                }
+            } while (numberOfTries++ < maxTries);
+        }
 
         string sql =
             $"SELECT script_name FROM {syntax.TableWithSchema("grate", "ScriptsRun")} where script_name like '{tableName}_%'";
+        
+        int tries = 0;
+        
+        string[] scripts = [];
+        FileInfo[] files = [];
 
-        using var conn = Context.GetDbConnection(grateConfiguration.ConnectionString!);
-        var scripts = (await conn.QueryAsync<string>(sql)).ToArray();
-        var files = sqlFolder.GetFiles("*.sql", SearchOption.AllDirectories);
+        do
+        {
+            try
+            {
+                using var conn = Context.GetDbConnection(grateConfiguration.ConnectionString!);
+                scripts = (await conn.QueryAsync<string>(sql)).ToArray();
+                files = sqlFolder.GetFiles("*.sql", SearchOption.AllDirectories);
+            }catch (DbException)
+            {
+                await Task.Delay(100);
+            }
+        } while (tries++ < maxTries);
 
         scripts.Should().HaveCount(files.Length);
     }
