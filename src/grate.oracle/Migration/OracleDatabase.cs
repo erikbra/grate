@@ -53,40 +53,40 @@ FROM
 WHERE  version_row_number <= 1
 ";
 
-    protected override async Task CreateScriptsRunTable()
-    {
-        if (!await ScriptsRunTableExists())
-        {
-            await base.CreateScriptsRunTable();
-            await CreateIdSequence(ScriptsRunTable);
-            await CreateIdInsertTrigger(ScriptsRunTable);
-        }
-    }
+    // protected override async Task CreateScriptsRunTable()
+    // {
+    //     if (!await ScriptsRunTableExists())
+    //     {
+    //         await base.CreateScriptsRunTable();
+    //         await CreateIdSequence(ScriptsRunTable);
+    //         await CreateIdInsertTrigger(ScriptsRunTable);
+    //     }
+    // }
 
-    protected override async Task CreateScriptsRunErrorsTable()
-    {
-        if (!await ScriptsRunErrorsTableExists())
-        {
-            await base.CreateScriptsRunErrorsTable();
-            await CreateIdSequence(ScriptsRunErrorsTable);
-            await CreateIdInsertTrigger(ScriptsRunErrorsTable);
-        }
-    }
+    // protected override async Task CreateScriptsRunErrorsTable()
+    // {
+    //     if (!await ScriptsRunErrorsTableExists())
+    //     {
+    //         await base.CreateScriptsRunErrorsTable();
+    //         await CreateIdSequence(ScriptsRunErrorsTable);
+    //         await CreateIdInsertTrigger(ScriptsRunErrorsTable);
+    //     }
+    // }
 
     public override Task RestoreDatabase(string backupPath)
     {
         throw new System.NotImplementedException("Restoring a database from file is not currently supported for Oracle.");
     }
 
-    protected override async Task CreateVersionTable()
-    {
-        if (!await VersionTableExists())
-        {
-            await base.CreateVersionTable();
-            await CreateIdSequence(VersionTable);
-            await CreateIdInsertTrigger(VersionTable);
-        }
-    }
+    // protected override async Task CreateVersionTable()
+    // {
+    //     if (!await VersionTableExists())
+    //     {
+    //         await base.CreateVersionTable();
+    //         await CreateIdSequence(VersionTable);
+    //         await CreateIdInsertTrigger(VersionTable);
+    //     }
+    // }
 
     protected override string Parameterize(string sql) => sql.Replace("@", ":");
     protected override object Bool(bool source) => source ? '1' : '0';
@@ -130,23 +130,24 @@ RETURNING id into :id
         }
     }
 
-    public override async Task ChangeVersionStatus(string status, long versionId)
-    {
-        var sql = (string)$@"
-            UPDATE {VersionTable}
-            SET status = :status
-            WHERE id = :versionId";
+    // since the sql is parameterized, we no longer need to override this method anymore.
+    // public override async Task ChangeVersionStatus(string status, long versionId)
+    // {
+    //     var sql = (string)$@"
+    //         UPDATE {VersionTable}
+    //         SET status = :status
+    //         WHERE id = :versionId";
 
-        var parameters = new
-        {
-            status,
-            versionId,
-        };
+    //     var parameters = new
+    //     {
+    //         status,
+    //         versionId,
+    //     };
 
-        await Connection.ExecuteAsync(
-            sql,
-            parameters);
-    }
+    //     await Connection.ExecuteAsync(
+    //         sql,
+    //         parameters);
+    // }
 
     private static IDictionary<string, string?> Tokenize(string? connectionString)
     {
@@ -158,21 +159,21 @@ RETURNING id into :id
     private static string? GetValue(IDictionary<string, string?> dictionary, string key) =>
         dictionary.TryGetValue(key, out string? value) ? value : null;
 
-    private async Task CreateIdSequence(string table)
-    {
-        var sql = $"CREATE SEQUENCE {table}_seq";
-        await ExecuteNonQuery(ActiveConnection, sql, Config?.CommandTimeout);
-    }
+    //     private async Task CreateIdSequence(string table)
+    //     {
+    //         var sql = $"CREATE SEQUENCE {table}_seq";
+    //         await ExecuteNonQuery(ActiveConnection, sql, Config?.CommandTimeout);
+    //     }
 
-    private async Task CreateIdInsertTrigger(string table)
-    {
-        var sql = $@"
-CREATE OR REPLACE TRIGGER {table}_ins
-BEFORE INSERT ON {table}
-FOR EACH ROW
-BEGIN
-  SELECT {table}_seq.nextval INTO :new.id FROM dual;
-END;";
-        await ExecuteNonQuery(ActiveConnection, sql, Config?.CommandTimeout);
-    }
+    //     private async Task CreateIdInsertTrigger(string table)
+    //     {
+    //         var sql = $@"
+    // CREATE OR REPLACE TRIGGER {table}_ins
+    // BEFORE INSERT ON {table}
+    // FOR EACH ROW
+    // BEGIN
+    //   SELECT {table}_seq.nextval INTO :new.id FROM dual;
+    // END;";
+    //         await ExecuteNonQuery(ActiveConnection, sql, Config?.CommandTimeout);
+    //     }
 }

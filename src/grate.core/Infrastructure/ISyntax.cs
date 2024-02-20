@@ -27,4 +27,5 @@ public interface ISyntax
     string Quote(string text);
     string PrimaryKeyColumn(string columnName);
     string PrimaryKeyConstraint(string tableName, string column);
+    string ResetIdentity(string schemaName, string tableName, long value);
 }

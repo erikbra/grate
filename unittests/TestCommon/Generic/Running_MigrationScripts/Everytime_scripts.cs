@@ -58,9 +58,11 @@ public abstract class Everytime_scripts(IGrateTestContext context, ITestOutputHe
             .WithSqlFilesDirectory(parent)
             .DryRun()  // this is important!
             .Build();
-        
-        await using var migrator = Context.Migrator.WithConfiguration(config);
-        await migrator.Migrate();
+
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
+        {
+            await migrator.Migrate();
+        }
 
         string[] scripts;
         string sql = $"SELECT 1 FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")} " +

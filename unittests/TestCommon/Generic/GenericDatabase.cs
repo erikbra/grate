@@ -38,8 +38,10 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
     {
         var db = "NEWDATABASE";
 
-        await using var migrator = GetMigrator(GetConfiguration(db, true));
-        await migrator.Migrate();
+        await using (var migrator = GetMigrator(GetConfiguration(db, true)))
+        {
+            await migrator.Migrate();
+        }
 
         IEnumerable<string> databases = await GetDatabases();
         databases.Should().Contain(db);
@@ -86,12 +88,13 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
         IEnumerable<string> databasesBeforeMigration = await GetDatabases();
         databasesBeforeMigration.Should().NotContain(db);
 
-        await using var migrator = GetMigrator(GetConfiguration(db, false));
-
-        // The migration should throw an error, as the database does not exist.
-        if (ThrowOnMissingDatabase)
+        await using (var migrator = GetMigrator(GetConfiguration(db, false)))
         {
-            await Assert.ThrowsAsync(Context.DbExceptionType, () => migrator.Migrate());
+            // The migration should throw an error, as the database does not exist.
+            if (ThrowOnMissingDatabase)
+            {
+                await Assert.ThrowsAsync(Context.DbExceptionType, () => migrator.Migrate());
+            }
         }
 
         // Ensure that the database was in fact not created 

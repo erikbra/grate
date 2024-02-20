@@ -427,19 +427,19 @@ version
 FROM {VersionTable}
 ORDER BY id DESC", 1)}
 ";
-
+    public const string NotVersioning = "0.0.0.0";
     public async Task<string> GetCurrentVersion()
     {
         try
         {
             var sql = CurrentVersionSql;
             var res = await ExecuteScalarAsync<string>(ActiveConnection, sql);
-            return res ?? "0.0.0.0";
+            return res ?? NotVersioning;
         }
         catch (Exception ex)
         {
             Logger.LogDebug(ex, "An error occurred getting the current database version, new database + --dryrun?");
-            return "0.0.0.0";
+            return NotVersioning;
         }
     }
 
@@ -477,6 +477,21 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy, @status)
 
         using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
         await ExecuteAsync(Connection, updateSql, new { status, versionId });
+
+        s.Complete();
+    }
+    
+    public virtual async Task DeleteVersionRecord(long versionId)
+    {
+        var deleteSql = Parameterize($@"
+            DELETE FROM {VersionTable}
+            WHERE id = @versionId");
+
+        using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+        await ExecuteAsync(Connection, deleteSql, new { versionId });
+        
+        // reset the identity column of the table to the previous value
+        await ExecuteAsync(Connection, _syntax.ResetIdentity(SchemaName, VersionTableName, versionId - 1));
 
         s.Complete();
     }

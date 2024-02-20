@@ -1,4 +1,5 @@
-﻿using MariaDB.TestInfrastructure;
+﻿using grate.Configuration;
+using MariaDB.TestInfrastructure;
 using TestCommon.TestInfrastructure;
 
 namespace MariaDB.Running_MigrationScripts;

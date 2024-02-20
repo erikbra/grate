@@ -1,5 +1,4 @@
-﻿using TestCommon.TestInfrastructure;
-
+using TestCommon.TestInfrastructure;
 namespace PostgreSQL.Running_MigrationScripts;
 
 [Collection(nameof(PostgreSqlTestContainer))]

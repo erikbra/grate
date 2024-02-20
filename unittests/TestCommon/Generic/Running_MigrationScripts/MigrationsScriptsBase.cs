@@ -74,7 +74,6 @@ public abstract class MigrationsScriptsBase(IGrateTestContext context, ITestOutp
     protected IGrateTestContext Context { get; set; } = context;
     protected ITestOutputHelper TestOutput { get; set; } = testOutput;
 
-    public static DirectoryInfo Wrap(DirectoryInfo root, string? subFolder) =>
-        new(Path.Combine(root.ToString(), subFolder ?? ""));
+    public static DirectoryInfo Wrap(DirectoryInfo root, string? subFolder) => TestConfig.Wrap(root, subFolder);
 
 }

@@ -36,4 +36,5 @@ public readonly struct SqlServerSyntax : ISyntax
     public string Quote(string text) => $"\"{text}\"";
     public string PrimaryKeyConstraint(string tableName, string column) => $",\nCONSTRAINT PK_{tableName}_{column} PRIMARY KEY CLUSTERED ({column})";
     public string LimitN(string sql, int n) => $"TOP {n}\n" + sql;
+    public string ResetIdentity(string schemaName, string tableName, long _) => @$"DECLARE @max INT SELECT @max=ISNULL(max([id]),0) from [{schemaName}].[{tableName}]; DBCC CHECKIDENT ('[{schemaName}].[{tableName}]', RESEED, @max );";
 }

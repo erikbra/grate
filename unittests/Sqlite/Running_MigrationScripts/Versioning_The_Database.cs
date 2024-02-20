@@ -1,4 +1,5 @@
-﻿using Sqlite.TestInfrastructure;
+﻿using grate.Configuration;
+using Sqlite.TestInfrastructure;
 using TestCommon.TestInfrastructure;
 
 namespace Sqlite.Running_MigrationScripts;
