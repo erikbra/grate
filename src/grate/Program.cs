@@ -1,30 +1,19 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.Reflection;
 using grate.Commands;
 using grate.Configuration;
-using grate.DependencyInjection;
-using grate.Exceptions;
 using grate.Infrastructure;
-using grate.MariaDb;
 using grate.mariadb.DependencyInjection;
-using grate.MariaDb.Migration;
 using grate.Migration;
-using grate.Oracle;
 using grate.oracle.DependencyInjection;
-using grate.Oracle.Migration;
-using grate.PostgreSql;
 using grate.postgresql.DependencyInjection;
-using grate.PostgreSql.Migration;
-using grate.Sqlite;
 using grate.sqlite.DependencyInjection;
-using grate.Sqlite.Migration;
-using grate.SqlServer;
 using grate.sqlserver.DependencyInjection;
-using grate.SqlServer.Migration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
@@ -33,17 +22,17 @@ namespace grate;
 
 public static class Program
 {
-    private static ServiceProvider _serviceProvider = default!;
+    private static IServiceProvider _serviceProvider = default!;
 
     public static async Task<int> Main(string[] args)
     {
         // Temporarily parse the configuration, to get the verbosity level
         var cfg = await ParseGrateConfiguration(args);
-        _serviceProvider = BuildServiceProvider(cfg);
+        _serviceProvider = BuildServiceProvider(cfg).CreateAsyncScope().ServiceProvider;
 
         var rootCommand = Create<MigrateCommand>();
         rootCommand.Add(Verbosity());
-
+        
         rootCommand.Description = $"grate v{GetVersion()} - sql for the 20s";
 
         var parser = new CommandLineBuilder(rootCommand)
@@ -56,26 +45,32 @@ public static class Program
             .RegisterWithDotnetSuggest()
             .UseTypoCorrections()
             .UseParseErrorReporting()
-            .UseExceptionHandler()
+            .UseExceptionHandler(ExceptionHandler)
             .CancelOnProcessTermination()
             .Build();
 
-        int result = -1;
-
-        try
-        {
-            result = await parser.InvokeAsync(args);
-        }
-        catch (MigrationFailed ex)
-        {
-            var logger = _serviceProvider.GetRequiredService<ILogger<GrateMigrator>>();
-            logger.LogError(ex, "{ErrorMessage}", ex.Message);
-        }
+        var result = await parser.InvokeAsync(args);
 
         await WaitForLoggerToFinish();
 
         return result;
     }
+    
+    private static void ExceptionHandler(Exception ex, InvocationContext context)
+    {
+        // Log the error message at the highest level, and the exception at debug level.
+        // Avoids logging the exception stack trace to the end user, if logging level is not set to debug.
+        
+        var logger = _serviceProvider.GetRequiredService<ILogger<GrateMigrator>>();
+        
+        context.Console.Error.CreateTextWriter().WriteColoredMessage("An error occurred: ", GrateConsoleColor.Foreground.Red);
+        
+        logger.LogDebug(ex, "{ErrorMessage}", ex.Message);
+        logger.LogError("{ErrorMessage}", ex.Message);
+        
+        context.ExitCode = 1;
+    }
+    
 
     private static string GetVersion() => Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "1.0.0.1";
 

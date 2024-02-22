@@ -1,5 +1,7 @@
 ﻿using System.Data.Common;
 using System.Diagnostics;
+using grate.Configuration;
+using grate.Exceptions;
 using grate.Infrastructure;
 using grate.MariaDb.Infrastructure;
 using grate.Migration;
@@ -68,5 +70,10 @@ FROM information_schema.processlist WHERE DB = '{DatabaseName}'";
 
         var databaseExists = await DatabaseExists();
         Debug.Assert(!databaseExists, "Database still exists after it is dropped");
+    }
+
+    public override void ThrowScriptFailed(MigrationsFolder folder, string file, string? scriptText, Exception exception)
+    {
+        throw new MariaDbScriptFailed(folder, file, scriptText, exception);
     }
 }

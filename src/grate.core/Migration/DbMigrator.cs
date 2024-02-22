@@ -69,11 +69,13 @@ internal record DbMigrator : IDbMigrator
 
     public GrateConfiguration Configuration { get; set; }
 
-    public async Task<bool> RunSql(string sql, string scriptName, MigrationType migrationType, long versionId,
+    public async Task<bool> RunSql(string sql, string scriptName, MigrationsFolder folder, long versionId,
         GrateEnvironment? environment,
         ConnectionType connectionType, TransactionHandling transactionHandling)
     {
         var theSqlWasRun = false;
+
+        var type = folder.Type;
 
         async Task<bool> LogAndRunSql()
         {
@@ -85,7 +87,7 @@ internal record DbMigrator : IDbMigrator
             }
             else
             {
-                await RunTheActualSql(sql, scriptName, migrationType, versionId, connectionType, transactionHandling);
+                await RunTheActualSql(sql, scriptName, type, versionId, connectionType, transactionHandling);
                 return true;
             }
         }
@@ -103,20 +105,20 @@ internal record DbMigrator : IDbMigrator
 
         if (Configuration.Baseline)
         {
-            await RecordScriptInScriptsRunTable(scriptName, sql, migrationType, versionId, transactionHandling);
+            await RecordScriptInScriptsRunTable(scriptName, sql, type, versionId, transactionHandling);
             return false;
         }
 
-        if (await ThisScriptIsAlreadyRun(scriptName, transactionHandling) && !IsEverytimeScript(scriptName, migrationType))
+        if (await ThisScriptIsAlreadyRun(scriptName, transactionHandling) && !IsEverytimeScript(scriptName, type))
         {
-            if (AnyTimeScriptForcedToRun(migrationType, Configuration) || await ScriptHasChanged(scriptName, sql))
+            if (AnyTimeScriptForcedToRun(type, Configuration) || await ScriptHasChanged(scriptName, sql))
             {
                 var changeHandling = DetermineChangeHandling(Configuration);
 
-                switch (migrationType)
+                switch (type)
                 {
                     case MigrationType.Once when changeHandling == ChangedScriptHandling.Error:
-                        await OneTimeScriptChanged(sql, scriptName, versionId);
+                        await OneTimeScriptChanged(folder, sql, scriptName, versionId);
                         break;
 
                     case MigrationType.Once when changeHandling == ChangedScriptHandling.WarnAndRun:
@@ -128,7 +130,7 @@ internal record DbMigrator : IDbMigrator
                     case MigrationType.Once when changeHandling == ChangedScriptHandling.WarnAndIgnore:
                         LogScriptChangedWarning(scriptName);
                         _logger.LogDebug("Ignoring script but marking as run due to WarnAndIgnoreOnOneTimeScriptChanges option being set.");
-                        await RecordScriptInScriptsRunTable(scriptName, sql, migrationType, versionId, transactionHandling);
+                        await RecordScriptInScriptsRunTable(scriptName, sql, type, versionId, transactionHandling);
                         break;
 
                     case MigrationType.AnyTime:
@@ -280,7 +282,7 @@ internal record DbMigrator : IDbMigrator
             }
             catch (Exception ex)
             {
-                _logger.LogError("Error running script \"{ScriptName}\": {ErrorMessage}", scriptName, ex.Message);
+                _logger.LogError("{ScriptName}: {ErrorMessage}", scriptName, ex.Message);
 
                 if (Transaction.Current is not null)
                 {
@@ -319,7 +321,7 @@ internal record DbMigrator : IDbMigrator
             }
             catch (Exception ex)
             {
-                _logger.LogError("Error running script \"{ScriptName}\": {ErrorMessage}", scriptName, ex.Message);
+                _logger.LogError("{ScriptName}: {ErrorMessage}", scriptName, ex.Message);
 
                 if (Transaction.Current is not null)
                 {
@@ -345,19 +347,21 @@ internal record DbMigrator : IDbMigrator
     /// Returns whether to execute the script even though it has changed.  
     /// Throws an exception if this script change is a failure scenario.
     /// </summary>
+    /// <param name="folder"></param>
     /// <param name="sql"></param>
     /// <param name="scriptName"></param>
     /// <param name="versionId"></param>
     /// <returns></returns>
     /// <exception cref="Exceptions.OneTimeScriptChanged"></exception>
-    private async Task OneTimeScriptChanged(string sql, string scriptName, long versionId)
+    private async Task OneTimeScriptChanged(MigrationsFolder folder, string sql, string scriptName, long versionId)
     {
+        _logger.LogError("{ScriptName}: {ErrorMessage}", scriptName, "One time script changed");
+        
         Database.Rollback();
         await Database.CloseConnection();
         Transaction.Current?.Dispose();
 
-        string errorMessage =
-            $"{scriptName} has changed since the last time it was run. By default this is not allowed - scripts that run once should never change. To change this behavior to a warning, please set warnOnOneTimeScriptChanges to true and run again. Stopping execution.";
+        const string errorMessage = "Script has changed since the last time it was run. By default this is not allowed - scripts that run once should never change. To change this behavior to a warning, please set WarnOnOneTimeScriptChanges to true and run again. Stopping execution.";
 
         using (var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
@@ -369,7 +373,7 @@ internal record DbMigrator : IDbMigrator
         }
         SetDefaultConnectionActive();
 
-        throw new OneTimeScriptChanged(errorMessage);
+        throw new OneTimeScriptChanged(folder, scriptName, errorMessage);
     }
 
     private Task RecordScriptInScriptsRunTable(string scriptName, string sql, MigrationType migrationType,

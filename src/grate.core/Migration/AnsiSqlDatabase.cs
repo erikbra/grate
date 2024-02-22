@@ -53,6 +53,8 @@ public abstract record AnsiSqlDatabase : IDatabase
     public virtual IEnumerable<string> GetStatements(string sql)
         => SplitBatchStatements ? this.StatementSplitter.Split(sql) : new[] { sql };
 
+    public abstract void ThrowScriptFailed(MigrationsFolder folder, string file, string? scriptText, Exception exception);
+
     public string StatementSeparatorRegex => _syntax.StatementSeparatorRegex;
 
     public string ScriptsRunTable => _syntax.TableWithSchema(SchemaName, ScriptsRunTableName);

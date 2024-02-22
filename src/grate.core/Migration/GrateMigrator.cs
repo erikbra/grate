@@ -163,7 +163,7 @@ internal record GrateMigrator : IGrateMigrator
                         s.Complete();
                     }
                 }
-                catch (DbException ex)
+                catch (Exception ex)
                 {
                     // Catch exceptions, so that we run the rest of the scripts, that should always be run.
                     exceptions.Add(ex);
@@ -364,27 +364,36 @@ internal record GrateMigrator : IGrateMigrator
 
         foreach (var file in files)
         {
-            var sql = await File.ReadAllTextAsync(file.FullName);
-
-            // Normalize file names to log, so that results won't vary if you run on *nix VS Windows
-            var fileNameToLog = DbMigrator.Configuration.IgnoreDirectoryNames
-                ? file.Name
-                : string.Join('/', Path.GetRelativePath(path.ToString(), file.FullName).Split(Path.DirectorySeparatorChar));
-
-            bool theSqlRan = await DbMigrator.RunSql(sql, fileNameToLog, folder.Type, versionId, DbMigrator.Configuration.Environment,
-                connectionType, transactionHandling);
-
-            if (theSqlRan)
+            string? sql = null;
+            try
             {
-                anySqlRun = true;
-                try
+                sql = await File.ReadAllTextAsync(file.FullName);
+
+                // Normalize file names to log, so that results won't vary if you run on *nix VS Windows
+                var fileNameToLog = DbMigrator.Configuration.IgnoreDirectoryNames
+                    ? file.Name
+                    : string.Join('/', Path.GetRelativePath(path.ToString(), file.FullName).Split(Path.DirectorySeparatorChar));
+
+                bool theSqlRan = await DbMigrator.RunSql(sql, fileNameToLog, folder, versionId, DbMigrator.Configuration.Environment,
+                    connectionType, transactionHandling);
+
+                if (theSqlRan)
                 {
-                    CopyToChangeDropFolder(path.Parent!, file, changeDropFolder);
+                    anySqlRun = true;
+                    try
+                    {
+                        CopyToChangeDropFolder(path.Parent!, file, changeDropFolder);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Unable to copy {File} to {ChangeDropFolder}. \n{Exception}", file, changeDropFolder, ex.Message);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Unable to copy {File} to {ChangeDropFolder}. \n{Exception}", file, changeDropFolder, ex.Message);
-                }
+            }
+            catch (DbException ex)
+            {
+                var relativeFileName = Path.GetRelativePath(path.ToString(), file.FullName);
+                DbMigrator.Database.ThrowScriptFailed(folder, relativeFileName, sql, ex);
             }
         }
 

@@ -3,8 +3,10 @@ using System.Data.Common;
 using System.Security.Claims;
 using Dapper;
 using grate.Configuration;
+using grate.Exceptions;
 using grate.Infrastructure;
 using grate.Migration;
+using grate.oracle.Infrastructure;
 using grate.Oracle.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Oracle.ManagedDataAccess.Client;
@@ -159,21 +161,8 @@ RETURNING id into :id
     private static string? GetValue(IDictionary<string, string?> dictionary, string key) =>
         dictionary.TryGetValue(key, out string? value) ? value : null;
 
-    //     private async Task CreateIdSequence(string table)
-    //     {
-    //         var sql = $"CREATE SEQUENCE {table}_seq";
-    //         await ExecuteNonQuery(ActiveConnection, sql, Config?.CommandTimeout);
-    //     }
-
-    //     private async Task CreateIdInsertTrigger(string table)
-    //     {
-    //         var sql = $@"
-    // CREATE OR REPLACE TRIGGER {table}_ins
-    // BEFORE INSERT ON {table}
-    // FOR EACH ROW
-    // BEGIN
-    //   SELECT {table}_seq.nextval INTO :new.id FROM dual;
-    // END;";
-    //         await ExecuteNonQuery(ActiveConnection, sql, Config?.CommandTimeout);
-    //     }
+    public override void ThrowScriptFailed(MigrationsFolder folder, string file, string? scriptText, Exception exception)
+    {
+        throw new OracleScriptFailed(folder, file, scriptText, exception);
+    }
 }

@@ -1,7 +1,10 @@
 ﻿using System.Data.Common;
+using grate.Configuration;
+using grate.Exceptions;
 using grate.Infrastructure;
 using grate.Infrastructure.Npgsql;
 using grate.Migration;
+using grate.postgresql.Infrastructure;
 using grate.PostgreSql.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Npgsql;
@@ -29,4 +32,10 @@ public record PostgreSqlDatabase : AnsiSqlDatabase
 
     public override IEnumerable<string> GetStatements(string sql)
         => ReflectionNpgsqlQueryParser.Split(sql);
+
+
+    public override void ThrowScriptFailed(MigrationsFolder folder, string file, string? scriptText, Exception exception)
+    {
+        throw new PostgreSqlScriptFailed(folder, file, scriptText, exception);
+    }
 }

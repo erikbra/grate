@@ -1,8 +1,10 @@
 ﻿using System.Data.Common;
 using System.Transactions;
 using grate.Configuration;
+using grate.Exceptions;
 using grate.Infrastructure;
 using grate.Migration;
+using grate.sqlserver.Infrastructure;
 using grate.SqlServer.Infrastructure;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
@@ -120,4 +122,10 @@ public record SqlServerDatabase : AnsiSqlDatabase
         $@"
 SELECT 1 FROM  {ScriptsRunTable} WITH (NOLOCK)
 WHERE script_name = @scriptName";
+
+
+    public override void ThrowScriptFailed(MigrationsFolder folder, string file, string? scriptText, Exception exception)
+    {
+        throw new SqlServerScriptFailed(folder, file, scriptText, exception);
+    }
 }
