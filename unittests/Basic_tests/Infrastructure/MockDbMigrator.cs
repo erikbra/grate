@@ -75,7 +75,7 @@ public class MockDbMigrator: IDbMigrator
         throw new NotImplementedException();
     }
 
-    public Task<bool> RunSql(string sql, string scriptName, MigrationType migrationType, long versionId, GrateEnvironment? environment,
+    public Task<bool> RunSql(string sql, string scriptName, MigrationsFolder folder, long versionId, GrateEnvironment? environment,
         ConnectionType connectionType, TransactionHandling transactionHandling)
     {
         return Task.FromResult(false);

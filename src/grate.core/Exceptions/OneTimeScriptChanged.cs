@@ -1,8 +1,11 @@
-﻿namespace grate.Exceptions;
+﻿using grate.Configuration;
 
-public class OneTimeScriptChanged : Exception
+namespace grate.Exceptions;
+
+public class OneTimeScriptChanged : MigrationException
 {
-    public OneTimeScriptChanged(string errorMessage) : base(errorMessage)
+    public OneTimeScriptChanged(MigrationsFolder folder, string file, string errorMessage) 
+        : base(folder, file, errorMessage)
     {
     }
 }

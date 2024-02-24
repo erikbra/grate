@@ -23,6 +23,7 @@ public class MariaDbTestContainer : ContainerFixture
             .WithImage(DockerImage)
             .WithPassword(AdminPassword)
             .WithPortBinding(Port, true)
+            .WithCommand("--max_connections=10000")
             .Build();
     }
 }

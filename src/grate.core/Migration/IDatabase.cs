@@ -57,4 +57,6 @@ public interface IDatabase : IAsyncDisposable
     /// <param name="sql"></param>
     /// <returns></returns>
     IEnumerable<string> GetStatements(string sql);
+
+    void ThrowScriptFailed(MigrationsFolder folder, string file, string? scriptText, Exception exception);
 }

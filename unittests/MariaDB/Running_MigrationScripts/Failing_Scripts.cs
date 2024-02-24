@@ -8,5 +8,17 @@ namespace MariaDB.Running_MigrationScripts;
 public class Failing_Scripts(IGrateTestContext testContext, ITestOutputHelper testOutput)
     : TestCommon.Generic.Running_MigrationScripts.Failing_Scripts(testContext, testOutput)
 {
-    protected override string ExpectedErrorMessageForInvalidSql => "Unknown column 'TOP' in 'field list'";
+    protected override string ExpectedErrorMessageForInvalidSql => 
+        """
+        Update ("up"):
+        --------------------------------------------------------------------------------
+        2_failing.sql: Unknown column 'TOP' in 'field list'
+        """;
+    
+
+    protected override IDictionary<string, object?> ExpectedErrorDetails => new Dictionary<string, object?>
+    {
+        {"Server Error Code", 1054},
+        {"SqlState", "42S22"}
+    };
 }

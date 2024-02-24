@@ -76,7 +76,9 @@ public abstract class One_time_scripts(IGrateTestContext context, ITestOutputHel
 
         await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
-            await Assert.ThrowsAsync<OneTimeScriptChanged>(() => migrator.Migrate());
+            var ex = await Assert.ThrowsAsync<MigrationFailed>(() => migrator.Migrate());
+            var inner = ex.InnerException;
+            inner.Should().BeOfType<OneTimeScriptChanged>();
         }
 
         string[] scripts;

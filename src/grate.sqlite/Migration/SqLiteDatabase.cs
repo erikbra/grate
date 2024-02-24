@@ -1,6 +1,9 @@
 ﻿using System.Data.Common;
+using grate.Configuration;
+using grate.Exceptions;
 using grate.Infrastructure;
 using grate.Migration;
+using grate.sqlite.Infrastructure;
 using grate.Sqlite.Infrastructure;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
@@ -64,5 +67,10 @@ WHERE name='{columnName}'";
     public override Task RestoreDatabase(string backupPath)
     {
         throw new System.NotImplementedException("Restoring a database from file is not currently supported for  SqlLite.");
+    }
+
+    public override void ThrowScriptFailed(MigrationsFolder folder, string file, string? scriptText, Exception exception)
+    {
+        throw new SqliteScriptFailed(folder, file, scriptText, exception);
     }
 }

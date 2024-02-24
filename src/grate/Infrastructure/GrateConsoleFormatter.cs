@@ -50,11 +50,11 @@ internal class GrateConsoleFormatter : ConsoleFormatter, IDisposable
         LogLevel logLevel = logEntry.LogLevel;
         ConsoleColors logLevelColors = GetLogLevelConsoleColors(logLevel);
 
-        textWriter.WriteColoredMessageLine(message, logLevelColors.Foreground);
+        textWriter.WriteColoredMessageLine(message, logLevelColors.Foreground, logLevelColors.Background);
 
         if (exception != null)
         {
-            textWriter.WriteColoredMessageLine(exception.ToString(), logLevelColors.Foreground);
+            textWriter.WriteColoredMessageLine(exception.ToString(), logLevelColors.Foreground, logLevelColors.Background);
         }
         textWriter.Flush();
     }
@@ -76,21 +76,17 @@ internal class GrateConsoleFormatter : ConsoleFormatter, IDisposable
             LogLevel.Debug => new ConsoleColors(GrateConsoleColor.Foreground.DarkGray),
             LogLevel.Information => new ConsoleColors(GrateConsoleColor.Foreground.Green),
             LogLevel.Warning => new ConsoleColors(GrateConsoleColor.Foreground.Yellow),
-            LogLevel.Error => new ConsoleColors(GrateConsoleColor.Foreground.Black),
-            LogLevel.Critical => new ConsoleColors(GrateConsoleColor.Foreground.White),
+            LogLevel.Error => new ConsoleColors(GrateConsoleColor.Foreground.DarkRed),
+            LogLevel.Critical => new ConsoleColors(GrateConsoleColor.Foreground.Cyan),
             _ => ConsoleColors.None
         };
     }
 
 
-    private readonly struct ConsoleColors
+    private readonly struct ConsoleColors(GrateConsoleColor foreground, GrateConsoleColor? background = null)
     {
-        public ConsoleColors(GrateConsoleColor foreground)
-        {
-            Foreground = foreground;
-        }
-
-        public GrateConsoleColor Foreground { get; }
+        public GrateConsoleColor Foreground { get; } = foreground;
+        public GrateConsoleColor? Background { get; } = background;
 
         public static ConsoleColors None => new();
     }

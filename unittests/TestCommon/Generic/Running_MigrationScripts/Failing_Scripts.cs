@@ -1,11 +1,14 @@
-﻿using System.Transactions;
+﻿using System.Text.Json;
+using System.Transactions;
 using Dapper;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using grate.Configuration;
 using grate.Exceptions;
 using grate.Migration;
 using TestCommon.TestInfrastructure;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 using static grate.Configuration.KnownFolderKeys;
 using static TestCommon.TestInfrastructure.DescriptiveTestObjects;
 
@@ -37,12 +40,71 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
             .WithSqlFilesDirectory(parent)
             .Build();
 
-        await using (var migrator = Context.Migrator.WithConfiguration(config))
-        {
-            var ex = await Assert.ThrowsAsync<MigrationFailed>(migrator.Migrate);
-            ex?.Message.Should().Be($"Migration failed due to errors:\n * {ExpectedErrorMessageForInvalidSql}");
-        }
+        await using var migrator = Context.Migrator.WithConfiguration(config);
+        var ex = await Assert.ThrowsAnyAsync<MigrationFailed>(migrator.Migrate);
+        ex.Message.Should().Be($"Migration failed due to the following errors:\n\n{ExpectedErrorMessageForInvalidSql}");
     }
+    
+        
+    [Fact]
+    public async Task Exception_includes_details_on_the_failed_script()
+    {
+        var db = TestConfig.RandomDatabase();
+
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default();
+        CreateInvalidSql(parent, knownFolders[Up]);
+
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .Build();
+
+        await using var migrator = Context.Migrator.WithConfiguration(config);
+        var ex = await Assert.ThrowsAnyAsync<MigrationFailed>(migrator.Migrate);
+
+        try
+        {
+            using (new AssertionScope())
+            {
+                ex.MigrationErrors.Should().Contain(ExpectedErrorDetails);
+            }
+        } catch (XunitException)
+        {
+            // Write the expected and actual error details to output, to be able to compare them in the test output
+            TestOutput.WriteLine("Expected error details: " + JsonSerializer.Serialize(ExpectedErrorDetails));
+            TestOutput.WriteLine("Actual migration error details: " + JsonSerializer.Serialize(ex.MigrationErrors));
+            TestOutput.WriteLine("Properties of inner exception: " +
+                                 JsonSerializer.Serialize(ex.InnerException!.GetType().GetProperties().Select(prop => prop.Name)));
+            throw;
+        }
+        
+    }
+    
+    // TODO: Improve this test to throw both transient and non-transient exceptions, and check the result
+    [Fact]
+    public async Task Exception_is_set_to_transient_based_on_inner_exceptions()
+    {
+        var db = TestConfig.RandomDatabase();
+
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default();
+        CreateInvalidSql(parent, knownFolders[Up]);
+
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .Build();
+
+        await using var migrator = Context.Migrator.WithConfiguration(config);
+        var ex = await Assert.ThrowsAnyAsync<MigrationFailed>(migrator.Migrate);
+        ex.IsTransient.Should().BeFalse();
+    }
+
+    protected abstract IDictionary<string, object?> ExpectedErrorDetails { get; }
+
 
     [Fact]
     public async Task Inserts_Failed_Scripts_Into_ScriptRunErrors_Table()
@@ -100,13 +162,7 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
 
         await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
-            try
-            {
-                await migrator.Migrate();
-            }
-            catch (MigrationFailed)
-            {
-            }
+            await Assert.ThrowsAsync<MigrationFailed>(() => migrator.Migrate());
         }
 
         string fileContent = await File.ReadAllTextAsync(Path.Combine(parent.ToString(), knownFolders[Up]!.Path, "2_failing.sql"));
@@ -162,7 +218,7 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
     {
         var sql = Context.Sql.SleepTwoSeconds;
 
-        if (sql == default)
+        if (sql is null)
         {
             TestOutput.WriteLine("DBMS doesn't support sleep() for testing");
             return;

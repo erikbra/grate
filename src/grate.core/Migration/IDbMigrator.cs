@@ -25,7 +25,7 @@ internal interface IDbMigrator : IAsyncDisposable, ICloneable
     Task OpenAdminConnection();
     Task CloseAdminConnection();
 
-    Task<bool> RunSql(string sql, string scriptName, MigrationType migrationType, long versionId,
+    Task<bool> RunSql(string sql, string scriptName, MigrationsFolder folder, long versionId,
         GrateEnvironment? environment,
         ConnectionType connectionType, TransactionHandling transactionHandling);
 

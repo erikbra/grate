@@ -7,8 +7,26 @@ namespace PostgreSQL.Running_MigrationScripts;
 public class Failing_Scripts(IGrateTestContext testContext, ITestOutputHelper testOutput)
     : TestCommon.Generic.Running_MigrationScripts.Failing_Scripts(testContext, testOutput)
 {
-    protected override string ExpectedErrorMessageForInvalidSql =>
-        @"42703: column ""top"" does not exist
+    
+    protected override string ExpectedErrorMessageForInvalidSql => 
+        """
+        Update ("up"):
+        --------------------------------------------------------------------------------
+        2_failing.sql: 42703: column "top" does not exist
+        (0,8): SELECT TOP
+                      ^ 42703: column "top" does not exist
+        """;
+    
 
-POSITION: 8";
+    protected override IDictionary<string, object?> ExpectedErrorDetails => new Dictionary<string, object?>
+    {
+        {"Severity", "ERROR"},
+        {"InvariantSeverity", "ERROR"},
+        {"SqlState", "42703"},
+        {"MessageText", "column \"top\" does not exist"},
+        {"Position", 8},
+        {"File", "parse_relation.c"},
+        {"Line", "3713"},
+        {"Routine", "errorMissingColumn"}
+    };
 }
