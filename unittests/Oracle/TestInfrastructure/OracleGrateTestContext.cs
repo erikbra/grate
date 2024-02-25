@@ -25,14 +25,9 @@ public class OracleGrateTestContext : IGrateTestContext
     public string AdminPassword => _testContainer.AdminPassword;
     public int? Port => _testContainer.TestContainer!.GetMappedPublicPort(_testContainer.Port);
 
-
-    // public string DockerCommand(string serverName, string adminPassword) =>
-    //     $"run -d --name {serverName} -p 1521 -e ORACLE_ENABLE_XDB=true -e ORACLE_PWD={adminPassword} -P container-registry.oracle.com/database/express:21.3.0-xe";
-
-
-    public string AdminConnectionString => $@"Data Source={_testContainer.TestContainer!.Hostname}:{Port}/XEPDB1;User ID=system;Password={AdminPassword};Pooling=False";
-    public string ConnectionString(string database) => $@"Data Source={_testContainer.TestContainer!.Hostname}:{Port}/XEPDB1;User ID={database.ToUpper()};Password={AdminPassword};Pooling=False";
-    public string UserConnectionString(string database) => $@"Data Source={_testContainer.TestContainer!.Hostname}:{Port}/XEPDB1;User ID={database.ToUpper()};Password={AdminPassword};Pooling=False";
+    public string AdminConnectionString => $@"Data Source={_testContainer.TestContainer!.Hostname}:{Port}/XEPDB1;User ID=system;Password={AdminPassword}";
+    public string ConnectionString(string database) => $@"Data Source={_testContainer.TestContainer!.Hostname}:{Port}/XEPDB1;User ID={database.ToUpper()};Password={AdminPassword}";
+    public string UserConnectionString(string database) => $@"Data Source={_testContainer.TestContainer!.Hostname}:{Port}/XEPDB1;User ID={database.ToUpper()};Password={AdminPassword}";
 
     public IDbConnection GetDbConnection(string connectionString) => new OracleConnection(connectionString);
 
