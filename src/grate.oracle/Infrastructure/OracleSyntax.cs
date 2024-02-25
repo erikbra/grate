@@ -32,20 +32,23 @@ begin
     execute immediate 'GRANT ALL PRIVILEGES TO {userName}';
 end;
 ";
-    public string DropDatabase(string databaseName) => $@"
-begin 
-    DECLARE
-       usr VARCHAR2 (32) := '{databaseName}';
-    BEGIN
-       FOR ln_cur IN (SELECT sid, serial# FROM v$session WHERE username = usr)
-       LOOP
-          EXECUTE IMMEDIATE ('ALTER SYSTEM KILL SESSION ''' || ln_cur.sid || ',' || ln_cur.serial# || ''' IMMEDIATE');
-       END LOOP;
-    END;
+    public string DropDatabase(string databaseName) => 
+        $"""
+        begin
+            DECLARE
+               usr VARCHAR2 (32) := '{databaseName}';
+            BEGIN
+               FOR ln_cur IN (SELECT sid, serial# FROM v$session WHERE username = usr)
+               LOOP
+                  /* EXECUTE IMMEDIATE ('ALTER SYSTEM KILL SESSION ''' || ln_cur.sid || ',' || ln_cur.serial# || ''' IMMEDIATE'); */
+                  /* EXECUTE IMMEDIATE ('ALTER SYSTEM DISCONNECT SESSION ''' || ln_cur.sid || ',' || ln_cur.serial# || ''' IMMEDIATE'); */
+                  EXECUTE IMMEDIATE ('ALTER SYSTEM KILL SESSION ''' || ln_cur.sid || ',' || ln_cur.serial# || '''');
+               END LOOP;
+            END;
 
-    EXECUTE IMMEDIATE 'DROP USER {databaseName} CASCADE';
-end;
-";
+            EXECUTE IMMEDIATE 'DROP USER {databaseName} CASCADE';
+        end;
+        """;
     public string TableWithSchema(string schemaName, string tableName) => $"{schemaName}_{tableName}";
     public string ReturnId => "RETURNING id;";
     public string TimestampType => "timestamp";
