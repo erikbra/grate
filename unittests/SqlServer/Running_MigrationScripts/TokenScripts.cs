@@ -7,3 +7,4 @@ namespace SqlServer.Running_MigrationScripts;
 public class TokenScripts(IGrateTestContext testContext, ITestOutputHelper testOutput)
     : TestCommon.Generic.Running_MigrationScripts.TokenScripts(testContext, testOutput);
 
+

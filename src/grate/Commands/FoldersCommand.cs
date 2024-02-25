@@ -121,7 +121,7 @@ internal static class FoldersCommand
             }
 
             var parsed = (propertyType?.IsEnum ?? false)
-                            ? Enum.Parse(propertyType, value)
+                            ? Enum.Parse(propertyType, value, true)
                             : value;
 
             setter.Invoke(folder, new[] { parsed });

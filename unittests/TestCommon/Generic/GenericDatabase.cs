@@ -161,7 +161,6 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
                 try
                 {
                     using var conn = Context.CreateAdminDbConnection();
-                    conn.Open();
 
                     try
                     {
