@@ -26,12 +26,14 @@ public readonly struct OracleSyntax : ISyntax
 
     public string CreateSchema(string schemaName) => throw new NotImplementedException("Create schema is not implemented for Oracle DB");
 
-    public string CreateDatabase(string userName, string? password) => $@"
-begin 
-    execute immediate 'CREATE USER {userName} IDENTIFIED BY ""{password}""';
-    execute immediate 'GRANT ALL PRIVILEGES TO {userName}';
-end;
-";
+    public string CreateDatabase(string userName, string? password) => 
+        $"""
+         begin
+             execute immediate 'CREATE USER {userName} IDENTIFIED BY "{password}"';
+             execute immediate 'GRANT ALL PRIVILEGES TO {userName}';
+         end;
+         """;
+    
     public string DropDatabase(string databaseName) => 
         $"""
         begin
@@ -41,8 +43,8 @@ end;
                FOR ln_cur IN (SELECT sid, serial# FROM v$session WHERE username = usr)
                LOOP
                   /* EXECUTE IMMEDIATE ('ALTER SYSTEM KILL SESSION ''' || ln_cur.sid || ',' || ln_cur.serial# || ''' IMMEDIATE'); */
-                  /* EXECUTE IMMEDIATE ('ALTER SYSTEM DISCONNECT SESSION ''' || ln_cur.sid || ',' || ln_cur.serial# || ''' IMMEDIATE'); */
-                  EXECUTE IMMEDIATE ('ALTER SYSTEM KILL SESSION ''' || ln_cur.sid || ',' || ln_cur.serial# || '''');
+                  EXECUTE IMMEDIATE ('ALTER SYSTEM DISCONNECT SESSION ''' || ln_cur.sid || ',' || ln_cur.serial# || ''' IMMEDIATE');
+                  /* EXECUTE IMMEDIATE ('ALTER SYSTEM KILL SESSION ''' || ln_cur.sid || ',' || ln_cur.serial# || ''''); */
                END LOOP;
             END;
 
