@@ -27,4 +27,6 @@ public record MigrationsFolder(
         : this(name, name, type, connectionType, transactionHandling)
     { }
 
+    public override string ToString() => 
+        $"{Name}=path:{Path},type:{Type},connectionType:{ConnectionType},transactionHandling:{TransactionHandling}";
 }

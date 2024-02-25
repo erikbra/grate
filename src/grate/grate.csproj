@@ -9,6 +9,12 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Basic_tests" />
+    <InternalsVisibleTo Include="CommandLine.Common" />
+    <InternalsVisibleTo Include="CommandLine.MariaDB" />
+    <InternalsVisibleTo Include="CommandLine.Oracle" />
+    <InternalsVisibleTo Include="CommandLine.PostgreSQL" />
+    <InternalsVisibleTo Include="CommandLine.Sqlite" />
+    <InternalsVisibleTo Include="CommandLine.SqlServer" />
   </ItemGroup>
   
   <ItemGroup>

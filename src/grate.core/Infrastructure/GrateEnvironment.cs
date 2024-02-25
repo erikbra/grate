@@ -20,4 +20,5 @@ public record GrateEnvironment(string Current)
     public static bool IsEnvironmentFile(string fileName) => fileName.Contains(EnvironmentMarker, InvariantCultureIgnoreCase);
     private static string FileName(string path) => new FileInfo(path).Name;
 
+    public override string ToString() => Current;
 }

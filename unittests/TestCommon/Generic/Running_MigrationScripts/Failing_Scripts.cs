@@ -26,7 +26,7 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
     protected abstract string ExpectedErrorMessageForInvalidSql { get; }
 
     [Fact]
-    public async Task Aborts_the_run_giving_an_error_message()
+    public virtual async Task Aborts_the_run_giving_an_error_message()
     {
         var db = TestConfig.RandomDatabase();
 
@@ -47,7 +47,7 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
     
         
     [Fact]
-    public async Task Exception_includes_details_on_the_failed_script()
+    public virtual async Task Exception_includes_details_on_the_failed_script()
     {
         var db = TestConfig.RandomDatabase();
 
@@ -84,7 +84,7 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
     
     // TODO: Improve this test to throw both transient and non-transient exceptions, and check the result
     [Fact]
-    public async Task Exception_is_set_to_transient_based_on_inner_exceptions()
+    public virtual async Task Exception_is_set_to_transient_based_on_inner_exceptions()
     {
         var db = TestConfig.RandomDatabase();
 

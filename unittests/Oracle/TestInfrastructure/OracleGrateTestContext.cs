@@ -50,4 +50,5 @@ public class OracleGrateTestContext : IGrateTestContext
 
     public string ExpectedVersionPrefix => "Oracle Database 21c Express Edition Release 21.0.0.0.0 - Production";
     public bool SupportsCreateDatabase => true;
+    public bool SupportsSchemas => false;
 }
