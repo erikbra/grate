@@ -27,17 +27,16 @@ public record SqlServerDatabase : AnsiSqlDatabase
         // If pooling is not explicitly mentioned in the connection string, turn it off, as enabling it
         // might lead to problems in more scenarios than it (potentially) solves, in the most
         // common grate scenarios.
-        if (!(connectionString ?? "").Contains("Pooling", StringComparison.InvariantCultureIgnoreCase))
-        {
-            var builder = new SqlConnectionStringBuilder(connectionString) { Pooling = false };
-            connectionString = builder.ConnectionString;
-        }
-
+        // if (!(connectionString ?? "").Contains("Pooling", StringComparison.InvariantCultureIgnoreCase))
+        // {
+        //     var builder = new SqlConnectionStringBuilder(connectionString) { Pooling = false };
+        //     connectionString = builder.ConnectionString;
+        // }
+        //
         var conn = new SqlConnection(connectionString)
         {
             AccessToken = AccessToken
         };
-
         return conn;
     }
     protected string? AccessToken { get; private set; }

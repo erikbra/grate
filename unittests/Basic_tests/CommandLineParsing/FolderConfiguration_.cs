@@ -6,6 +6,8 @@ using System.Runtime.CompilerServices;
 using FluentAssertions;
 using grate.Commands;
 using grate.Configuration;
+using grate.Migration;
+using static grate.Configuration.KnownFolderKeys;
 
 namespace Basic_tests.CommandLineParsing;
 
@@ -22,6 +24,19 @@ public class FolderConfiguration_
         var actual = cfg?.Folders;
 
         AssertEquivalent(expected.Values, actual?.Values);
+    }
+    
+    [Fact]
+    public async Task Default_with_overridden_transaction_handling_for_one_folder()
+    {
+        var cfg = await ParseGrateConfiguration("--folders=runAfterCreateDatabase=transactionHandling:autonomous");
+
+        var expected = FoldersConfiguration.Default();
+        expected[RunAfterCreateDatabase] = expected[RunAfterCreateDatabase]! with { TransactionHandling = TransactionHandling.Autonomous };
+        
+        var actual = cfg?.Folders;
+        actual![RunAfterCreateDatabase]!.TransactionHandling.Should().Be(TransactionHandling.Autonomous);
+        AssertEquivalent(expected.Values, actual.Values);
     }
 
     [Theory]
