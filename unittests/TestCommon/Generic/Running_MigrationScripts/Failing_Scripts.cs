@@ -180,7 +180,7 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
     }
 
     [Fact]
-    public void Ensure_Command_Timeout_Fires()
+    public async Task Ensure_Command_Timeout_Fires()
     {
         var sql = Context.Sql.SleepTwoSeconds;
 
@@ -203,18 +203,19 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
             .CommandTimeout(1) // shorter than the script runs for
             .Build();
 
-        var exception = Record.ExceptionAsync(async () =>
-        {
-            await using var migrator = Context.Migrator.WithConfiguration(config);
-            await migrator.Migrate();
-            Assert.Fail("Should have thrown a timeout exception prior to this!");
-        });
+        await using var migrator = Context.Migrator.WithConfiguration(config);
 
-        exception.Should().NotBeNull();
+        // For some reason, the Assert.ThrowAnyAsync<MigrationFailed> fails, and
+        // says that we get the Sql Exception instead of the MigratorFailed exception,
+        // but when we assert that we get any exception, and _then_ check on the type of the exception,
+        // it works. I don't know why, but I'm leaving it like this for now.
+        //var ex = await Assert.ThrowsAnyAsync<MigrationFailed>(migrator.Migrate);
+        var ex = await Assert.ThrowsAnyAsync<Exception>(migrator.Migrate);
+        ex.Should().BeOfType<MigrationFailed>();
     }
 
     [Fact]
-    public void Ensure_AdminCommand_Timeout_Fires()
+    public async Task Ensure_AdminCommand_Timeout_Fires()
     {
         var sql = Context.Sql.SleepTwoSeconds;
 
@@ -237,14 +238,15 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
             .AdminCommandTimeout(1) // shorter than the script runs for
             .Build();
 
-        var exception = Record.ExceptionAsync(async () =>
-        {
-            await using var migrator = Context.Migrator.WithConfiguration(config);
-            await migrator.Migrate();
-            Assert.Fail("Should have thrown a timeout exception prior to this!");
-        });
+        await using var migrator = Context.Migrator.WithConfiguration(config);
 
-        exception.Should().NotBeNull();
+        // For some reason, the Assert.ThrowAnyAsync<MigrationFailed> fails, and
+        // says that we get the Sql Exception instead of the MigratorFailed exception,
+        // but when we assert that we get any exception, and _then_ check on the type of the exception,
+        // it works. I don't know why, but I'm leaving it like this for now.
+        //var ex = await Assert.ThrowsAnyAsync<MigrationFailed>(migrator.Migrate);
+        var ex = await Assert.ThrowsAnyAsync<Exception>(migrator.Migrate);
+        ex.Should().BeOfType<MigrationFailed>();
     }
 
     [Theory]
