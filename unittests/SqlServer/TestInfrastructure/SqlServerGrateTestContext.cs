@@ -71,6 +71,7 @@ $"""
     public string ExpectedVersionPrefix => "Microsoft SQL Server 2019";
 
     public bool SupportsCreateDatabase => true;
+    public bool SupportsSchemas => true;
 
     public string ServerCollation { get; }
 }

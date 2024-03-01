@@ -44,6 +44,7 @@ public class SqliteGrateTestContext : IGrateTestContext
 
     public string ExpectedVersionPrefix => throw new NotSupportedException("Sqlite does not support versioning");
     public bool SupportsCreateDatabase => false;
+    public bool SupportsSchemas => false;
 
     public IGrateMigrator Migrator { get; }
 }

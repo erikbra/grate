@@ -111,8 +111,43 @@ jobs:
       matrix:
         arch: [ "win-x64", "win-x86", "win-arm64",
                 "linux-musl-x64", "linux-musl-arm64", "linux-x64", "linux-arm64",
-                "osx-x64", "osx-arm64"
+                "osx-x64" 
               ]
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Publish self-contained ${{ matrix.arch }}
+      run: dotnet publish ./src/grate/grate.csproj -f net8.0 -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
+      env:
+        VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
+
+
+    - name: Upload self-contained ${{ matrix.arch }}
+      #if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
+        path: ./publish/${{ matrix.arch }}/self-contained/*
+    
+
+  build-standalone-mac-arm64:
+    name: Build cli
+    needs: set-version-number
+
+    # Use macos-14 to build osx-arm64, it runs on M1, see 
+    # https://github.blog/changelog/2024-01-30-github-actions-introducing-the-new-m1-macos-runner-available-to-open-source/
+    #
+    # I've earlier had problems with that the trimmed, self-contained binary for osx-arm64 that was built on Linux
+    # did not work when opened on an actual mac with arm64.
+
+    runs-on: macos-14
+    strategy:
+      matrix:
+        arch: [ "osx-arm64" ]
 
     steps:
     - uses: actions/checkout@v4
@@ -126,24 +161,13 @@ jobs:
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
 
-    - name: Publish .NET 6/7/8 dependent ${{ matrix.arch }}
-      run: dotnet publish ./src/grate/grate.csproj -r ${{ matrix.arch }} -c release --no-self-contained  -o ./publish/${{ matrix.arch }}/dependent
-      env:
-        VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
-
     - name: Upload self-contained ${{ matrix.arch }}
-      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+      #if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       uses: actions/upload-artifact@v3
       with:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: ./publish/${{ matrix.arch }}/self-contained/*
-    
-    - name: Upload .net dependent ${{ matrix.arch }}
-      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
-      uses: actions/upload-artifact@v3
-      with:
-        name: grate-${{ matrix.arch }}-framework-dependent-${{ needs.set-version-number.outputs.nuGetVersion }}
-        path: ./publish/${{ matrix.arch }}/dependent/*
+
   
   build-msi:
     name: Build MSI
@@ -248,7 +272,7 @@ jobs:
         arch=$(echo ${{ matrix.arch }} | cut -d- -f2 | sed 's/x64/amd64/')
         echo "::set-output name=arch::$arch"
 
-    - name: Create dpkg # Linux with powershell script? really?
+    - name: Create dpkg # Linux with powershell script? really? YES! :D
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       run: ./installers/deb/Create-Package.ps1 -grateExe ./${{ matrix.arch }}/grate -Version "${{ needs.set-version-number.outputs.nuGetVersion }}" -arch ${{ steps.get-arch.outputs.arch}}
       env:
@@ -259,33 +283,6 @@ jobs:
       with:
         name: grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch}}.deb
         path: ./installers/deb/grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch }}.deb
-
-  # build-winget:
-  #   name: Winget - Update package manifest in the OWC
-  #   needs:
-  #    - set-version-number
-  #    - build-msi
-  #   runs-on: windows-latest
-  #   if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
-
-  #   steps:
-  #   - name: Winget-Create
-  #     run: |
-
-  #       $version = "$($env:version)"
-
-  #       # Download wingetcreate
-  #       iwr https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
-
-  #       $packageUrl="https://github.com/erikbra/grate/releases/download/$version/grate-$version.msi"
-
-  #       echo "Running ./wingetcreate.exe update erikbra.grate -u $packageUrl -v $version -t `"$env:WINGET_GH_PAT`" --submit"
-  #       ./wingetcreate.exe update erikbra.grate -u $packageUrl -v $version -t "$env:WINGET_GH_PAT" --submit
-  #     env:
-  #       WINGET_GH_PAT: ${{ secrets.WINGET_GH_PAT }}
-  #       #version: "1.4.0"
-  #       version: "${{ needs.set-version-number.outputs.nuGetVersion }}"
-
 
   test:
     name: Run tests
@@ -302,12 +299,81 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Test
-      run: |
-        dotnet test \
-          unittests/${{ matrix.category }} \
-          --logger:"xunit;LogFilePath=/tmp/test-results/${{ matrix.category }}.xml" -- \
-          -MaxCpuCount 2
+      run: >
+        dotnet test 
+        unittests/${{ matrix.category }} 
+        --logger:"xunit;LogFilePath=/tmp/test-results/${{ matrix.category }}.xml" --
+        -MaxCpuCount 2
       env:
         LogLevel: Warning
+        TZ: UTC
+
+  integration-test:
+    name: Tests cli
+    needs:
+      - set-version-number
+      - build-standalone
+
+    strategy:
+      # We could really like to:
+      # - Start each database (on another host, using Docker, or other means, e.g. Azure SQL, etc
+      # - On all architectures available (windows-latest, linux-latest, macos-latest, and macos-14),
+      # - Run command-line tests against each database.
+      # 
+      # This way, we can test against all variations of each database too, e.g. Azure SQL, SQL Server "on prem" (in docker),
+      # hosted Oracle databases, aws databases, etc. But we need to find a way to provision these databases both very fast,
+      # and cheap, for each one.
+      matrix:
+        category:
+          - CommandLine.SqlServer
+          - CommandLine.PostgreSQL
+          - CommandLine.MariaDB
+          - CommandLine.Sqlite
+          - CommandLine.Oracle
+        os:
+        # We can only run tests on Linux for now, until we start the database separately somewhere (azure, something)
+        # and run against an external database. Because the commandline tests are also for now _dependent_ on
+        # TestContainers, and running the database in a container using Docker. And Docker is only available on Linux
+        # on Github actions.
+          # - name: windows-latest
+          #   arch: win-x64
+          #   executable: grate.exe
+          - name: ubuntu-latest
+            arch: linux-x64
+            executable: grate
+          # - name: macos-latest
+          #   arch: osx-x64
+          #   executable: grate
+          # macos-14 is M1 (arm64)
+          # - name: macos-14
+          #   arch: osx-x64
+          #   executable: grate
+
+    runs-on: ${{ matrix.os.name }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/download-artifact@v3
+      with:
+        name: grate-${{ matrix.os.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
+        path: executables/${{ matrix.os.arch }}
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: chmod u+x
+      run: chmod u+x $GrateExecutablePath
+      if: ${{ matrix.os.arch != 'win-x64' }}
+      env:
+        GrateExecutablePath: ${{ github.workspace }}/executables/${{ matrix.os.arch }}/${{ matrix.os.executable }}
+    - name: Test
+      run: >
+        dotnet test
+        unittests/CommandLine/${{ matrix.category }}
+        --logger:"xunit;LogFilePath=/tmp/test-results/${{ matrix.os.arch }}/${{ matrix.category }}.xml" --
+        -MaxCpuCount 2
+      env:
+        LogLevel: Warning
+        GrateExecutablePath: ${{ github.workspace }}/executables/${{ matrix.os.arch }}/${{ matrix.os.executable }}
         TZ: UTC
       

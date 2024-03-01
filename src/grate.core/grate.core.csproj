@@ -17,6 +17,11 @@
     <InternalsVisibleTo Include="Sqlite" />
     <InternalsVisibleTo Include="SqlServer" />
     <InternalsVisibleTo Include="SqlServerCaseSensitive" />
+    <InternalsVisibleTo Include="CommandLine.MariaDB" />
+    <InternalsVisibleTo Include="CommandLine.Oracle" />
+    <InternalsVisibleTo Include="CommandLine.PostgreSQL" />
+    <InternalsVisibleTo Include="CommandLine.Sqlite" />
+    <InternalsVisibleTo Include="CommandLine.SqlServer" />
   </ItemGroup>
   
   <ItemGroup>

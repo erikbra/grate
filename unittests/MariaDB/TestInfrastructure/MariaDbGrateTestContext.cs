@@ -55,4 +55,5 @@ public class MariaDbGrateTestContext : IGrateTestContext
 
     public string ExpectedVersionPrefix => "10.10.7-MariaDB";
     public bool SupportsCreateDatabase => true;
+    public bool SupportsSchemas => false;
 }

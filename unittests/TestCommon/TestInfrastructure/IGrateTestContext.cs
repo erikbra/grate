@@ -36,9 +36,11 @@ public interface IGrateTestContext
 
 
     public IGrateMigrator Migrator { get; }
-    public bool SupportsSchemas => Migrator.SupportsSchemas();
+    
+    //public bool SupportsSchemas => Migrator.SupportsSchemas();
 
 
     bool SupportsCreateDatabase { get; }
+    bool SupportsSchemas { get; }
     IDbConnection GetDbConnection(string connectionString);
 }

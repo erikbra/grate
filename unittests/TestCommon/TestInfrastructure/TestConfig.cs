@@ -15,6 +15,11 @@ public static class TestConfig
         var dummyFile = Path.GetTempFileName();
         File.Delete(dummyFile);
 
+        if (Directory.Exists(dummyFile))
+        {
+            Directory.Delete(dummyFile, true);
+        }
+
         var scriptsDir = Directory.CreateDirectory(dummyFile);
         return scriptsDir;
     }

@@ -8,9 +8,4 @@ internal static class GrateMigratorExtensions
     {
         return (migrator as GrateMigrator)!.DbMigrator;
     }
-    
-    public static bool SupportsSchemas(this IGrateMigrator migrator)
-    {
-        return (migrator as GrateMigrator)!.Database!.SupportsSchemas;
-    }
 }

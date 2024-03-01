@@ -53,5 +53,6 @@ public class PostgreSqlGrateTestContext : IGrateTestContext
 
     public string ExpectedVersionPrefix => "PostgreSQL 16.";
     public bool SupportsCreateDatabase => true;
+    public bool SupportsSchemas => true;
 
 }

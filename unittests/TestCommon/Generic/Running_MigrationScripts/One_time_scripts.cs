@@ -53,7 +53,7 @@ public abstract class One_time_scripts(IGrateTestContext context, ITestOutputHel
     }
 
     [Fact]
-    public async Task Fails_if_changed_between_runs()
+    public virtual async Task Fails_if_changed_between_runs()
     {
         var db = TestConfig.RandomDatabase();
 
