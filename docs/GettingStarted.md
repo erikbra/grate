@@ -8,11 +8,11 @@ nav_order: 2
 
 ## Overview
 
-grate is an automated database deployment (change management) system that allows you to use plain old `.sql` scripts but gain much more.  We don't believe in writing databse migrations in C#, but don't care how you get your scripts on disk.  Write them at dev time alongside the code for your new feature, or generate larger diff's using other tooling (SSDT/RedGate/etc), whatever works for you and your team!  Include schema objects, data, server configuration, whatever you need!
+grate is an automated database deployment (change management) system that allows you to use plain old `.sql` scripts but gain much more.  We don't believe in writing database migrations in C#, but don't care how you get your scripts on disk.  Write them at dev time alongside the code for your new feature, or generate larger diff's using other tooling (SSDT/RedGate/etc), whatever works for you and your team!  Include schema objects, data, server configuration, whatever you need!
 
 **Low Maintenance Migrations**: It seeks to solve both maintenance concerns and ease of deployment. We follow some of the same idioms as other database management systems (SQL scripts), but we are different in that we think about future maintenance concerns. We want to apply certain scripts whenever there's changes (like functions, views, stored procedures, and permissions), so we don’t have to throw everything into our one-time only `update` change scripts.
 
-**What Version Is YOUR Database On?**: We subscribe to the idea of versioning your database how you want. At this point it's very rare to find someone that doesn't think you should version your code, and few would argue against versioning your code in a way that can lead back to a specific point in source control history. However, most people don’t really think of doing the same thing with your database. We say version it using the same version as your code base by passing it a version number at runtime.  We love versioning our applications based on source control revisions, and how sweet it is when you can pinpoint the exact state of your datatabase _and_ the exact code in your application all to a given point in space and time in your repo!
+**What Version Is YOUR Database On?**: We subscribe to the idea of versioning your database how you want. At this point it's very rare to find someone that doesn't think you should version your code, and few would argue against versioning your code in a way that can lead back to a specific point in source control history. However, most people don’t really think of doing the same thing with your database. We say version it using the same version as your code base by passing it a version number at runtime.  We love versioning our applications based on source control revisions, and how sweet it is when you can pinpoint the exact state of your database _and_ the exact code in your application all to a given point in space and time in your repo!
 
 **Use your whole DBMS**: You're running a full DBMS, why not use all it's features!  Table-Valued Parameters for efficient processing? Data compression for space savings?  Fancy-pants filtered indexes?  Replication? Fine-grained permission management?  If you've ever had to fight with code-based database scaffolding then you'll appreciate the value of plain old sql scripts.
 
@@ -56,7 +56,7 @@ The default folders are run in the following order:
 If you have particular tasks you want to perform prior to any database migrations (custom logging? database backups? disable replication?) you can do it here.
 
 ### 2. alterDatabase (Anytime scripts)
-If you have scripts that need to alter the database config itself (rather than the _contents_ of the database) thjis is the place to do it.  For example setting recovery modes, enabling query stores, etc etc
+If you have scripts that need to alter the database config itself (rather than the _contents_ of the database) this is the place to do it.  For example setting recovery modes, enabling query stores, etc etc
 
 ### 3. runAfterCreateDatabase (Anytime scripts).
 This directory is only processed if the database was created from scratch by grate.  Maybe you need to add user accounts or similar?
