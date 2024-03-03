@@ -3,10 +3,10 @@ using TestCommon.TestInfrastructure;
 
 namespace Sqlite;
 
-[Collection(nameof(SqliteTestContainer))]
+[Collection(nameof(SqliteTestDatabase))]
 // ReSharper disable once InconsistentNaming
 // ReSharper disable once UnusedType.Global
-public class MigrationTables(IGrateTestContext testContext, ITestOutputHelper testOutput)
+public class MigrationTables(SqliteGrateTestContext testContext, ITestOutputHelper testOutput)
     : TestCommon.Generic.GenericMigrationTables(testContext, testOutput)
 {
 

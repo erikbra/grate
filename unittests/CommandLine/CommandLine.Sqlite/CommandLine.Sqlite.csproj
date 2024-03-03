@@ -28,6 +28,13 @@
     <ProjectReference Include="..\..\TestCommon\TestCommon.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="..\..\Sqlite\TestInfrastructure\ExternalSqliteDatabase.cs">
+      <LinkBase>Imported/TestInfrastructure/</LinkBase>
+      <Link>Imported\TestInfrastructure\ExternalSqliteDatabase.cs</Link>
+    </Compile>
+  </ItemGroup>
+
   <PropertyGroup>
     <ProjectToIncludeTestsFrom>../../Sqlite</ProjectToIncludeTestsFrom>
   </PropertyGroup>

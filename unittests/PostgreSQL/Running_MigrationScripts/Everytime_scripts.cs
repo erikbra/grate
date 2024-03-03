@@ -1,14 +1,15 @@
 ﻿using Dapper;
 using FluentAssertions;
 using grate.Configuration;
+using PostgreSQL.TestInfrastructure;
 using TestCommon.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace PostgreSQL.Running_MigrationScripts;
 
-[Collection(nameof(PostgreSqlTestContainer))]
+[Collection(nameof(PostgreSqlGrateTestContext))]
 // ReSharper disable once InconsistentNaming
-public class Everytime_scripts(IGrateTestContext testContext, ITestOutputHelper testOutput)
+public class Everytime_scripts(PostgreSqlGrateTestContext testContext, ITestOutputHelper testOutput)
     : TestCommon.Generic.Running_MigrationScripts.Everytime_scripts(testContext, testOutput)
 {
     [Fact]

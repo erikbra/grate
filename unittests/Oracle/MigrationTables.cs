@@ -1,11 +1,12 @@
 ﻿using grate.Configuration;
+using Oracle.TestInfrastructure;
 using TestCommon.Generic;
 using TestCommon.TestInfrastructure;
 
 namespace Oracle;
 
-[Collection(nameof(OracleTestContainer))]
-public class MigrationTables(IGrateTestContext testContext, ITestOutputHelper testOutput)
+[Collection(nameof(OracleGrateTestContext))]
+public class MigrationTables(OracleGrateTestContext testContext, ITestOutputHelper testOutput)
     : GenericMigrationTables(testContext, testOutput)
 {
 

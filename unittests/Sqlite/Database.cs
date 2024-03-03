@@ -4,10 +4,10 @@ using TestCommon.TestInfrastructure;
 
 namespace Sqlite;
 
-[Collection(nameof(SqliteTestContainer))]
+[Collection(nameof(SqliteTestDatabase))]
 // ReSharper disable once InconsistentNaming
 // ReSharper disable once UnusedType.Global
-public class Database(IGrateTestContext testContext, ITestOutputHelper testOutput)
+public class Database(SqliteGrateTestContext testContext, ITestOutputHelper testOutput)
     : TestCommon.Generic.GenericDatabase(testContext, testOutput)
 {
     

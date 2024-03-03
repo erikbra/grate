@@ -8,38 +8,29 @@ using TestCommon.TestInfrastructure;
 
 namespace MariaDB.TestInfrastructure;
 
-public class MariaDbGrateTestContext : IGrateTestContext
+[CollectionDefinition(nameof(MariaDbGrateTestContext))]
+public class MariaDbTestCollection : ICollectionFixture<MariaDbGrateTestContext>;
+
+public class MariaDbGrateTestContext : GrateTestContext
 {
-    private readonly MariaDbTestContainer _testContainer;
-    
     public MariaDbGrateTestContext(
         IGrateMigrator migrator, 
-        MariaDbTestContainer container)
+        ITestDatabase testDatabase) : base(testDatabase)
     {
         Migrator = migrator;
-        _testContainer = container;
     }
 
-    public IGrateMigrator Migrator { get; }
-    
-    private string AdminPassword => _testContainer.AdminPassword;
-    private int? Port => _testContainer.TestContainer!.GetMappedPublicPort(_testContainer.Port);
-    private string Hostname => _testContainer.TestContainer!.Hostname;
+    public override IGrateMigrator Migrator { get; }
 
+    public override IDbConnection GetDbConnection(string connectionString) => new MySqlConnection(connectionString);
 
-    public string AdminConnectionString => $"Server={Hostname};Port={Port};Database=mysql;Uid=root;Pwd={AdminPassword}";
-    public string ConnectionString(string database) => $"Server={_testContainer.TestContainer!.Hostname};Port={Port};Database={database};Uid=root;Pwd={AdminPassword}";
-    public string UserConnectionString(string database) => $"Server={_testContainer.TestContainer!.Hostname};Port={Port};Database={database};Uid={database};Pwd=mooo1213";
+    public override ISyntax Syntax { get; } = new MariaDbSyntax();
+    public override Type DbExceptionType => typeof(MySqlException);
 
-    public IDbConnection GetDbConnection(string connectionString) => new MySqlConnection(connectionString);
+    public override Type DatabaseType => typeof(MariaDbDatabase);
+    public override bool SupportsTransaction => false;
 
-    public ISyntax Syntax { get; } = new MariaDbSyntax();
-    public Type DbExceptionType => typeof(MySqlException);
-
-    public Type DatabaseType => typeof(MariaDbDatabase);
-    public bool SupportsTransaction => false;
-
-    public SqlStatements Sql => new()
+    public override SqlStatements Sql => new()
     {
         SelectVersion = "SELECT VERSION()",
         SleepTwoSeconds = "SELECT SLEEP(2);",
@@ -53,7 +44,7 @@ public class MariaDbGrateTestContext : IGrateTestContext
     };
 
 
-    public string ExpectedVersionPrefix => "10.10.7-MariaDB";
-    public bool SupportsCreateDatabase => true;
-    public bool SupportsSchemas => false;
+    public override string ExpectedVersionPrefix => "10.10.7-MariaDB";
+    public override bool SupportsCreateDatabase => true;
+    public override bool SupportsSchemas => false;
 }

@@ -3,20 +3,22 @@ using DotNet.Testcontainers.Containers;
 using Microsoft.Extensions.Logging;
 
 namespace TestCommon.TestInfrastructure;
-public abstract class ContainerFixture : IAsyncLifetime
+public abstract class TestContainerDatabase : ITestDatabase, IAsyncLifetime
 {
     public abstract string DockerImage { get; } 
-    public abstract int Port { get;  }
     
     private readonly Random _random = new();
+
+    public string AdminPassword { get; }
+    public int Port => TestContainer.GetMappedPublicPort(InternalPort);
     
+    protected abstract int InternalPort { get; }
+
     private const string LowerCase = "abcdefghijklmnopqrstuvwxyz";
     private const string UpperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private const string Digits = "1234567890";
     
-    public string AdminPassword { get; private set; }
-
-    protected ContainerFixture(ILogger logger)
+    protected TestContainerDatabase(ILogger logger)
     {
         AdminPassword = _random.GetString(10, UpperCase) +
                        _random.GetString(10, LowerCase) +
@@ -28,6 +30,7 @@ public abstract class ContainerFixture : IAsyncLifetime
     }
 
     public IContainer TestContainer { get; }
+    public abstract string AdminConnectionString { get; }
 
     public async Task DisposeAsync()
     {
@@ -40,4 +43,6 @@ public abstract class ContainerFixture : IAsyncLifetime
     }
 
     protected abstract IContainer InitializeTestContainer();
+    public abstract string ConnectionString(string database);
+    public abstract string UserConnectionString(string database);
 }

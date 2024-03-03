@@ -357,3 +357,5 @@ MigrationBackup/
 /grate/Properties/launchSettings.json
 
 .DS_Store
+.envrc
+*.tfstate

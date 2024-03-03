@@ -1,14 +1,15 @@
 ﻿using Dapper;
 using FluentAssertions;
 using grate.Configuration;
+using SqlServer.TestInfrastructure;
 using TestCommon.TestInfrastructure;
 
 namespace SqlServer.Running_MigrationScripts;
 
 
-[Collection(nameof(SqlServerTestContainer))]
+[Collection(nameof(SqlServerGrateTestContext))]
 // ReSharper disable once InconsistentNaming
-public class RestoreDatabase(IGrateTestContext testContext, ITestOutputHelper testOutput)
+public class RestoreDatabase(SqlServerGrateTestContext testContext, ITestOutputHelper testOutput)
     : SqlServerScriptsBase(testContext, testOutput)
 {
 

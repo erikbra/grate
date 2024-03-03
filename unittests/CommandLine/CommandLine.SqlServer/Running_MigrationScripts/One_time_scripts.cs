@@ -3,13 +3,14 @@ using FluentAssertions;
 using grate.Configuration;
 using grate.Exceptions;
 using TestCommon.TestInfrastructure;
+using SqlServer.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace CommandLine.SqlServer.Running_MigrationScripts;
 
-[Collection(nameof(SqlServerTestContainer))]
+[Collection(nameof(SqlServerGrateTestContext))]
 // ReSharper disable once InconsistentNaming
-public class One_time_scripts(IGrateTestContext testContext, ITestOutputHelper testOutput)
+public class One_time_scripts(SqlServerGrateTestContext testContext, ITestOutputHelper testOutput)
     : TestCommon.Generic.Running_MigrationScripts.One_time_scripts(testContext, testOutput)
 {
     [Fact]

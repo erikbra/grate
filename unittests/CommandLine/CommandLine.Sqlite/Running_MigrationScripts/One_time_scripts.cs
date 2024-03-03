@@ -2,14 +2,15 @@
 using FluentAssertions;
 using grate.Configuration;
 using grate.Exceptions;
+using Sqlite.TestInfrastructure;
 using TestCommon.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace CommandLine.Sqlite.Running_MigrationScripts;
 
-[Collection(nameof(SqliteTestContainer))]
+[Collection(nameof(SqliteGrateTestContext))]
 // ReSharper disable once InconsistentNaming
-public class One_time_scripts(IGrateTestContext testContext, ITestOutputHelper testOutput)
+public class One_time_scripts(SqliteGrateTestContext testContext, ITestOutputHelper testOutput)
     : TestCommon.Generic.Running_MigrationScripts.One_time_scripts(testContext, testOutput)
 {
     [Fact]

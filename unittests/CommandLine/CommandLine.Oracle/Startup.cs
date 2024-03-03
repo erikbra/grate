@@ -1,13 +1,12 @@
 using grate.Configuration;
+using Oraclde.TestInfrastructure;
 using Oracle.TestInfrastructure;
 using TestCommon.TestInfrastructure;
 
 namespace CommandLine.Oracle;
 
 // ReSharper disable once UnusedType.Global
-public class Startup: CommandLine.Common.Startup
+public class Startup: Common.Startup<OracleTestContainerDatabase, OracleExternalDatabase, OracleGrateTestContext>
 {
     protected override DatabaseType DatabaseType => DatabaseType.Oracle;
-    protected override Type TestContainerType => typeof(OracleTestContainer);
-    protected override Type TestContextType => typeof(OracleGrateTestContext);
 }

@@ -3,10 +3,10 @@ using TestCommon.TestInfrastructure;
 
 namespace Sqlite.Running_MigrationScripts;
 
-[Collection(nameof(SqliteTestContainer))]
+[Collection(nameof(SqliteTestDatabase))]
 // ReSharper disable once InconsistentNaming
 // ReSharper disable once UnusedType.Global
-public class Failing_Scripts(IGrateTestContext testContext, ITestOutputHelper testOutput)
+public class Failing_Scripts(SqliteGrateTestContext testContext, ITestOutputHelper testOutput)
     : TestCommon.Generic.Running_MigrationScripts.Failing_Scripts(testContext, testOutput)
 {
     protected override string ExpectedErrorMessageForInvalidSql => 
