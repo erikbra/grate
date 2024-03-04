@@ -18,10 +18,10 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Download grate
-        run: curl -sL https://github.com/erikbra/grate/releases/download/1.4.0/grate_1.4.0-1_amd64.deb -o /tmp/grate_1.4.0-1_amd64.deb
+        run: curl -sL https://github.com/erikbra/grate/releases/download/1.6.1/grate_1.6.1-1_amd64.deb -o /tmp/grate_1.6.1-1_amd64.deb
 
       - name: Install grate
-        run: sudo dpkg -i /tmp/grate_1.4.0-1_amd64.deb
+        run: sudo dpkg -i /tmp/grate_1.6.1-1_amd64.deb
 
       - name: Verify grate installation
         run: grate --help
@@ -43,10 +43,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Download grate
-        run: curl -sL https://github.com/erikbra/grate/releases/download/1.4.0/grate_1.4.0-1_amd64.deb -o /tmp/grate_1.4.0-1_amd64.deb
+        run: curl -sL https://github.com/erikbra/grate/releases/download/1.6.1/grate_1.6.1-1_amd64.deb -o /tmp/grate_1.6.1-1_amd64.deb
 
       - name: Install grate
-        run: sudo dpkg -i /tmp/grate_1.4.0-1_amd64.deb
+        run: sudo dpkg -i /tmp/grate_1.6.1-1_amd64.deb
 
       - name: Verify grate installation
         run: grate --help
