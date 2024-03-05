@@ -52,6 +52,12 @@ we would recommend you going with the defaults.
 
 The default folders are run in the following order:
 
+### -1. dropDatabase (Anytime scripts)
+If you have the need for a custom `DROP DATABASE` script (used with the `--drop` command-line flag)
+
+### 0. createDatabase (Anytime scripts)
+If you have the need for a custom `CREATE DATABASE` script, put it here, and it will be used instead of the default.
+
 ### 1. beforeMigration (Everytime scripts)
 If you have particular tasks you want to perform prior to any database migrations (custom logging? database backups? disable replication?) you can do it here.
 
