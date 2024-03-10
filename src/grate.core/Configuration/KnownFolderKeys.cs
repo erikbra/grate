@@ -20,7 +20,7 @@ internal static class KnownFolderKeys
 
     public static readonly IEnumerable<string> Keys = new[]
     {
-        BeforeMigration, AlterDatabase, RunAfterCreateDatabase, RunBeforeUp, Up, RunFirstAfterUp, Functions, Views,
+        CreateDatabase, BeforeMigration, AlterDatabase, RunAfterCreateDatabase, RunBeforeUp, Up, RunFirstAfterUp, Functions, Views,
         Sprocs, Triggers, Indexes, RunAfterOtherAnyTimeScripts, Permissions, AfterMigration
     };
 }
