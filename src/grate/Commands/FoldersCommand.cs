@@ -59,17 +59,25 @@ internal static class FoldersCommand
         foreach ((string key, string config) in configs)
         {
             MigrationsFolder folder;
-            var existingKey =
-                foldersConfiguration.Keys.SingleOrDefault(k =>
-                    key.Equals(k, StringComparison.InvariantCultureIgnoreCase));
-            if (existingKey is not null)
+            if (foldersConfiguration.CreateDatabase != null && 
+                key.Equals(KnownFolderKeys.CreateDatabase, StringComparison.InvariantCultureIgnoreCase))
             {
-                folder = foldersConfiguration[existingKey]!;
+                folder = foldersConfiguration.CreateDatabase;
             }
             else
             {
-                folder = new MigrationsFolder(key);
-                foldersConfiguration[key] = folder;
+                var existingKey =
+                    foldersConfiguration.Keys.SingleOrDefault(k =>
+                        key.Equals(k, StringComparison.InvariantCultureIgnoreCase));
+                if (existingKey is not null)
+                {
+                    folder = foldersConfiguration[existingKey]!;
+                }
+                else
+                {
+                    folder = new MigrationsFolder(key);
+                    foldersConfiguration[key] = folder;
+                }
             }
             ApplyConfig(folder, config);
         }

@@ -51,6 +51,12 @@ public class FoldersCommand_
     private static readonly List<(string name, string config, IFoldersConfiguration expected)> TestCases =
         new()
         {
+            ("createDatabase override",
+                "createDatabase=createDb;sprocs=sp",
+                FoldersConfiguration.Default(
+                    KnownFolderNames.Default with{ CreateDatabase = "createDb", Sprocs = "sp"})
+                ),
+
             ("Default, with overrides",
                 "up=blup;afterMigration=æfter",
                 FoldersConfiguration.Default(
