@@ -3,6 +3,7 @@ SQL scripts migration runner
 
 [![CI](https://github.com/erikbra/grate/actions/workflows/ci.yml/badge.svg)](https://github.com/erikbra/grate/actions/workflows/ci.yml)
 [![Build](https://github.com/erikbra/grate/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/erikbra/grate/actions/workflows/build.yml)
+[![Integration tests](https://github.com/erikbra/grate/actions/workflows/integration-tests.yml/badge.svg)](https://github.com/erikbra/grate/actions/workflows/integration-tests.yml)
 
 ## Example workflow runs
 
