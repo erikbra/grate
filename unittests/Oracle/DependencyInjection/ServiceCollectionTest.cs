@@ -1,12 +1,13 @@
 ﻿using grate.Infrastructure;
 using grate.Oracle.Migration;
+using Oracle.TestInfrastructure;
 using TestCommon.DependencyInjection;
 using TestCommon.TestInfrastructure;
 
 namespace Oracle.DependencyInjection;
 
-[Collection(nameof(OracleTestContainer))]
-public class ServiceCollectionTest(IGrateTestContext testContext)
+[Collection(nameof(OracleGrateTestContext))]
+public class ServiceCollectionTest(OracleGrateTestContext testContext)
     : GrateServiceCollectionTest(testContext)
 {
     protected virtual Type DatabaseType => typeof(OracleDatabase);

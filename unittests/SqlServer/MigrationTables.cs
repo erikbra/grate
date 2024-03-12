@@ -1,10 +1,11 @@
-﻿using TestCommon.Generic;
+﻿using SqlServer.TestInfrastructure;
+using TestCommon.Generic;
 using TestCommon.TestInfrastructure;
 
 namespace SqlServer;
 
-[Collection(nameof(SqlServerTestContainer))]
-public class MigrationTables(IGrateTestContext testContext, ITestOutputHelper testOutput)
+[Collection(nameof(SqlServerGrateTestContext))]
+public class MigrationTables(SqlServerGrateTestContext testContext, ITestOutputHelper testOutput)
     : GenericMigrationTables(testContext, testOutput)
 {
     protected override string CountTableSql(string schemaName, string tableName)

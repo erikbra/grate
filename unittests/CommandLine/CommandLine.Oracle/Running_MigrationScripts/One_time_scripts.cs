@@ -2,14 +2,15 @@
 using FluentAssertions;
 using grate.Configuration;
 using grate.Exceptions;
+using Oracle.TestInfrastructure;
 using TestCommon.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace CommandLine.Oracle.Running_MigrationScripts;
 
-[Collection(nameof(OracleTestContainer))]
+[Collection(nameof(OracleGrateTestContext))]
 // ReSharper disable once InconsistentNaming
-public class One_time_scripts(IGrateTestContext testContext, ITestOutputHelper testOutput)
+public class One_time_scripts(OracleGrateTestContext testContext, ITestOutputHelper testOutput)
     : TestCommon.Generic.Running_MigrationScripts.One_time_scripts(testContext, testOutput)
 {
     protected override string CreateView1 => base.CreateView1 + " FROM DUAL";

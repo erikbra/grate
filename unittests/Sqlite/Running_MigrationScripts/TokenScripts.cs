@@ -3,9 +3,9 @@ using TestCommon.TestInfrastructure;
 
 namespace Sqlite.Running_MigrationScripts;
 
-[Collection(nameof(SqliteTestContainer))]
+[Collection(nameof(SqliteTestDatabase))]
 // ReSharper disable once InconsistentNaming
 // ReSharper disable once UnusedType.Global
-public class TokenScripts(IGrateTestContext testContext, ITestOutputHelper testOutput)
+public class TokenScripts(SqliteGrateTestContext testContext, ITestOutputHelper testOutput)
     : TestCommon.Generic.Running_MigrationScripts.TokenScripts(testContext, testOutput);
 

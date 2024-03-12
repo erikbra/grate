@@ -1,10 +1,11 @@
 ﻿using TestCommon.TestInfrastructure;
+using SqlServer.TestInfrastructure;
 
 namespace CommandLine.SqlServer.Running_MigrationScripts;
 
-[Collection(nameof(SqlServerTestContainer))]
+[Collection(nameof(SqlServerGrateTestContext))]
 // ReSharper disable once InconsistentNaming
-public class Failing_Scripts(IGrateTestContext testContext, ITestOutputHelper testOutput)
+public class Failing_Scripts(SqlServerGrateTestContext testContext, ITestOutputHelper testOutput)
     : TestCommon.Generic.Running_MigrationScripts.Failing_Scripts(testContext, testOutput)
 {
     protected override string ExpectedErrorMessageForInvalidSql => "Not relevant";

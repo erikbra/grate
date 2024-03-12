@@ -1,10 +1,11 @@
 ﻿using FluentAssertions;
+using SqlServer.TestInfrastructure;
 using TestCommon.TestInfrastructure;
 
 namespace SqlServer;
 
-[Collection(nameof(SqlServerTestContainer))]
-public class Database(IGrateTestContext testContext, ITestOutputHelper testOutput)
+[Collection(nameof(SqlServerGrateTestContext))]
+public class Database(SqlServerGrateTestContext testContext, ITestOutputHelper testOutput)
     : TestCommon.Generic.GenericDatabase(testContext, testOutput)
 {
   

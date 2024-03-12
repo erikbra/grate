@@ -3,14 +3,8 @@
 using Microsoft.Data.Sqlite;
 using Xunit.Sdk;
 namespace TestCommon.TestInfrastructure;
-public class SqliteTestContainer : IAsyncLifetime
+public class SqliteTestDatabase(IMessageSink messageSink) : ITestDatabase
 {
-    private readonly IMessageSink _messageSink;
-
-    public SqliteTestContainer(IMessageSink messageSink)
-    {
-        _messageSink = messageSink;
-    }
     public Task DisposeAsync()
     {
         SqliteConnection.ClearAllPools();
@@ -18,11 +12,11 @@ public class SqliteTestContainer : IAsyncLifetime
         var currentDirectory = Directory.GetCurrentDirectory();
         var dbFiles = Directory.GetFiles(currentDirectory, "*.db");
         var message = new DiagnosticMessage("After tests. Deleting DB files.");
-        _messageSink.OnMessage(message);
+        messageSink.OnMessage(message);
         foreach (var dbFile in dbFiles)
         {
             var deleteMessage = new DiagnosticMessage("File: {0}", dbFile);
-            _messageSink.OnMessage(deleteMessage);
+            messageSink.OnMessage(deleteMessage);
             File.Delete(dbFile);
         }
         return Task.CompletedTask;
@@ -33,7 +27,7 @@ public class SqliteTestContainer : IAsyncLifetime
         var currentDirectory = Directory.GetCurrentDirectory();
         var dbFiles = Directory.GetFiles(currentDirectory, "*.db");
         var message = new DiagnosticMessage("Before tests. Deleting old DB files.");
-        _messageSink.OnMessage(message);
+        messageSink.OnMessage(message);
         foreach (var dbFile in dbFiles)
         {
             TryDeletingFile(dbFile);
@@ -50,7 +44,7 @@ public class SqliteTestContainer : IAsyncLifetime
             try
             {
                 var message = new DiagnosticMessage("File: {0}", dbFile);
-                _messageSink.OnMessage(message);
+                messageSink.OnMessage(message);
                 File.Delete(dbFile);
                 return;
             }
@@ -60,10 +54,8 @@ public class SqliteTestContainer : IAsyncLifetime
             }
         }
     }
-
-}
-
-[CollectionDefinition(nameof(SqliteTestContainer))]
-public class SqliteTestCollection : ICollectionFixture<SqliteTestContainer>
-{
+    
+    public string AdminConnectionString => $"Data Source=grate-sqlite.db";
+    public string ConnectionString(string database) => $"Data Source={database}.db";
+    public string UserConnectionString(string database) => $"Data Source={database}.db";
 }

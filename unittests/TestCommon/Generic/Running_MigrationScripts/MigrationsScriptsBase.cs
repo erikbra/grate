@@ -7,7 +7,6 @@ namespace TestCommon.Generic.Running_MigrationScripts;
 
 public abstract class MigrationsScriptsBase(IGrateTestContext context, ITestOutputHelper testOutput)
 {
-    
     public static DirectoryInfo CreateRandomTempDirectory() => TestConfig.CreateRandomTempDirectory();
 
     protected void CreateDummySql(DirectoryInfo root, MigrationsFolder? folder, string filename = "1_jalla.sql")

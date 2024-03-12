@@ -1,5 +1,6 @@
 ﻿using grate.Configuration;
 using grate.Migration;
+using SqlServer.TestInfrastructure;
 using TestCommon.Generic.Running_MigrationScripts;
 using TestCommon.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
@@ -11,8 +12,8 @@ namespace SqlServer.Running_MigrationScripts;
 /// Issues that have been encountered in the real world.
 /// Create tests to reproduce the issue and then fix the issue, and keep the test to ensure it doesn't regress.
 /// </summary>
-[Collection(nameof(SqlServerTestContainer))]
-public class Real_world_issues(IGrateTestContext context, ITestOutputHelper testOutput) : MigrationsScriptsBase(context, testOutput)
+[Collection(nameof(SqlServerGrateTestContext))]
+public class Real_world_issues(SqlServerGrateTestContext context, ITestOutputHelper testOutput) : MigrationsScriptsBase(context, testOutput)
 {
     private const string Bug232Sql = @"
 ALTER DATABASE {{DatabaseName}} SET ALLOW_SNAPSHOT_ISOLATION ON;

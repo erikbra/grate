@@ -28,6 +28,12 @@
     <ProjectReference Include="..\..\TestCommon\TestCommon.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="..\..\SqlServer\TestInfrastructure\SqlServerExternalDatabase.cs">
+      <Link>Imported\TestInfrastructure\SqlServerExternalDatabase.cs</Link>
+    </Compile>
+  </ItemGroup>
+
   <PropertyGroup>
     <ProjectToIncludeTestsFrom>../../SqlServer</ProjectToIncludeTestsFrom>
   </PropertyGroup>

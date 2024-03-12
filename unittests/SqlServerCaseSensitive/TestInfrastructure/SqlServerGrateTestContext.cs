@@ -9,15 +9,18 @@ using TestCommon.TestInfrastructure;
 
 namespace SqlServerCaseSensitive.TestInfrastructure;
 
-class SqlServerGrateTestContext : IGrateTestContext
+[CollectionDefinition(nameof(SqlServerGrateTestContext))]
+public class SqlServerTestCollection : ICollectionFixture<SqlServerGrateTestContext>;
+
+public class SqlServerGrateTestContext : IGrateTestContext
 {
     public IGrateMigrator Migrator { get; }
-    private readonly SqlServerTestContainer _testContainer;
+    private readonly SqlServerTestContainerDatabase _testContainer;
 
     public SqlServerGrateTestContext(
         IGrateMigrator migrator,
         string serverCollation, 
-        SqlServerTestContainer container)
+        SqlServerTestContainerDatabase container)
     {
         Migrator = migrator;
         _testContainer = container;
@@ -26,7 +29,7 @@ class SqlServerGrateTestContext : IGrateTestContext
     }
     public SqlServerGrateTestContext(
         IGrateMigrator migrator, 
-        SqlServerTestContainer container) : this(migrator, "Danish_Norwegian_CI_AS", container)
+        SqlServerTestContainerDatabase container) : this(migrator, "Danish_Norwegian_CI_AS", container)
     {
     }
     public string AdminPassword => _testContainer.AdminPassword;

@@ -3,9 +3,9 @@ using TestCommon.TestInfrastructure;
 
 namespace CommandLine.MariaDB.Running_MigrationScripts;
 
-[Collection(nameof(MariaDbTestContainer))]
+[Collection(nameof(MariaDbGrateTestContext))]
 // ReSharper disable once InconsistentNaming
-public class Failing_Scripts(IGrateTestContext testContext, ITestOutputHelper testOutput)
+public class Failing_Scripts(MariaDbGrateTestContext testContext, ITestOutputHelper testOutput)
     : TestCommon.Generic.Running_MigrationScripts.Failing_Scripts(testContext, testOutput)
 {
     protected override string ExpectedErrorMessageForInvalidSql => "Not relevant";

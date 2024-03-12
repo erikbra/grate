@@ -1,10 +1,11 @@
-﻿using TestCommon.TestInfrastructure;
+﻿using PostgreSQL.TestInfrastructure;
+using TestCommon.TestInfrastructure;
 
 namespace CommandLine.PostgreSQL.Running_MigrationScripts;
 
-[Collection(nameof(PostgreSqlTestContainer))]
+[Collection(nameof(PostgreSqlGrateTestContext))]
 // ReSharper disable once InconsistentNaming
-public class Failing_Scripts(IGrateTestContext testContext, ITestOutputHelper testOutput)
+public class Failing_Scripts(PostgreSqlGrateTestContext testContext, ITestOutputHelper testOutput)
     : TestCommon.Generic.Running_MigrationScripts.Failing_Scripts(testContext, testOutput)
 {
     protected override string ExpectedErrorMessageForInvalidSql => "Not relevant";

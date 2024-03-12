@@ -1,8 +1,9 @@
-﻿using TestCommon.Generic;
+﻿using PostgreSQL.TestInfrastructure;
+using TestCommon.Generic;
 using TestCommon.TestInfrastructure;
 
 namespace PostgreSQL;
 
-[Collection(nameof(PostgreSqlTestContainer))]
-public class Database(IGrateTestContext testContext, ITestOutputHelper testOutput) :
+[Collection(nameof(PostgreSqlGrateTestContext))]
+public class Database(PostgreSqlGrateTestContext testContext, ITestOutputHelper testOutput) :
     GenericDatabase(testContext, testOutput);

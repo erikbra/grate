@@ -1,9 +1,10 @@
-﻿using TestCommon.TestInfrastructure;
+﻿using Oracle.TestInfrastructure;
+using TestCommon.TestInfrastructure;
 
 namespace Oracle.Running_MigrationScripts;
 
-[Collection(nameof(OracleTestContainer))]
-public class Failing_Scripts(IGrateTestContext testContext, ITestOutputHelper testOutput)
+[Collection(nameof(OracleGrateTestContext))]
+public class Failing_Scripts(OracleGrateTestContext testContext, ITestOutputHelper testOutput)
     : TestCommon.Generic.Running_MigrationScripts.Failing_Scripts(testContext, testOutput)
 {
     protected override string ExpectedErrorMessageForInvalidSql =>

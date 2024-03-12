@@ -1,7 +1,8 @@
-﻿using TestCommon.TestInfrastructure;
+﻿using PostgreSQL.TestInfrastructure;
+using TestCommon.TestInfrastructure;
 
 namespace PostgreSQL.DependencyInjection;
 
-[Collection(nameof(PostgreSqlTestContainer))]
-public class ServiceCollectionTest(IGrateTestContext context)
+[Collection(nameof(PostgreSqlGrateTestContext))]
+public class ServiceCollectionTest(PostgreSqlGrateTestContext context)
     : TestCommon.DependencyInjection.GrateServiceCollectionTest(context);

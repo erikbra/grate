@@ -9,17 +9,18 @@ using TestCommon.TestInfrastructure;
 
 namespace Sqlite.TestInfrastructure;
 
+
+[CollectionDefinition(nameof(SqliteGrateTestContext))]
+public class SqliteTestCollection : ICollectionFixture<SqliteGrateTestContext>;
+
 public class SqliteGrateTestContext : IGrateTestContext
 {
     public SqliteGrateTestContext(
         IGrateMigrator migrator, 
-        SqliteTestContainer _)
+        ITestDatabase _)
     {
         Migrator = migrator;
     }
-
-    public string AdminPassword { get; set; } = default!;
-    public int? Port { get; set; }
 
     public string AdminConnectionString => $"Data Source=grate-sqlite.db";
     public string ConnectionString(string database) => $"Data Source={database}.db";
