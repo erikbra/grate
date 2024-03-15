@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 namespace TestCommon.Generic.Bootstrapping;
 
 // ReSharper disable once UnusedType.Global
-public class When_Grate_structure_is_not_latest_version(IGrateTestContext context, ITestOutputHelper testOutput)
+public abstract class When_Grate_structure_is_not_latest_version(IGrateTestContext context, ITestOutputHelper testOutput)
     : MigrationsScriptsBase(context, testOutput)
 {
     [Fact]

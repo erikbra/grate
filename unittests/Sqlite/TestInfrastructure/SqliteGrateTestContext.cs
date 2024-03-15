@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using grate.Infrastructure;
+using grate.Infrastructure.FileSystem;
 using grate.Migration;
 using grate.Sqlite.Infrastructure;
 using grate.Sqlite.Migration;
@@ -17,9 +18,12 @@ public class SqliteGrateTestContext : IGrateTestContext
 {
     public SqliteGrateTestContext(
         IGrateMigrator migrator, 
-        ITestDatabase _)
+        ITestDatabase _,
+        IFileSystem fileSystem
+        )
     {
         Migrator = migrator;
+        FileSystem = fileSystem;
     }
 
     public string AdminConnectionString => $"Data Source=grate-sqlite.db";
@@ -48,4 +52,5 @@ public class SqliteGrateTestContext : IGrateTestContext
     public bool SupportsSchemas => false;
 
     public IGrateMigrator Migrator { get; }
+    public IFileSystem FileSystem { get; }
 }

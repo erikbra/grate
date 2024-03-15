@@ -2,6 +2,7 @@
 using System.CommandLine.NamingConventionBinder;
 using grate.Configuration;
 using grate.Infrastructure;
+using grate.Infrastructure.FileSystem;
 using grate.Migration;
 using static grate.Configuration.DefaultConfiguration;
 

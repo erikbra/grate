@@ -1,5 +1,6 @@
 ﻿using grate.Configuration;
 using grate.Infrastructure;
+using grate.Infrastructure.FileSystem;
 using grate.Migration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -32,6 +33,8 @@ public static class RegistrationExtensions
         // and overwrite with this one.
         serviceCollection.RemoveAll(grateConfiguration.GetType());
         serviceCollection.TryAddSingleton(grateConfiguration);
+
+        serviceCollection.TryAddSingleton<IFileSystem, PhysicalFileSystem>();
         
         return AddGrateService(serviceCollection);
     }

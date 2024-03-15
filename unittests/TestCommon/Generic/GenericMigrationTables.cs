@@ -2,12 +2,13 @@
 using FluentAssertions;
 using grate.Configuration;
 using grate.Exceptions;
+using grate.Infrastructure.FileSystem;
+using Microsoft.VisualBasic;
 using TestCommon.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
 using Xunit.Abstractions;
 
 namespace TestCommon.Generic;
-
 
 public abstract class GenericMigrationTables(IGrateTestContext context, ITestOutputHelper testOutput)
 {
@@ -249,28 +250,28 @@ public abstract class GenericMigrationTables(IGrateTestContext context, ITestOut
         version.status.Should().Be(MigrationStatus.Finished);
     }
 
-    private static void CreateInvalidSql(DirectoryInfo root, MigrationsFolder? folder)
+    private void CreateInvalidSql(IDirectoryInfo root, MigrationsFolder? folder)
     {
         var dummySql = "SELECT TOP";
         var path = MakeSurePathExists(root, folder);
         WriteSql(path, "2_failing.sql", dummySql);
     }
-    private void CreateDummySql(DirectoryInfo root, MigrationsFolder? folder)
+    private void CreateDummySql(IDirectoryInfo root, MigrationsFolder? folder)
     {
         var dummySql = Context.Sql.SelectVersion;
         var path = MakeSurePathExists(root, folder);
         WriteSql(path, "2_success.sql", dummySql);
     }
 
-    private static void WriteSql(DirectoryInfo path, string filename, string? sql)
+    private void WriteSql(IDirectoryInfo path, string filename, string? sql)
     {
-        File.WriteAllText(Path.Combine(path.ToString(), filename), sql);
+        Context.FileSystem.WriteAllText(Path.Combine(path.ToString(), filename), sql);
     }
 
-    private static DirectoryInfo MakeSurePathExists(DirectoryInfo root, MigrationsFolder? folder)
+    private IDirectoryInfo MakeSurePathExists(IDirectoryInfo root, MigrationsFolder? folder)
         => MakeSurePathExists(Wrap(root, folder?.Path));
 
-    protected static DirectoryInfo MakeSurePathExists(DirectoryInfo? path)
+    protected IDirectoryInfo MakeSurePathExists(IDirectoryInfo? path)
     {
         ArgumentNullException.ThrowIfNull(path);
         if (!path.Exists)
@@ -280,7 +281,7 @@ public abstract class GenericMigrationTables(IGrateTestContext context, ITestOut
         return path;
     }
 
-    private static DirectoryInfo Wrap(DirectoryInfo root, string? relativePath) => TestConfig.Wrap(root, relativePath);
+    private IDirectoryInfo Wrap(IDirectoryInfo root, string? relativePath) => Context.FileSystem.Wrap(root, relativePath);
 
     protected virtual string CountTableSql(string schemaName, string tableName)
     {

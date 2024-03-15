@@ -3,6 +3,7 @@ using System.Transactions;
 using Dapper;
 using FluentAssertions;
 using grate.Configuration;
+using grate.Infrastructure.FileSystem;
 using grate.Migration;
 using TestCommon.TestInfrastructure;
 using Xunit.Abstractions;
@@ -61,7 +62,7 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
             .Last();
 
         var customScript = Context.Syntax.CreateDatabase(scriptedDatabase, password);
-        TestConfig.WriteContent(Wrap(config.SqlFilesDirectory, config.Folders?.CreateDatabase?.Path), "createDatabase.sql", customScript);
+        Context.FileSystem.WriteContent(Wrap(config.SqlFilesDirectory, config.Folders?.CreateDatabase?.Path), "createDatabase.sql", customScript);
         try
         {
             await using var migrator = GetMigrator(config);
@@ -248,7 +249,6 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
     }
 
 
-    protected static DirectoryInfo Wrap(DirectoryInfo root, string? subFolder) =>
-        new(Path.Combine(root.ToString(), subFolder ?? ""));
-
+    protected IDirectoryInfo Wrap(IDirectoryInfo root, string? subFolder) =>
+        Context.FileSystem.Wrap(root, subFolder);
 }

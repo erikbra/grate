@@ -10,7 +10,7 @@ using static grate.Configuration.KnownFolderKeys;
 namespace TestCommon.Generic.Running_MigrationScripts;
 
 // ReSharper disable once InconsistentNaming
-public abstract class Versioning_The_Database(IGrateTestContext context, ITestOutputHelper testOutput) 
+public abstract class Versioning_The_Database(IGrateTestContext context, ITestOutputHelper testOutput)
     : MigrationsScriptsBase(context, testOutput)
 {
     protected Versioning_The_Database(): this(null!, null!)

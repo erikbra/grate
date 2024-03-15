@@ -1,4 +1,5 @@
 using grate.Configuration;
+using grate.Infrastructure.FileSystem;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -25,6 +26,8 @@ public abstract class Startup
                     .AddConsole()
                     .SetMinimumLevel(TestConfig.GetLogLevel())
             );
+        
+        services.TryAddSingleton<IFileSystem, PhysicalFileSystem>();
 
         
         ConfigureExtraServices(services, context);

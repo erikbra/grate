@@ -4,6 +4,7 @@ using FluentAssertions;
 using grate.Configuration;
 using grate.DependencyInjection;
 using grate.Infrastructure;
+using grate.Infrastructure.FileSystem;
 using grate.Migration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -132,7 +133,7 @@ public abstract class GrateServiceCollectionTest(IGrateTestContext context)
         action.Should().Throw<InvalidOperationException>("You forgot to configure the database. Please .UseXXX on the grate configuration.");
     }
 
-    protected virtual string CreateMigrationScript(DirectoryInfo sqlFolder, ISyntax syntax)
+    protected virtual string CreateMigrationScript(IDirectoryInfo sqlFolder, ISyntax syntax)
     {
         var knownFolders = FoldersConfiguration.Default();
         var tableName = "grate_test";
@@ -141,11 +142,12 @@ public abstract class GrateServiceCollectionTest(IGrateTestContext context)
                             id {syntax.BigintType} NOT NULL PRIMARY KEY,
                             name {syntax.VarcharType}(255) NOT NULL
                         )";
-        MigrationsScriptsBase.WriteSql(sqlFolder, knownFolders[Up]!.Path, $"{tableName}_001_create_test_table.sql", create_table);
+        Context.FileSystem.WriteContent(sqlFolder, knownFolders[Up]!.Path, $"{tableName}_001_create_test_table.sql", create_table);
+        
         var insert_test_data = @$"
                             INSERT INTO {tableName}(id, name) VALUES (1, 'test')
                             ";
-        MigrationsScriptsBase.WriteSql(sqlFolder, knownFolders[RunFirstAfterUp]!.Path, $"{tableName}_001_insert_test_data.sql", insert_test_data);
+        Context.FileSystem.WriteContent(sqlFolder, knownFolders[RunFirstAfterUp]!.Path, $"{tableName}_001_insert_test_data.sql", insert_test_data);
         return tableName;
     }
 }

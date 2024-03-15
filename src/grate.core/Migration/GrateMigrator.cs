@@ -4,6 +4,7 @@ using System.Transactions;
 using grate.Configuration;
 using grate.Exceptions;
 using grate.Infrastructure;
+using grate.Infrastructure.FileSystem;
 using Microsoft.Extensions.Logging;
 
 namespace grate.Migration;
@@ -11,7 +12,6 @@ namespace grate.Migration;
 internal record GrateMigrator : IGrateMigrator
 {
     private readonly ILogger<GrateMigrator> _logger;
-    
     internal IDbMigrator DbMigrator { get; private init; }
 
     public GrateConfiguration Configuration
@@ -52,11 +52,15 @@ internal record GrateMigrator : IGrateMigrator
     public IGrateMigrator WithDatabase(IDatabase database) => this with { Database = database };
     
 
-    public GrateMigrator(ILogger<GrateMigrator> logger, IDbMigrator migrator)
-    {
+    public GrateMigrator(ILogger<GrateMigrator> logger, IDbMigrator migrator, IFileSystem fileSystem)
+   {
         _logger = logger;
         DbMigrator = migrator;
-    }
+        FileSystem = fileSystem;
+
+   }
+
+    private IFileSystem FileSystem { get; }
 
     public async Task Migrate()
     {
@@ -330,9 +334,9 @@ internal record GrateMigrator : IGrateMigrator
         await dbMigrator.RestoreDatabase(backupPath);
     }
 
-    private static DirectoryInfo Wrap(DirectoryInfo root, string subFolder) => new(Path.Combine(root.ToString(), subFolder));
+    private IDirectoryInfo Wrap(IDirectoryInfo root, string subFolder) => FileSystem.Wrap(root, subFolder);
 
-    private async ValueTask<bool> LogAndProcess(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId,
+    private async ValueTask<bool> LogAndProcess(IDirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId,
         ConnectionType connectionType, TransactionHandling transactionHandling)
     {
         var path = Wrap(root, folder.Path);
@@ -371,7 +375,7 @@ internal record GrateMigrator : IGrateMigrator
         return result;
     }
 
-    private async ValueTask<bool> Process(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId,
+    private async ValueTask<bool> Process(IDirectoryInfo root, MigrationsFolder folder, string changeDropFolder, long versionId,
         ConnectionType connectionType, TransactionHandling transactionHandling)
     {
         var path = Wrap(root, folder.Path);
@@ -426,7 +430,7 @@ internal record GrateMigrator : IGrateMigrator
 
     }
 
-    private async ValueTask<bool> ProcessWithoutLogging(DirectoryInfo root, MigrationsFolder folder, string changeDropFolder,
+    private async ValueTask<bool> ProcessWithoutLogging(IDirectoryInfo root, MigrationsFolder folder, string changeDropFolder,
         ConnectionType connectionType, TransactionHandling transactionHandling)
     {
         var path = Wrap(root, folder.Path);
@@ -474,7 +478,7 @@ internal record GrateMigrator : IGrateMigrator
     }
 
 
-    private void CopyToChangeDropFolder(DirectoryInfo migrationRoot, FileSystemInfo file, string changeDropFolder)
+    private void CopyToChangeDropFolder(IDirectoryInfo migrationRoot, IFileSystemInfo file, string changeDropFolder)
     {
         var relativePath = Path.GetRelativePath(migrationRoot.ToString(), file.FullName);
 

@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using FluentAssertions;
 using grate.Commands;
 using grate.Configuration;
+using grate.Infrastructure.FileSystem;
 using grate.Migration;
 using static grate.Configuration.KnownFolderKeys;
 
@@ -18,7 +19,7 @@ public class FolderConfiguration_
     public async Task Default()
     {
         var cfg = await ParseGrateConfiguration("--sqlfilesdirectory=/tmp");
-        _ = cfg?.SqlFilesDirectory ?? new DirectoryInfo("/tmp");
+        _ = cfg?.SqlFilesDirectory ?? new PhysicalDirectoryInfo("/tmp");
 
         var expected = FoldersConfiguration.Default(null);
         var actual = cfg?.Folders;
@@ -44,7 +45,7 @@ public class FolderConfiguration_
     public async Task Default_With_Overrides(string commandLine, KnownFolderNames folderConfig)
     {
         var cfg = await ParseGrateConfiguration("--sqlfilesdirectory=/tmp", commandLine);
-        _ = cfg?.SqlFilesDirectory ?? new DirectoryInfo("/tmp");
+        _ = cfg?.SqlFilesDirectory ?? new PhysicalDirectoryInfo("/tmp");
         var expected = FoldersConfiguration.Default(folderConfig);
 
         var actual = cfg?.Folders;

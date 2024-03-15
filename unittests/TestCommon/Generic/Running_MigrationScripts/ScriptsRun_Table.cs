@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using FluentAssertions;
 using grate.Configuration;
+using grate.Infrastructure.FileSystem;
 using TestCommon.TestInfrastructure;
 using Xunit.Abstractions;
 using static grate.Configuration.KnownFolderKeys;
@@ -22,7 +23,7 @@ public abstract class ScriptsRun_Table(IGrateTestContext context, ITestOutputHel
         var parent = TestConfig.CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
 
-        var folder = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.Path, "sub", "folder", "long", "way"));
+        var folder = new PhysicalDirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.Path, "sub", "folder", "long", "way"));
 
         string filename = "any_filename.sql";
 
@@ -99,8 +100,8 @@ public abstract class ScriptsRun_Table(IGrateTestContext context, ITestOutputHel
         var knownFolders = FoldersConfiguration.Default(null);
 
         string filename = "any_filename.sql";
-        var folder1 = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.Path, "dub", "folder", "long", "way"));
-        var folder2 = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.Path, "sub", "dolder", "gong", "way"));
+        var folder1 = new PhysicalDirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.Path, "dub", "folder", "long", "way"));
+        var folder2 = new PhysicalDirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.Path, "sub", "dolder", "gong", "way"));
 
         CreateDummySql(folder1, filename);
         WriteSomeOtherSql(folder2, filename);
@@ -147,7 +148,7 @@ public abstract class ScriptsRun_Table(IGrateTestContext context, ITestOutputHel
         var parent = TestConfig.CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
 
-        var folder = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.Path));
+        var folder = new PhysicalDirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.Path));
 
         const string filename = "large_file.sql";
 

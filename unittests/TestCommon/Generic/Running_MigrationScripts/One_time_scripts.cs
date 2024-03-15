@@ -2,6 +2,7 @@
 using FluentAssertions;
 using grate.Configuration;
 using grate.Exceptions;
+using grate.Infrastructure.FileSystem;
 using grate.Migration;
 using TestCommon.TestInfrastructure;
 using Xunit.Abstractions;
@@ -146,7 +147,7 @@ public abstract class One_time_scripts(IGrateTestContext context, ITestOutputHel
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
-        var path = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]?.Path ?? throw new Exception("Config Fail")));
+        var path = new PhysicalDirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]?.Path ?? throw new Exception("Config Fail")));
 
         WriteSql(path, "token.sql", CreateView1);
         

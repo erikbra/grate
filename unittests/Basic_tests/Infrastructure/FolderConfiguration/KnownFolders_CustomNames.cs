@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using FluentAssertions;
 using grate.Configuration;
+using grate.Infrastructure.FileSystem;
 using grate.Migration;
 using TestCommon.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
@@ -79,7 +80,7 @@ public class KnownFolders_CustomNames
         AfterMigration = "afterMigration" + Random.GetString(8),
     };
 
-    private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
+    private static readonly IDirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
     private static readonly IFoldersConfiguration Folders = FoldersConfiguration.Default(OverriddenFolderNames);
 
     public static TheoryData<MigrationsFolderWithDescription, string, MigrationType, ConnectionType, TransactionHandling> ExpectedKnownFolderNames()

@@ -2,11 +2,11 @@
 using static System.IO.SearchOption;
 using static System.StringComparer;
 
-namespace grate.Migration;
+namespace grate.Infrastructure.FileSystem;
 
-internal static class FileSystem
+internal class PhysicalFileSystem: IFileSystem
 {
-    public static IEnumerable<FileSystemInfo> GetFiles(DirectoryInfo folderPath, string pattern, bool ignoreDirectoryNames = false)
+    public IEnumerable<IFileSystemInfo> GetFiles(IDirectoryInfo folderPath, string pattern, bool ignoreDirectoryNames = false)
     {
         return ignoreDirectoryNames
             ? folderPath
@@ -20,4 +20,10 @@ internal static class FileSystem
                         GetFileNameWithoutExtension(f.FullName)),
                     CurrentCultureIgnoreCase);
     }
+    
+    public IDirectoryInfo Wrap(IDirectoryInfo root, string? subFolder) 
+        => new PhysicalDirectoryInfo(new DirectoryInfo(Combine(root.ToString(), subFolder ?? "")));
+
+    public void WriteAllText(string fileName, string? sql) => File.WriteAllText(fileName, sql);
+    
 }

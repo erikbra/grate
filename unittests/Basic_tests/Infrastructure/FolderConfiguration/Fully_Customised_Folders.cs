@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using FluentAssertions;
 using grate.Configuration;
+using grate.Infrastructure.FileSystem;
 using grate.Migration;
 using TestCommon.TestInfrastructure;
 using static grate.Configuration.MigrationType;
@@ -47,7 +48,7 @@ public class Fully_Customised_Folders
     }
 
 
-    private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
+    private static readonly IDirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
 
     private static readonly IFoldersConfiguration Folders = new FoldersConfiguration(
         new MigrationsFolder("structure", Once),

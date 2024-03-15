@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using grate.Configuration;
+using grate.Infrastructure.FileSystem;
 using grate.Migration;
 using TestCommon.TestInfrastructure;
 
@@ -8,6 +9,13 @@ namespace Basic_tests.Infrastructure;
 
 public class FileSystem_
 {
+    public FileSystem_()
+    {
+        this.FileSystem = new PhysicalFileSystem();
+    }
+
+    public IFileSystem FileSystem { get; set; }
+
     [Fact]
     public void Sorts_enumerated_files_on_filename_when_no_subfolders()
     {
@@ -19,8 +27,8 @@ public class FileSystem_
         string filename1 = "01_any_filename.sql";
         string filename2 = "02_any_filename.sql";
 
-        TestConfig.WriteContent(path, filename1, "Whatever");
-        TestConfig.WriteContent(path, filename2, "Whatever");
+        FileSystem.WriteContent(path, filename1, "Whatever");
+        FileSystem.WriteContent(path, filename2, "Whatever");
 
         var files = FileSystem.GetFiles(path, "*.sql").ToList();
 
@@ -39,8 +47,8 @@ public class FileSystem_
         string filename1 = "01_any_filename_and_a_bit_longer.sql";
         string filename2 = "01_any_filename.sql";
 
-        TestConfig.WriteContent(path, filename1, "Whatever");
-        TestConfig.WriteContent(path, filename2, "Whatever");
+        FileSystem.WriteContent(path, filename1, "Whatever");
+        FileSystem.WriteContent(path, filename2, "Whatever");
 
         var files = FileSystem.GetFiles(path, "*.sql").ToList();
 
@@ -56,14 +64,14 @@ public class FileSystem_
 
         var path = Wrap(parent, knownFolders[KnownFolderKeys.Up]!.Path);
 
-        var folder1 = new DirectoryInfo(Path.Combine(path.ToString(), "01_sub", "folder", "long", "way"));
-        var folder2 = new DirectoryInfo(Path.Combine(path.ToString(), "02_sub", "folder", "long", "way"));
+        var folder1 = new PhysicalDirectoryInfo(Path.Combine(path.ToString(), "01_sub", "folder", "long", "way"));
+        var folder2 = new PhysicalDirectoryInfo(Path.Combine(path.ToString(), "02_sub", "folder", "long", "way"));
 
         string filename1 = "01_any_filename.sql";
         string filename2 = "02_any_filename.sql";
 
-        TestConfig.WriteContent(folder1, filename2, "Whatever");
-        TestConfig.WriteContent(folder2, filename1, "Whatever");
+        FileSystem.WriteContent(folder1, filename2, "Whatever");
+        FileSystem.WriteContent(folder2, filename1, "Whatever");
 
         var files = FileSystem.GetFiles(path, "*.sql").ToList();
 
@@ -79,14 +87,14 @@ public class FileSystem_
 
         var path = Wrap(parent, knownFolders[KnownFolderKeys.Up]!.Path);
 
-        var folder1 = new DirectoryInfo(Path.Combine(path.ToString(), "Init"));
-        var folder2 = new DirectoryInfo(Path.Combine(path.ToString(), "1.0"));
+        var folder1 = new PhysicalDirectoryInfo(Path.Combine(path.ToString(), "Init"));
+        var folder2 = new PhysicalDirectoryInfo(Path.Combine(path.ToString(), "1.0"));
 
         string filename1 = "01_Schema.sql";
         string filename2 = "02_SomeChanges.sql";
 
-        TestConfig.WriteContent(folder1, filename1, "Whatever");
-        TestConfig.WriteContent(folder2, filename2, "Whatever");
+        FileSystem.WriteContent(folder1, filename1, "Whatever");
+        FileSystem.WriteContent(folder2, filename2, "Whatever");
 
         var files = FileSystem.GetFiles(path, "*.sql", true).ToList();
 
@@ -94,7 +102,7 @@ public class FileSystem_
         files.Last().FullName.Should().Be(Path.Combine(folder2.ToString(), filename2));
     }
 
-    protected static DirectoryInfo Wrap(DirectoryInfo root, string? subFolder) =>
-        new(Path.Combine(root.ToString(), subFolder ?? ""));
+    protected IDirectoryInfo Wrap(IDirectoryInfo root, string? subFolder) =>
+        FileSystem.Wrap(root, subFolder);
 
 }

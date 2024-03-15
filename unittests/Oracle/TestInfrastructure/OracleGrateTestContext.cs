@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using Docker.DotNet.Models;
 using grate.Infrastructure;
+using grate.Infrastructure.FileSystem;
 using grate.Migration;
 using grate.Oracle.Infrastructure;
 using grate.Oracle.Migration;
@@ -17,7 +18,9 @@ public class OracleGrateTestContext : GrateTestContext
 {
     public OracleGrateTestContext(
         IGrateMigrator grateMigrator, 
-        ITestDatabase testDatabase) : base(testDatabase)
+        ITestDatabase testDatabase,
+        IFileSystem fileSystem
+        ) : base(testDatabase, fileSystem)
     {
         Migrator = grateMigrator;
     }

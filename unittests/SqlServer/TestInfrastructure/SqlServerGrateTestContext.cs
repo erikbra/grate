@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using grate.Infrastructure;
+using grate.Infrastructure.FileSystem;
 using grate.Migration;
 using grate.SqlServer.Infrastructure;
 using grate.SqlServer.Migration;
@@ -18,7 +19,9 @@ public class SqlServerGrateTestContext : GrateTestContext
     public SqlServerGrateTestContext(
         IGrateMigrator migrator,
         string serverCollation, 
-        ITestDatabase testDatabase) : base(testDatabase)
+        ITestDatabase testDatabase,
+        IFileSystem fileSystem
+        ) : base(testDatabase, fileSystem)
     {
         Migrator = migrator;
         ServerCollation = serverCollation;
@@ -27,7 +30,9 @@ public class SqlServerGrateTestContext : GrateTestContext
     // ReSharper disable once UnusedMember.Global
     public SqlServerGrateTestContext(
         IGrateMigrator migrator, 
-        ITestDatabase testDatabase): this(migrator, "Danish_Norwegian_CI_AS", testDatabase)
+        ITestDatabase testDatabase,
+        IFileSystem fileSystem
+        ): this(migrator, "Danish_Norwegian_CI_AS", testDatabase, fileSystem)
     {
     }
   

@@ -1,5 +1,5 @@
 ﻿using grate.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
+using grate.Infrastructure.FileSystem;
 using Microsoft.Extensions.Logging;
 
 namespace grate.Configuration;
@@ -19,12 +19,12 @@ public record GrateConfiguration
     /// <summary>
     /// The folder used by grate to find the scripts. The subfolders must follow the naming convention of grate. See grate default folder structure for more information.
     /// </summary>
-    public DirectoryInfo SqlFilesDirectory { get; init; } = CurrentDirectory;
+    public IDirectoryInfo SqlFilesDirectory { get; init; } = CurrentDirectory;
 
     /// <summary>
     /// Output folder.
     /// </summary>
-    public DirectoryInfo OutputPath { get; init; } = new(Path.Combine(CurrentDirectory.FullName, "output"));
+    public IDirectoryInfo OutputPath { get; init; } = new PhysicalDirectoryInfo(Path.Combine(CurrentDirectory.FullName, "output"));
 
     /// <summary>
     /// The connection string to use when connecting to the database. Recommend to use the connection string with the admin privilege, otherwise, you need to provide the admin connection string separately.
@@ -120,7 +120,7 @@ public record GrateConfiguration
     /// </summary>
     public IEnumerable<string>? UserTokens { get; init; }
 
-    private static DirectoryInfo CurrentDirectory => new(Directory.GetCurrentDirectory());
+    private static PhysicalDirectoryInfo CurrentDirectory => new PhysicalDirectoryInfo(Directory.GetCurrentDirectory());
 
     public LogLevel Verbosity { get; init; } = LogLevel.Information;
 

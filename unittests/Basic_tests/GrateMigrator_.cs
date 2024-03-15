@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using grate.Configuration;
 using grate.Infrastructure;
+using grate.Infrastructure.FileSystem;
 using grate.Migration;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -19,7 +20,7 @@ public class GrateMigrator_
         var config = new GrateConfiguration() { ConnectionString = "Server=server1" };
         var dbMigrator = new DbMigrator(_database, null!, null!, config);
         
-        var grateMigrator = new GrateMigrator(null!, dbMigrator);
+        var grateMigrator = new GrateMigrator(null!, dbMigrator, new PhysicalFileSystem());
         
         grateMigrator.Configuration.Should().BeEquivalentTo(config);
         
@@ -36,7 +37,7 @@ public class GrateMigrator_
         _database.DatabaseName.Returns("server1");
         var dbMigrator = new DbMigrator(_database, null!, null!, _config);
         
-        var grateMigrator = new GrateMigrator(null!, dbMigrator);
+        var grateMigrator = new GrateMigrator(null!, dbMigrator, new PhysicalFileSystem());
         
         grateMigrator.Database.DatabaseName.Should().Be("server1");
         

@@ -1,12 +1,14 @@
 ﻿using System.Data;
 using grate.Infrastructure;
+using grate.Infrastructure.FileSystem;
 using grate.Migration;
 
 namespace TestCommon.TestInfrastructure;
 
-public abstract class GrateTestContext(ITestDatabase testDatabase) : IGrateTestContext, IAsyncLifetime
+public abstract class GrateTestContext(ITestDatabase testDatabase, IFileSystem fileSystem) : IGrateTestContext, IAsyncLifetime
 {
     protected ITestDatabase TestDatabase { get; } = testDatabase;
+    public IFileSystem FileSystem { get; } = fileSystem;
 
     public string AdminConnectionString => TestDatabase.AdminConnectionString;
     public string ConnectionString(string database) => TestDatabase.ConnectionString(database);

@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using grate.Configuration;
 using grate.Infrastructure;
+using grate.Infrastructure.FileSystem;
 using grate.Migration;
 
 namespace TestCommon.TestInfrastructure;
@@ -34,11 +35,11 @@ public interface IGrateTestContext
         Transaction = SupportsTransaction,
     };
 
-
     public IGrateMigrator Migrator { get; }
     
+    IFileSystem FileSystem { get; }
+    
     //public bool SupportsSchemas => Migrator.SupportsSchemas();
-
 
     bool SupportsCreateDatabase { get; }
     bool SupportsSchemas { get; }

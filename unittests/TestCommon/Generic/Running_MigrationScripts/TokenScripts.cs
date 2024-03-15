@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using FluentAssertions;
 using grate.Configuration;
+using grate.Infrastructure.FileSystem;
 using TestCommon.TestInfrastructure;
 using Xunit.Abstractions;
 using static grate.Configuration.KnownFolderKeys;
@@ -24,7 +25,7 @@ public abstract class TokenScripts(IGrateTestContext context, ITestOutputHelper 
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
-        var path = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Views]?.Path ?? throw new Exception("Config Fail")));
+        var path = new PhysicalDirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Views]?.Path ?? throw new Exception("Config Fail")));
 
         WriteSql(path, "token.sql", CreateDatabaseName);
 
@@ -53,7 +54,7 @@ public abstract class TokenScripts(IGrateTestContext context, ITestOutputHelper 
 
         var parent = CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default(null);
-        var path = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Views]?.Path ?? throw new Exception("Config Fail")));
+        var path = new PhysicalDirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Views]?.Path ?? throw new Exception("Config Fail")));
 
         WriteSql(path, "token.sql", CreateViewMyCustomToken);
         

@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using grate.Infrastructure;
+using grate.Infrastructure.FileSystem;
 using grate.Migration;
 using grate.PostgreSql.Infrastructure;
 using grate.PostgreSql.Migration;
@@ -16,7 +17,9 @@ public class PostgreSqlGrateTestContext : GrateTestContext
 {
     public PostgreSqlGrateTestContext(
         IGrateMigrator migrator,
-        ITestDatabase testDatabase) : base(testDatabase)
+        ITestDatabase testDatabase,
+        IFileSystem fileSystem
+        ) : base(testDatabase, fileSystem)
     {
         Migrator = migrator;
     }

@@ -1,4 +1,5 @@
 ﻿using grate.Infrastructure;
+using grate.Infrastructure.FileSystem;
 
 namespace grate.Configuration;
 
@@ -29,7 +30,7 @@ public sealed partial class GrateConfigurationBuilder
     /// </summary>
     /// <param name="outputFolder">Target folder to store logs, backups, etc</param>
     /// <returns>GrateConfigurationBuilder</returns>
-    public GrateConfigurationBuilder WithOutputFolder(DirectoryInfo outputFolder)
+    public GrateConfigurationBuilder WithOutputFolder(IDirectoryInfo outputFolder)
     {
         _grateConfiguration = _grateConfiguration with { OutputPath = outputFolder };
         return this;
@@ -42,7 +43,7 @@ public sealed partial class GrateConfigurationBuilder
     /// <returns>GrateConfigurationBuilder</returns>
     public GrateConfigurationBuilder WithOutputFolder(string outputFolder)
     {
-        WithOutputFolder(new DirectoryInfo(outputFolder));
+        WithOutputFolder(new PhysicalDirectoryInfo(outputFolder));
         return this;
     }
 
@@ -76,7 +77,7 @@ public sealed partial class GrateConfigurationBuilder
     /// </summary>
     /// <param name="sqlFilesDirectory">Directory containing the grate subfolders.</param>
     /// <returns>GrateConfigurationBuilder</returns>
-    public GrateConfigurationBuilder WithSqlFilesDirectory(DirectoryInfo sqlFilesDirectory)
+    public GrateConfigurationBuilder WithSqlFilesDirectory(IDirectoryInfo sqlFilesDirectory)
     {
         _grateConfiguration = _grateConfiguration with { SqlFilesDirectory = sqlFilesDirectory };
         return this;
@@ -89,7 +90,7 @@ public sealed partial class GrateConfigurationBuilder
     /// <returns>GrateConfigurationBuilder</returns>
     public GrateConfigurationBuilder WithSqlFilesDirectory(string sqlFilesDirectory)
     {
-        WithSqlFilesDirectory(new DirectoryInfo(sqlFilesDirectory));
+        WithSqlFilesDirectory(new PhysicalDirectoryInfo(sqlFilesDirectory));
         return this;
     }
 

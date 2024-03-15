@@ -5,6 +5,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using grate.Configuration;
 using grate.Exceptions;
+using grate.Infrastructure.FileSystem;
 using grate.Migration;
 using TestCommon.TestInfrastructure;
 using Xunit.Abstractions;
@@ -355,14 +356,14 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
         return scripts;
     }
 
-    protected static void CreateInvalidSql(DirectoryInfo root, MigrationsFolder? folder)
+    protected void CreateInvalidSql(IDirectoryInfo root, MigrationsFolder? folder)
     {
         var dummySql = "SELECT TOP";
         var path = MakeSurePathExists(root, folder);
         WriteSql(path, "2_failing.sql", dummySql);
     }
 
-    protected void CreateLongInvalidSql(DirectoryInfo root, MigrationsFolder? folder)
+    protected void CreateLongInvalidSql(IDirectoryInfo root, MigrationsFolder? folder)
     {
         var dummySql = CreateLongComment(8192) + Environment.NewLine + "SELECT TOP";
         var path = MakeSurePathExists(root, folder);

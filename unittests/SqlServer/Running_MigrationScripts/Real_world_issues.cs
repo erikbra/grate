@@ -1,4 +1,5 @@
 ﻿using grate.Configuration;
+using grate.Infrastructure.FileSystem;
 using grate.Migration;
 using SqlServer.TestInfrastructure;
 using TestCommon.Generic.Running_MigrationScripts;
@@ -45,7 +46,7 @@ ALTER DATABASE {{DatabaseName}} SET READ_COMMITTED_SNAPSHOT ON";
         // disable connection pooling
         knownFolders[RunAfterCreateDatabase] = knownFolders[RunAfterCreateDatabase]! with { TransactionHandling = TransactionHandling.Autonomous };
         
-        var path = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[RunAfterCreateDatabase]?.Path ?? throw new Exception("Config Fail")));
+        var path = new PhysicalDirectoryInfo(Path.Combine(parent.ToString(), knownFolders[RunAfterCreateDatabase]?.Path ?? throw new Exception("Config Fail")));
 
         WriteSql(path, "token.sql", Bug232Sql);
         

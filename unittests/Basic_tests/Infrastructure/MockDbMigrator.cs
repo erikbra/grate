@@ -1,22 +1,13 @@
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
-using grate.Sqlite.Migration;
 using NSubstitute;
 
 namespace Basic_tests.Infrastructure;
 
-public class MockDbMigrator: IDbMigrator
+public record MockDbMigrator: IDbMigrator
 {
-    public ValueTask DisposeAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public object Clone()
-    {
-        throw new NotImplementedException();
-    }
+    public ValueTask DisposeAsync() => new();
 
     public GrateConfiguration Configuration { get; set; } = null!;
     public IDatabase Database { get; set; } = Substitute.For<IDatabase>();
@@ -106,4 +97,6 @@ public class MockDbMigrator: IDbMigrator
     {
         return Task.CompletedTask;
     }
+
+    object ICloneable.Clone() => this with { };
 }

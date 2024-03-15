@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using grate.Infrastructure;
+using grate.Infrastructure.FileSystem;
 using grate.Migration;
 using grate.SqlServer.Infrastructure;
 using grate.SqlServer.Migration;
@@ -20,16 +21,21 @@ public class SqlServerGrateTestContext : IGrateTestContext
     public SqlServerGrateTestContext(
         IGrateMigrator migrator,
         string serverCollation, 
-        SqlServerTestContainerDatabase container)
+        SqlServerTestContainerDatabase container,
+        IFileSystem fileSystem
+        )
     {
         Migrator = migrator;
         _testContainer = container;
         ServerCollation = serverCollation;
+        FileSystem = fileSystem;
         Syntax = new SqlServerSyntax();
     }
     public SqlServerGrateTestContext(
         IGrateMigrator migrator, 
-        SqlServerTestContainerDatabase container) : this(migrator, "Danish_Norwegian_CI_AS", container)
+        SqlServerTestContainerDatabase container,
+        IFileSystem fileSystem
+        ) : this(migrator, "Danish_Norwegian_CI_AS", container, fileSystem)
     {
     }
     public string AdminPassword => _testContainer.AdminPassword;
@@ -59,4 +65,5 @@ public class SqlServerGrateTestContext : IGrateTestContext
     public bool SupportsSchemas => true;
 
     public string ServerCollation { get; }
+    public IFileSystem FileSystem { get; }
 }

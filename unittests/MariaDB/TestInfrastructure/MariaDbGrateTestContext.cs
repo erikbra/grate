@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using grate.Infrastructure;
+using grate.Infrastructure.FileSystem;
 using grate.MariaDb.Infrastructure;
 using grate.MariaDb.Migration;
 using grate.Migration;
@@ -15,7 +16,9 @@ public class MariaDbGrateTestContext : GrateTestContext
 {
     public MariaDbGrateTestContext(
         IGrateMigrator migrator, 
-        ITestDatabase testDatabase) : base(testDatabase)
+        ITestDatabase testDatabase,
+        IFileSystem fileSystem
+        ) : base(testDatabase, fileSystem)
     {
         Migrator = migrator;
     }

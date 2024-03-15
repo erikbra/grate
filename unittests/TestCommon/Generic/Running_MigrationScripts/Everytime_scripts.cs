@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using FluentAssertions;
 using grate.Configuration;
+using grate.Infrastructure.FileSystem;
 using TestCommon.TestInfrastructure;
 using Xunit.Abstractions;
 using static grate.Configuration.KnownFolderKeys;
@@ -153,14 +154,14 @@ public abstract class Everytime_scripts(IGrateTestContext context, ITestOutputHe
         await Assert.ThrowsAsync(Context.DbExceptionType, async () => await conn.QueryAsync<string>("select * from grate"));
     }
 
-    private void CreateEveryTimeScriptFile(DirectoryInfo root, MigrationsFolder? folder)
+    private void CreateEveryTimeScriptFile(IDirectoryInfo root, MigrationsFolder? folder)
     {
         var dummySql = Context.Syntax.CurrentDatabase;
         var path = MakeSurePathExists(root, folder);
         WriteSql(path, "everytime.1_jalla.sql", dummySql);
     }
 
-    private void CreateOtherEveryTimeScriptFile(DirectoryInfo root, MigrationsFolder? folder)
+    private void CreateOtherEveryTimeScriptFile(IDirectoryInfo root, MigrationsFolder? folder)
     {
         var dummySql = Context.Syntax.CurrentDatabase;
         var path = MakeSurePathExists(root, folder);

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using grate.Infrastructure.FileSystem;
+using Microsoft.Extensions.Logging;
 using static System.StringComparison;
 using static System.StringSplitOptions;
 
@@ -10,7 +11,7 @@ public static class TestConfig
 
     public static string RandomDatabase() => Random.GetString(15);
 
-    public static DirectoryInfo CreateRandomTempDirectory()
+    public static IDirectoryInfo CreateRandomTempDirectory()
     {
         var dummyFile = Path.GetTempFileName();
         File.Delete(dummyFile);
@@ -21,10 +22,11 @@ public static class TestConfig
         }
 
         var scriptsDir = Directory.CreateDirectory(dummyFile);
-        return scriptsDir;
+        return new PhysicalDirectoryInfo(scriptsDir);
     }
-    public static DirectoryInfo Wrap(DirectoryInfo root, string? subFolder) =>
-        new(Path.Combine(root.ToString(), subFolder ?? ""));
+    
+    public static IDirectoryInfo Wrap(IDirectoryInfo root, string? subFolder) =>
+        new PhysicalDirectoryInfo(Path.Combine(root.ToString(), subFolder ?? ""));
     public static string? Username(string connectionString) => connectionString.Split(";", TrimEntries | RemoveEmptyEntries)
         .SingleOrDefault(entry => entry.StartsWith("Uid", OrdinalIgnoreCase) || entry.StartsWith("User Id", OrdinalIgnoreCase))?
         .Split("=", TrimEntries | RemoveEmptyEntries).Last();
@@ -44,20 +46,10 @@ public static class TestConfig
         }
         return logLevel;
     }
+    
+  
 
-
-    public static void WriteContent(DirectoryInfo? path, string filename, string? content)
-    {
-        ArgumentNullException.ThrowIfNull(path);
-        if (!path.Exists)
-        {
-            path.Create();
-        }
-
-        File.WriteAllText(Path.Combine(path.ToString(), filename), content);
-    }
-
-    public static DirectoryInfo MakeSurePathExists(DirectoryInfo? path)
+    public static IDirectoryInfo MakeSurePathExists(IDirectoryInfo? path)
     {
         ArgumentNullException.ThrowIfNull(path);
 

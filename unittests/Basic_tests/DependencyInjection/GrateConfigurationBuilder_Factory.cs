@@ -1,8 +1,8 @@
 ﻿using FluentAssertions;
 using grate.Configuration;
 using grate.Infrastructure;
+using grate.Infrastructure.FileSystem;
 using Microsoft.Extensions.DependencyInjection;
-using static TestCommon.Generic.Running_MigrationScripts.MigrationsScriptsBase;
 namespace Basic_tests.DependencyInjection;
 
 // ReSharper disable once InconsistentNaming
@@ -21,8 +21,10 @@ public class GrateConfigurationBuilder_Factory
     [InlineData("./temp")] // unix relative path
     public void Creates_default_builder_with_output_folder(string outputFolder)
     {
-        var outputDir = Directory.CreateDirectory(outputFolder);
-        WriteSql(Wrap(outputDir, "views"), "01_test_view.sql", "create view v_test as select 1");
+        IFileSystem fileSystem = new PhysicalFileSystem();
+        
+        var outputDir = new PhysicalDirectoryInfo(Directory.CreateDirectory(outputFolder));
+        fileSystem.WriteContent(outputDir, "views", "01_test_view.sql", "create view v_test as select 1");
         var serviceCollection = new ServiceCollection();
         var builder = GrateConfigurationBuilder.Create();
         builder.WithOutputFolder(outputFolder);
@@ -36,8 +38,9 @@ public class GrateConfigurationBuilder_Factory
     [InlineData("./sql")] // unix relative path
     public void Creates_default_builder_with_sql_folder(string sqlFolder)
     {
-        var sqlDir = Directory.CreateDirectory(sqlFolder);
-        WriteSql(Wrap(sqlDir, "views"), "01_test_view.sql", "create view v_test as select 1");
+        IFileSystem fileSystem = new PhysicalFileSystem();
+        var sqlDir = new PhysicalDirectoryInfo(Directory.CreateDirectory(sqlFolder));
+        fileSystem.WriteContent(sqlDir, "views", "01_test_view.sql", "create view v_test as select 1");
         var serviceCollection = new ServiceCollection();
         var builder = GrateConfigurationBuilder.Create();
         builder.WithSqlFilesDirectory(sqlFolder);
