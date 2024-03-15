@@ -3,6 +3,7 @@ using System.Text;
 using System.Transactions;
 using grate.Configuration;
 using grate.Exceptions;
+using grate.Infrastructure;
 using Microsoft.Extensions.Logging;
 
 namespace grate.Migration;
@@ -35,7 +36,10 @@ internal record GrateMigrator : IGrateMigrator
     
     public IGrateMigrator WithConfiguration(GrateConfiguration configuration)
     {
-        return this with { Configuration = configuration };
+        return this with
+        {
+            Configuration = configuration
+        };
     }
 
     public IGrateMigrator WithConfiguration(Action<GrateConfigurationBuilder> builder)
@@ -239,6 +243,23 @@ internal record GrateMigrator : IGrateMigrator
         Separator('=');
         _logger.LogInformation("Grate Structure");
         Separator('=');
+        
+        // Make sure the internal grate meta tables are created, by running another migration
+        // with the internal folders (if we are not already running in the internal environment)
+        if (GrateEnvironment.Internal != this.Configuration.Environment)
+        {
+            await using var migrator = this.WithConfiguration(
+                this.Configuration with
+                {
+                    //SqlFilesDirectory = new DirectoryInfo("internal embedded resources"),
+                    Version = ApplicationInfo.Version,
+                    ScriptsRunTableName = "GrateScriptsRun",
+                    ScriptsRunErrorsTableName = "GrateScriptsRunErrors",
+                    VersionTableName = "GrateVersion",
+                    Environment = GrateEnvironment.Internal
+                });
+            await migrator.Migrate();
+        }
 
         if (dbMigrator.Configuration.DryRun)
         {

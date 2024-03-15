@@ -21,4 +21,6 @@ public record GrateEnvironment(string Current)
     private static string FileName(string path) => new FileInfo(path).Name;
 
     public override string ToString() => Current;
+    
+    public static GrateEnvironment Internal { get; } = new("GrateInternal-a01ce6e6-0038-4ebe-959e-7d039f6435bf");
 }

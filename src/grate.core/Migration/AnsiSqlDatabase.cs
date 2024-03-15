@@ -301,7 +301,7 @@ CREATE TABLE {ScriptsRunTable}(
 	entry_date {_syntax.TimestampType} NULL,
 	modified_date {_syntax.TimestampType} NULL,
 	entered_by {_syntax.VarcharType}(50) NULL
-	{_syntax.PrimaryKeyConstraint("ScriptsRun", "id")}
+	{_syntax.PrimaryKeyConstraint(ScriptsRunTableName, "id")}
 )";
 
         if (!await ScriptsRunTableExists())
@@ -327,7 +327,7 @@ CREATE TABLE {ScriptsRunErrorsTable}(
 	entry_date {_syntax.TimestampType} NULL,
 	modified_date {_syntax.TimestampType} NULL,
 	entered_by {_syntax.VarcharType}(50) NULL
-	{_syntax.PrimaryKeyConstraint("ScriptsRunErrors", "id")}
+	{_syntax.PrimaryKeyConstraint(ScriptsRunErrorsTableName, "id")}
 )";
         if (!await ScriptsRunErrorsTableExists())
         {
@@ -348,7 +348,7 @@ CREATE TABLE {VersionTable}(
 	entry_date {_syntax.TimestampType} NULL,
 	modified_date {_syntax.TimestampType} NULL,
 	entered_by {_syntax.VarcharType}(50) NULL
-	{_syntax.PrimaryKeyConstraint("Version", "id")}
+	{_syntax.PrimaryKeyConstraint(VersionTableName, "id")}
 )";
 
         if (!await VersionTableExists())
@@ -740,4 +740,6 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
     }
 
     public abstract Task RestoreDatabase(string backupPath);
+    
+    object ICloneable.Clone() => this with { };
 }
