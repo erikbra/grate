@@ -19,7 +19,6 @@ internal interface IDbMigrator : IAsyncDisposable, ICloneable
     Task<bool> DatabaseExists();
     Task OpenConnection();
     Task CloseConnection();
-    Task RunSupportTasks();
     Task<string> GetCurrentVersion();
     Task<long> VersionTheDatabase(string newVersion);
     Task OpenAdminConnection();

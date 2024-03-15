@@ -12,51 +12,55 @@ namespace SqlServerCaseSensitive.TestInfrastructure;
 [CollectionDefinition(nameof(SqlServerGrateTestContext))]
 public class SqlServerTestCollection : ICollectionFixture<SqlServerGrateTestContext>;
 
-public class SqlServerGrateTestContext : IGrateTestContext
+public class SqlServerGrateTestContext : GrateTestContext
 {
-    public IGrateMigrator Migrator { get; }
-    private readonly SqlServerTestContainerDatabase _testContainer;
+    public override IGrateMigrator Migrator { get; }
 
     public SqlServerGrateTestContext(
         IGrateMigrator migrator,
         string serverCollation, 
-        SqlServerTestContainerDatabase container)
+        ITestDatabase testDatabase) : base(testDatabase)
     {
         Migrator = migrator;
-        _testContainer = container;
         ServerCollation = serverCollation;
-        Syntax = new SqlServerSyntax();
     }
+    
+    // ReSharper disable once UnusedMember.Global
     public SqlServerGrateTestContext(
         IGrateMigrator migrator, 
         SqlServerTestContainerDatabase container) : this(migrator, "Danish_Norwegian_CI_AS", container)
     {
     }
-    public string AdminPassword => _testContainer.AdminPassword;
-    public int? Port => _testContainer.TestContainer!.GetMappedPublicPort(_testContainer.Port);
+  
+    public override IDbConnection GetDbConnection(string connectionString) => new SqlConnection(connectionString);
 
-    public string AdminConnectionString => $"Data Source=localhost,{Port};Initial Catalog=master;User Id=sa;Password={AdminPassword};Encrypt=false;Pooling=false";
-    public string ConnectionString(string database) => $"Data Source=localhost,{Port};Initial Catalog={database};User Id=sa;Password={AdminPassword};Encrypt=false;Pooling=false";
-    public string UserConnectionString(string database) => $"Data Source=localhost,{Port};Initial Catalog={database};User Id=sa;Password={AdminPassword};Encrypt=false;Pooling=false";
+    public override ISyntax Syntax { get; } = new SqlServerSyntax();
+    public override Type DbExceptionType => typeof(SqlException);
 
-    public IDbConnection GetDbConnection(string connectionString) => new SqlConnection(connectionString);
+    public override Type DatabaseType => typeof(SqlServerDatabase);
+    public override bool SupportsTransaction => true;
 
-    public ISyntax Syntax { get; init; }
-    public Type DbExceptionType => typeof(SqlException);
-
-    public Type DatabaseType => typeof(SqlServerDatabase);
-    public bool SupportsTransaction => true;
-
-    public SqlStatements Sql => new()
+    public override SqlStatements Sql => new()
     {
         SelectVersion = "SELECT @@VERSION",
-        SleepTwoSeconds = "WAITFOR DELAY '00:00:02'"
+        SleepTwoSeconds = "WAITFOR DELAY '00:00:02'",
+        CreateUser = (db, user, password) => 
+$"""
+    USE {db};
+    CREATE LOGIN {user} WITH PASSWORD = '{password}';
+    CREATE USER {user} FOR LOGIN {user};
+""",
+        GrantAccess = (db, user) => 
+$"""
+    USE {db};
+    ALTER ROLE db_owner ADD MEMBER {user};
+""",
     };
 
-    public string ExpectedVersionPrefix => "Microsoft SQL Server 2019";
+    public override string ExpectedVersionPrefix => "Microsoft SQL Server 20";
 
-    public bool SupportsCreateDatabase => true;
-    public bool SupportsSchemas => true;
+    public override bool SupportsCreateDatabase => true;
+    public override bool SupportsSchemas => true;
 
     public string ServerCollation { get; }
 }

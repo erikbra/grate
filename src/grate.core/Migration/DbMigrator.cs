@@ -49,7 +49,6 @@ internal record DbMigrator : IDbMigrator
     public Task<IDisposable> OpenNewActiveConnection() => Database.OpenNewActiveConnection();
     public Task OpenActiveConnection() => Database.OpenActiveConnection();
 
-    public Task RunSupportTasks() => Database.RunSupportTasks();
     public Task<string> GetCurrentVersion() => Database.GetCurrentVersion();
     public Task<long> VersionTheDatabase(string newVersion)
     {
@@ -408,5 +407,5 @@ internal record DbMigrator : IDbMigrator
         GC.SuppressFinalize(this);
     }
 
-    object ICloneable.Clone() => this with { };
+    object ICloneable.Clone() => this with { Database = (IDatabase) Database.Clone() };
 }

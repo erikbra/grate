@@ -3,6 +3,7 @@ using System.Text;
 using System.Transactions;
 using grate.Configuration;
 using grate.Exceptions;
+using grate.Infrastructure;
 using Microsoft.Extensions.Logging;
 
 namespace grate.Migration;
@@ -194,20 +195,31 @@ internal record GrateMigrator : IGrateMigrator
 
         if (!config.DryRun)
         {
-            //If we get here this means no exceptions are thrown above, so we can conclude the migration was successful!
-            if (anySqlRun)
+            // TODO: Clean up the try - catch here - it's only used in initial bootstrapping if the
+            // TODO: version table _does_ exist, but it doesn't have the version table.
+            // TODO: This will be just once for each of legacy RoundhousE databases migrated to grate.
+
+            try
             {
-                await DbMigrator.Database.ChangeVersionStatus(MigrationStatus.Finished, versionId);
+                //If we get here this means no exceptions are thrown above, so we can conclude the migration was successful!
+                if (anySqlRun)
+                {
+                    await DbMigrator.Database.ChangeVersionStatus(MigrationStatus.Finished, versionId);
+                }
+                else
+                {
+                    // as we have an issue with the versioning table, we need to delete the version record
+                    await DbMigrator.Database.DeleteVersionRecord(versionId);
+                }
             }
-            else
+            catch (DbException)
             {
-                // as we have an issue with the versioning table, we need to delete the version record
-                await DbMigrator.Database.DeleteVersionRecord(versionId);
+                // Ignore!
             }
         }
 
         _logger.LogInformation(
-            "\n\ngrate v{Version} (build date {}) has grated your database ({DatabaseName})! You are now at version {NewVersion}. All changes and backups can be found at \"{ChangeDropFolder}\".",
+            "\n\ngrate v{Version} (build date {BuildDate}) has grated your database ({DatabaseName})! You are now at version {NewVersion}. All changes and backups can be found at \"{ChangeDropFolder}\".",
             ApplicationInfo.Version,
             ApplicationInfo.BuildDate,
             dbMigrator.Database.DatabaseName,
@@ -246,14 +258,19 @@ internal record GrateMigrator : IGrateMigrator
         }
         else
         {
-            using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
-            using (await dbMigrator.OpenNewActiveConnection())
+            // Make sure the internal grate meta tables are created, by running another migration
+            // with the internal folders (if we are not already running in the internal environment)
+            if (
+                GrateEnvironment.Internal != this.Configuration.Environment
+                && GrateEnvironment.InternalBootstrap != this.Configuration.Environment
+                )
             {
-                await dbMigrator.RunSupportTasks();
+                await RunInternalMigrations("Baseline");
+                await RunInternalMigrations("GrateStructure");
             }
-            s.Complete();
         }
     }
+
 
     private async Task<(long, string)> VersionTheDatabase(IDbMigrator dbMigrator)
     {
@@ -533,6 +550,90 @@ internal record GrateMigrator : IGrateMigrator
         }
 
         return runInTransaction;
+    }
+    
+    private async Task RunInternalMigrations(string internalFolderName)
+    {
+        // First, make sure we have created the "internal meta tables"
+        // (GrateScriptsRun, GrateScriptsRunErrors, GrateVersion), which are used to track
+        // changes to the grate internal tables (ScriptsRun, ScriptsRunErrors, Version).
+        await using (var migrator1 = this.WithConfiguration(await GetBootstrapInternalGrateConfiguration(internalFolderName)))
+        {
+            await migrator1.Migrate();
+        }
+
+        // Then, make sure we have created the "grate tables" for the database we are migrating.
+        // (ScriptsRun, ScriptsRunErrors, Version). Turtles all the way down!
+        await using var migrator2 = this.WithConfiguration(await GetInternalGrateConfiguration(internalFolderName));
+        await migrator2.Migrate();
+    }
+    
+
+    private async Task<GrateConfiguration> GetBootstrapInternalGrateConfiguration(string internalFolderName) =>
+        await GetInternalGrateConfiguration(internalFolderName, "grate-internal") with
+        {
+            UserTokens = [
+                "ScriptsRunTable=GrateScriptsRun",
+                "ScriptsRunErrorsTable=GrateScriptsRunErrors",
+                "VersionTable=GrateVersion"
+            ],
+            DeferWritingToRunTables = true,
+            Environment = GrateEnvironment.InternalBootstrap,
+            Baseline = false
+        };
+    
+    private async Task<GrateConfiguration> GetInternalGrateConfiguration(string internalFolderName, string? sqlFolderNamePrefix = null)
+    {
+        var thisConfig = this.Configuration;
+        
+        var internalMigrationFolders = await WriteInternalScriptsToTemporaryFolders(internalFolderName, sqlFolderNamePrefix);
+
+        // Check if the tables already exist or not. If they do, run in baseline mode.
+        var baseline = internalFolderName == "Baseline" && await this.Database.VersionTableExists();
+        
+        // We might consider supporting other sources of the SQL scripts than the file system,
+        // but for now, we write the internal scripts to file system before running them 
+        //SqlFilesDirectory = new DirectoryInfo("internal embedded resources"),
+        return GrateConfiguration.Default with
+        {
+            ConnectionString = thisConfig.ConnectionString,
+            AdminConnectionString = thisConfig.AdminConnectionString,
+            SchemaName = thisConfig.SchemaName,
+            AccessToken = thisConfig.AccessToken,
+            CommandTimeout = thisConfig.CommandTimeout,
+            AdminCommandTimeout = thisConfig.AdminCommandTimeout,
+            
+            Baseline = baseline,
+            NonInteractive = true,
+            SqlFilesDirectory = new DirectoryInfo(internalMigrationFolders),
+            CreateDatabase = false,
+            Drop = false,
+            Restore = null,
+            Transaction = false, 
+            Version = ApplicationInfo.Version,
+            ScriptsRunTableName = "GrateScriptsRun",
+            ScriptsRunErrorsTableName = "GrateScriptsRunErrors",
+            VersionTableName = "GrateVersion",
+            
+            UserTokens = [
+                $"ScriptsRunTable={thisConfig.ScriptsRunTableName}",
+                $"ScriptsRunErrorsTable={thisConfig.ScriptsRunErrorsTableName}",
+                $"VersionTable={thisConfig.VersionTableName}"
+            ],
+            
+            Environment = GrateEnvironment.Internal
+        };
+    }
+
+    private async Task<string> WriteInternalScriptsToTemporaryFolders(string internalFolderName, string? sqlFolderNamePrefix)
+    {
+        var internalMigrationFolders = FileSystem.CreateRandomTempDirectory().ToString();
+        await Bootstrapping.WriteBootstrapScriptsToFolder(
+            this.Database.GetType(), 
+            internalMigrationFolders, 
+            internalFolderName,
+            sqlFolderNamePrefix);
+        return internalMigrationFolders;
     }
 
     public async ValueTask DisposeAsync()

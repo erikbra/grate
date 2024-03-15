@@ -27,6 +27,8 @@ public abstract record AnsiSqlDatabase : IDatabase
     private readonly ISyntax _syntax;
 
     private IDictionary<string, string>? _scriptsRunCache;
+    
+    private readonly List<Func<DbConnection, Task>> _deferredWrites = new();
 
     protected AnsiSqlDatabase(ILogger logger, ISyntax syntax)
     {
@@ -85,7 +87,6 @@ public abstract record AnsiSqlDatabase : IDatabase
 
     private async Task<string> ExistingOrDefault(string schemaName, string tableName) =>
         await ExistingTable(schemaName, tableName) ?? tableName;
-
 
 
     private string? AdminConnectionString { get; set; }
@@ -258,122 +259,7 @@ public abstract record AnsiSqlDatabase : IDatabase
         } while (!databaseReady && totalDelay < maxDelay);
     }
 
-    public async Task RunSupportTasks()
-    {
-        await CreateRunSchema();
-        await CreateScriptsRunTable();
-        await CreateScriptsRunErrorsTable();
-        await CreateVersionTable();
-        await AddStatusColumnToVersionTable();
-    }
-
-    private async Task CreateRunSchema()
-    {
-        if (SupportsSchemas && !await RunSchemaExists())
-        {
-            await ExecuteNonQuery(ActiveConnection, _syntax.CreateSchema(SchemaName), Config?.CommandTimeout);
-        }
-    }
-
-    private async Task<bool> RunSchemaExists()
-    {
-        string sql = $"SELECT s.SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA s WHERE s.SCHEMA_NAME = '{SchemaName}'";
-        var res = await ExecuteScalarAsync<string>(ActiveConnection, sql);
-        return res == SchemaName;
-    }
-
-    // TODO: Change MySQL/MariaDB from using schemas to using grate_ prefix
-
-    protected virtual async Task CreateScriptsRunTable()
-    {
-        // Update scripts run table name with the correct casing, should it differ from the standard
-
-        ScriptsRunTableName = await ExistingOrDefault(SchemaName, ScriptsRunTableName);
-
-        string createSql = $@"
-CREATE TABLE {ScriptsRunTable}(
-	{_syntax.PrimaryKeyColumn("id")},
-	version_id {_syntax.BigintType} NULL,
-	script_name {_syntax.VarcharType}(255) NULL,
-	text_of_script {_syntax.TextType} NULL,
-	text_hash {_syntax.VarcharType}(512) NULL,
-	one_time_script {_syntax.BooleanType} NULL,
-	entry_date {_syntax.TimestampType} NULL,
-	modified_date {_syntax.TimestampType} NULL,
-	entered_by {_syntax.VarcharType}(50) NULL
-	{_syntax.PrimaryKeyConstraint("ScriptsRun", "id")}
-)";
-
-        if (!await ScriptsRunTableExists())
-        {
-            await ExecuteNonQuery(ActiveConnection, createSql, Config?.CommandTimeout);
-        }
-    }
-
-    protected virtual async Task CreateScriptsRunErrorsTable()
-    {
-        // Update scripts run errors table name with the correct casing, should it differ from the standard
-        ScriptsRunErrorsTableName = await ExistingOrDefault(SchemaName, ScriptsRunErrorsTableName);
-
-        string createSql = $@"
-CREATE TABLE {ScriptsRunErrorsTable}(
-	{_syntax.PrimaryKeyColumn("id")},
-	repository_path {_syntax.VarcharType}(255) NULL,
-	version {_syntax.VarcharType}(50) NULL,
-	script_name {_syntax.VarcharType}(255) NULL,
-	text_of_script {_syntax.TextType} NULL,
-	erroneous_part_of_script {_syntax.TextType} NULL,
-	error_message {_syntax.TextType} NULL,
-	entry_date {_syntax.TimestampType} NULL,
-	modified_date {_syntax.TimestampType} NULL,
-	entered_by {_syntax.VarcharType}(50) NULL
-	{_syntax.PrimaryKeyConstraint("ScriptsRunErrors", "id")}
-)";
-        if (!await ScriptsRunErrorsTableExists())
-        {
-            await ExecuteNonQuery(ActiveConnection, createSql, Config?.CommandTimeout);
-        }
-    }
-
-    protected virtual async Task CreateVersionTable()
-    {
-        // Update version table name with the correct casing, should it differ from the standard
-        VersionTableName = await ExistingOrDefault(SchemaName, VersionTableName);
-
-        string createSql = $@"
-CREATE TABLE {VersionTable}(
-	{_syntax.PrimaryKeyColumn("id")},
-	repository_path {_syntax.VarcharType}(255) NULL,
-	version {_syntax.VarcharType}(50) NULL,
-	entry_date {_syntax.TimestampType} NULL,
-	modified_date {_syntax.TimestampType} NULL,
-	entered_by {_syntax.VarcharType}(50) NULL
-	{_syntax.PrimaryKeyConstraint("Version", "id")}
-)";
-
-        if (!await VersionTableExists())
-        {
-            await ExecuteNonQuery(ActiveConnection, createSql, Config?.CommandTimeout);
-        }
-    }
-
-    protected virtual async Task AddStatusColumnToVersionTable()
-    {
-        string createSql = $@"
-            ALTER TABLE {VersionTable}
-	        ADD status {_syntax.VarcharType}(50) NULL";
-
-        if (!await StatusColumnInVersionTableExists())
-        {
-            await ExecuteNonQuery(ActiveConnection, createSql, Config?.CommandTimeout);
-        }
-    }
-
-    protected async Task<bool> ScriptsRunTableExists() => (await ExistingTable(SchemaName, ScriptsRunTableName) is not null);
-    protected async Task<bool> ScriptsRunErrorsTableExists() => (await ExistingTable(SchemaName, ScriptsRunErrorsTableName) is not null);
     public async Task<bool> VersionTableExists() => (await ExistingTable(SchemaName, VersionTableName) is not null);
-
-    protected async Task<bool> StatusColumnInVersionTableExists() => await ColumnExists(SchemaName, VersionTableName, "status");
 
     public async Task<string?> ExistingTable(string schemaName, string tableName)
     {
@@ -388,17 +274,6 @@ CREATE TABLE {VersionTable}(
 
         var prefix = SupportsSchemas ? string.Empty : _syntax.TableWithSchema(schemaName, string.Empty);
         return name?[prefix.Length..];
-    }
-
-    private async Task<bool> ColumnExists(string schemaName, string tableName, string columnName)
-    {
-        var fullTableName = SupportsSchemas ? tableName : _syntax.TableWithSchema(schemaName, tableName);
-        var tableSchema = SupportsSchemas ? schemaName : DatabaseName;
-
-        string existsSql = ExistsSql(tableSchema, fullTableName, columnName);
-
-        var res = await ExecuteScalarAsync<object>(Connection, existsSql);
-        return !DBNull.Value.Equals(res) && res is not null;
     }
 
     protected virtual string ExistsSql(string tableSchema, string fullTableName)
@@ -454,20 +329,30 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy, @status)
 
 {_syntax.ReturnId}
 ");
-        var res = (long)await ActiveConnection.ExecuteScalarAsync<int>(
-            sql,
-            new
-            {
-                newVersion,
-                entryDate = DateTime.UtcNow,
-                modifiedDate = DateTime.UtcNow,
-                enteredBy = ClaimsPrincipal.Current?.Identity?.Name ?? Environment.UserName,
-                status = MigrationStatus.InProgress
-            });
+        long versionId;
+
+        try
+        {
+            versionId = (long) await ActiveConnection.ExecuteScalarAsync<int>(
+                sql,
+                new
+                {
+                    newVersion,
+                    entryDate = DateTime.UtcNow,
+                    modifiedDate = DateTime.UtcNow,
+                    enteredBy = ClaimsPrincipal.Current?.Identity?.Name ?? Environment.UserName,
+                    status = MigrationStatus.InProgress
+                });
+        } 
+        catch (Exception ex)
+        {
+            Logger.LogDebug(ex, "Could not find version table in {DbName} database. Using default version Id", DatabaseName);
+            versionId = 1;
+        }
 
         Logger.LogInformation(" Versioning {DbName} database with version {Version}.", DatabaseName, newVersion);
 
-        return res;
+        return versionId;
     }
 
     public virtual async Task ChangeVersionStatus(string status, long versionId)
@@ -563,12 +448,13 @@ WHERE id = (SELECT MAX(id) FROM {ScriptsRunTable} sr2 WHERE sr2.script_name = sr
             return results.ToDictionary(item => item.script_name, item => item.text_hash);
 
         }
-        catch (Exception ex) when (Config?.DryRun ?? throw new InvalidOperationException("No configuration available."))
+        catch (Exception ex) when (DryRunOrBootstrap())
         {
             Logger.LogDebug(ex, "Ignoring error getting ScriptsRun when in --dryrun, probable missing table");
             return new Dictionary<string, string>(); // return empty set if nothing has ever been run
         }
     }
+
 
     private async Task<IDictionary<string, string>> GetScriptsRunCache() => _scriptsRunCache ??= await GetAllScriptsRun();
 
@@ -604,7 +490,7 @@ WHERE script_name = @scriptName");
             var run = await ExecuteScalarAsync<bool?>(ActiveConnection, hasRunSql, new { scriptName });
             return run ?? false;
         }
-        catch (Exception ex) when (Config?.DryRun ?? throw new InvalidOperationException("No configuration available"))
+        catch (Exception ex) when (DryRunOrBootstrap())
         {
             Logger.LogDebug(ex, "Ignoring exception in dryrun, missing table?");
             return false;
@@ -638,7 +524,14 @@ VALUES (@versionId, @scriptName, @sql, @hash, @runOnce, @now, @now, @usr)");
         scriptRun.Add(Now, DateTime.UtcNow);
         scriptRun.Add(User, Environment.UserName);
 
-        await ExecuteAsync(ActiveConnection, insertSql, scriptRun);
+        if (Config!.DeferWritingToRunTables)
+        {
+            _deferredWrites.Add(conn => ExecuteAsync(conn, insertSql, scriptRun));
+        }
+        else
+        {
+            await ExecuteAsync(ActiveConnection, insertSql, scriptRun);
+        }
     }
 
     public async Task InsertScriptRunError(string scriptName, string? sql, string errorSql, string errorMessage, long versionId)
@@ -660,8 +553,15 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
         scriptRunErrors.Add(nameof(errorMessage), errorMessage, DbType.String);
         scriptRunErrors.Add(Now, DateTime.UtcNow);
         scriptRunErrors.Add(User, Environment.UserName);
-
-        await ExecuteAsync(ActiveConnection, insertSql, scriptRunErrors);
+        
+        if (Config!.DeferWritingToRunTables)
+        {
+            _deferredWrites.Add(conn => ExecuteAsync(conn, insertSql, scriptRunErrors));
+        }
+        else
+        {
+            await ExecuteAsync(ActiveConnection, insertSql, scriptRunErrors);
+        }
     }
 
     private static async Task Close(DbConnection? conn)
@@ -705,7 +605,7 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
         return await conn.ExecuteScalarAsync<T?>(sql, parameters);
     }
 
-    protected async Task<int> ExecuteAsync(DbConnection conn, string sql, object? parameters = null)
+    protected async Task<int> ExecuteAsync(IDbConnection conn, string sql, object? parameters = null)
     {
         Logger.LogTrace("SQL: {Sql}", sql);
         Logger.LogTrace("Parameters: {@Parameters}", parameters);
@@ -729,9 +629,26 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
 
         await cmd.ExecuteNonQueryAsync();
     }
+    
+    
+    private bool DryRunOrBootstrap()
+    {
+        return (Config?.DryRun ?? throw new InvalidOperationException("No configuration available.")) 
+               || Config.Environment == GrateEnvironment.InternalBootstrap;
+    }
+    
 
     public async ValueTask DisposeAsync()
     {
+        if (_deferredWrites.Any())
+        {
+            await OpenActiveConnection();
+            foreach (var deferredWrite in _deferredWrites)
+            {
+                await deferredWrite(ActiveConnection);
+            }
+            _deferredWrites.Clear();
+        }
         await CloseConnection();
         await CloseAdminConnection();
         await Close(ActiveConnection);
@@ -740,4 +657,6 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
     }
 
     public abstract Task RestoreDatabase(string backupPath);
+    
+    object ICloneable.Clone() => this with { };
 }
