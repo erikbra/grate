@@ -29,7 +29,7 @@ public readonly struct PostgreSqlSyntax : ISyntax
     public string DropDatabase(string databaseName) => @$"select pg_terminate_backend(pid) from pg_stat_activity where datname='{databaseName}';
                                                               COMMIT;
                                                               DROP DATABASE IF EXISTS ""{databaseName}"";";
-    public string TableWithSchema(string schemaName, string tableName) => $"{schemaName}.\"{tableName}\"";
+    public string TableWithSchema(string schemaName, string tableName) => $"\"{schemaName}\".\"{tableName}\"";
     public string ReturnId => "RETURNING id;";
     public string TimestampType => "timestamp";
     public string Quote(string text) => $"\"{text}\"";

@@ -32,16 +32,20 @@ public abstract class When_Grate_structure_does_not_exist(IGrateTestContext cont
             .WithSqlFilesDirectory(parent)
             .Build();
 
-        await using var migrator = Context.Migrator.WithConfiguration(config);
-        await RunMigration(migrator);
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
+        {
+            await RunMigration(migrator);
+        }
 
         string? schema;
-        string sql = $"SELECT s.SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA s WHERE s.SCHEMA_NAME = '{schemaName}'";
+        string sql =
+            $"SELECT s.SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA s WHERE s.SCHEMA_NAME = '{schemaName}'";
 
         using (var conn = Context.CreateDbConnection(db))
         {
             schema = await conn.ExecuteScalarAsync<string>(sql);
         }
+
         schema.Should().Be(schemaName);
     }
 
