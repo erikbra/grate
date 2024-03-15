@@ -6,7 +6,7 @@ namespace TestCommon.TestInfrastructure;
 
 public static class TestConfig
 {
-    private static readonly Random Random = new();
+    private static readonly Random Random = Random.Shared;
 
     public static string RandomDatabase() => Random.GetString(15);
 

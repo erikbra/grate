@@ -207,7 +207,7 @@ internal record GrateMigrator : IGrateMigrator
         }
 
         _logger.LogInformation(
-            "\n\ngrate v{Version} (build date {}) has grated your database ({DatabaseName})! You are now at version {NewVersion}. All changes and backups can be found at \"{ChangeDropFolder}\".",
+            "\n\ngrate v{Version} (build date {BuildDate}) has grated your database ({DatabaseName})! You are now at version {NewVersion}. All changes and backups can be found at \"{ChangeDropFolder}\".",
             ApplicationInfo.Version,
             ApplicationInfo.BuildDate,
             dbMigrator.Database.DatabaseName,
