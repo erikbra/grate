@@ -265,34 +265,6 @@ internal record GrateMigrator : IGrateMigrator
         }
     }
 
-    private GrateConfiguration InternalGrateConfiguration()
-    {
-        var thisConfig = this.Configuration;
-        
-        var grateInternalMigrationFolders = FileSystem.CreateRandomTempDirectory();
-        //SqlFilesDirectory = new DirectoryInfo("internal embedded resources"),
-        return GrateConfiguration.Default with
-        {
-            ConnectionString = thisConfig.ConnectionString,
-            AdminConnectionString = thisConfig.AdminConnectionString,
-            SchemaName = thisConfig.SchemaName,
-            AccessToken = thisConfig.AccessToken,
-            CommandTimeout = thisConfig.CommandTimeout,
-            AdminCommandTimeout = thisConfig.AdminCommandTimeout,
-            
-            NonInteractive = true,
-            SqlFilesDirectory = grateInternalMigrationFolders,
-            CreateDatabase = false,
-            Drop = false,
-            Restore = null,
-            Transaction = false, 
-            Version = ApplicationInfo.Version,
-            ScriptsRunTableName = "GrateScriptsRun",
-            ScriptsRunErrorsTableName = "GrateScriptsRunErrors",
-            VersionTableName = "GrateVersion",
-            Environment = GrateEnvironment.Internal
-        };
-    }
 
     private async Task<(long, string)> VersionTheDatabase(IDbMigrator dbMigrator)
     {
@@ -572,6 +544,35 @@ internal record GrateMigrator : IGrateMigrator
         }
 
         return runInTransaction;
+    }
+    
+    private GrateConfiguration InternalGrateConfiguration()
+    {
+        var thisConfig = this.Configuration;
+        
+        var grateInternalMigrationFolders = FileSystem.CreateRandomTempDirectory();
+        //SqlFilesDirectory = new DirectoryInfo("internal embedded resources"),
+        return GrateConfiguration.Default with
+        {
+            ConnectionString = thisConfig.ConnectionString,
+            AdminConnectionString = thisConfig.AdminConnectionString,
+            SchemaName = thisConfig.SchemaName,
+            AccessToken = thisConfig.AccessToken,
+            CommandTimeout = thisConfig.CommandTimeout,
+            AdminCommandTimeout = thisConfig.AdminCommandTimeout,
+            
+            NonInteractive = true,
+            SqlFilesDirectory = grateInternalMigrationFolders,
+            CreateDatabase = false,
+            Drop = false,
+            Restore = null,
+            Transaction = false, 
+            Version = ApplicationInfo.Version,
+            ScriptsRunTableName = "GrateScriptsRun",
+            ScriptsRunErrorsTableName = "GrateScriptsRunErrors",
+            VersionTableName = "GrateVersion",
+            Environment = GrateEnvironment.Internal
+        };
     }
 
     public async ValueTask DisposeAsync()
