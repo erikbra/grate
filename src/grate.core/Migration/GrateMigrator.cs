@@ -240,15 +240,6 @@ internal record GrateMigrator : IGrateMigrator
         Separator('=');
         _logger.LogInformation("Grate Structure");
         Separator('=');
-        
-        // Make sure the internal grate meta tables are created, by running another migration
-        // with the internal folders (if we are not already running in the internal environment)
-        if (GrateEnvironment.Internal != this.Configuration.Environment)
-        {
-            await using var migrator = this.WithConfiguration(
-                InternalGrateConfiguration());
-            await migrator.Migrate();
-        }
 
         if (dbMigrator.Configuration.DryRun)
         {
@@ -256,6 +247,23 @@ internal record GrateMigrator : IGrateMigrator
         }
         else
         {
+                    
+            // Make sure the internal grate meta tables are created, by running another migration
+            // with the internal folders (if we are not already running in the internal environment)
+            if (GrateEnvironment.Internal != this.Configuration.Environment)
+            {
+                // First, make sure we have created the "internal meta tables"
+                // (GrateScriptsRun, GrateScriptsRunErrors, GrateVersion), which are used to track
+                // changes to the grate internal tables (ScriptsRun, ScriptsRunErrors, Version).
+                await using var migrator1 = this.WithConfiguration(await GetBootstrapInternalGrateConfiguration());
+                await migrator1.Migrate();
+            
+                // Then, make sure we have created the "grate tables" for the database we are migrating.
+                // (ScriptsRun, ScriptsRunErrors, Version). Turtles all the way down!
+                await using var migrator2 = this.WithConfiguration(await GetInternalGrateConfiguration());
+                await migrator2.Migrate();
+            }
+            
             using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
             using (await dbMigrator.OpenNewActiveConnection())
             {
@@ -545,12 +553,30 @@ internal record GrateMigrator : IGrateMigrator
 
         return runInTransaction;
     }
+
+
+    private async Task<GrateConfiguration> GetBootstrapInternalGrateConfiguration() =>
+        await GetInternalGrateConfiguration("bootstrap") with
+        {
+            UserTokens = [
+                "ScriptsRunTable=GrateScriptsRun",
+                "ScriptsRunErrorsTable=GrateScriptsRunErrors",
+                "VersionTable=GrateVersion"
+            ],
+            DeferWritingToRunTables = true
+        };
     
-    private GrateConfiguration InternalGrateConfiguration()
+    private async Task<GrateConfiguration> GetInternalGrateConfiguration(string? sqlFolderNamePrefix = null)
     {
         var thisConfig = this.Configuration;
         
-        var grateInternalMigrationFolders = FileSystem.CreateRandomTempDirectory();
+        var internalMigrationFolders = FileSystem.CreateRandomTempDirectory().ToString();
+        await Bootstrapping.WriteBootstrapScriptsToFolder(
+            this.Database.GetType(), 
+            internalMigrationFolders, 
+            "Baseline",
+            sqlFolderNamePrefix);
+        
         //SqlFilesDirectory = new DirectoryInfo("internal embedded resources"),
         return GrateConfiguration.Default with
         {
@@ -562,7 +588,7 @@ internal record GrateMigrator : IGrateMigrator
             AdminCommandTimeout = thisConfig.AdminCommandTimeout,
             
             NonInteractive = true,
-            SqlFilesDirectory = grateInternalMigrationFolders,
+            SqlFilesDirectory = new DirectoryInfo(internalMigrationFolders),
             CreateDatabase = false,
             Drop = false,
             Restore = null,
@@ -571,6 +597,13 @@ internal record GrateMigrator : IGrateMigrator
             ScriptsRunTableName = "GrateScriptsRun",
             ScriptsRunErrorsTableName = "GrateScriptsRunErrors",
             VersionTableName = "GrateVersion",
+            
+            UserTokens = [
+                $"ScriptsRunTable={thisConfig.ScriptsRunTableName}",
+                $"ScriptsRunErrorsTable={thisConfig.ScriptsRunErrorsTableName}",
+                $"VersionTable={thisConfig.VersionTableName}"
+            ],
+            
             Environment = GrateEnvironment.Internal
         };
     }

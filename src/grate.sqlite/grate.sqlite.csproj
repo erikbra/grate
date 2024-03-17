@@ -17,4 +17,17 @@
     <None Include="NuGet.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Bootstrapping\Sql\Up\02_create_scripts_run_table.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Bootstrapping\Sql\Baseline\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Bootstrapping\Sql\**\*.sql" />
+    <None Remove="Bootstrapping\Sql\**\.sql**" />
+  </ItemGroup>
+
 </Project>

@@ -83,7 +83,39 @@ public abstract class When_Grate_internal_structure_does_not_exist(IGrateTestCon
         grateVersionTable!.ToUpper().Should().Be(grateVersionTable.ToUpper());
     }
     
- 
+    [Theory]
+    [InlineData("02_create_scripts_run_table.sql")]
+    public async Task Logs_internal_scripts_run_in_own_structure(string name)
+    {
+        var db = TestConfig.RandomDatabase();
+        var grateScriptsRunTableName = "GrateScriptsRun";
+        var parent = CreateRandomTempDirectory();
+
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(FoldersConfiguration.Default())
+            .WithSqlFilesDirectory(parent)
+            .Build();
+
+        await using var migrator = Context.Migrator.WithConfiguration(config);
+        await RunMigration(migrator);
+
+        dynamic[] scripts;
+        string sql = $"SELECT * FROM {Context.Syntax.TableWithSchema("grate", grateScriptsRunTableName)}";
+
+        using (var conn = Context.CreateDbConnection(db))
+        {
+            scripts = (await conn.QueryAsync(sql)).ToArray();
+        }
+
+        var scriptNames = scripts.Select(script => script.script_name).ToArray();
+
+        // The scripts should have been logged twice, once for the creation of the "meta" tables, with the prefix "bootstrap/"
+        // (GrateScriptsRun, GrateScriptsRunErrors and GrateVersion), and once for the creation of the actual table
+        // (ScriptsRun, ScriptsRunErrors and Version)
+        scriptNames.Should().Contain(name);
+        scriptNames.Should().Contain($"bootstrap/{name}");
+    }
     
     
     private async Task RunMigration(IGrateMigrator migrator)

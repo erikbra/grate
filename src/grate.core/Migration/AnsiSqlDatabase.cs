@@ -27,6 +27,8 @@ public abstract record AnsiSqlDatabase : IDatabase
     private readonly ISyntax _syntax;
 
     private IDictionary<string, string>? _scriptsRunCache;
+    
+    private List<Func<Task>> _deferredWrites = new();
 
     protected AnsiSqlDatabase(ILogger logger, ISyntax syntax)
     {
@@ -638,7 +640,15 @@ VALUES (@versionId, @scriptName, @sql, @hash, @runOnce, @now, @now, @usr)");
         scriptRun.Add(Now, DateTime.UtcNow);
         scriptRun.Add(User, Environment.UserName);
 
-        await ExecuteAsync(ActiveConnection, insertSql, scriptRun);
+        if (Config!.DeferWritingToRunTables)
+        {
+           var activeConnection = ActiveConnection; 
+            _deferredWrites.Add(() => ExecuteAsync(activeConnection, insertSql, scriptRun));
+        }
+        else
+        {
+            await ExecuteAsync(ActiveConnection, insertSql, scriptRun);
+        }
     }
 
     public async Task InsertScriptRunError(string scriptName, string? sql, string errorSql, string errorMessage, long versionId)
@@ -660,8 +670,16 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
         scriptRunErrors.Add(nameof(errorMessage), errorMessage, DbType.String);
         scriptRunErrors.Add(Now, DateTime.UtcNow);
         scriptRunErrors.Add(User, Environment.UserName);
-
-        await ExecuteAsync(ActiveConnection, insertSql, scriptRunErrors);
+        
+        if (Config!.DeferWritingToRunTables)
+        {
+           var activeConnection = ActiveConnection; 
+            _deferredWrites.Add(() => ExecuteAsync(activeConnection, insertSql, scriptRunErrors));
+        }
+        else
+        {
+            await ExecuteAsync(ActiveConnection, insertSql, scriptRunErrors);
+        }
     }
 
     private static async Task Close(DbConnection? conn)
@@ -732,6 +750,8 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
 
     public async ValueTask DisposeAsync()
     {
+        await Task.WhenAll(_deferredWrites.Select(write => write()));
+        _deferredWrites.Clear();
         await CloseConnection();
         await CloseAdminConnection();
         await Close(ActiveConnection);
