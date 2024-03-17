@@ -408,5 +408,5 @@ internal record DbMigrator : IDbMigrator
         GC.SuppressFinalize(this);
     }
 
-    object ICloneable.Clone() => this with { };
+    object ICloneable.Clone() => this with { Database = (IDatabase) Database.Clone() };
 }
