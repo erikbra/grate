@@ -38,9 +38,11 @@ public abstract class When_Grate_structure_is_not_latest_version(IGrateTestConte
 
         var conn = Context.CreateDbConnection(db);
         var reader = await conn.ExecuteReaderAsync(selectSql);
-        var columns = GetColumns(reader);
+        
+        // Not all databases are case-sensitive, so we can't guarantee the case of the table name
+        var columns = GetColumns(reader).Select(column => column.ToUpper());
         TryClose(conn);
-        columns.Should().Contain("status");
+        columns.Should().Contain("status".ToUpper());
 
         // Remove the status column from the table 
         var sql = $"ALTER TABLE {tableWithSchema} DROP COLUMN status";
@@ -51,9 +53,11 @@ public abstract class When_Grate_structure_is_not_latest_version(IGrateTestConte
         // Check that the status column has been removed
         conn = Context.CreateDbConnection(db);
         reader = await conn.ExecuteReaderAsync(selectSql);
-        columns = GetColumns(reader);
+        
+        // Not all databases are case-sensitive, so we can't guarantee the case of the table name
+        columns = GetColumns(reader).Select(column => column.ToUpper());
         TryClose(conn);
-        columns.Should().NotContain("status");
+        columns.Should().NotContain("status".ToUpper());
         
         await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
@@ -64,9 +68,11 @@ public abstract class When_Grate_structure_is_not_latest_version(IGrateTestConte
         // Check that the status column has been added back
         conn = Context.CreateDbConnection(db);
         reader = await conn.ExecuteReaderAsync(selectSql);
-        columns = GetColumns(reader);
+        
+        // Not all databases are case-sensitive, so we can't guarantee the case of the table name
+        columns = GetColumns(reader).Select(column => column.ToUpper());
         TryClose(conn);
-        columns.Should().Contain("status");
+        columns.Should().Contain("status".ToUpper());
     }
 
 
