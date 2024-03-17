@@ -257,9 +257,11 @@ internal record GrateMigrator : IGrateMigrator
                 // First, make sure we have created the "internal meta tables"
                 // (GrateScriptsRun, GrateScriptsRunErrors, GrateVersion), which are used to track
                 // changes to the grate internal tables (ScriptsRun, ScriptsRunErrors, Version).
-                await using var migrator1 = this.WithConfiguration(await GetBootstrapInternalGrateConfiguration());
-                await migrator1.Migrate();
-            
+                await using (var migrator1 = this.WithConfiguration(await GetBootstrapInternalGrateConfiguration()))
+                {
+                    await migrator1.Migrate();
+                }
+
                 // Then, make sure we have created the "grate tables" for the database we are migrating.
                 // (ScriptsRun, ScriptsRunErrors, Version). Turtles all the way down!
                 await using var migrator2 = this.WithConfiguration(await GetInternalGrateConfiguration());

@@ -1,5 +1,5 @@
-CREATE TABLE {{ScriptsRunErrorsTable}}(
-    id bigint GENERATED ALWAYS AS IDENTITY NOT NULL
+CREATE TABLE "{{SchemaName}}"."{{ScriptsRunErrorsTable}}"(
+    id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
     repository_path varchar(255) NULL,
     version varchar(50) NULL,
     script_name varchar(255) NULL,

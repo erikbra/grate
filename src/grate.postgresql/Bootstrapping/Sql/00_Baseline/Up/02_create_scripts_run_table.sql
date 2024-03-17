@@ -1,5 +1,5 @@
-CREATE TABLE {{ScriptsRunTable}}(
-    id bigint GENERATED ALWAYS AS IDENTITY NOT NULL
+CREATE TABLE "{{SchemaName}}"."{{ScriptsRunTable}}"(
+    id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
     version_id BIGINT NULL,
     script_name varchar(255) NULL,
     text_of_script text NULL,
