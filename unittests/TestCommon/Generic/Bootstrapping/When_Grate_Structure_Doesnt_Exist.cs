@@ -70,7 +70,9 @@ public abstract class When_Grate_structure_does_not_exist(IGrateTestContext cont
 
         var scriptsRunTable= await migrator.GetDbMigrator().Database.ExistingTable(schemaName, scriptsRunTableName);
         scriptsRunTable.Should().NotBeNull();
-        scriptsRunTable.Should().Be(scriptsRunTableName);
+        
+        // Not all databases are case-sensitive, so we can't guarantee the case of the table name
+        scriptsRunTable!.ToUpper().Should().Be(scriptsRunTable.ToUpper());
     }
     
     [Fact]
@@ -94,7 +96,9 @@ public abstract class When_Grate_structure_does_not_exist(IGrateTestContext cont
         
         var scriptsErrorTable = await migrator.GetDbMigrator().Database.ExistingTable(schemaName, scriptsErrorTableName);
         scriptsErrorTable.Should().NotBeNull();
-        scriptsErrorTable.Should().Be(scriptsErrorTableName);
+        
+        // Not all databases are case-sensitive, so we can't guarantee the case of the table name
+        scriptsErrorTable!.ToUpper().Should().Be(scriptsErrorTableName.ToUpper());
     }
     
      
@@ -119,7 +123,9 @@ public abstract class When_Grate_structure_does_not_exist(IGrateTestContext cont
 
         var versionTable = await migrator.GetDbMigrator().Database.ExistingTable(schemaName, versionTableName);
         versionTable.Should().NotBeNull();
-        versionTable.Should().Be(versionTableName);
+        
+        // Not all databases are case-sensitive, so we can't guarantee the case of the table name
+        versionTable!.ToUpper().Should().Be(versionTable.ToUpper());
     }
     
     
