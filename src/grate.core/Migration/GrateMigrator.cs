@@ -3,6 +3,7 @@ using System.Text;
 using System.Transactions;
 using grate.Configuration;
 using grate.Exceptions;
+using grate.Infrastructure;
 using Microsoft.Extensions.Logging;
 
 namespace grate.Migration;
@@ -239,6 +240,15 @@ internal record GrateMigrator : IGrateMigrator
         Separator('=');
         _logger.LogInformation("Grate Structure");
         Separator('=');
+        
+        // Make sure the internal grate meta tables are created, by running another migration
+        // with the internal folders (if we are not already running in the internal environment)
+        if (GrateEnvironment.Internal != this.Configuration.Environment)
+        {
+            await using var migrator = this.WithConfiguration(
+                InternalGrateConfiguration());
+            await migrator.Migrate();
+        }
 
         if (dbMigrator.Configuration.DryRun)
         {
@@ -253,6 +263,35 @@ internal record GrateMigrator : IGrateMigrator
             }
             s.Complete();
         }
+    }
+
+    private GrateConfiguration InternalGrateConfiguration()
+    {
+        var thisConfig = this.Configuration;
+        
+        var grateInternalMigrationFolders = FileSystem.CreateRandomTempDirectory();
+        //SqlFilesDirectory = new DirectoryInfo("internal embedded resources"),
+        return GrateConfiguration.Default with
+        {
+            ConnectionString = thisConfig.ConnectionString,
+            AdminConnectionString = thisConfig.AdminConnectionString,
+            SchemaName = thisConfig.SchemaName,
+            AccessToken = thisConfig.AccessToken,
+            CommandTimeout = thisConfig.CommandTimeout,
+            AdminCommandTimeout = thisConfig.AdminCommandTimeout,
+            
+            NonInteractive = true,
+            SqlFilesDirectory = grateInternalMigrationFolders,
+            CreateDatabase = false,
+            Drop = false,
+            Restore = null,
+            Transaction = false, 
+            Version = ApplicationInfo.Version,
+            ScriptsRunTableName = "GrateScriptsRun",
+            ScriptsRunErrorsTableName = "GrateScriptsRunErrors",
+            VersionTableName = "GrateVersion",
+            Environment = GrateEnvironment.Internal
+        };
     }
 
     private async Task<(long, string)> VersionTheDatabase(IDbMigrator dbMigrator)
