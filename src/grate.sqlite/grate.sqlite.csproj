@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Bootstrapping\Sql\Baseline\" />
+    <Folder Include="Bootstrapping\Sql\00_Baseline\" />
   </ItemGroup>
 
   <ItemGroup>

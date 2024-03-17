@@ -28,7 +28,7 @@ public abstract record AnsiSqlDatabase : IDatabase
 
     private IDictionary<string, string>? _scriptsRunCache;
     
-    private List<Func<Task>> _deferredWrites = new();
+    private List<Func<DbConnection, Task>> _deferredWrites = new();
 
     protected AnsiSqlDatabase(ILogger logger, ISyntax syntax)
     {
@@ -262,10 +262,10 @@ public abstract record AnsiSqlDatabase : IDatabase
 
     public async Task RunSupportTasks()
     {
-        await CreateRunSchema();
-        await CreateScriptsRunTable();
-        await CreateScriptsRunErrorsTable();
-        await CreateVersionTable();
+        // await CreateRunSchema();
+        // await CreateScriptsRunTable();
+        // await CreateScriptsRunErrorsTable();
+        // await CreateVersionTable();
         await AddStatusColumnToVersionTable();
     }
 
@@ -642,8 +642,7 @@ VALUES (@versionId, @scriptName, @sql, @hash, @runOnce, @now, @now, @usr)");
 
         if (Config!.DeferWritingToRunTables)
         {
-           var activeConnection = ActiveConnection; 
-            _deferredWrites.Add(() => ExecuteAsync(activeConnection, insertSql, scriptRun));
+            _deferredWrites.Add(conn => ExecuteAsync(conn, insertSql, scriptRun));
         }
         else
         {
@@ -673,8 +672,7 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
         
         if (Config!.DeferWritingToRunTables)
         {
-           var activeConnection = ActiveConnection; 
-            _deferredWrites.Add(() => ExecuteAsync(activeConnection, insertSql, scriptRunErrors));
+            _deferredWrites.Add(conn => ExecuteAsync(conn, insertSql, scriptRunErrors));
         }
         else
         {
@@ -723,7 +721,7 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
         return await conn.ExecuteScalarAsync<T?>(sql, parameters);
     }
 
-    protected async Task<int> ExecuteAsync(DbConnection conn, string sql, object? parameters = null)
+    protected async Task<int> ExecuteAsync(IDbConnection conn, string sql, object? parameters = null)
     {
         Logger.LogTrace("SQL: {Sql}", sql);
         Logger.LogTrace("Parameters: {@Parameters}", parameters);
@@ -750,8 +748,11 @@ VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)
 
     public async ValueTask DisposeAsync()
     {
-        await Task.WhenAll(_deferredWrites.Select(write => write()));
-        _deferredWrites.Clear();
+        if (_deferredWrites.Any())
+        {
+            await Task.WhenAll(_deferredWrites.Select(write => write(ActiveConnection)));
+            _deferredWrites.Clear();
+        }
         await CloseConnection();
         await CloseAdminConnection();
         await Close(ActiveConnection);

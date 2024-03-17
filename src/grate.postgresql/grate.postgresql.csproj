@@ -16,5 +16,10 @@
   <ItemGroup>
     <None Include="NuGet.md" Pack="true" PackagePath="\" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Include="Bootstrapping\Sql\**\*.sql" />
+    <None Remove="Bootstrapping\Sql\**\*.sql" />
+  </ItemGroup>
 
 </Project>

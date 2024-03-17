@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using FluentAssertions;
 using grate.Configuration;
-using grate.Infrastructure;
 using grate.Migration;
 using TestCommon.Generic.Running_MigrationScripts;
 using TestCommon.TestInfrastructure;
@@ -85,6 +84,8 @@ public abstract class When_Grate_internal_structure_does_not_exist(IGrateTestCon
     
     [Theory]
     [InlineData("02_create_scripts_run_table.sql")]
+    [InlineData("03_create_scripts_run_errors_table.sql")]
+    [InlineData("04_create_version_table.sql")]
     public async Task Logs_internal_scripts_run_in_own_structure(string name)
     {
         var db = TestConfig.RandomDatabase();
@@ -116,8 +117,7 @@ public abstract class When_Grate_internal_structure_does_not_exist(IGrateTestCon
         scriptNames.Should().Contain(name);
         scriptNames.Should().Contain($"bootstrap/{name}");
     }
-    
-    
+
     private async Task RunMigration(IGrateMigrator migrator)
     {
         var config = migrator.Configuration;

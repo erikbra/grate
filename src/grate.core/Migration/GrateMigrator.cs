@@ -247,10 +247,12 @@ internal record GrateMigrator : IGrateMigrator
         }
         else
         {
-                    
             // Make sure the internal grate meta tables are created, by running another migration
             // with the internal folders (if we are not already running in the internal environment)
-            if (GrateEnvironment.Internal != this.Configuration.Environment)
+            if (
+                GrateEnvironment.Internal != this.Configuration.Environment
+                && GrateEnvironment.InternalBootstrap != this.Configuration.Environment
+                )
             {
                 // First, make sure we have created the "internal meta tables"
                 // (GrateScriptsRun, GrateScriptsRunErrors, GrateVersion), which are used to track
@@ -563,7 +565,8 @@ internal record GrateMigrator : IGrateMigrator
                 "ScriptsRunErrorsTable=GrateScriptsRunErrors",
                 "VersionTable=GrateVersion"
             ],
-            DeferWritingToRunTables = true
+            DeferWritingToRunTables = true,
+            Environment = GrateEnvironment.InternalBootstrap
         };
     
     private async Task<GrateConfiguration> GetInternalGrateConfiguration(string? sqlFolderNamePrefix = null)
@@ -574,7 +577,7 @@ internal record GrateMigrator : IGrateMigrator
         await Bootstrapping.WriteBootstrapScriptsToFolder(
             this.Database.GetType(), 
             internalMigrationFolders, 
-            "Baseline",
+            "00_Baseline",
             sqlFolderNamePrefix);
         
         //SqlFilesDirectory = new DirectoryInfo("internal embedded resources"),

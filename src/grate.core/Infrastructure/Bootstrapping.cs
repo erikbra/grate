@@ -1,4 +1,6 @@
-﻿namespace grate.Infrastructure;
+﻿using System.Text.RegularExpressions;
+
+namespace grate.Infrastructure;
 
 public static class Bootstrapping
 {
@@ -9,6 +11,13 @@ public static class Bootstrapping
         string? sqlFolderNamePrefix)
     {
         var assembly = databasetype.Assembly;
+        
+        // If the resource prefix starts with a number, we need to prefix it with an underscore
+        if (Regex.IsMatch(resourcePrefix, "^\\d"))
+        {
+            resourcePrefix = $"_{resourcePrefix}";
+        }
+        
         var prefix = $"{assembly.GetName().Name}.Bootstrapping.Sql.{resourcePrefix}";
         var prefixLength = prefix.Length;
         

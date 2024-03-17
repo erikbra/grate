@@ -23,4 +23,5 @@ public record GrateEnvironment(string Current)
     public override string ToString() => Current;
     
     public static GrateEnvironment Internal { get; } = new("GrateInternal-a01ce6e6-0038-4ebe-959e-7d039f6435bf");
+    public static GrateEnvironment InternalBootstrap { get; } = new("GrateInternalBoostrap-a61456d0-e00a-4933-b692-c6a5d7d51539");
 }
