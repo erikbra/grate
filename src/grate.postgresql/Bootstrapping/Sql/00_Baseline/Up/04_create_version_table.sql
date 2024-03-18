@@ -7,6 +7,3 @@ CREATE TABLE "{{SchemaName}}"."{{VersionTable}}"(
     entered_by varchar(50) NULL,
     status varchar(50) NULL
 )
-
-
-

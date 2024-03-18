@@ -2,9 +2,9 @@
 
 namespace grate.Infrastructure;
 
-public static class Bootstrapping
+internal static class Bootstrapping
 {
-    public static async Task WriteBootstrapScriptsToFolder(
+    internal static async Task WriteBootstrapScriptsToFolder(
         Type databasetype, 
         string folder,
         string resourcePrefix,
