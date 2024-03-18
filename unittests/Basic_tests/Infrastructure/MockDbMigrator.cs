@@ -1,4 +1,4 @@
-using grate.Configuration;
+﻿using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
 using grate.Sqlite.Migration;
@@ -60,7 +60,7 @@ public class MockDbMigrator: IDbMigrator
         return Task.FromResult(string.Empty);
     }
 
-    public Task<long> VersionTheDatabase(string newVersion)
+    public Task<long> VersionTheDatabase(string newVersion, string? repositoryPath)
     {
         return Task.FromResult(0L);
     }

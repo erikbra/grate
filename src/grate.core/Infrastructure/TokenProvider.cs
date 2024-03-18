@@ -57,7 +57,7 @@ internal class TokenProvider
             ["OutputPath"] = _config.OutputPath.FullName, //TODO: Does RH use name or full path?
             ["PermissionsFolderName"] = GetFolder(KnownFolderKeys.Permissions).ToToken(),
             //["RecoveryMode"] = RecoveryMode.to_string(),
-            //["RepositoryPath"] = RepositoryPath.to_string(),
+            ["RepositoryPath"] = _config.RepositoryPath,
             ["Restore"] = _config.Restore,
             //["RestoreTimeout"] = RestoreTimeout.to_string(),
             ["RunAfterCreateDatabaseFolderName"] = GetFolder(KnownFolderKeys.RunAfterCreateDatabase).ToToken(),

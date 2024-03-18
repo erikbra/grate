@@ -117,6 +117,18 @@ public sealed partial class GrateConfigurationBuilder
     }
 
     /// <summary>
+    /// Repository path of service to use. Grate will store the repository path in the database
+    /// for history and tracking purposes.
+    /// </summary>
+    /// <param name="repositoryPath">service migration repository path</param>
+    /// <returns>GrateConfigurationBuilder</returns>
+    public GrateConfigurationBuilder WithRepositoryPath(string repositoryPath)
+    {
+        _grateConfiguration = _grateConfiguration with { RepositoryPath = repositoryPath };
+        return this;
+    }
+
+    /// <summary>
     /// Version of service to use. Grate will store the version in the database
     /// for history and tracking purposes.
     /// </summary>

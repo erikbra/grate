@@ -92,6 +92,22 @@ public class Basic_CommandLineParsing
     }
 
     [Theory]
+    [InlineData("-r ")]
+    [InlineData("-r=")]
+    [InlineData("--repo ")]
+    [InlineData("--repo=")]
+    [InlineData("--repositorypath ")]
+    [InlineData("--repositorypath=")]
+    public async Task RepositoryPath(string argName)
+    {
+        var repositorypath = "git@example.com:user/repo.git";
+        var commandline = argName + repositorypath;
+        var cfg = await ParseGrateConfiguration(commandline);
+
+        cfg?.RepositoryPath.Should().Be(repositorypath);
+    }
+
+    [Theory]
     [InlineData("--version=")]
     [InlineData("--version ")]
     public async Task Version(string argName)
