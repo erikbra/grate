@@ -93,16 +93,17 @@ WHERE  version_row_number <= 1
     protected override string Parameterize(string sql) => sql.Replace("@", ":");
     protected override object Bool(bool source) => source ? '1' : '0';
 
-    public override async Task<long> VersionTheDatabase(string newVersion)
+    public override async Task<long> VersionTheDatabase(string newVersion, string? repositoryPath = null)
     {
         var sql = (string)$@"
 INSERT INTO {VersionTable}
-(version, entry_date, modified_date, entered_by, status)
-VALUES(:newVersion, :entryDate, :modifiedDate, :enteredBy, :status)
+(repository_path, version, entry_date, modified_date, entered_by, status)
+VALUES(:repositoryPath, :newVersion, :entryDate, :modifiedDate, :enteredBy, :status)
 RETURNING id into :id
 ";
         var parameters = new
         {
+            repositoryPath,
             newVersion,
             entryDate = DateTime.UtcNow,
             modifiedDate = DateTime.UtcNow,
@@ -125,8 +126,14 @@ RETURNING id into :id
             versionId = 1;
         }
 
-
-        Logger.LogInformation(" Versioning {DbName} database with version {Version}.", DatabaseName, newVersion);
+        if (repositoryPath != null)
+        {
+            Logger.LogInformation(" Versioning {DbName} database with version {Version} based on {RepositoryPath}.", DatabaseName, newVersion, repositoryPath);
+        }
+        else
+        {
+            Logger.LogInformation(" Versioning {DbName} database with version {Version}.", DatabaseName, newVersion);
+        }
 
         return versionId;
     }
