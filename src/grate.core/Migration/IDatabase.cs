@@ -35,7 +35,7 @@ public interface IDatabase : IAsyncDisposable
     Task<bool> DatabaseExists();
     Task RunSupportTasks();
     Task<string> GetCurrentVersion();
-    Task<long> VersionTheDatabase(string newVersion);
+    Task<long> VersionTheDatabase(string newVersion, string? repositoryPath = null);
     void Rollback();
     Task RunSql(string sql, ConnectionType connectionType, TransactionHandling transactionHandling);
     Task<string?> GetCurrentHash(string scriptName);

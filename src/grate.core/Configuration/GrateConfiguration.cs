@@ -79,6 +79,11 @@ public record GrateConfiguration
     public GrateEnvironment? Environment { get; init; }
 
     /// <summary>
+    /// The optional repository path value used to track along with version.
+    /// </summary>
+    public string? RepositoryPath { get; init; }
+
+    /// <summary>
     /// The database version we're migrating to on this run.
     /// </summary>
     public string Version { get; init; } = "0.0.0.1";
