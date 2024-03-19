@@ -30,6 +30,12 @@ public abstract class When_Grate_structure_is_not_latest_version(IGrateTestConte
             .WithSqlFilesDirectory(parent)
             .Build();
         
+        // Create database
+        using (var adminConn = Context.CreateAdminDbConnection())
+        {
+            await adminConn.ExecuteAsync(Context.Syntax.CreateDatabase(db, null));
+        }
+        
         var conn = Context.CreateDbConnection(db);
 
         var resources = TestInfrastructure.Bootstrapping.GetBootstrapScripts(this.Context.DatabaseType, "00_Baseline");

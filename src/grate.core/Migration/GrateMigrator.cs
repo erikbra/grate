@@ -195,15 +195,26 @@ internal record GrateMigrator : IGrateMigrator
 
         if (!config.DryRun)
         {
-            //If we get here this means no exceptions are thrown above, so we can conclude the migration was successful!
-            if (anySqlRun)
+            // TODO: Clean up the try - catch here - it's only used in initial bootstrapping if the
+            // TODO: version table _does_ exist, but it doesn't have the version table.
+            // TODO: This will be just once for each of legacy RoundhousE databases migrated to grate.
+
+            try
             {
-                await DbMigrator.Database.ChangeVersionStatus(MigrationStatus.Finished, versionId);
+                //If we get here this means no exceptions are thrown above, so we can conclude the migration was successful!
+                if (anySqlRun)
+                {
+                    await DbMigrator.Database.ChangeVersionStatus(MigrationStatus.Finished, versionId);
+                }
+                else
+                {
+                    // as we have an issue with the versioning table, we need to delete the version record
+                    await DbMigrator.Database.DeleteVersionRecord(versionId);
+                }
             }
-            else
+            catch (DbException)
             {
-                // as we have an issue with the versioning table, we need to delete the version record
-                await DbMigrator.Database.DeleteVersionRecord(versionId);
+                // Ignore!
             }
         }
 
@@ -586,7 +597,7 @@ internal record GrateMigrator : IGrateMigrator
         var internalMigrationFolders = await WriteInternalScriptsToTemporaryFolders(internalFolderName, sqlFolderNamePrefix);
 
         // Check if the tables already exist or not. If they do, run in baseline mode.
-        var baseline = await this.Database.VersionTableExists();
+        var baseline = internalFolderName == "00_Baseline" && await this.Database.VersionTableExists();
         
         // We might consider supporting other sources of the SQL scripts than the file system,
         // but for now, we write the internal scripts to file system before running them 
