@@ -47,7 +47,7 @@ public abstract class When_Grate_structure_is_not_latest_version(IGrateTestConte
             {
                 resourceText = Regex.Replace(
                     resourceText,
-                    @"^(\s*entered_by.*),\s*status.*", "$1",
+                    @"^(\s*entered_by.*)\s*status.*", "$1",
                     RegexOptions.Multiline
                     );
             }

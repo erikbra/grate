@@ -1,5 +1,5 @@
-CREATE TABLE "{{SchemaName}}"."{{VersionTable}}"(
-    id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+CREATE TABLE {{SchemaName}}_{{VersionTable}}(
+    id bigint NOT NULL AUTO_INCREMENT,
     repository_path varchar(255) NULL,
     version varchar(50) NULL,
     entry_date timestamp NULL,
