@@ -1,4 +1,4 @@
-CREATE TABLE {{ScriptsRunErrorsTable}}(
+CREATE TABLE {{SchemaName}}_{{ScriptsRunErrorsTable}}(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     repository_path nvarchar(255) NULL,
     version nvarchar(50) NULL,

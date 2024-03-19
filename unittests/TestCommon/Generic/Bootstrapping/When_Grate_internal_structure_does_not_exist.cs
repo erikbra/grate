@@ -115,7 +115,7 @@ public abstract class When_Grate_internal_structure_does_not_exist(IGrateTestCon
         // (GrateScriptsRun, GrateScriptsRunErrors and GrateVersion), and once for the creation of the actual table
         // (ScriptsRun, ScriptsRunErrors and Version)
         scriptNames.Should().Contain(name);
-        scriptNames.Should().Contain($"bootstrap/{name}");
+        scriptNames.Should().Contain($"grate-internal/{name}");
     }
 
     private async Task RunMigration(IGrateMigrator migrator)

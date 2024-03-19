@@ -254,18 +254,8 @@ internal record GrateMigrator : IGrateMigrator
                 && GrateEnvironment.InternalBootstrap != this.Configuration.Environment
                 )
             {
-                // First, make sure we have created the "internal meta tables"
-                // (GrateScriptsRun, GrateScriptsRunErrors, GrateVersion), which are used to track
-                // changes to the grate internal tables (ScriptsRun, ScriptsRunErrors, Version).
-                await using (var migrator1 = this.WithConfiguration(await GetBootstrapInternalGrateConfiguration()))
-                {
-                    await migrator1.Migrate();
-                }
-
-                // Then, make sure we have created the "grate tables" for the database we are migrating.
-                // (ScriptsRun, ScriptsRunErrors, Version). Turtles all the way down!
-                await using var migrator2 = this.WithConfiguration(await GetInternalGrateConfiguration());
-                await migrator2.Migrate();
+                await RunInternalMigrations("00_Baseline");
+                await RunInternalMigrations("GrateStructure");
             }
             
             using var s = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
@@ -557,10 +547,27 @@ internal record GrateMigrator : IGrateMigrator
 
         return runInTransaction;
     }
+    
+    private async Task RunInternalMigrations(string internalFolderName)
+    {
+        // First, make sure we have created the "internal meta tables"
+        // (GrateScriptsRun, GrateScriptsRunErrors, GrateVersion), which are used to track
+        // changes to the grate internal tables (ScriptsRun, ScriptsRunErrors, Version).
+        await using (var migrator1 = this.WithConfiguration(await GetBootstrapInternalGrateConfiguration(internalFolderName)))
+        {
+            await migrator1.Migrate();
+        }
 
+        // Then, make sure we have created the "grate tables" for the database we are migrating.
+        // (ScriptsRun, ScriptsRunErrors, Version). Turtles all the way down!
+        await using var migrator2 = this.WithConfiguration(await GetInternalGrateConfiguration(internalFolderName));
+        await migrator2.Migrate();
+    }
 
-    private async Task<GrateConfiguration> GetBootstrapInternalGrateConfiguration() =>
-        await GetInternalGrateConfiguration("bootstrap") with
+    
+
+    private async Task<GrateConfiguration> GetBootstrapInternalGrateConfiguration(string internalFolderName) =>
+        await GetInternalGrateConfiguration(internalFolderName, "grate-internal") with
         {
             UserTokens = [
                 "ScriptsRunTable=GrateScriptsRun",
@@ -568,20 +575,21 @@ internal record GrateMigrator : IGrateMigrator
                 "VersionTable=GrateVersion"
             ],
             DeferWritingToRunTables = true,
-            Environment = GrateEnvironment.InternalBootstrap
+            Environment = GrateEnvironment.InternalBootstrap,
+            Baseline = false
         };
     
-    private async Task<GrateConfiguration> GetInternalGrateConfiguration(string? sqlFolderNamePrefix = null)
+    private async Task<GrateConfiguration> GetInternalGrateConfiguration(string internalFolderName, string? sqlFolderNamePrefix = null)
     {
         var thisConfig = this.Configuration;
         
-        var internalMigrationFolders = FileSystem.CreateRandomTempDirectory().ToString();
-        await Bootstrapping.WriteBootstrapScriptsToFolder(
-            this.Database.GetType(), 
-            internalMigrationFolders, 
-            "00_Baseline",
-            sqlFolderNamePrefix);
+        var internalMigrationFolders = await WriteInternalScriptsToTemporaryFolders(internalFolderName, sqlFolderNamePrefix);
+
+        // Check if the tables already exist or not. If they do, run in baseline mode.
+        var baseline = await this.Database.VersionTableExists();
         
+        // We might consider supporting other sources of the SQL scripts than the file system,
+        // but for now, we write the internal scripts to file system before running them 
         //SqlFilesDirectory = new DirectoryInfo("internal embedded resources"),
         return GrateConfiguration.Default with
         {
@@ -592,6 +600,7 @@ internal record GrateMigrator : IGrateMigrator
             CommandTimeout = thisConfig.CommandTimeout,
             AdminCommandTimeout = thisConfig.AdminCommandTimeout,
             
+            Baseline = baseline,
             NonInteractive = true,
             SqlFilesDirectory = new DirectoryInfo(internalMigrationFolders),
             CreateDatabase = false,
@@ -611,6 +620,18 @@ internal record GrateMigrator : IGrateMigrator
             
             Environment = GrateEnvironment.Internal
         };
+    }
+
+    private async Task<string> WriteInternalScriptsToTemporaryFolders(string internalFolderName, string? sqlFolderNamePrefix)
+    {
+        var internalMigrationFolders = FileSystem.CreateRandomTempDirectory().ToString();
+        await Bootstrapping.WriteBootstrapScriptsToFolder(
+            this.Database.GetType(), 
+            internalMigrationFolders, 
+            internalFolderName,
+            //"00_Baseline",
+            sqlFolderNamePrefix);
+        return internalMigrationFolders;
     }
 
     public async ValueTask DisposeAsync()

@@ -1,4 +1,4 @@
-CREATE TABLE {{ScriptsRunTable}}(
+CREATE TABLE {{SchemaName}}_{{ScriptsRunTable}}(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     version_id BIGINT NULL,
     script_name nvarchar(255) NULL,
