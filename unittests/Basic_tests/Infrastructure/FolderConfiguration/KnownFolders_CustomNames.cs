@@ -13,7 +13,7 @@ namespace Basic_tests.Infrastructure.FolderConfiguration;
 // ReSharper disable once InconsistentNaming
 public class KnownFolders_CustomNames
 {
-    private static readonly Random Random = new();
+    private static readonly Random Random = Random.Shared;
 
     [Fact]
     public void Returns_folders_in_same_order_as_default()

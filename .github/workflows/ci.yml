@@ -103,6 +103,7 @@ jobs:
      runs-on: ubuntu-latest
      name: Create test report
      needs: test
+     if: always()
 
      steps:
       - name: Download XML test reports
