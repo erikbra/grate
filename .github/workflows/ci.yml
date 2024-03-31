@@ -103,6 +103,7 @@ jobs:
      runs-on: ubuntu-latest
      name: Create test report
      needs: test
+     if: always()
 
      steps:
       - name: Download XML test reports
@@ -113,7 +114,7 @@ jobs:
       - name: Install smink
         run: |
           BASEURL="https://github.com/erikbra/smink/releases/download/"
-          VERSION="0.2.0"
+          VERSION="0.3.0"
 
           INSTALL_DIR="/tmp/smink"
           SMINK="${INSTALL_DIR}/smink"

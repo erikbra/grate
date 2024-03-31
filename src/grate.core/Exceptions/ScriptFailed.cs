@@ -60,7 +60,7 @@ public abstract class ScriptFailed: MigrationException
             
             if (ScriptText is { })
             {
-                for (var i = 0; i < Position; i++)
+                for (var i = 0; i < Position && i < ScriptText.Length; i++)
                 {
                     if (ScriptText[i] == '\n')
                     {

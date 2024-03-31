@@ -13,39 +13,32 @@ namespace Sqlite.TestInfrastructure;
 [CollectionDefinition(nameof(SqliteGrateTestContext))]
 public class SqliteTestCollection : ICollectionFixture<SqliteGrateTestContext>;
 
-public class SqliteGrateTestContext : IGrateTestContext
+public class SqliteGrateTestContext : GrateTestContext
 {
     public SqliteGrateTestContext(
-        IGrateMigrator migrator, 
-        ITestDatabase _)
+        IGrateMigrator migrator,
+        ITestDatabase testDatabase) : base(testDatabase)
     {
         Migrator = migrator;
     }
+    
+    public override IDbConnection GetDbConnection(string connectionString) => new SqliteConnection(connectionString);
 
-    public string AdminConnectionString => $"Data Source=grate-sqlite.db";
-    public string ConnectionString(string database) => $"Data Source={database}.db";
-    public string UserConnectionString(string database) => $"Data Source={database}.db";
+    public override ISyntax Syntax => new SqliteSyntax();
+    public override Type DbExceptionType => typeof(SqliteException);
 
-    public IDbConnection GetDbConnection(string connectionString) => new SqliteConnection(connectionString);
+    public override Type DatabaseType => typeof(SqliteDatabase);
+    public override bool SupportsTransaction => false;
 
-    public ISyntax Syntax => new SqliteSyntax();
-    public Type DbExceptionType => typeof(SqliteException);
-
-    public Type DatabaseType => typeof(SqliteDatabase);
-    public bool SupportsTransaction => false;
-    // public string DatabaseTypeName => "Sqlite";
-    // public string MasterDatabase => "master";
-
-
-    public SqlStatements Sql => new()
+    public override SqlStatements Sql => new()
     {
         SelectVersion = "SELECT sqlite_version();",
     };
 
 
-    public string ExpectedVersionPrefix => throw new NotSupportedException("Sqlite does not support versioning");
-    public bool SupportsCreateDatabase => false;
-    public bool SupportsSchemas => false;
+    public override string ExpectedVersionPrefix => throw new NotSupportedException("Sqlite does not support versioning");
+    public override bool SupportsCreateDatabase => false;
+    public override bool SupportsSchemas => false;
 
-    public IGrateMigrator Migrator { get; }
+    public override IGrateMigrator Migrator { get; }
 }

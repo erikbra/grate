@@ -3,7 +3,8 @@
 using Microsoft.Data.Sqlite;
 using Xunit.Sdk;
 namespace TestCommon.TestInfrastructure;
-public class SqliteTestDatabase(IMessageSink messageSink) : ITestDatabase
+
+public class SqliteTestDatabase(IMessageSink messageSink) : ITestDatabase, IAsyncLifetime
 {
     public Task DisposeAsync()
     {

@@ -6,17 +6,11 @@ using NSubstitute;
 
 namespace Basic_tests.Infrastructure;
 
-public class MockDbMigrator: IDbMigrator
+public record MockDbMigrator: IDbMigrator
 {
-    public ValueTask DisposeAsync()
-    {
-        throw new NotImplementedException();
-    }
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
-    public object Clone()
-    {
-        throw new NotImplementedException();
-    }
+    object ICloneable.Clone() => this with { };
 
     public GrateConfiguration Configuration { get; set; } = null!;
     public IDatabase Database { get; set; } = Substitute.For<IDatabase>();

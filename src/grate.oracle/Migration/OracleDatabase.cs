@@ -112,15 +112,23 @@ RETURNING id into :id
         var dynParams = new DynamicParameters(parameters);
         dynParams.Add(":id", dbType: DbType.Int64, direction: ParameterDirection.Output);
 
-        await ActiveConnection.ExecuteAsync(
-            sql,
-            dynParams);
+        long versionId;
 
-        var res = dynParams.Get<long>(":id");
+        try
+        {
+            await ActiveConnection.ExecuteAsync(sql, dynParams);
+            versionId = dynParams.Get<long>(":id");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogDebug(ex, "Could not find version table in {DbName} database. Using default version Id", DatabaseName);
+            versionId = 1;
+        }
 
-        Logger.LogInformation(" Versioning {dbName} database with version {version}.", DatabaseName, newVersion);
 
-        return res;
+        Logger.LogInformation(" Versioning {DbName} database with version {Version}.", DatabaseName, newVersion);
+
+        return versionId;
     }
 
     public override string DatabaseName

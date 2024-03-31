@@ -155,4 +155,8 @@ public record GrateConfiguration
     /// </summary>
     public bool IgnoreDirectoryNames { get; set; }
 
+    /// <summary>
+    /// Defer writing to the run tables until the end of the migration (only used in bootstrapping)
+    /// </summary>
+    internal bool DeferWritingToRunTables { get; set; }
 }

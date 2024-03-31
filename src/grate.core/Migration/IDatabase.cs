@@ -3,7 +3,7 @@ using grate.Configuration;
 
 namespace grate.Migration;
 
-public interface IDatabase : IAsyncDisposable
+public interface IDatabase : IAsyncDisposable, ICloneable
 {
     string? ServerName { get; }
     string? DatabaseName { get; }
@@ -33,7 +33,6 @@ public interface IDatabase : IAsyncDisposable
     Task DropDatabase();
 
     Task<bool> DatabaseExists();
-    Task RunSupportTasks();
     Task<string> GetCurrentVersion();
     Task<long> VersionTheDatabase(string newVersion);
     void Rollback();
