@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using DotNet.Testcontainers.Containers;
+using Microsoft.Extensions.Logging;
 using TestCommon.TestInfrastructure;
 using Testcontainers.MsSql;
 
@@ -13,7 +14,7 @@ public class SqlServerTestContainerDatabase : TestContainerDatabase
     {
     }
 
-    protected override MsSqlContainer InitializeTestContainer()
+    protected override IContainer InitializeTestContainer(ILogger logger)
     {
         return new MsSqlBuilder()
             .WithImage(DockerImage)
@@ -21,6 +22,7 @@ public class SqlServerTestContainerDatabase : TestContainerDatabase
             .WithPassword(AdminPassword)
             .WithPortBinding(InternalPort, true)
             .WithEnvironment("MSSQL_COLLATION", "Danish_Norwegian_CI_AS")
+            .WithLogger(logger)
             .Build();
     }
     

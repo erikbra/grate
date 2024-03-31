@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using DotNet.Testcontainers.Containers;
+using Microsoft.Extensions.Logging;
 using Testcontainers.Oracle;
 
 namespace TestCommon.TestInfrastructure;
@@ -11,13 +12,14 @@ public class OracleTestContainerDatabase : TestContainerDatabase
     {
     }
 
-    protected override OracleContainer InitializeTestContainer()
+    protected override IContainer InitializeTestContainer(ILogger logger)
     {
         return new OracleBuilder()
             .WithImage(DockerImage)
             .WithEnvironment("DOCKER_DEFAULT_PLATFORM", "linux/amd64")
             .WithPassword(AdminPassword)
             .WithPortBinding(InternalPort, true)
+            .WithLogger(logger)
             .Build();
     }
     
