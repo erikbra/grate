@@ -17,13 +17,14 @@ public class MariaDbTestContainerDatabase : TestContainerDatabase
     {
     }
 
-    protected override MariaDbContainer InitializeTestContainer()
+    protected override IContainer InitializeTestContainer(ILogger logger)
     {
         return new MariaDbBuilder()
             .WithImage(DockerImage)
             .WithPassword(AdminPassword)
             .WithPortBinding(InternalPort, true)
             .WithCommand("--max_connections=10000")
+            .WithLogger(logger)
             .Build();
     }
     

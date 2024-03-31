@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using DotNet.Testcontainers.Containers;
+using Microsoft.Extensions.Logging;
 
 namespace TestCommon.TestInfrastructure;
 public class PostgreSqlTestContainerDatabase : TestContainerDatabase
@@ -10,12 +11,13 @@ public class PostgreSqlTestContainerDatabase : TestContainerDatabase
     {
     }
 
-    protected override PostgreSqlContainer InitializeTestContainer()
+    protected override IContainer InitializeTestContainer(ILogger logger)
     {
         return new PostgreSqlBuilder()
             .WithImage(DockerImage)
             .WithPassword(AdminPassword)
             .WithPortBinding(InternalPort, true)
+            .WithLogger(logger)
             .Build();
     }
     

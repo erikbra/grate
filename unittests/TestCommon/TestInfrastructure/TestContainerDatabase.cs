@@ -25,8 +25,7 @@ public abstract class TestContainerDatabase : ITestDatabase, IAsyncLifetime
                        _random.GetString(10, Digits);
 
         // ReSharper disable once VirtualMemberCallInConstructor
-        TestContainer = InitializeTestContainer();
-        TestcontainersSettings.Logger = logger;
+        TestContainer = InitializeTestContainer(logger);
     }
 
     public IContainer TestContainer { get; }
@@ -42,7 +41,7 @@ public abstract class TestContainerDatabase : ITestDatabase, IAsyncLifetime
         await TestContainer.StartAsync();
     }
 
-    protected abstract IContainer InitializeTestContainer();
+    protected abstract IContainer InitializeTestContainer(ILogger logger);
     public abstract string ConnectionString(string database);
     public abstract string UserConnectionString(string database);
 }
