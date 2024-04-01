@@ -24,7 +24,7 @@ public abstract class Versioning_The_Database(IGrateTestContext context, ITestOu
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         CreateDummySql(parent, knownFolders[Sprocs]);
         
         var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
@@ -58,7 +58,7 @@ public abstract class Versioning_The_Database(IGrateTestContext context, ITestOu
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
 
         CreateDummySql(parent, knownFolders[Sprocs]); // make sure there's something that could be logged...
 
@@ -83,7 +83,7 @@ public abstract class Versioning_The_Database(IGrateTestContext context, ITestOu
         var dbVersion = "1.2.3.4";
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         CreateDummySql(parent, knownFolders[Up]);
 
         long newVersionId = 0;
@@ -122,7 +122,7 @@ public abstract class Versioning_The_Database(IGrateTestContext context, ITestOu
         var dbVersion = "1.2.3.4";
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         CreateDummySql(parent, knownFolders[Up]);
 
         var repositoryPath = "any repository path";
@@ -181,7 +181,7 @@ public abstract class Versioning_The_Database(IGrateTestContext context, ITestOu
     {
         //for bug #388 - no script change, should not create new version entry
         var sqlFolder = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         CreateDummySql(sqlFolder, knownFolders[Up]);
         var originalVersion = "1.0.0.0-alpha";
 
@@ -224,7 +224,7 @@ public abstract class Versioning_The_Database(IGrateTestContext context, ITestOu
     public async Task Should_set_the_version_table_to_new_version_value_when_migrating()
     {
         var sqlFolder = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         CreateDummySql(sqlFolder, knownFolders[Up], "1_up.sql");
         
         var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)

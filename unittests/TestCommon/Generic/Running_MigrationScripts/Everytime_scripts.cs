@@ -22,7 +22,7 @@ public abstract class Everytime_scripts(IGrateTestContext context, ITestOutputHe
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         CreateDummySql(parent, knownFolders[Permissions]);
         
         var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
@@ -50,7 +50,7 @@ public abstract class Everytime_scripts(IGrateTestContext context, ITestOutputHe
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         CreateDummySql(parent, knownFolders[Permissions]);
         
         var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
@@ -89,7 +89,7 @@ public abstract class Everytime_scripts(IGrateTestContext context, ITestOutputHe
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
 
         var folder = knownFolders[Up];// not an everytime folder
 
@@ -126,7 +126,7 @@ public abstract class Everytime_scripts(IGrateTestContext context, ITestOutputHe
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         
         var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
             .WithConnectionString(Context.ConnectionString(db))

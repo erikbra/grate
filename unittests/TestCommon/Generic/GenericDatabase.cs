@@ -241,7 +241,7 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
             CreateDatabase = createDatabase,
             ConnectionString = connectionString,
             AdminConnectionString = adminConnectionString,
-            Folders = FoldersConfiguration.Default(null),
+            Folders = Folders.Default,
             NonInteractive = true,
             SqlFilesDirectory = parent
         };

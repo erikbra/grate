@@ -37,7 +37,7 @@ public class TokenReplacerTests
     [Fact]
     public void EnsureConfigMakesItToTokens()
     {
-        var folders = FoldersConfiguration.Default(null);
+        var folders = Folders.Default;
         var config = new GrateConfiguration() { SchemaName = "Test", Folders = folders };
         var provider = new TokenProvider(config, Substitute.For<IDatabase>());
         var tokens = provider.GetTokens();

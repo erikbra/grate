@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Collections.Immutable;
+using FluentAssertions;
 using grate.Configuration;
 using grate.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +12,6 @@ public class GrateConfigurationBuilder_Factory
     [Fact]
     public void Creates_default_builder_with_non_interactive()
     {
-        var serviceCollection = new ServiceCollection();
         var builder = GrateConfigurationBuilder.Create();
         var grateConfiguration = builder.Build();
         grateConfiguration.NonInteractive.Should().Be(true);
@@ -23,7 +23,6 @@ public class GrateConfigurationBuilder_Factory
     {
         var outputDir = Directory.CreateDirectory(outputFolder);
         WriteSql(Wrap(outputDir, "views"), "01_test_view.sql", "create view v_test as select 1");
-        var serviceCollection = new ServiceCollection();
         var builder = GrateConfigurationBuilder.Create();
         builder.WithOutputFolder(outputFolder);
         var grateConfiguration = builder.Build();
@@ -38,7 +37,6 @@ public class GrateConfigurationBuilder_Factory
     {
         var sqlDir = Directory.CreateDirectory(sqlFolder);
         WriteSql(Wrap(sqlDir, "views"), "01_test_view.sql", "create view v_test as select 1");
-        var serviceCollection = new ServiceCollection();
         var builder = GrateConfigurationBuilder.Create();
         builder.WithSqlFilesDirectory(sqlFolder);
         var grateConfiguration = builder.Build();
@@ -51,7 +49,6 @@ public class GrateConfigurationBuilder_Factory
     [InlineData("roundhouse")]
     public void Creates_default_builder_with_schema(string schemaName)
     {
-        var serviceCollection = new ServiceCollection();
         var builder = GrateConfigurationBuilder.Create();
         builder.WithSchema(schemaName);
         var grateConfiguration = builder.Build();
@@ -63,7 +60,6 @@ public class GrateConfigurationBuilder_Factory
     [InlineData("Data source=whatever;Database=;")]
     public void Creates_default_builder_with_connection_string(string connectionString)
     {
-        var serviceCollection = new ServiceCollection();
         var builder = GrateConfigurationBuilder.Create();
         builder.WithConnectionString(connectionString);
         var grateConfiguration = builder.Build();
@@ -75,7 +71,6 @@ public class GrateConfigurationBuilder_Factory
     [InlineData("Data source=whatever;Database=master;")]
     public void Creates_default_builder_with_admin_connection_string(string adminConnectionString)
     {
-        var serviceCollection = new ServiceCollection();
         var builder = GrateConfigurationBuilder.Create();
         builder.WithAdminConnectionString(adminConnectionString);
         var grateConfiguration = builder.Build();
@@ -87,16 +82,15 @@ public class GrateConfigurationBuilder_Factory
     [InlineData("1.0.0.0")]
     public void Creates_default_builder_with_version(string version)
     {
-        var serviceCollection = new ServiceCollection();
         var builder = GrateConfigurationBuilder.Create();
         builder.WithVersion(version);
         var grateConfiguration = builder.Build();
         grateConfiguration.Version.Should().Be(version);
     }
+    
     [Fact]
     public void Creates_default_builder_with_do_not_create_database()
     {
-        var serviceCollection = new ServiceCollection();
         var builder = GrateConfigurationBuilder.Create();
         builder.DoNotCreateDatabase();
         var grateConfiguration = builder.Build();
@@ -106,7 +100,6 @@ public class GrateConfigurationBuilder_Factory
     [Fact]
     public void Creates_default_builder_with_transaction()
     {
-        var serviceCollection = new ServiceCollection();
         var builder = GrateConfigurationBuilder.Create();
         builder.WithTransaction();
         var grateConfiguration = builder.Build();
@@ -126,6 +119,20 @@ public class GrateConfigurationBuilder_Factory
         var grateConfiguration = builder.Build();
         grateConfiguration.Environment.Should().NotBeNull();
         grateConfiguration.Environment.Should().BeEquivalentTo(new GrateEnvironment(environmentName));
+    }
+    
+    [Fact]
+    public void Creates_default_builder_with_custom_folder_configuration()
+    {
+        var builder = GrateConfigurationBuilder.Create()
+                        .WithFolders(Folders.Create("up=ddl", "views=binoculars"));
+        var grateConfiguration = builder.Build();
+
+        var folders = grateConfiguration.Folders!;
+        folders.Should().HaveCount(Folders.Default.Count);
+        
+        folders[KnownFolderKeys.Up]!.Path.Should().Be("ddl");
+        folders[KnownFolderKeys.Views]!.Path.Should().Be("binoculars");
     }
     
 }

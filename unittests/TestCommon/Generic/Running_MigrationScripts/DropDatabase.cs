@@ -20,7 +20,7 @@ public abstract class DropDatabase(IGrateTestContext context, ITestOutputHelper 
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         CreateDummySql(parent, knownFolders[Sprocs]);
         
         var dropConfig = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)

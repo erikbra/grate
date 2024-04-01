@@ -23,7 +23,7 @@ public abstract class TokenScripts(IGrateTestContext context, ITestOutputHelper 
         var db = TestConfig.RandomDatabase().ToUpper();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         var path = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Views]?.Path ?? throw new Exception("Config Fail")));
 
         WriteSql(path, "token.sql", CreateDatabaseName);
@@ -52,7 +52,7 @@ public abstract class TokenScripts(IGrateTestContext context, ITestOutputHelper 
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         var path = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Views]?.Path ?? throw new Exception("Config Fail")));
 
         WriteSql(path, "token.sql", CreateViewMyCustomToken);

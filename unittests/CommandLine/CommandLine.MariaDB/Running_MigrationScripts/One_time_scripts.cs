@@ -20,7 +20,7 @@ public class One_time_scripts(MariaDbGrateTestContext testContext, ITestOutputHe
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         CreateDummySql(parent, knownFolders[Up]);
 
         var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)

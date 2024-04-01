@@ -22,7 +22,7 @@ public abstract class Environment_scripts(IGrateTestContext context, ITestOutput
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
 
         CreateDummySql(parent, knownFolders[Up], "1_.OTHER.filename.ENV.sql");
         
@@ -55,7 +55,7 @@ public abstract class Environment_scripts(IGrateTestContext context, ITestOutput
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
 
         CreateDummySql(parent, knownFolders[Up], "1_.OTHER.filename.ENV.sql");
         
@@ -87,7 +87,7 @@ public abstract class Environment_scripts(IGrateTestContext context, ITestOutput
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
 
         CreateDummySql(parent, knownFolders[Up], "1_.TEST.filename.ENV.sql");
         CreateDummySql(parent, knownFolders[Up], "2_.TEST.ENV.otherfilename.sql");
@@ -121,7 +121,7 @@ public abstract class Environment_scripts(IGrateTestContext context, ITestOutput
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
 
         CreateDummySql(parent, knownFolders[Up], "1_.filename.sql");
         CreateDummySql(parent, knownFolders[Up], "2_.TEST.ENV.otherfilename.sql");

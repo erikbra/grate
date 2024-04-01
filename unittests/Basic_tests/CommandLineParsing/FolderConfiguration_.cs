@@ -20,7 +20,7 @@ public class FolderConfiguration_
         var cfg = await ParseGrateConfiguration("--sqlfilesdirectory=/tmp");
         _ = cfg?.SqlFilesDirectory ?? new DirectoryInfo("/tmp");
 
-        var expected = FoldersConfiguration.Default(null);
+        var expected = Folders.Default;
         var actual = cfg?.Folders;
 
         AssertEquivalent(expected.Values, actual?.Values);
