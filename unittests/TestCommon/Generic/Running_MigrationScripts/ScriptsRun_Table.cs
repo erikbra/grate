@@ -20,7 +20,7 @@ public abstract class ScriptsRun_Table(IGrateTestContext context, ITestOutputHel
         var db = TestConfig.RandomDatabase();
 
         var parent = TestConfig.CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
 
         var folder = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.Path, "sub", "folder", "long", "way"));
 
@@ -57,7 +57,7 @@ public abstract class ScriptsRun_Table(IGrateTestContext context, ITestOutputHel
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
 
         string filename = "any_filename.sql";
 
@@ -96,7 +96,7 @@ public abstract class ScriptsRun_Table(IGrateTestContext context, ITestOutputHel
         var db = TestConfig.RandomDatabase();
 
         var parent = TestConfig.CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
 
         string filename = "any_filename.sql";
         var folder1 = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.Path, "dub", "folder", "long", "way"));
@@ -145,7 +145,7 @@ public abstract class ScriptsRun_Table(IGrateTestContext context, ITestOutputHel
         var db = TestConfig.RandomDatabase();
 
         var parent = TestConfig.CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
 
         var folder = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]!.Path));
 

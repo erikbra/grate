@@ -75,7 +75,7 @@ public abstract class Order_Of_Scripts(IGrateTestContext context, ITestOutputHel
         {
             CreateDatabase = createDatabase,
             ConnectionString = Context.ConnectionString(databaseName),
-            Folders = FoldersConfiguration.Default(null),
+            Folders = Folders.Default,
             SqlFilesDirectory = scriptsDir
         };
 

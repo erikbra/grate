@@ -13,7 +13,7 @@ public class TokenReplacerTests(IDatabase database)
         var config = new GrateConfiguration()
         {
             ConnectionString = "Server=(LocalDb)\\mssqllocaldb;Database=TestDb;",
-            Folders = FoldersConfiguration.Default(null)
+            Folders = Folders.Default
         };
 
 

@@ -18,7 +18,7 @@ public class Everytime_scripts(PostgreSqlGrateTestContext testContext, ITestOutp
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
 
         WriteSql(parent, knownFolders[Up]!.Path, "create_table_dummy.sql", @"
 CREATE TABLE public.table1(

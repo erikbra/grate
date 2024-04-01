@@ -33,7 +33,7 @@ public class RestoreDatabase(SqlServerGrateTestContext testContext, ITestOutputH
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         CreateDummySql(parent, knownFolders[KnownFolderKeys.Sprocs]);
 
         var restoreConfig = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)

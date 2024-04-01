@@ -12,7 +12,7 @@ public class FileSystem_
     public void Sorts_enumerated_files_on_filename_when_no_subfolders()
     {
         var parent = TestConfig.CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
 
         var path = Wrap(parent, knownFolders[KnownFolderKeys.Up]!.Path);
 
@@ -32,7 +32,7 @@ public class FileSystem_
     public void Sorts_enumerated_files_on_filename_without_extension_when_no_subfolders()
     {
         var parent = TestConfig.CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
 
         var path = Wrap(parent, knownFolders[KnownFolderKeys.Up]!.Path);
 
@@ -52,7 +52,7 @@ public class FileSystem_
     public void Sorts_enumerated_files_on_sub_path_when_subfolders_are_used()
     {
         var parent = TestConfig.CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
 
         var path = Wrap(parent, knownFolders[KnownFolderKeys.Up]!.Path);
 
@@ -75,7 +75,7 @@ public class FileSystem_
     public void Sorts_enumerated_files_on_filename_when_directory_names_are_ignored()
     {
         var parent = TestConfig.CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
 
         var path = Wrap(parent, knownFolders[KnownFolderKeys.Up]!.Path);
 

@@ -23,7 +23,7 @@ public abstract class One_time_scripts(IGrateTestContext context, ITestOutputHel
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         CreateDummySql(parent, knownFolders[Up]);
 
         var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
@@ -58,7 +58,7 @@ public abstract class One_time_scripts(IGrateTestContext context, ITestOutputHel
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         CreateDummySql(parent, knownFolders[Up]);
 
         var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
@@ -101,7 +101,7 @@ public abstract class One_time_scripts(IGrateTestContext context, ITestOutputHel
         IGrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         CreateDummySql(parent, knownFolders[Up]);
         
         var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
@@ -145,7 +145,7 @@ public abstract class One_time_scripts(IGrateTestContext context, ITestOutputHel
         IGrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         var path = new DirectoryInfo(Path.Combine(parent.ToString(), knownFolders[Up]?.Path ?? throw new Exception("Config Fail")));
 
         WriteSql(path, "token.sql", CreateView1);

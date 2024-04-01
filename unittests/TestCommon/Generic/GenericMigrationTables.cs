@@ -28,7 +28,7 @@ public abstract class GenericMigrationTables(IGrateTestContext context, ITestOut
         var fullTableName = Context.Syntax.TableWithSchema("grate", tableName);
 
         var parent = TestConfig.CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
 
         var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
             .WithConnectionString(Context.ConnectionString(db))
@@ -61,7 +61,7 @@ public abstract class GenericMigrationTables(IGrateTestContext context, ITestOut
         var fullTableName = Context.Syntax.TableWithSchema("grate", tableName);
 
         var parent = TestConfig.CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         CreateInvalidSql(parent, knownFolders[KnownFolderKeys.Up]);
         
         var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
@@ -103,7 +103,7 @@ public abstract class GenericMigrationTables(IGrateTestContext context, ITestOut
         var db = "MonoBonoJono";
 
         var parent = TestConfig.CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         
         var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
             .WithConnectionString(Context.ConnectionString(db))
@@ -219,7 +219,7 @@ public abstract class GenericMigrationTables(IGrateTestContext context, ITestOut
         var db = "BooYaTribe";
 
         var parent = TestConfig.CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         
         var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
             .WithConnectionString(Context.ConnectionString(db))

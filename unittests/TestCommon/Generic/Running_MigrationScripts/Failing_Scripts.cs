@@ -31,7 +31,7 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = global::grate.Configuration.Folders.Default;
         CreateInvalidSql(parent, knownFolders[Up]);
 
         var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
@@ -112,7 +112,7 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = global::grate.Configuration.Folders.Default;
         CreateInvalidSql(parent, knownFolders[Up]);
 
         var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
@@ -150,7 +150,7 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = global::grate.Configuration.Folders.Default;
         CreateInvalidSql(parent, knownFolders[Up]);
         
         var repositoryPath = "https://github.com/blah/blah.git";
@@ -192,7 +192,7 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
         var db = TestConfig.RandomDatabase();
 
         var parent = TestConfig.CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = global::grate.Configuration.Folders.Default;
 
         CreateLongInvalidSql(parent, knownFolders[Up]);
 
@@ -234,7 +234,7 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
 
         var db = TestConfig.RandomDatabase();
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = global::grate.Configuration.Folders.Default;
         var path = MakeSurePathExists(parent, knownFolders[Up]);
         WriteSql(path, "goodnight.sql", sql);
         
@@ -269,7 +269,7 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
 
         var db = TestConfig.RandomDatabase();
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = global::grate.Configuration.Folders.Default;
         var path = MakeSurePathExists(parent, knownFolders[AlterDatabase]); //so it's run on the admin connection
         WriteSql(path, "goodnight.sql", sql);
         
@@ -323,7 +323,7 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
         IGrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = global::grate.Configuration.Folders.Default;
         CreateInvalidSql(parent, knownFolders[Up]);
         
         var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
@@ -412,7 +412,7 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
     }
 
     //private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
-    private static readonly IFoldersConfiguration Folders = FoldersConfiguration.Default(null);
+    private static readonly IFoldersConfiguration Folders = global::grate.Configuration.Folders.Default;
 
     public static TheoryData<MigrationsFolderWithDescription> ShouldStillBeRunOnRollback() =>
         new()

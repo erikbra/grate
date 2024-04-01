@@ -25,7 +25,7 @@ public abstract class Anytime_scripts(IGrateTestContext context, ITestOutputHelp
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         CreateDummySql(parent, knownFolders[Sprocs]);
         
         var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
@@ -60,7 +60,7 @@ public abstract class Anytime_scripts(IGrateTestContext context, ITestOutputHelp
         var db = TestConfig.RandomDatabase();
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         CreateDummySql(parent, knownFolders[Sprocs]);
 
         var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
@@ -106,7 +106,7 @@ public abstract class Anytime_scripts(IGrateTestContext context, ITestOutputHelp
         IGrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         CreateDummySql(parent, knownFolders[Sprocs]);
         
         var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
@@ -140,7 +140,7 @@ public abstract class Anytime_scripts(IGrateTestContext context, ITestOutputHelp
         IGrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         CreateDummySql(parent, knownFolders[Sprocs]);
         
         var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
@@ -173,7 +173,7 @@ public abstract class Anytime_scripts(IGrateTestContext context, ITestOutputHelp
         IGrateMigrator? migrator;
 
         var parent = CreateRandomTempDirectory();
-        var knownFolders = FoldersConfiguration.Default(null);
+        var knownFolders = Folders.Default;
         CreateDummySql(parent, knownFolders[Sprocs]);
         
         var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)

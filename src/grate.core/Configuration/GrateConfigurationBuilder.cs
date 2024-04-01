@@ -51,7 +51,12 @@ public sealed partial class GrateConfigurationBuilder
     /// names of the folders and the migration type. Default is the grate default folder configuration,
     /// using 'up', 'functions', 'views', 'sprocs', 'triggers', 'indexes', 'permissions' and 'after_migration'.
     /// </summary>
-    /// <param name="folders">A folder configuration to use. Can be DefaultConfiguration with some modifications.</param>
+    /// 
+    /// <param name="folders">A folder configuration to use. Can be DefaultConfiguration with some modifications,
+    /// a fully customized folder set, or a slightly modified one.
+    ///
+    /// Please see the static helper class <see cref="Folders"/> with factory methods for creating folder configurations.</param>
+    /// 
     /// <returns>GrateConfigurationBuilder</returns>
     public GrateConfigurationBuilder WithFolders(IFoldersConfiguration folders)
     {

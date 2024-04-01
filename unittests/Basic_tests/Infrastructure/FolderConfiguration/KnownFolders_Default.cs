@@ -59,7 +59,7 @@ public class KnownFolders_Default
     }
 
     private static readonly DirectoryInfo Root = TestConfig.CreateRandomTempDirectory();
-    private static readonly IFoldersConfiguration Folders = FoldersConfiguration.Default(null);
+    private static readonly IFoldersConfiguration Folders = global::grate.Configuration.Folders.Default;
 
     public static IEnumerable<object?[]> ExpectedKnownFolderNames()
     {
