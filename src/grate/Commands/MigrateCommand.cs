@@ -26,6 +26,7 @@ internal sealed class MigrateCommand : RootCommand
         Add(Environment());
         Add(SchemaName());
         Add(Silent());
+        Add(RepositoryPath());
         Add(Version());
         Add(Drop());
         Add(CreateDatabase());
@@ -280,6 +281,12 @@ the last one will expect the folders to be named 'folder1', 'folder2', and 'fold
         new[] { "--noninteractive", "-ni", "--ni", "--silent" },
         "Silent - tells grate not to ask for any input when it runs."
     );
+
+    private static Option<string> RepositoryPath() =>
+        new(
+            new[] { "-r", "--repo", "--repositorypath" },
+            "Repository Path - The repository. A string that can be anything. Used to track versioning along with the version. Defaults to NULL."
+        );
 
     private static Option<string> Version() =>
         new(

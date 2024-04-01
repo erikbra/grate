@@ -324,11 +324,13 @@ ORDER BY id DESC", 1)}
     {
         var sql = Parameterize($@"
 INSERT INTO {VersionTable}
-(version, entry_date, modified_date, entered_by, status)
-VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy, @status)
+(repository_path, version, entry_date, modified_date, entered_by, status)
+VALUES(@repositoryPath, @newVersion, @entryDate, @modifiedDate, @enteredBy, @status)
 
 {_syntax.ReturnId}
 ");
+        var repositoryPath = Config?.RepositoryPath;
+
         long versionId;
 
         try
@@ -337,6 +339,7 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy, @status)
                 sql,
                 new
                 {
+                    repositoryPath,
                     newVersion,
                     entryDate = DateTime.UtcNow,
                     modifiedDate = DateTime.UtcNow,
@@ -350,7 +353,14 @@ VALUES(@newVersion, @entryDate, @modifiedDate, @enteredBy, @status)
             versionId = 1;
         }
 
-        Logger.LogInformation(" Versioning {DbName} database with version {Version}.", DatabaseName, newVersion);
+        if (repositoryPath != null)
+        {
+            Logger.LogInformation(" Versioning {DbName} database with version {Version} based on {RepositoryPath}.", DatabaseName, newVersion, repositoryPath);
+        }
+        else
+        {
+            Logger.LogInformation(" Versioning {DbName} database with version {Version}.", DatabaseName, newVersion);
+        }
 
         return versionId;
     }
@@ -538,14 +548,16 @@ VALUES (@versionId, @scriptName, @sql, @hash, @runOnce, @now, @now, @usr)");
     {
         var insertSql = Parameterize($@"
 INSERT INTO {ScriptsRunErrorsTable}
-(version, script_name, text_of_script, erroneous_part_of_script, error_message, entry_date, modified_date, entered_by)
-VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)");
+(repository_path, version, script_name, text_of_script, erroneous_part_of_script, error_message, entry_date, modified_date, entered_by)
+VALUES (@repositoryPath, @version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)");
 
         var versionSql = Parameterize($"SELECT version FROM {VersionTable} WHERE id = @versionId");
 
         var version = await ExecuteScalarAsync<string>(ActiveConnection, versionSql, new { versionId });
+        var repositoryPath = Config?.RepositoryPath;
 
         var scriptRunErrors = new DynamicParameters();
+        scriptRunErrors.Add(nameof(repositoryPath), repositoryPath);
         scriptRunErrors.Add(nameof(version), version);
         scriptRunErrors.Add(nameof(scriptName), scriptName);
         scriptRunErrors.Add(nameof(sql), sql, DbType.String);

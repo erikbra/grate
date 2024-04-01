@@ -1,4 +1,4 @@
-using grate.Configuration;
+﻿using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
 using grate.Sqlite.Migration;

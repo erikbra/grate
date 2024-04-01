@@ -97,12 +97,15 @@ WHERE  version_row_number <= 1
     {
         var sql = (string)$@"
 INSERT INTO {VersionTable}
-(version, entry_date, modified_date, entered_by, status)
-VALUES(:newVersion, :entryDate, :modifiedDate, :enteredBy, :status)
+(repository_path, version, entry_date, modified_date, entered_by, status)
+VALUES(:repositoryPath, :newVersion, :entryDate, :modifiedDate, :enteredBy, :status)
 RETURNING id into :id
 ";
+        var repositoryPath = Config?.RepositoryPath;
+        
         var parameters = new
         {
+            repositoryPath,
             newVersion,
             entryDate = DateTime.UtcNow,
             modifiedDate = DateTime.UtcNow,
@@ -125,8 +128,14 @@ RETURNING id into :id
             versionId = 1;
         }
 
-
-        Logger.LogInformation(" Versioning {DbName} database with version {Version}.", DatabaseName, newVersion);
+        if (repositoryPath != null)
+        {
+            Logger.LogInformation(" Versioning {DbName} database with version {Version} based on {RepositoryPath}.", DatabaseName, newVersion, repositoryPath);
+        }
+        else
+        {
+            Logger.LogInformation(" Versioning {DbName} database with version {Version}.", DatabaseName, newVersion);
+        }
 
         return versionId;
     }

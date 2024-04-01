@@ -113,6 +113,44 @@ public abstract class Versioning_The_Database(IGrateTestContext context, ITestOu
         var version = entries.Single(x => x.version == dbVersion);
         version.status.Should().Be(MigrationStatus.InProgress);
     }
+    
+    [Fact]
+    [Trait("Category", "Versioning")]
+    public async Task Includes_RepositoryPath_in_version_table()
+    {
+        var db = TestConfig.RandomDatabase();
+        var dbVersion = "1.2.3.4";
+
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+        CreateDummySql(parent, knownFolders[Up]);
+
+        var repositoryPath = "any repository path";
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .WithRepositoryPath(repositoryPath)
+            .WithVersion(dbVersion)
+            .Build();
+
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
+        {
+            //Calling migrate here to setup the database and such.
+            await migrator.Migrate();
+        }
+
+        string? loggedRepositoryPath;
+        string sql = $"SELECT repository_path FROM {Context.Syntax.TableWithSchema("grate", "Version")}";
+
+        using (var conn = Context.CreateDbConnection(db))
+        {
+            loggedRepositoryPath = await conn.QuerySingleOrDefaultAsync<string>(sql);
+        }
+
+        loggedRepositoryPath.Should().Be(repositoryPath);
+    }
+    
 
     [Fact]
     [Trait("Category", "Versioning")]
