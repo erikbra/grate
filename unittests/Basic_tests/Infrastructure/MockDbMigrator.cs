@@ -54,7 +54,7 @@ public record MockDbMigrator: IDbMigrator
         return Task.FromResult(string.Empty);
     }
 
-    public Task<long> VersionTheDatabase(string newVersion, string? repositoryPath)
+    public Task<long> VersionTheDatabase(string newVersion)
     {
         return Task.FromResult(0L);
     }

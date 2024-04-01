@@ -143,6 +143,48 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
 
         scripts.Should().HaveCount(1);
     }
+    
+    [Fact]
+    public async Task Inserts_RepositoryPath_Into_ScriptRunErrors_Table()
+    {
+        var db = TestConfig.RandomDatabase();
+
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = FoldersConfiguration.Default(null);
+        CreateInvalidSql(parent, knownFolders[Up]);
+        
+        var repositoryPath = "https://github.com/blah/blah.git";
+
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .WithRepositoryPath(repositoryPath)
+            .Build();
+
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
+        {
+            try
+            {
+                await migrator.Migrate();
+            }
+            catch (MigrationFailed)
+            {
+            }
+        }
+
+        string? loggedRepositoryPath;
+        string sql = $"SELECT repository_path FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRunErrors")}";
+
+        using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+        {
+            using var conn = Context.CreateDbConnection(db);
+            loggedRepositoryPath = (await conn.QuerySingleOrDefaultAsync<string>(sql));
+        }
+
+        loggedRepositoryPath.Should().Be(repositoryPath);
+    }
+    
 
     [Fact]
     public async Task Inserts_Large_Failed_Scripts_Into_ScriptRunErrors_Table()

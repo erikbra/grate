@@ -320,7 +320,7 @@ ORDER BY id DESC", 1)}
         }
     }
 
-    public virtual async Task<long> VersionTheDatabase(string newVersion, string? repositoryPath = null)
+    public virtual async Task<long> VersionTheDatabase(string newVersion)
     {
         var sql = Parameterize($@"
 INSERT INTO {VersionTable}
@@ -329,6 +329,8 @@ VALUES(@repositoryPath, @newVersion, @entryDate, @modifiedDate, @enteredBy, @sta
 
 {_syntax.ReturnId}
 ");
+        var repositoryPath = Config?.RepositoryPath;
+
         long versionId;
 
         try
@@ -353,7 +355,7 @@ VALUES(@repositoryPath, @newVersion, @entryDate, @modifiedDate, @enteredBy, @sta
 
         if (repositoryPath != null)
         {
-            Logger.LogInformation(" Versioning {DbName} database with version {Version} based on {RepoPath}.", DatabaseName, newVersion, repositoryPath);
+            Logger.LogInformation(" Versioning {DbName} database with version {Version} based on {RepositoryPath}.", DatabaseName, newVersion, repositoryPath);
         }
         else
         {
@@ -546,14 +548,16 @@ VALUES (@versionId, @scriptName, @sql, @hash, @runOnce, @now, @now, @usr)");
     {
         var insertSql = Parameterize($@"
 INSERT INTO {ScriptsRunErrorsTable}
-(version, script_name, text_of_script, erroneous_part_of_script, error_message, entry_date, modified_date, entered_by)
-VALUES (@version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)");
+(repository_path, version, script_name, text_of_script, erroneous_part_of_script, error_message, entry_date, modified_date, entered_by)
+VALUES (@repositoryPath, @version, @scriptName, @sql, @errorSql, @errorMessage, @now, @now, @usr)");
 
         var versionSql = Parameterize($"SELECT version FROM {VersionTable} WHERE id = @versionId");
 
         var version = await ExecuteScalarAsync<string>(ActiveConnection, versionSql, new { versionId });
+        var repositoryPath = Config?.RepositoryPath;
 
         var scriptRunErrors = new DynamicParameters();
+        scriptRunErrors.Add(nameof(repositoryPath), repositoryPath);
         scriptRunErrors.Add(nameof(version), version);
         scriptRunErrors.Add(nameof(scriptName), scriptName);
         scriptRunErrors.Add(nameof(sql), sql, DbType.String);

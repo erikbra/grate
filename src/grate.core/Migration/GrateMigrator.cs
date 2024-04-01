@@ -278,11 +278,10 @@ internal record GrateMigrator : IGrateMigrator
         _logger.LogInformation("Versioning");
         Separator('=');
 
-        var repositoryPath = dbMigrator.Configuration.RepositoryPath;
         var currentVersion = await dbMigrator.GetCurrentVersion();
         var newVersion = dbMigrator.Configuration.Version;
         _logger.LogInformation(" Migrating {DatabaseName} from version {CurrentVersion} to {NewVersion}.", dbMigrator.Database.DatabaseName, currentVersion, newVersion);
-        var versionId = await dbMigrator.VersionTheDatabase(newVersion, repositoryPath);
+        var versionId = await dbMigrator.VersionTheDatabase(newVersion);
 
         return (versionId, newVersion);
     }

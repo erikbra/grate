@@ -50,7 +50,7 @@ internal record DbMigrator : IDbMigrator
     public Task OpenActiveConnection() => Database.OpenActiveConnection();
 
     public Task<string> GetCurrentVersion() => Database.GetCurrentVersion();
-    public Task<long> VersionTheDatabase(string newVersion, string? repositoryPath = null)
+    public Task<long> VersionTheDatabase(string newVersion)
     {
         if (Configuration.DryRun)
         {
@@ -59,7 +59,7 @@ internal record DbMigrator : IDbMigrator
         }
         else
         {
-            return Database.VersionTheDatabase(newVersion, repositoryPath);
+            return Database.VersionTheDatabase(newVersion);
         }
     }
 
