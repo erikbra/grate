@@ -108,7 +108,74 @@ jobs:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: ./publish/${{ matrix.arch }}/self-contained/*
 
+  build-tests:
+    name: Build tests
+    needs: set-version-number
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: 
+          - win-x64
+          - linux-x64
+          - osx-x64
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Build Test DLLs ${{ matrix.arch }}
+      run: |
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.MariaDB -o ./commandline-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.SqlServer -o ./commandline-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.Oracle -o ./commandline-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.PostgreSQL -o ./commandline-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.Sqlite -o ./commandline-tests/${{ matrix.arch }}
+      env:
+        VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
+
+    - name: Upload Test DLLs ${{ matrix.arch }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: commandline-tests-${{ matrix.arch }}-${{ needs.set-version-number.outputs.nuGetVersion }}
+        path: ./commandline-tests/${{ matrix.arch }}/*
+
+  build-tests-mac-arm64:
+    name: Build tests
+    needs: set-version-number
+
+    runs-on: macos-14
+    strategy:
+      matrix:
+        arch: [ "osx-arm64" ]
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Build Test DLLs ${{ matrix.arch }}
+      run: |
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.MariaDB -o ./commandline-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.SqlServer -o ./commandline-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.Oracle -o ./commandline-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.PostgreSQL -o ./commandline-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.Sqlite -o ./commandline-tests/${{ matrix.arch }}
+      env:
+        VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
+
+    - name: Upload Test DLLs ${{ matrix.arch }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: commandline-tests-${{ matrix.arch }}-${{ needs.set-version-number.outputs.nuGetVersion }}
+        path: ./commandline-tests/${{ matrix.arch }}/*
+
   setup-test-environment:
+    #if: false
     name: Set up test enviroment
     environment: integration-tests
     runs-on: ubuntu-latest
@@ -128,6 +195,8 @@ jobs:
       # apparently is.
       mariadb_connection_string: ${{ steps.show.outputs.mariadb_connection_string }}
       mariadb_pw: ${{ steps.show.outputs.mariadb_pw }}
+      dbs: ${{ steps.show.outputs.dbs }}
+      #encoded_dbs: ${{ steps.show.outputs.encoded_dbs }}
 
     steps:
       - uses: actions/checkout@v4
@@ -169,64 +238,49 @@ jobs:
         id: show
         run: |
           terraform show -json > state.json
-          HOST=$(cat state.json | jq -r '.values.outputs | ."mariadb-fqdn".value')
-          PW=$(cat state.json | jq -r '.values.outputs | ."mariadb-admin-password".value')
 
-          CONNSTR="Server=${HOST};Port=3306;Database=mysql;Uid=root"
+          # Have to base64 encode, to avoid github seeing a pw, and refuse to output at all
+          DBS=$(cat state.json | jq -c '[ .values.outputs.dbs.value[] | .connectionstring |= @base64 ] ' )
 
-          echo "mariadb_connection_string=${CONNSTR}" >> "$GITHUB_OUTPUT"
-          echo "mariadb_pw=${PW}" >> "$GITHUB_OUTPUT"
+          {
+            echo 'dbs<<EOFAAA'
+            echo ${DBS}
+            echo EOFAAA
+          } >> "$GITHUB_OUTPUT"
 
-      # - run: echo ${{ steps.apply.outputs.stdout }}
-      # - run: echo ${{ steps.apply.outputs.stderr }}
-      # - run: echo ${{ steps.apply.outputs.exitcode }}
 
+  # read-outputs:
+  #   environment: integration-tests
+  #   name: "Print outputs"
+  #   needs:
+  #     - setup-test-environment
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Output matrix variable
+  #     run: |
+  #       echo "Output variables:"
+  #       echo "===================="
+  #       echo "All outputs: ${{ needs.setup-test-environment.outputs }}"
+  #       echo "Databases: ${{ needs.setup-test-environment.outputs.dbs }}"
+    
 
   integration-test:
     environment: integration-tests
     name: ${{ matrix.database.name }}, ${{ matrix.os.name }}
-    #name: "${{ matrix.os.name }}: ${{ matrix.database.name }}"
     needs:
       - set-version-number
+      - setup-test-environment
       - build-standalone
       - build-standalone-mac-arm64
-      - setup-test-environment
+      - build-tests
+      - build-tests-mac-arm64
     continue-on-error: true
 
     strategy:
       fail-fast: false
+      #max-parallel: 2
       matrix:
-        database:
-          # - name: SqlServer Conn1
-          #   project: SqlServer
-          #   connectionstring: "DbConn SqlServer Conn1"
-          # - name: SqlServer Conn2
-          #   project: SqlServer
-          #   connectionstring: "DbConn SqlServer Conn2"
-          # - name: "PostgreSQL Conn1"
-          #   project: PostgreSQL
-          #   connectionstring: "DbConn PostgreSQL Conn1"
-          # - name: "PostgreSQL Conn2"
-          #   project: PostgreSQL
-          #   connectionstring: "DbConn PostgreSQL Conn2"
-          - name: "MariaDB ACA"
-            project: MariaDB
-            connectionstring: "${{ needs.setup-test-environment.outputs.mariadb_connection_string }};Pwd=${{ needs.setup-test-environment.outputs.mariadb_pw }}"
-          # - name: "MariaDB Conn2"
-          #   project: MariaDB
-          #   connectionstring: "DbConn MariaDB Conn2"
-          # - name: "Sqlite Conn1"
-          #   project: Sqlite
-          #   connectionstring: "DbConn Sqlite Conn1"
-          # - name: "Sqlite Conn2"
-          #   project: Sqlite
-          #   connectionstring: "DbConn Sqlite Conn2"
-          # - name: "Oracle Conn1"
-          #   project: Oracle
-          #   connectionstring: "DbConn Oracle Conn1"
-          # - name: "Oracle Conn2"
-          #   project: Oracle
-          #   connectionstring: "DbConn Oracle Conn2"
+        database: ${{ fromJson(needs.setup-test-environment.outputs.dbs) }}
         os:
           - name: windows-latest
             arch: win-x64
@@ -245,6 +299,7 @@ jobs:
     runs-on: ${{ matrix.os.name }}
     steps:
     - name: Test run info
+      shell: pwsh
       run: |
         echo "Test run info:"
         echo "===================="
@@ -252,13 +307,23 @@ jobs:
         echo "Arch: ${{ matrix.os.arch }}"
         echo "Executable: ${{ matrix.os.executable }}"
         echo "Database: ${{ matrix.database.name }}"
-        echo "Connection string: ${{ matrix.database.connectionstring }}"
+
+        echo "Connection string: $([System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String( "${{ matrix.database.connectionstring }}" )) )"
 
     - uses: actions/checkout@v4
+
     - uses: actions/download-artifact@v4
+      name: Download executables
       with:
         name: grate-${{ matrix.os.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: executables/${{ matrix.os.arch }}
+
+    - uses: actions/download-artifact@v4
+      name: Download test DLLs
+      with:
+        name: commandline-tests-${{ matrix.os.arch }}-${{ needs.set-version-number.outputs.nuGetVersion }}
+        path: commandline-tests/${{ matrix.os.arch }}
+
     - name: Setup .NET 8
       uses: actions/setup-dotnet@v4
       with:
@@ -277,11 +342,13 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+
     - name: Test
-      run: >
-        dotnet test
-        unittests/CommandLine/CommandLine.${{ matrix.database.project }}
-        --logger:"xunit;LogFilePath=/tmp/test-results/${{ matrix.os.arch }}/CommandLine.${{ matrix.database.project }}.xml" --
+      shell: pwsh
+      run: |
+        $env:GrateTestConfig__AdminConnectionString="$([System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String( "${{ matrix.database.connectionstring }}" )) )";
+        dotnet test commandline-tests/${{ matrix.os.arch }}/CommandLine.${{ matrix.database.type }}.dll `
+        --logger:"xunit;LogFilePath=/tmp/test-results/${{ matrix.os.arch }}/CommandLine.${{ matrix.database.type }}.xml" -- `
         -MaxCpuCount 2
       env:
         LogLevel: Warning

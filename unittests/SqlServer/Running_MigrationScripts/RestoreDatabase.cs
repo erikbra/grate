@@ -12,17 +12,18 @@ namespace SqlServer.Running_MigrationScripts;
 public class RestoreDatabase(SqlServerGrateTestContext testContext, ITestOutputHelper testOutput)
     : SqlServerScriptsBase(testContext, testOutput)
 {
-
-    private readonly string _backupPath = "/var/opt/mssql/backup/test.bak";
+    
+    private static readonly string BackedUpDb = TestConfig.RandomDatabase();
+    private static readonly string BackupPath = $"/var/opt/mssql/backup/{BackedUpDb}.bak";
 
 
     private async Task RunBeforeTest()
     {
         using var conn = Context.CreateDbConnection("master");
-        await conn.ExecuteAsync("use [master] CREATE DATABASE [test]");
-        await conn.ExecuteAsync("use [test] CREATE TABLE dbo.Table_1 (column1 int NULL)");
-        await conn.ExecuteAsync($"BACKUP DATABASE [test] TO  DISK = '{_backupPath}'");
-        await conn.ExecuteAsync("use [master] DROP DATABASE [test]");
+        await conn.ExecuteAsync($"use [master] CREATE DATABASE [{BackedUpDb}]");
+        await conn.ExecuteAsync($"use [{BackedUpDb}] CREATE TABLE dbo.Table_1 (column1 int NULL)");
+        await conn.ExecuteAsync($"BACKUP DATABASE [{BackedUpDb}] TO  DISK = '{BackupPath}'");
+        await conn.ExecuteAsync($"use [master] DROP DATABASE [{BackedUpDb}]");
     }
 
     [Fact]
@@ -39,7 +40,7 @@ public class RestoreDatabase(SqlServerGrateTestContext testContext, ITestOutputH
         var restoreConfig = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
             .WithConnectionString(Context.ConnectionString(db))
             .WithSqlFilesDirectory(parent)
-            .RestoreFrom(_backupPath)
+            .RestoreFrom(BackupPath)
             .Build();
 
         await using (var migrator = Context.Migrator.WithConfiguration(restoreConfig))
