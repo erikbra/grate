@@ -4,8 +4,8 @@
 
 locals {
   mariadb_images = [
-    "mariadb:5.5",
-    "mariadb:10.0",
+    #"mariadb:5.5",
+    #"mariadb:10.0",
     "mariadb:10.10"
    ]
 
