@@ -12,13 +12,13 @@ resource "azurerm_container_app" "oracle" {
   revision_mode                = "Single"
 
   template {
-    min_replicas  = 1
+    min_replicas  = 0
     max_replicas  = 1
 
-    # tcp_scale_rule {
-    #     name = "scale-on-one-request"
-    #     concurrent_requests = 1 
-    # }
+    tcp_scale_rule {
+        name = "scale-on-one-request"
+        concurrent_requests = 1 
+    }
 
     container {
       name          = "oracle"
