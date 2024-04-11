@@ -31,6 +31,28 @@ resource "azurerm_container_app" "posgresql" {
         value = local.POSTGRES_PASSWORD
       }
 
+      liveness_probe {
+        failure_count_threshold = 10
+        initial_delay = 10
+        port = 5432
+        timeout = 5
+        transport = "TCP"
+      }
+
+      readiness_probe {
+        failure_count_threshold = 10
+        port = 5432
+        timeout = 5
+        transport = "TCP"
+      }
+
+      startup_probe {
+        failure_count_threshold = 10
+        port = 5432
+        timeout = 5
+        transport = "TCP"
+      }
+
     }
   }
   ingress {
