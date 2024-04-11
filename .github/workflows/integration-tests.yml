@@ -278,9 +278,8 @@ jobs:
 
     strategy:
       fail-fast: false
-      #max-parallel: 2
+      max-parallel: 4
       matrix:
-        database: ${{ fromJson(needs.setup-test-environment.outputs.dbs) }}
         os:
           - name: windows-latest
             arch: win-x64
@@ -295,6 +294,7 @@ jobs:
           - name: macos-14
             arch: osx-arm64
             executable: grate
+        database: ${{ fromJson(needs.setup-test-environment.outputs.dbs) }}
 
     runs-on: ${{ matrix.os.name }}
     steps:
