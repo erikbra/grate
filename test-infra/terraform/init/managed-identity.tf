@@ -24,12 +24,3 @@ resource "azurerm_federated_identity_credential" "integration-tests" {
   parent_id           = azurerm_user_assigned_identity.integration-tests-mi.id
   subject             = "repo:${var.github_organisation_target}/${var.github_repository_name}:environment:integration-tests"
 }
-
-resource "azurerm_federated_identity_credential" "integration-tests2" {
-  name                = "${var.github_organisation_target}-${var.github_repository_name}-integration-tests2"
-  resource_group_name = azurerm_resource_group.grate-integration-tests.name
-  audience            = [local.default_audience_name]
-  issuer              = local.github_issuer_url
-  parent_id           = azurerm_user_assigned_identity.integration-tests-mi.id
-  subject             = "repo:${var.github_organisation_target}/${var.github_repository_name}:environment:integration-tests2"
-}
