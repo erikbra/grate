@@ -30,8 +30,9 @@ public class MariaDbGrateTestContext(
         CreateUser = (_, user, password) => $"CREATE USER '{user}'@'%' IDENTIFIED BY '{password}';",
         GrantAccess =  (db, user) =>
             $"""
-             GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, DROP, ALTER, CREATE TEMPORARY TABLES, 
-             LOCK TABLES ON {db}.* TO '{user}'@'%';
+             -- GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, DROP, ALTER, CREATE TEMPORARY TABLES, 
+             -- LOCK TABLES ON {db}.* TO '{user}'@'%';
+             GRANT ALL PRIVILEGES ON {db}.* TO '{user}'@'%';
              FLUSH PRIVILEGES;
              """
     };

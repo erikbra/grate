@@ -96,6 +96,8 @@ public abstract class When_Grate_structure_is_not_latest_version(IGrateTestConte
         columns = GetColumns(reader).Select(column => column.ToUpper());
         TryClose(conn);
         columns.Should().Contain("status".ToUpper());
+        
+        //await Context.DropDatabase(db);
     }
 
 

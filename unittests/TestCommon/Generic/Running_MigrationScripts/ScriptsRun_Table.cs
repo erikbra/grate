@@ -49,6 +49,8 @@ public abstract class ScriptsRun_Table(IGrateTestContext context, ITestOutputHel
 
         var expectedName = $"sub/folder/long/way/{filename}";
         scripts.First().Should().Be(expectedName);
+        
+        //await Context.DropDatabase(db);
     }
 
     [Fact]
@@ -83,6 +85,8 @@ public abstract class ScriptsRun_Table(IGrateTestContext context, ITestOutputHel
         }
 
         scripts.First().Should().Be(filename);
+        
+        //await Context.DropDatabase(db);
     }
 
     // ReSharper disable InconsistentNaming
@@ -137,6 +141,8 @@ public abstract class ScriptsRun_Table(IGrateTestContext context, ITestOutputHel
             second.script_name.Should().Be($"sub/dolder/gong/way/{filename}");
             second.text_of_script.Should().Be(Context.Syntax.CurrentDatabase);
         });
+        
+        //await Context.DropDatabase(db);
     }
 
     [Fact]
@@ -175,6 +181,8 @@ public abstract class ScriptsRun_Table(IGrateTestContext context, ITestOutputHel
         }
 
         scripts.First().Should().Be(fileContent);
+        
+        //await Context.DropDatabase(db);
     }
 
 }

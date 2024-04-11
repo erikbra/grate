@@ -5,6 +5,8 @@ using Microsoft.Extensions.Hosting;
 using PostgreSQL.TestInfrastructure;
 using TestCommon.TestInfrastructure;
 
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+
 namespace PostgreSQL;
 
 // ReSharper disable once UnusedType.Global

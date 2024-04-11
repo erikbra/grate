@@ -12,7 +12,7 @@ public class OracleExternalDatabase(GrateTestConfig grateTestConfig) : ITestData
         var builder = new OracleConnectionStringBuilder(AdminConnectionString)
         {
             UserID = database.ToUpper(),
-            ConnectionTimeout = 2
+            ConnectionTimeout = 3
         };
         return builder.ConnectionString;
     }
@@ -22,7 +22,7 @@ public class OracleExternalDatabase(GrateTestConfig grateTestConfig) : ITestData
         var builder = new OracleConnectionStringBuilder(AdminConnectionString)
         {
             UserID = database.ToUpper(),
-            ConnectionTimeout = 2
+            ConnectionTimeout = 3
         };
         return builder.ConnectionString;
     }

@@ -50,6 +50,8 @@ public class One_time_scripts(SqlServerGrateTestContext testContext, ITestOutput
 
         scripts.Should().HaveCount(1);
         scripts.First().Should().Be(Context.Sql.SelectVersion);
+        
+        //await Context.DropDatabase(db);
     }
 
 }

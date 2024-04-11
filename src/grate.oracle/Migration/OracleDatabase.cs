@@ -176,7 +176,9 @@ RETURNING id into :id
     }
 
     private static string? GetValue(IDictionary<string, string?> dictionary, string key) =>
-        dictionary.TryGetValue(key, out string? value) ? value : null;
+        dictionary.TryGetValue(key, out string? value) ? value : null ??
+        (dictionary.TryGetValue(key.ToUpperInvariant(), out string? value2) ? value2 : null)
+    ;
 
     public override void ThrowScriptFailed(MigrationsFolder folder, string file, string? scriptText, Exception exception)
     {

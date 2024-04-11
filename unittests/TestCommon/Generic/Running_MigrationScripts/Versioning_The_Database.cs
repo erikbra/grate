@@ -48,6 +48,8 @@ public abstract class Versioning_The_Database(IGrateTestContext context, ITestOu
                 version.Should().Be(3);
             }
         }
+        
+        //await Context.DropDatabase(db);
     }
 
     [Fact]
@@ -73,6 +75,8 @@ public abstract class Versioning_The_Database(IGrateTestContext context, ITestOu
         await migrator.Migrate(); // shouldn't touch anything because of --dryrun
         var addedTable = await migrator.GetDbMigrator().Database.VersionTableExists();
         addedTable.Should().Be(false); // we didn't even add the grate infrastructure
+        
+        //await Context.DropDatabase(db);
     }
 
     [Fact]
@@ -112,6 +116,8 @@ public abstract class Versioning_The_Database(IGrateTestContext context, ITestOu
         entries.Should().HaveCount(2);
         var version = entries.Single(x => x.version == dbVersion);
         version.status.Should().Be(MigrationStatus.InProgress);
+        
+        //await Context.DropDatabase(db);
     }
     
     [Fact]
@@ -149,6 +155,8 @@ public abstract class Versioning_The_Database(IGrateTestContext context, ITestOu
         }
 
         loggedRepositoryPath.Should().Be(repositoryPath);
+        
+        //await Context.DropDatabase(db);
     }
     
 
@@ -172,6 +180,8 @@ public abstract class Versioning_The_Database(IGrateTestContext context, ITestOu
         var currentVersion = await migrator.GetDbMigrator().Database.GetCurrentVersion();
         currentVersion.Should().NotBe(newVersion);
         currentVersion.Should().Be(AnsiSqlDatabase.NotVersioning);
+        
+        await Context.DropDatabase(database);
     }
 
     [Fact]
@@ -216,6 +226,8 @@ public abstract class Versioning_The_Database(IGrateTestContext context, ITestOu
         var currentVersion = await newMigrator.GetDbMigrator().Database.GetCurrentVersion();
         currentVersion.Should()
             .Be(originalVersion, "DB version should not be changed due to no new script detected");
+
+        //await Context.DropDatabase(db);
     }
 
     [Fact]

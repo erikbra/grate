@@ -1,6 +1,8 @@
 using grate.Configuration;
 using MariaDB.TestInfrastructure;
 
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+
 namespace CommandLine.MariaDB;
 
 // ReSharper disable once UnusedType.Global

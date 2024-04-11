@@ -26,8 +26,8 @@ resource "azurerm_container_app" "mariadb" {
     container {
       name          = "mariadb"
       image         = local.mariadb_images[count.index]
-      cpu           = 0.25
-      memory        = "0.5Gi"
+      cpu           = 0.50
+      memory        = "1Gi"
 
       # ref the MariaDB init script, here: https://github.com/MariaDB/mariadb-docker/blob/master/docker-entrypoint.sh#L377C2-L377C4
       env {

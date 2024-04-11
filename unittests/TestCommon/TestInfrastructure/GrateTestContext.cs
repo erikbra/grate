@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using Dapper;
 using grate.Infrastructure;
 using grate.Migration;
 
@@ -6,6 +7,7 @@ namespace TestCommon.TestInfrastructure;
 
 public abstract class GrateTestContext(IGrateMigrator migrator, ITestDatabase testDatabase) : IGrateTestContext, IAsyncLifetime
 {
+ 
     public IGrateMigrator Migrator { get; } = migrator;
     protected ITestDatabase TestDatabase { get; } = testDatabase;
 
@@ -29,6 +31,13 @@ public abstract class GrateTestContext(IGrateMigrator migrator, ITestDatabase te
         }
     }
     
+    public async Task DropDatabase(string databaseName)
+    {
+        var sql = Syntax.DropDatabase(databaseName);
+        using var conn = GetDbConnection(AdminConnectionString);
+        await conn.ExecuteAsync(sql);
+    }
+
     public abstract ISyntax Syntax { get; }
     public abstract Type DbExceptionType { get; }
     public abstract Type DatabaseType { get; }

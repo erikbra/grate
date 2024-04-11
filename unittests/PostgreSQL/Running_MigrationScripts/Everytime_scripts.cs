@@ -65,5 +65,7 @@ CREATE INDEX CONCURRENTLY IX_column2 ON public.table1
         }
 
         scripts.Should().HaveCount(2);
+        
+        //await Context.DropDatabase(db);
     }
 }

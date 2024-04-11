@@ -34,7 +34,7 @@ public class OracleGrateTestContext(
         SleepTwoSeconds = "sys.dbms_session.sleep(2);"
     };
 
-    public override string ExpectedVersionPrefix => "Oracle Database 21c Express Edition Release 21.0.0.0.0 - Production";
+    public override string ExpectedVersionPrefix => "Oracle Database ";
     public override bool SupportsCreateDatabase => true;
     public override bool SupportsSchemas => false;
 

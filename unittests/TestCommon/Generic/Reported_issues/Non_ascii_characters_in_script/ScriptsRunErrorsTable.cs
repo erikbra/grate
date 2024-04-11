@@ -61,6 +61,8 @@ public abstract class ScriptsRunErrorsTable : MigrationsScriptsBase
 
        repositoryPaths.Should().HaveCount(1);
        repositoryPaths.First().Should().Be(repositoryPath);
+        
+       //await Context.DropDatabase(db);
     }
     
     [Theory]
@@ -98,6 +100,8 @@ public abstract class ScriptsRunErrorsTable : MigrationsScriptsBase
 
         versions.Should().HaveCount(1);
         versions.First().Should().Be(version);
+        
+        //await Context.DropDatabase(db);
     }
     
     
@@ -138,6 +142,8 @@ public abstract class ScriptsRunErrorsTable : MigrationsScriptsBase
 
         scriptNames.Should().HaveCount(1);
         scriptNames.First().Should().Be(scriptName);
+        
+        //await Context.DropDatabase(db);
     }
     
     [Theory]
@@ -184,6 +190,8 @@ public abstract class ScriptsRunErrorsTable : MigrationsScriptsBase
         scripts.Should().HaveCount(1);
         scripts.First().Should().Be(sql);
         scripts.First().Should().Contain(characters);
+        
+        //await Context.DropDatabase(db);
     }
     
     [Theory]
@@ -228,6 +236,8 @@ public abstract class ScriptsRunErrorsTable : MigrationsScriptsBase
 
         errors.Should().HaveCount(1);
         errors.First().Should().Contain(characters);
+        
+        //await Context.DropDatabase(db);
     }
     
     
@@ -274,6 +284,8 @@ public abstract class ScriptsRunErrorsTable : MigrationsScriptsBase
         errors.Should().HaveCount(1);
         // This doesn't work well for MariaDb with 🎉 and 👍, they are only '?' in the actual error message from the DB 
         //errors.First().Should().Contain(characters);
+        
+        //await Context.DropDatabase(db);
     }
     
     
@@ -323,6 +335,8 @@ public abstract class ScriptsRunErrorsTable : MigrationsScriptsBase
 
         user.Should().HaveCount(1);
         user.First().Should().Contain(enteredBy);
+        
+        //await Context.DropDatabase(db);
     }
 
 }

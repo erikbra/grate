@@ -8,7 +8,7 @@ namespace CommandLine.SqlServer.Running_MigrationScripts;
 public class Failing_Scripts(SqlServerGrateTestContext testContext, ITestOutputHelper testOutput)
     : TestCommon.Generic.Running_MigrationScripts.Failing_Scripts(testContext, testOutput)
 {
-    protected override string ExpectedErrorMessageForInvalidSql => "Not relevant";
+    protected override string ExpectedStartOfErrorMessageForInvalidSql => "Not relevant";
     protected override IDictionary<string, object?> ExpectedErrorDetails => new Dictionary<string, object?>();
 
     [Fact(Skip = "Cannot check on the exact error message when running the command line tool. The error message is not available.")]

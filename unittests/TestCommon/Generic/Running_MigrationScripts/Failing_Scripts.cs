@@ -23,7 +23,9 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
     {
     }
     
-    protected abstract string ExpectedErrorMessageForInvalidSql { get; }
+    // These vary a bit between the different database versions, so it's a bit too specific to check on 
+    // the exact contents of the string.
+    protected abstract string ExpectedStartOfErrorMessageForInvalidSql { get; }
 
     [Fact]
     public virtual async Task Aborts_the_run_giving_an_error_message()
@@ -42,7 +44,17 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
 
         await using var migrator = Context.Migrator.WithConfiguration(config);
         var ex = await Assert.ThrowsAnyAsync<MigrationFailed>(migrator.Migrate);
-        ex.Message.Should().Be($"Migration failed due to the following errors:\n\n{ExpectedErrorMessageForInvalidSql}");
+        NormalizeLineEndings(ex.Message).TrimEnd().
+            Should().StartWith(
+            $"Migration failed due to the following errors:\n\n{NormalizeLineEndings(ExpectedStartOfErrorMessageForInvalidSql)}".TrimEnd()
+            );
+        
+        //await Context.DropDatabase(db);
+    }
+    
+    private static string NormalizeLineEndings(string input)
+    {
+        return input.Replace("\r\n", "\n").Replace("\r", "\n");
     }
     
         
@@ -68,7 +80,9 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
         {
             using (new AssertionScope())
             {
-                ex.MigrationErrors.Should().Contain(ExpectedErrorDetails);
+                // These _values_ are a bit too specific to assert on
+                // - they vary between versions of the same database. But we can check that the keys are there.
+                ex.MigrationErrors.Keys.Should().Contain(ExpectedErrorDetails.Keys);
             }
         } catch (XunitException)
         {
@@ -79,6 +93,8 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
                                  JsonSerializer.Serialize(ex.InnerException!.GetType().GetProperties().Select(prop => prop.Name)));
             throw;
         }
+        
+        //await Context.DropDatabase(db);
         
     }
     
@@ -101,6 +117,8 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
         await using var migrator = Context.Migrator.WithConfiguration(config);
         var ex = await Assert.ThrowsAnyAsync<MigrationFailed>(migrator.Migrate);
         ex.IsTransient.Should().BeFalse();
+        
+        //await Context.DropDatabase(db);
     }
 
     protected abstract IDictionary<string, object?> ExpectedErrorDetails { get; }
@@ -137,6 +155,8 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
         }
 
         scripts.Should().HaveCount(1);
+        
+        //await Context.DropDatabase(db);
     }
     
     [Fact]
@@ -172,6 +192,8 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
         }
 
         loggedRepositoryPath.Should().Be(repositoryPath);
+        
+        //await Context.DropDatabase(db);
     }
     
 
@@ -209,6 +231,8 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
 
         scripts.Should().HaveCount(1);
         scripts.First().Should().Be(fileContent);
+        
+        //await Context.DropDatabase(db);
     }
 
     [Fact]
@@ -244,6 +268,8 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
         //var ex = await Assert.ThrowsAnyAsync<MigrationFailed>(migrator.Migrate);
         var ex = await Assert.ThrowsAnyAsync<Exception>(migrator.Migrate);
         ex.Should().BeOfType<MigrationFailed>();
+        
+        //await Context.DropDatabase(db);
     }
 
     [Fact]
@@ -279,6 +305,8 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
         //var ex = await Assert.ThrowsAnyAsync<MigrationFailed>(migrator.Migrate);
         var ex = await Assert.ThrowsAnyAsync<Exception>(migrator.Migrate);
         ex.Should().BeOfType<MigrationFailed>();
+        
+        //await Context.DropDatabase(db);
     }
 
     [Theory]
@@ -340,6 +368,8 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
 
         versions.Should().HaveCount(1);
         versions.Single().Should().Be(MigrationStatus.Error);
+        
+        //await Context.DropDatabase(db);
     }
 
     private async Task<string[]> RunMigration(MigrationsFolder folder, string filename)

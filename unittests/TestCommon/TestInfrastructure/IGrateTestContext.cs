@@ -34,6 +34,8 @@ public interface IGrateTestContext
         Transaction = SupportsTransaction,
     };
 
+    public Task DropDatabase(string databaseName);
+
 
     public IGrateMigrator Migrator { get; }
     

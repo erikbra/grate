@@ -9,7 +9,7 @@ public class Failing_Scripts(SqlServerGrateTestContext testContext, ITestOutputH
     : TestCommon.Generic.Running_MigrationScripts.Failing_Scripts(testContext, testOutput)
 {
 
-    protected override string ExpectedErrorMessageForInvalidSql =>
+    protected override string ExpectedStartOfErrorMessageForInvalidSql =>
         """
         Update ("up"):
         --------------------------------------------------------------------------------

@@ -47,6 +47,8 @@ public abstract class Environment_scripts(IGrateTestContext context, ITestOutput
         }
 
         scripts.Should().BeEmpty();
+        
+        //await Context.DropDatabase(db);
     }
 
     [Fact]
@@ -79,6 +81,8 @@ public abstract class Environment_scripts(IGrateTestContext context, ITestOutput
         }
 
         scripts.Should().BeEmpty();
+        
+        //await Context.DropDatabase(db);
     }
 
     [Fact]
@@ -113,6 +117,8 @@ public abstract class Environment_scripts(IGrateTestContext context, ITestOutput
         }
 
         scripts.Should().HaveCount(2);
+        
+        //await Context.DropDatabase(db);
     }
 
     [Fact]
@@ -148,5 +154,7 @@ public abstract class Environment_scripts(IGrateTestContext context, ITestOutput
         }
 
         scripts.Should().HaveCount(1);
+        
+        //await Context.DropDatabase(db);
     }
 }

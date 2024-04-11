@@ -49,14 +49,14 @@ jobs:
     strategy:
       matrix:
         arch: 
-          - win-x64
+          # - win-x64
           # - win-x86
           # - win-arm64
           # - linux-musl-x64
           # - linux-musl-arm64
           - linux-x64
           # - linux-arm64
-          - osx-x64
+          # - osx-x64
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET 8
@@ -76,6 +76,7 @@ jobs:
         path: ./publish/${{ matrix.arch }}/self-contained/*
 
   build-standalone-mac-arm64:
+    if: false
     name: Build cli
     needs: set-version-number
 
@@ -116,9 +117,9 @@ jobs:
     strategy:
       matrix:
         arch: 
-          - win-x64
+          #- win-x64
           - linux-x64
-          - osx-x64
+          #- osx-x64
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET 8
@@ -128,21 +129,29 @@ jobs:
 
     - name: Build Test DLLs ${{ matrix.arch }}
       run: |
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.MariaDB -o ./commandline-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.SqlServer -o ./commandline-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.Oracle -o ./commandline-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.PostgreSQL -o ./commandline-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.Sqlite -o ./commandline-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.MariaDB -o ./integration-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.SqlServer -o ./integration-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.Oracle -o ./integration-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.PostgreSQL -o ./integration-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.Sqlite -o ./integration-tests/${{ matrix.arch }}
+
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/MariaDB -o ./integration-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/SqlServer -o ./integration-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/Oracle -o ./integration-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/PostgreSQL -o ./integration-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/Sqlite -o ./integration-tests/${{ matrix.arch }}
+
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
 
     - name: Upload Test DLLs ${{ matrix.arch }}
       uses: actions/upload-artifact@v4
       with:
-        name: commandline-tests-${{ matrix.arch }}-${{ needs.set-version-number.outputs.nuGetVersion }}
-        path: ./commandline-tests/${{ matrix.arch }}/*
+        name: integration-tests-${{ matrix.arch }}-${{ needs.set-version-number.outputs.nuGetVersion }}
+        path: ./integration-tests/${{ matrix.arch }}/*
 
   build-tests-mac-arm64:
+    if: false
     name: Build tests
     needs: set-version-number
 
@@ -160,22 +169,29 @@ jobs:
 
     - name: Build Test DLLs ${{ matrix.arch }}
       run: |
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.MariaDB -o ./commandline-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.SqlServer -o ./commandline-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.Oracle -o ./commandline-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.PostgreSQL -o ./commandline-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.Sqlite -o ./commandline-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.MariaDB -o ./integration-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.SqlServer -o ./integration-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.Oracle -o ./integration-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.PostgreSQL -o ./integration-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.Sqlite -o ./integration-tests/${{ matrix.arch }}
+
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/MariaDB -o ./integration-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/SqlServer -o ./integration-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/Oracle -o ./integration-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/PostgreSQL -o ./integration-tests/${{ matrix.arch }}
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/Sqlite -o ./integration-tests/${{ matrix.arch }}
+
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
 
     - name: Upload Test DLLs ${{ matrix.arch }}
       uses: actions/upload-artifact@v4
       with:
-        name: commandline-tests-${{ matrix.arch }}-${{ needs.set-version-number.outputs.nuGetVersion }}
-        path: ./commandline-tests/${{ matrix.arch }}/*
+        name: integration-tests-${{ matrix.arch }}-${{ needs.set-version-number.outputs.nuGetVersion }}
+        path: ./integration-tests/${{ matrix.arch }}/*
 
   setup-test-environment:
-    #if: false
+    if: false
     name: Set up test enviroment
     environment: integration-tests
     runs-on: ubuntu-latest
@@ -248,23 +264,80 @@ jobs:
             echo EOFAAA
           } >> "$GITHUB_OUTPUT"
 
+  docker-integration-tests:
+    continue-on-error: true
+    timeout-minutes: 25
 
-  # read-outputs:
-  #   environment: integration-tests
-  #   name: "Print outputs"
-  #   needs:
-  #     - setup-test-environment
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - name: Output matrix variable
-  #     run: |
-  #       echo "Output variables:"
-  #       echo "===================="
-  #       echo "All outputs: ${{ needs.setup-test-environment.outputs }}"
-  #       echo "Databases: ${{ needs.setup-test-environment.outputs.dbs }}"
-    
+    needs:
+      - set-version-number
+      - build-standalone
+      - build-tests
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # TODO: Expand this to run on multiple images per database (put in an environment variable)
+        database: [ "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
+
+
+    runs-on: ubuntu-latest
+    steps:
+    - name: Test run info
+      shell: pwsh
+      run: |
+        echo "Test run info:"
+        echo "===================="
+        echo "Database: ${{ matrix.database }}"
+
+    - uses: actions/checkout@v4
+
+    - uses: actions/download-artifact@v4
+      name: Download executables
+      with:
+        name: grate-linux-x64-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
+        path: executables/linux-x64
+
+    - uses: actions/download-artifact@v4
+      name: Download test DLLs
+      with:
+        name: integration-tests-linux-x64-${{ needs.set-version-number.outputs.nuGetVersion }}
+        path: integration-tests/linux-x64
+
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: chmod u+x
+      run: chmod u+x $GrateExecutablePath
+      env:
+        GrateExecutablePath: ${{ github.workspace }}/executables/linux-x64/grate
+
+    - name: Docker Test CmdLine
+      if: ${{ !cancelled() }}
+      shell: pwsh
+      run: |
+        dotnet test integration-tests/linux-x64/CommandLine.${{ matrix.database }}.dll `
+        --logger:"xunit;Environment=docker,${{ matrix.database }};LogFilePath=/tmp/test-results/docker/CommandLine.${{ matrix.database }}.xml" -- `
+        -MaxCpuCount 2
+
+      env:
+        LogLevel: Information
+        GrateExecutablePath: ${{ github.workspace }}/executables/linux-x64/grate
+        TZ: UTC
+
+    - name: Upload Unit Test Results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: "docker ${{ matrix.database }} XML test results"
+        path: |
+          /tmp/test-results/linux-x64/${{ matrix.database }}.xml
+          /tmp/test-results/linux-x64/CommandLine.${{ matrix.database }}.xml
+        retention-days: 1
 
   integration-test:
+    if: false
     environment: integration-tests
     name: ${{ matrix.database.name }}, ${{ matrix.os.name }}
     needs:
@@ -275,12 +348,13 @@ jobs:
       - build-tests
       - build-tests-mac-arm64
     continue-on-error: true
+    timeout-minutes: 25
 
     strategy:
       fail-fast: false
       # Try to keep this the same as the number of databases we test
       # (this will avoid many test suites against the same database server simultaneously)
-      max-parallel: 9
+      max-parallel: 12
       matrix:
         os:
           - name: windows-latest
@@ -292,7 +366,7 @@ jobs:
           - name: macos-latest
             arch: osx-x64
             executable: grate
-            #macos-14 is M1 (arm64)
+          # macos-14 is M1 (arm64)
           - name: macos-14
             arch: osx-arm64
             executable: grate
@@ -309,6 +383,7 @@ jobs:
         echo "Arch: ${{ matrix.os.arch }}"
         echo "Executable: ${{ matrix.os.executable }}"
         echo "Database: ${{ matrix.database.name }}"
+        echo "Cleaned database name: ${{ matrix.database.cleaned_name }}"
 
         echo "Connection string: $([System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String( "${{ matrix.database.connectionstring }}" )) )"
 
@@ -323,8 +398,8 @@ jobs:
     - uses: actions/download-artifact@v4
       name: Download test DLLs
       with:
-        name: commandline-tests-${{ matrix.os.arch }}-${{ needs.set-version-number.outputs.nuGetVersion }}
-        path: commandline-tests/${{ matrix.os.arch }}
+        name: integration-tests-${{ matrix.os.arch }}-${{ needs.set-version-number.outputs.nuGetVersion }}
+        path: integration-tests/${{ matrix.os.arch }}
 
     - name: Setup .NET 8
       uses: actions/setup-dotnet@v4
@@ -344,27 +419,123 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+    - name: Test lib
+      shell: pwsh
+      # Theses are not stable enought to run against an external database. Disable for now.
+      if: false
+      run: |
+        $env:GrateTestConfig__AdminConnectionString="$([System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String( "${{ matrix.database.connectionstring }}" )) )";
 
-    - name: Test
+        dotnet test integration-tests/${{ matrix.os.arch }}/${{ matrix.database.type }}.dll `
+        --logger:"xunit;Environment=${{ matrix.os.arch }},${{ matrix.database.name }};LogFilePath=/tmp/test-results/${{ matrix.os.arch }}/${{ matrix.database.cleaned_name }}.xml" -- `
+        -MaxCpuCount 2
+
+      env:
+        LogLevel: Critical
+        TZ: UTC
+
+    - name: Test CmdLine
+      if: ${{ !cancelled() }}
       shell: pwsh
       run: |
         $env:GrateTestConfig__AdminConnectionString="$([System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String( "${{ matrix.database.connectionstring }}" )) )";
-        dotnet test commandline-tests/${{ matrix.os.arch }}/CommandLine.${{ matrix.database.type }}.dll `
-        --logger:"xunit;LogFilePath=/tmp/test-results/${{ matrix.os.arch }}/CommandLine.${{ matrix.database.type }}.xml" -- `
+
+        dotnet test integration-tests/${{ matrix.os.arch }}/CommandLine.${{ matrix.database.type }}.dll `
+        --logger:"xunit;Environment=${{ matrix.os.arch }},${{ matrix.database.name }};LogFilePath=/tmp/test-results/${{ matrix.os.arch }}/CommandLine.${{ matrix.database.cleaned_name }}.xml" -- `
         -MaxCpuCount 2
+
       env:
         LogLevel: Information
         GrateExecutablePath: ${{ github.workspace }}/executables/${{ matrix.os.arch }}/${{ matrix.os.executable }}
-        GrateTestConfig__AdminConnectionString:  ${{ matrix.database.connectionstring }}
         TZ: UTC
+
+    - name: Upload Unit Test Results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: "${{ matrix.os.arch }} ${{ matrix.database.cleaned_name }} XML test results"
+        path: |
+          /tmp/test-results/${{ matrix.os.arch }}/${{ matrix.database.cleaned_name }}.xml
+          /tmp/test-results/${{ matrix.os.arch }}/CommandLine.${{ matrix.database.cleaned_name }}.xml
+        retention-days: 1
+
+    # - name: Fail build if not successful
+    #   id: fail-if-failed
+    #   run: |
+    #      [ "${FAILURE}" = "true" ] && echo "Failures found. Marking as failed" && exit 1;
+    #      [ "${CANCELLED}" = "true" ] && echo "Job cancelled. Marking as failed" && exit 1;
+    #   if: always()
+    #   #if: contains(steps.*.result, 'failure') || contains(steps.*.result, 'cancelled')
+    #   env:
+    #     FAILURE: ${{ contains(steps.*.result, 'failure') }}
+    #     CANCELLED: ${{ contains(steps.*.result, 'cancelled') }}
+
+  report:
+    runs-on: ubuntu-latest
+    name: Create test report
+    needs: integration-test
+    if: always()
+
+    steps:
+      - name: Download XML test reports
+        uses: actions/download-artifact@v4
+        with:
+          path: test-results
+
+      - name: Install smink
+        run: |
+          BASEURL="https://github.com/erikbra/smink/releases/download/"
+          VERSION="0.4.0"
+
+          INSTALL_DIR="/tmp/smink"
+          SMINK="${INSTALL_DIR}/smink"
+
+          FILENAME="smink-linux-x64-${VERSION}.zip"
+          FULL_URL="${BASEURL}${VERSION}/${FILENAME}"
+          DOWNLOAD_DIR="/tmp/smink-download"
+
+          DOWNLOAD_FILE="${DOWNLOAD_DIR}/${FILENAME}"
+
+          test -f "${SMINK}" && \
+          echo "smink already installed - not installing" || \
+          echo "Installing smink v ${VERSION}" && \
+          (test -d "${DOWNLOAD_DIR}" || mkdir -p "${DOWNLOAD_DIR}") && \
+          (test -d "${INSTALL_DIR}" || mkdir -p "${INSTALL_DIR}") && \
+          (test -f "${DOWNLOAD_FILE}" || curl -o "${DOWNLOAD_FILE}" -sL "${FULL_URL}") && \
+          unzip -o "${DOWNLOAD_FILE}" -d "${INSTALL_DIR}" 
+
+          chmod u+x "${SMINK}"
+
+      - name: Create HTML test report
+        run: |
+
+          XML_DIR='/tmp/xml'
+          REPORT_DIR='/tmp/test-results'
+
+          test -d $XML_DIR  || mkdir $XML_DIR
+          find "test-results" -name '*.xml' -exec cp "{}" $XML_DIR \;
+          echo "Found the following test results files:"
+          ls -1 $XML_DIR
+
+          test -d $REPORT_DIR || mkdir $REPORT_DIR
+          echo "Running smink"
+          /tmp/smink/smink "${XML_DIR}/*.xml" "${REPORT_DIR}/grate integration tests $(date +'%Y-%m-%d %H.%M.%S %z').html" --title "grate integration tests"
+
+      - name: Upload HTML test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: HTML test report
+          path: |
+            /tmp/test-results/*.html
+          retention-days: 10
       
   teardown-test-environment:
     name: Tear down test enviroment
     environment: integration-tests
     runs-on: ubuntu-latest
     needs: integration-test
-    if: always()
-    #if: false
+    #if: always()
+    if: false
     env:
       tf_actions_working_dir: "${{ github.workspace }}/test-infra/terraform/test-environment"
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -397,12 +568,26 @@ jobs:
 
       - id: plan-destroy
         run: terraform plan -destroy -input=false
-  
-      # - name: Terraform Plan Status
-      #   if: steps.plan.outcome == 'failure'
-      #   run: exit 1
 
       - name: Terraform Destroy
-        #run: terraform apply -destroy -auto-approve
         run: terraform destroy -auto-approve
+
+  # fail-if-failed:
+  #   name: Fail build on failure
+  #   if: always()
+  #   needs:
+  #     - integration-test
+  #     - teardown-test-environment
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Fail build if not successful
+  #       id: fail-if-failed
+  #       run: |
+  #         [ "${FAILURE}" = "true" ] && echo "Failures found. Marking as failed" && exit 1;
+  #         [ "${CANCELLED}" = "true" ] && echo "Job cancelled. Marking as failed" && exit 1;
+  #       if: always()
+  #       #if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+  #       env:
+  #         FAILURE: ${{ contains(needs.*.result, 'failure') }}
+  #         CANCELLED: ${{ contains(needs.*.result, 'cancelled') }}
 

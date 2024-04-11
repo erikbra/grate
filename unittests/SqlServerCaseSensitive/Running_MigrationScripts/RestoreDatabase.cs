@@ -54,5 +54,7 @@ public class RestoreDatabase(IGrateTestContext testContext, ITestOutputHelper te
         }
 
         results.First().Should().Be(1);
+        
+        //await Context.DropDatabase(db);
     }
 }

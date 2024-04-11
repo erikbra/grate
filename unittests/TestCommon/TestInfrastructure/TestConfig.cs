@@ -17,11 +17,17 @@ public static class TestConfig
     public static DirectoryInfo Wrap(DirectoryInfo root, string? subFolder) =>
         new(Path.Combine(root.ToString(), subFolder ?? ""));
     public static string? Username(string connectionString) => connectionString.Split(";", TrimEntries | RemoveEmptyEntries)
-        .SingleOrDefault(entry => entry.StartsWith("Uid", OrdinalIgnoreCase) || entry.StartsWith("User Id", OrdinalIgnoreCase))?
+        .SingleOrDefault(entry => 
+            entry.StartsWith("Uid", OrdinalIgnoreCase) || 
+            entry.StartsWith("User Id", OrdinalIgnoreCase) || 
+            entry.StartsWith("Username", OrdinalIgnoreCase))
+        ?
         .Split("=", TrimEntries | RemoveEmptyEntries).Last();
 
     public static string? Password(string connectionString) => connectionString.Split(";", TrimEntries | RemoveEmptyEntries)
-        .SingleOrDefault(entry => entry.StartsWith("Password", OrdinalIgnoreCase) || entry.StartsWith("Pwd", OrdinalIgnoreCase))?
+        .SingleOrDefault(entry => 
+            entry.StartsWith("Password", OrdinalIgnoreCase) || 
+            entry.StartsWith("Pwd", OrdinalIgnoreCase))?
         .Split("=", TrimEntries | RemoveEmptyEntries).Last();
 
     public static LogLevel GetLogLevel() => LogLevelFromEnvironmentVariable();

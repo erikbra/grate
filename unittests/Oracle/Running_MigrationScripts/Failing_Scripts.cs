@@ -7,14 +7,12 @@ namespace Oracle.Running_MigrationScripts;
 public class Failing_Scripts(OracleGrateTestContext testContext, ITestOutputHelper testOutput)
     : TestCommon.Generic.Running_MigrationScripts.Failing_Scripts(testContext, testOutput)
 {
-    protected override string ExpectedErrorMessageForInvalidSql =>
-        """
-        Update ("up"):
-        --------------------------------------------------------------------------------
-        2_failing.sql: ORA-00923: FROM keyword not found where expected
-        (0,10): SELECT TOP
-                         ^ ORA-00923: FROM keyword not found where expected
-        """;
+    protected override string ExpectedStartOfErrorMessageForInvalidSql =>
+"""
+Update ("up"):
+--------------------------------------------------------------------------------
+2_failing.sql: ORA-
+""";
 
     protected override IDictionary<string, object?> ExpectedErrorDetails => new Dictionary<string, object?>
     {

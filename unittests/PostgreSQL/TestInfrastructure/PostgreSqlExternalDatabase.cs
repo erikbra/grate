@@ -13,7 +13,7 @@ public class PostgreSqlExternalDatabase(GrateTestConfig grateTestConfig) : ITest
         var builder = new NpgsqlConnectionStringBuilder(AdminConnectionString)
         {
             Database = database,
-            Timeout = 2
+            Timeout = 5
         };
         return builder.ConnectionString;
     }
@@ -23,9 +23,9 @@ public class PostgreSqlExternalDatabase(GrateTestConfig grateTestConfig) : ITest
          var builder = new NpgsqlConnectionStringBuilder(AdminConnectionString)
          {
             Database = database,
-            Username = "zorro",
+            Username = "zorro" + database.ToLower()[..4],
             Password = "batmanZZ4",
-            Timeout = 2
+            Timeout = 3
          };
          return builder.ConnectionString;
     }

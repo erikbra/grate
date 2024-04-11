@@ -24,7 +24,10 @@ internal class StatementSplitter
     private static bool HasScriptsToRun(string sqlStatement)
     {
         var trimmedStatement = sqlStatement.Replace(BatchTerminatorReplacementString, string.Empty, StringComparison.InvariantCultureIgnoreCase);
-        return !string.IsNullOrEmpty(trimmedStatement.ToLower().Replace(Environment.NewLine, string.Empty).Replace(" ", string.Empty));
+        return !string.IsNullOrEmpty(trimmedStatement.ToLower()
+            .Replace(Environment.NewLine, string.Empty)
+            .Replace("\n", string.Empty) // This is necessary to make script with unix-style line endings work on grate on Windows
+            .Replace(" ", string.Empty));
     }
 
 }

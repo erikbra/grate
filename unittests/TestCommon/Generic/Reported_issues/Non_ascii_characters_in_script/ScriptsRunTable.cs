@@ -58,6 +58,8 @@ public abstract class ScriptsRunTable(IGrateTestContext context, ITestOutputHelp
             scripts.Should().HaveCount(1);
             scripts.First().Should().Be(sql);
             scripts.First().Should().Contain(characters);
+        
+        //await Context.DropDatabase(db);
     }
     
     [Theory]
@@ -102,5 +104,7 @@ public abstract class ScriptsRunTable(IGrateTestContext context, ITestOutputHelp
 
         scripts.Should().HaveCount(1);
         scripts.First().Should().Be(scriptName);
+        
+        //await Context.DropDatabase(db);
     }
 }

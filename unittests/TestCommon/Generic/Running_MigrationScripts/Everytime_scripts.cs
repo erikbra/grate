@@ -42,6 +42,8 @@ public abstract class Everytime_scripts(IGrateTestContext context, ITestOutputHe
         using var conn = Context.CreateDbConnection(db);
         var scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         scripts.Should().HaveCount(3);
+        
+        //await Context.DropDatabase(db);
     }
 
     [Fact]
@@ -81,6 +83,8 @@ public abstract class Everytime_scripts(IGrateTestContext context, ITestOutputHe
         }
 
         scripts.Should().BeEmpty();
+        
+        //await Context.DropDatabase(db);
     }
 
     [Fact]
@@ -118,6 +122,8 @@ public abstract class Everytime_scripts(IGrateTestContext context, ITestOutputHe
         }
 
         scripts.Should().HaveCount(7); // one time script ran once, the two everytime scripts ran every time.
+        
+        //await Context.DropDatabase(db);
     }
 
     [Fact]
@@ -151,6 +157,8 @@ public abstract class Everytime_scripts(IGrateTestContext context, ITestOutputHe
 
         // but doesn't exist
         await Assert.ThrowsAsync(Context.DbExceptionType, async () => await conn.QueryAsync<string>("select * from grate"));
+        
+        //await Context.DropDatabase(db);
     }
 
     private void CreateEveryTimeScriptFile(DirectoryInfo root, MigrationsFolder? folder)
