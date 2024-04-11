@@ -278,7 +278,9 @@ jobs:
 
     strategy:
       fail-fast: false
-      max-parallel: 4
+      # Try to keep this the same as the number of databases we test
+      # (this will avoid many test suites against the same database server simultaneously)
+      max-parallel: 9
       matrix:
         os:
           - name: windows-latest
@@ -351,7 +353,7 @@ jobs:
         --logger:"xunit;LogFilePath=/tmp/test-results/${{ matrix.os.arch }}/CommandLine.${{ matrix.database.type }}.xml" -- `
         -MaxCpuCount 2
       env:
-        LogLevel: Warning
+        LogLevel: Information
         GrateExecutablePath: ${{ github.workspace }}/executables/${{ matrix.os.arch }}/${{ matrix.os.executable }}
         GrateTestConfig__AdminConnectionString:  ${{ matrix.database.connectionstring }}
         TZ: UTC
