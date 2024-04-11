@@ -42,6 +42,17 @@ public class GrateEnvironment_
 
         env.ShouldRun(file).Should().BeTrue();
     }
+    
+    [Fact]
+    public void Supports_multiple_environments()
+    {
+        var env = new GrateEnvironment("BOOYA", "FOOYA");
+        
+        var file1 = FullPath("a_file.ENV.with.BOOYA.sql");
+        var file2 = FullPath("a_file.ENV.with.FOOYA.sql");
+        env.ShouldRun(file1).Should().BeTrue();
+        env.ShouldRun(file2).Should().BeTrue();
+    }
 
     [Fact]
     public void Does_not_run_for_other_environments()

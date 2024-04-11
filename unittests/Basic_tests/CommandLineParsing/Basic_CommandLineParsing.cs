@@ -177,17 +177,55 @@ public class Basic_CommandLineParsing
 
         cfg?.Transaction.Should().Be(false);
     }
+    
+    
+    /// <summary>
+    /// We can use multiple environments, separated by space, ; or ,
+    /// This makes it possible to create orhotogonal environments, and run scripts
+    /// that are specific to a combination of environments.
+    ///
+    /// Example: You have:
+    /// * Some scripts that you only run for Customer 1
+    /// * Some scripts that you only run for Customer 2
+    /// * some scripts that you only run for Azure
+    /// * some scripts that you only run for AWS
+    /// * some scripts that you only run for Dev.
+    /// * some scripts that you only run for Test.
+    /// * some scripts that you only run for Prod.
+    ///
+    /// Then, you can combine any of these environments to create a specific environment, to avoid
+    /// having to create an environment for each combination.
+    ///
+    /// E.g.:
+    /// --env Customer1;Azure
+    /// --env Customer2,Azure
+    /// --env Customer3
+    /// --env Customer1 AWS Dev
+    /// --env Customer1,AWS,Test
+    /// --env Customer2;AWS;QA
+    /// --env Customer2 AWS QA
+    /// etc
+    /// </summary>
+    /// <param name="argName"></param>
+    /// <param name="expected"></param>
 
     [Theory]
-    [InlineData("--env KASHMIR", "KASHMIR")]
-    [InlineData("--environment JALLA", "JALLA")]
-    public async Task Environment(string argName, string expected)
+    [InlineData("--env KASHMIR", new[] {"KASHMIR"})]
+    [InlineData("--env JALLA", new[] {"JALLA"})]
+    [InlineData("--env JALLA KASHMIR", new[] {"JALLA", "KASHMIR"})]
+    [InlineData("--env JALLA,BERGEN", new[] {"JALLA", "BERGEN"})]
+    [InlineData("--env Dev;Azure;OnlyOnMondays", new[] {"Dev", "Azure", "OnlyOnMondays"})]
+    [InlineData("--env Customer1;Azure;Dev", new[] {"Customer1", "Azure", "Dev"})]
+    [InlineData("--env Customer1;Azure;Test", new[] {"Customer1", "Azure", "Test"})]
+    [InlineData("--env Customer2;Azure;Dev", new[] {"Customer2", "Azure", "Dev"})]
+    [InlineData("--env Customer2;Aws;QA", new[] {"Customer2", "Aws", "QA"})]
+    [InlineData("--env Customer2;Azure;Prod", new[] {"Customer2", "Azure", "Prod"})]
+    public async Task Environments(string argName, IEnumerable<string> expected)
     {
         var commandline = argName;
         var cfg = await ParseGrateConfiguration(commandline);
 
         var expectedEnvironment = new GrateEnvironment(expected);
-
         cfg?.Environment.Should().BeEquivalentTo(expectedEnvironment);
     }
 

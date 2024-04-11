@@ -23,7 +23,7 @@ internal sealed class MigrateCommand : RootCommand
         Add(CommandTimeoutAdmin());
         Add(DatabaseType());
         Add(RunInTransaction());
-        Add(Environment());
+        Add(Environments());
         Add(SchemaName());
         Add(Silent());
         Add(RepositoryPath());
@@ -178,7 +178,7 @@ the last one will expect the folders to be named 'folder1', 'folder2', and 'fold
         new Option<DatabaseType>(
             new[] { "--databasetype", "--dt", "--dbt" },
             () => Configuration.DatabaseType.SQLServer,
-            "Tells grate what type of database it is running on."
+           "TELLS GRATE WHAT TYPE OF DATABASE IT IS RUNNING ON."
         );
 
     private static Option RunInTransaction() => //new Argument<bool>("-t");
@@ -207,12 +207,32 @@ the last one will expect the folders to be named 'folder1', 'folder2', and 'fold
 
 
     //ENVIRONMENT OPTIONS
-    private static Option<GrateEnvironment?> Environment() =>
+    //private static Option<CommandLineGrateEnvironment?> Environments() =>
+    private static Option<CommandLineGrateEnvironment?> Environments() =>
         new(
             aliases: new[] { "--env", "--environment" },
-            parseArgument: ArgumentParsers.ParseEnvironment, // Needed in System.CommandLine beta3: https://github.com/dotnet/command-line-api/issues/1664
-            description: "Environment Name - This allows grate to be environment aware and only run scripts that are in a particular environment based on the name of the script.  'something.ENV.LOCAL.sql' would only be run if --env=LOCAL was set."
-        );
+            parseArgument: ArgumentParsers
+                .ParseEnvironment, // Needed in System.CommandLine beta3: https://github.com/dotnet/command-line-api/issues/1664
+            description:
+            "Environment Name - This allows grate to be environment aware and only run scripts that are in a particular environment based on the name of the script.  'something.ENV.LOCAL.sql' would only be run if --env=LOCAL was set."
+        )
+        {
+            AllowMultipleArgumentsPerToken = true
+            //Arity = ArgumentArity.ZeroOrMore
+        };
+    //
+    // private static Option<string?> Environments() =>
+    //     new(
+    //         aliases: new[] { "--envs", "--environments" },
+    //         parseArgument: ArgumentParsers.ParseEnvironmentString, // Needed in System.CommandLine beta3: https://github.com/dotnet/command-line-api/issues/1664
+    //         description: "Environment Name - This allows grate to be environment aware and only run scripts that are in a particular environment based on the name of the script.  'something.ENV.LOCAL.sql' would only be run if --env=LOCAL was set."
+    //     );
+    
+    // private static Option<string> Environments() =>
+    //     new(
+    //         aliases: new[] { "--env", "--environment" },
+    //         description: "Environment Name - This allows grate to be environment aware and only run scripts that are in a particular environment based on the name of the script.  'something.ENV.LOCAL.sql' would only be run if --env=LOCAL was set."
+    //     );
 
 
     //WARNING OPTIONS
