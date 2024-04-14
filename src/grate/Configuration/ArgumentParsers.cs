@@ -1,22 +1,22 @@
 ﻿using System.CommandLine.Parsing;
-using grate.Infrastructure;
 
 namespace grate.Configuration;
 
 internal static class ArgumentParsers
 {
+    private static readonly char[] Delimiters = [',', ';'];
+
     // System.CommandLine beta3 has broken support for basic public constructors in order to provide better support for trimming assemblies.
     // Specify a parser to work around this, see https://github.com/dotnet/command-line-api/issues/1664
-
-    public static GrateEnvironment? ParseEnvironment(ArgumentResult result)
+    public static CommandLineGrateEnvironment? ParseEnvironment(ArgumentResult result)
     {
-        if (result.Tokens.Count == 1)
-        {
-            return new GrateEnvironment(result.Tokens[0].Value);
-        }
+        return result.Tokens.Any() 
+            ? new CommandLineGrateEnvironment(result.Tokens.SelectMany(GetEnvironments)) 
+            : null;
+    }
 
-        result.ErrorMessage = $"Arg specified multiple times.";
-
-        return default;
+    private static IEnumerable<string> GetEnvironments(Token token)
+    {
+        return token.Value.Split(Delimiters, StringSplitOptions.RemoveEmptyEntries);
     }
 }

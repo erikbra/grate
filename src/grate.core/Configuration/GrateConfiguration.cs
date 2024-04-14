@@ -73,10 +73,20 @@ public record GrateConfiguration
     /// </summary>
     public bool Transaction { get; init; }
 
+    // /// <summary>
+    // /// The environment the current migration is targeting for env-specific scripts.
+    // /// </summary>
+    // public string? Environments { get; init; }
+
     /// <summary>
     /// The environment the current migration is targeting for env-specific scripts.
     /// </summary>
-    public GrateEnvironment? Environment { get; init; }
+    public GrateEnvironment? Environment { get; set; }
+    // {
+    //     get => Environments is {} ? new(Environments) : null;
+    //     init => Environments = string.Join(",", value?.Environments ?? []);
+    // }
+
 
     /// <summary>
     /// The optional repository path value used to track along with version.
