@@ -30,7 +30,7 @@ public readonly struct SqlServerSyntax : ISyntax
                             ALTER DATABASE [{databaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE                            
                             DROP DATABASE [{databaseName}] 
                         END";
-    public string TableWithSchema(string schemaName, string tableName) => $"{schemaName}.\"{tableName}\"";
+    public string TableWithSchema(string schemaName, string tableName) => $"{schemaName}.[{tableName}]";
     public string ReturnId => ";SELECT @@IDENTITY";
     public string TimestampType => "datetime";
     public string Quote(string text) => $"\"{text}\"";

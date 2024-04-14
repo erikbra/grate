@@ -5,7 +5,7 @@ using TestCommon.Generic.Running_MigrationScripts;
 using TestCommon.TestInfrastructure;
 using static grate.Configuration.KnownFolderKeys;
 
-namespace SqlServer.Running_MigrationScripts;
+namespace SqlServer.Reported_issues;
 
 // ReSharper disable once InconsistentNaming
 /// <summary>
@@ -13,7 +13,7 @@ namespace SqlServer.Running_MigrationScripts;
 /// Create tests to reproduce the issue and then fix the issue, and keep the test to ensure it doesn't regress.
 /// </summary>
 [Collection(nameof(SqlServerGrateTestContext))]
-public class Real_world_issues(SqlServerGrateTestContext context, ITestOutputHelper testOutput) : MigrationsScriptsBase(context, testOutput)
+public class Run_after_create_database_232(SqlServerGrateTestContext context, ITestOutputHelper testOutput) : MigrationsScriptsBase(context, testOutput)
 {
     private const string Bug232Sql = @"
 ALTER DATABASE {{DatabaseName}} SET ALLOW_SNAPSHOT_ISOLATION ON;
