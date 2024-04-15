@@ -30,7 +30,9 @@ public class Database(SqliteGrateTestContext testContext, ITestOutputHelper test
 
     protected override async Task<IEnumerable<string>> GetDatabases()
     {
-        var dbFiles = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), "*.db");
+        var builder = new SqliteConnectionStringBuilder(this.Context.AdminConnectionString);
+        var root = Path.GetDirectoryName(builder.DataSource) ?? Directory.CreateTempSubdirectory().ToString() ;
+        var dbFiles = Directory.EnumerateFiles(root, "*.db");
         IEnumerable<string> dbNames = dbFiles
             .Select(Path.GetFileNameWithoutExtension)
             .Where(name => name is not null)

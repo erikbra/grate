@@ -4,8 +4,9 @@ using grate.Migration;
 
 namespace TestCommon.TestInfrastructure;
 
-public abstract class GrateTestContext(ITestDatabase testDatabase) : IGrateTestContext, IAsyncLifetime
+public abstract class GrateTestContext(IGrateMigrator migrator, ITestDatabase testDatabase) : IGrateTestContext, IAsyncLifetime
 {
+    public IGrateMigrator Migrator { get; } = migrator;
     protected ITestDatabase TestDatabase { get; } = testDatabase;
 
     public string AdminConnectionString => TestDatabase.AdminConnectionString;
@@ -34,9 +35,9 @@ public abstract class GrateTestContext(ITestDatabase testDatabase) : IGrateTestC
     public abstract bool SupportsTransaction { get; }
     public abstract SqlStatements Sql { get; }
     public abstract string ExpectedVersionPrefix { get; }
-    public abstract IGrateMigrator Migrator { get; }
     public abstract bool SupportsCreateDatabase { get; }
     public abstract bool SupportsSchemas { get; }
     public abstract IDbConnection GetDbConnection(string connectionString);
+
 
 }

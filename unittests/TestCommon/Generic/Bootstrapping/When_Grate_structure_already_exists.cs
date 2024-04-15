@@ -44,9 +44,9 @@ public abstract class When_Grate_structure_already_exists(IGrateTestContext cont
         {
             var resourceText = await TestInfrastructure.Bootstrapping.GetContent(this.Context.DatabaseType.Assembly, resource);
           
-            resourceText = resourceText.Replace("{{ScriptsRunTable}}", "ScriptsRun");
-            resourceText = resourceText.Replace("{{ScriptsRunErrorsTable}}", "ScriptsRunErrorsTable");
-            resourceText = resourceText.Replace("{{VersionTable}}", "Version");
+            resourceText = resourceText.Replace("{{ScriptsRunTable}}", config.ScriptsRunTableName);
+            resourceText = resourceText.Replace("{{ScriptsRunErrorsTable}}", config.ScriptsRunErrorsTableName);
+            resourceText = resourceText.Replace("{{VersionTable}}", config.VersionTableName);
             resourceText = resourceText.Replace("{{SchemaName}}", config.SchemaName);
             
             await conn.ExecuteAsync(resourceText);

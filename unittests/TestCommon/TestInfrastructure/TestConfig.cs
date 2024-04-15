@@ -8,20 +8,11 @@ public static class TestConfig
 {
     private static readonly Random Random = Random.Shared;
 
-    public static string RandomDatabase() => Random.GetString(15);
+    public static string RandomDatabase() => Random.GetString(16);
 
     public static DirectoryInfo CreateRandomTempDirectory()
     {
-        var dummyFile = Path.GetTempFileName();
-        File.Delete(dummyFile);
-
-        if (Directory.Exists(dummyFile))
-        {
-            Directory.Delete(dummyFile, true);
-        }
-
-        var scriptsDir = Directory.CreateDirectory(dummyFile);
-        return scriptsDir;
+        return Directory.CreateTempSubdirectory();
     }
     public static DirectoryInfo Wrap(DirectoryInfo root, string? subFolder) =>
         new(Path.Combine(root.ToString(), subFolder ?? ""));

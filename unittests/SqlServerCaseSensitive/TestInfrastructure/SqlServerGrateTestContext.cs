@@ -12,19 +12,12 @@ namespace SqlServerCaseSensitive.TestInfrastructure;
 [CollectionDefinition(nameof(SqlServerGrateTestContext))]
 public class SqlServerTestCollection : ICollectionFixture<SqlServerGrateTestContext>;
 
-public class SqlServerGrateTestContext : GrateTestContext
+public class SqlServerGrateTestContext(
+    IGrateMigrator migrator,
+    string serverCollation,
+    ITestDatabase testDatabase)
+    : GrateTestContext(migrator, testDatabase)
 {
-    public override IGrateMigrator Migrator { get; }
-
-    public SqlServerGrateTestContext(
-        IGrateMigrator migrator,
-        string serverCollation, 
-        ITestDatabase testDatabase) : base(testDatabase)
-    {
-        Migrator = migrator;
-        ServerCollation = serverCollation;
-    }
-    
     // ReSharper disable once UnusedMember.Global
     public SqlServerGrateTestContext(
         IGrateMigrator migrator, 
@@ -62,5 +55,5 @@ $"""
     public override bool SupportsCreateDatabase => true;
     public override bool SupportsSchemas => true;
 
-    public string ServerCollation { get; }
+    public string ServerCollation { get; } = serverCollation;
 }

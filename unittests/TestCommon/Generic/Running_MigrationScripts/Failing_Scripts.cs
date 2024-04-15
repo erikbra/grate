@@ -123,21 +123,16 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
 
         await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
-            try
-            {
-                await migrator.Migrate();
-            }
-            catch (MigrationFailed)
-            {
-            }
+            var ex = await Assert.ThrowsAsync<MigrationFailed>(migrator.Migrate);
+            ex.Should().NotBeNull();
         }
 
         string[] scripts;
-        string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRunErrors")}";
+        string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema(config.SchemaName, config.ScriptsRunErrorsTableName)}";
 
         using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
-            using var conn = Context.CreateDbConnection(db);
+            using var conn = Context.GetDbConnection(Context.ConnectionString(db));
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
 
@@ -164,13 +159,7 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
 
         await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
-            try
-            {
-                await migrator.Migrate();
-            }
-            catch (MigrationFailed)
-            {
-            }
+            await Assert.ThrowsAsync<MigrationFailed>(migrator.Migrate);
         }
 
         string? loggedRepositoryPath;
@@ -178,7 +167,7 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
 
         using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
-            using var conn = Context.CreateDbConnection(db);
+            using var conn = Context.GetDbConnection(Context.ConnectionString(db));
             loggedRepositoryPath = (await conn.QuerySingleOrDefaultAsync<string>(sql));
         }
 
@@ -193,8 +182,10 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
 
         var parent = TestConfig.CreateRandomTempDirectory();
         var knownFolders = global::grate.Configuration.Folders.Default;
-
+        
         CreateLongInvalidSql(parent, knownFolders[Up]);
+        
+        string fileContent = await File.ReadAllTextAsync(Path.Combine(parent.ToString(), knownFolders[Up]!.Path, "2_failing.sql"));
 
         var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
             .WithConnectionString(Context.ConnectionString(db))
@@ -204,20 +195,19 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
 
         await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
-            await Assert.ThrowsAsync<MigrationFailed>(() => migrator.Migrate());
+            await Assert.ThrowsAsync<MigrationFailed>(migrator.Migrate);
         }
 
-        string fileContent = await File.ReadAllTextAsync(Path.Combine(parent.ToString(), knownFolders[Up]!.Path, "2_failing.sql"));
-
         string[] scripts;
-        string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRunErrors")}";
+        string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema(config.SchemaName, config.ScriptsRunErrorsTableName )}";
 
         using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
-            using var conn = Context.CreateDbConnection(db);
+            using var conn = Context.GetDbConnection(Context.ConnectionString(db));
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
 
+        scripts.Should().HaveCount(1);
         scripts.First().Should().Be(fileContent);
     }
 
@@ -334,22 +324,17 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
 
         await using (migrator = Context.Migrator.WithConfiguration(config))
         {
-            try
-            {
-                await migrator.Migrate();
-            }
-            catch (MigrationFailed)
-            {
-            }
+            var ex = await Assert.ThrowsAsync<MigrationFailed>(migrator.Migrate);
+            ex.Should().NotBeNull();
         }
-
+        
 
         string[] versions;
-        string sql = $"SELECT status FROM {Context.Syntax.TableWithSchema("grate", "Version")}";
+        string sql = $"SELECT status FROM {Context.Syntax.TableWithSchema(config.SchemaName, config.VersionTableName)}";
 
         using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
-            using var conn = Context.CreateDbConnection(db);
+            using var conn = Context.GetDbConnection(Context.ConnectionString(db));
             versions = (await conn.QueryAsync<string>(sql)).ToArray();
         }
 
@@ -378,18 +363,12 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
 
         await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
-            try
-            {
-                await migrator.Migrate();
-            }
-            catch (MigrationFailed)
-            {
-            }
+            await Assert.ThrowsAsync<MigrationFailed>(migrator.Migrate);
         }
 
-        string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
+        string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema(config.SchemaName, config.ScriptsRunTableName)}";
 
-        using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }

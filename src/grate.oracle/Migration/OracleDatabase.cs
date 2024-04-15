@@ -109,7 +109,7 @@ RETURNING id into :id
             newVersion,
             entryDate = DateTime.UtcNow,
             modifiedDate = DateTime.UtcNow,
-            enteredBy = ClaimsPrincipal.Current?.Identity?.Name ?? Environment.UserName,
+            enteredBy = GetUserName(),
             status = MigrationStatus.InProgress
         };
         var dynParams = new DynamicParameters(parameters);

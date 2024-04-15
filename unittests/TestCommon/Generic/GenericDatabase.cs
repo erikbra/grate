@@ -211,7 +211,7 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
                 try
                 {
                     using var conn = Context.CreateAdminDbConnection();
-                    databases = await conn.QueryAsync<string>(sql);
+                    databases = (await conn.QueryAsync<string>(sql)).ToArray();
                     break;
                 }
                 catch (DbException) { }

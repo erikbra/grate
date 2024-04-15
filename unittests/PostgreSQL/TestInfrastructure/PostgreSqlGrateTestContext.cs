@@ -12,17 +12,10 @@ namespace PostgreSQL.TestInfrastructure;
 [CollectionDefinition(nameof(PostgreSqlGrateTestContext))]
 public class PostgresqlTestCollection : ICollectionFixture<PostgreSqlGrateTestContext>;
 
-public class PostgreSqlGrateTestContext : GrateTestContext
+public class PostgreSqlGrateTestContext(
+    IGrateMigrator migrator,
+    ITestDatabase testDatabase) : GrateTestContext(migrator, testDatabase)
 {
-    public PostgreSqlGrateTestContext(
-        IGrateMigrator migrator,
-        ITestDatabase testDatabase) : base(testDatabase)
-    {
-        Migrator = migrator;
-    }
-
-    public override IGrateMigrator Migrator { get; }
-  
     public override IDbConnection GetDbConnection(string connectionString) => new NpgsqlConnection(connectionString);
 
     public override ISyntax Syntax => new PostgreSqlSyntax();
