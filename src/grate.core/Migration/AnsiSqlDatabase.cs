@@ -343,7 +343,7 @@ VALUES(@repositoryPath, @newVersion, @entryDate, @modifiedDate, @enteredBy, @sta
                     newVersion,
                     entryDate = DateTime.UtcNow,
                     modifiedDate = DateTime.UtcNow,
-                    enteredBy = ClaimsPrincipal.Current?.Identity?.Name ?? Environment.UserName,
+                    enteredBy = GetUserName(),
                     status = MigrationStatus.InProgress
                 });
         } 
@@ -363,6 +363,11 @@ VALUES(@repositoryPath, @newVersion, @entryDate, @modifiedDate, @enteredBy, @sta
         }
 
         return versionId;
+    }
+
+    protected string GetUserName()
+    {
+        return ClaimsPrincipal.Current?.Identity?.Name ?? Environment.UserName;
     }
 
     public virtual async Task ChangeVersionStatus(string status, long versionId)
@@ -532,7 +537,7 @@ VALUES (@versionId, @scriptName, @sql, @hash, @runOnce, @now, @now, @usr)");
         scriptRun.Add(nameof(hash), hash);
         scriptRun.Add(nameof(runOnce), Bool(runOnce));
         scriptRun.Add(Now, DateTime.UtcNow);
-        scriptRun.Add(User, Environment.UserName);
+        scriptRun.Add(User, GetUserName());
 
         if (Config!.DeferWritingToRunTables)
         {
@@ -564,7 +569,7 @@ VALUES (@repositoryPath, @version, @scriptName, @sql, @errorSql, @errorMessage, 
         scriptRunErrors.Add(nameof(errorSql), errorSql, DbType.String);
         scriptRunErrors.Add(nameof(errorMessage), errorMessage, DbType.String);
         scriptRunErrors.Add(Now, DateTime.UtcNow);
-        scriptRunErrors.Add(User, Environment.UserName);
+        scriptRunErrors.Add(User, GetUserName());
         
         if (Config!.DeferWritingToRunTables)
         {
@@ -655,7 +660,7 @@ VALUES (@repositoryPath, @version, @scriptName, @sql, @errorSql, @errorMessage, 
         if (_deferredWrites.Any())
         {
             await OpenActiveConnection();
-            foreach (var deferredWrite in _deferredWrites)
+            foreach (var deferredWrite in _deferredWrites.ToArray())
             {
                 await deferredWrite(ActiveConnection);
             }
@@ -664,7 +669,7 @@ VALUES (@repositoryPath, @version, @scriptName, @sql, @errorSql, @errorMessage, 
         await CloseConnection();
         await CloseAdminConnection();
         await Close(ActiveConnection);
-
+        
         GC.SuppressFinalize(this);
     }
 

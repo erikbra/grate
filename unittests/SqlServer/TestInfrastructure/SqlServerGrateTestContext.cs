@@ -13,14 +13,11 @@ public class SqlServerTestCollection : ICollectionFixture<SqlServerGrateTestCont
 
 public class SqlServerGrateTestContext : GrateTestContext
 {
-    public override IGrateMigrator Migrator { get; }
-
     public SqlServerGrateTestContext(
         IGrateMigrator migrator,
         string serverCollation, 
-        ITestDatabase testDatabase) : base(testDatabase)
+        ITestDatabase testDatabase) : base(migrator, testDatabase)
     {
-        Migrator = migrator;
         ServerCollation = serverCollation;
     }
     

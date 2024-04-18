@@ -6,6 +6,6 @@ using TestCommon.TestInfrastructure;
 namespace Sqlite.DependencyInjection;
 public class ServiceCollectionTest(SqliteGrateTestContext context) : TestCommon.DependencyInjection.GrateServiceCollectionTest(context)
 {
-    protected virtual Type DatabaseType => typeof(SqliteDatabase);
-    protected virtual ISyntax Syntax => SqliteDatabase.Syntax;
+    protected override string VarcharType => "nvarchar";
+    protected override string BigintType => "BIGINT";
 }

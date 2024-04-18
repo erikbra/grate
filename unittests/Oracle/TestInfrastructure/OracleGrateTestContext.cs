@@ -13,17 +13,10 @@ namespace Oracle.TestInfrastructure;
 [CollectionDefinition(nameof(OracleGrateTestContext))]
 public class OracleTestCollection : ICollectionFixture<OracleGrateTestContext>;
 
-public class OracleGrateTestContext : GrateTestContext
+public class OracleGrateTestContext(
+    IGrateMigrator migrator,
+    ITestDatabase testDatabase) : GrateTestContext(migrator, testDatabase)
 {
-    public OracleGrateTestContext(
-        IGrateMigrator grateMigrator, 
-        ITestDatabase testDatabase) : base(testDatabase)
-    {
-        Migrator = grateMigrator;
-    }
-    
-    public override IGrateMigrator Migrator { get; }
-
     // public string DockerCommand(string serverName, string adminPassword) =>
     //     $"run -d --name {serverName} -p 1521 -e ORACLE_ENABLE_XDB=true -e ORACLE_PWD={adminPassword} -P container-registry.oracle.com/database/express:21.3.0-xe";
 
@@ -44,4 +37,5 @@ public class OracleGrateTestContext : GrateTestContext
     public override string ExpectedVersionPrefix => "Oracle Database 21c Express Edition Release 21.0.0.0.0 - Production";
     public override bool SupportsCreateDatabase => true;
     public override bool SupportsSchemas => false;
+
 }

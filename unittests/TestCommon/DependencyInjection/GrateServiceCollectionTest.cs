@@ -17,6 +17,9 @@ public abstract class GrateServiceCollectionTest(IGrateTestContext context)
 {
     protected IGrateTestContext Context { get; } = context;
     
+    protected abstract string BigintType { get; }
+    protected abstract string VarcharType { get; }
+    
     private void ConfigureService(GrateConfigurationBuilder grateConfigurationBuilder)
     {
         var connectionString = Context.ConnectionString(TestConfig.RandomDatabase());
@@ -126,7 +129,8 @@ public abstract class GrateServiceCollectionTest(IGrateTestContext context)
     public void Should_throw_invalid_operation_exception_when_no_database_is_configured()
     {
         var serviceCollection = new ServiceCollection()
-                                    .AddGrate();
+            .AddLogging()
+            .AddGrate();
         var serviceProvider = serviceCollection.BuildServiceProvider();
         Action action = () => serviceProvider.GetService<IGrateMigrator>();
         action.Should().Throw<InvalidOperationException>("You forgot to configure the database. Please .UseXXX on the grate configuration.");
@@ -138,8 +142,8 @@ public abstract class GrateServiceCollectionTest(IGrateTestContext context)
         var tableName = "grate_test";
         var create_table = @$"
                         CREATE TABLE {tableName} (
-                            id {syntax.BigintType} NOT NULL PRIMARY KEY,
-                            name {syntax.VarcharType}(255) NOT NULL
+                            id {BigintType} NOT NULL PRIMARY KEY,
+                            name {VarcharType}(255) NOT NULL
                         )";
         MigrationsScriptsBase.WriteSql(sqlFolder, knownFolders[Up]!.Path, $"{tableName}_001_create_test_table.sql", create_table);
         var insert_test_data = @$"

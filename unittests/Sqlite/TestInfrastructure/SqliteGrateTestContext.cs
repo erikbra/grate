@@ -13,15 +13,10 @@ namespace Sqlite.TestInfrastructure;
 [CollectionDefinition(nameof(SqliteGrateTestContext))]
 public class SqliteTestCollection : ICollectionFixture<SqliteGrateTestContext>;
 
-public class SqliteGrateTestContext : GrateTestContext
+public class SqliteGrateTestContext(
+    IGrateMigrator migrator,
+    ITestDatabase testDatabase) : GrateTestContext(migrator, testDatabase)
 {
-    public SqliteGrateTestContext(
-        IGrateMigrator migrator,
-        ITestDatabase testDatabase) : base(testDatabase)
-    {
-        Migrator = migrator;
-    }
-    
     public override IDbConnection GetDbConnection(string connectionString) => new SqliteConnection(connectionString);
 
     public override ISyntax Syntax => new SqliteSyntax();
@@ -39,6 +34,4 @@ public class SqliteGrateTestContext : GrateTestContext
     public override string ExpectedVersionPrefix => throw new NotSupportedException("Sqlite does not support versioning");
     public override bool SupportsCreateDatabase => false;
     public override bool SupportsSchemas => false;
-
-    public override IGrateMigrator Migrator { get; }
 }

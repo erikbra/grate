@@ -5,9 +5,9 @@ using Microsoft.Extensions.Logging;
 namespace TestCommon.TestInfrastructure;
 public abstract class TestContainerDatabase : ITestDatabase, IAsyncLifetime
 {
-    public abstract string DockerImage { get; } 
-    
-    private readonly Random _random = new();
+    public abstract string DockerImage { get; }
+
+    private readonly Random _random = Random.Shared;
 
     public string AdminPassword { get; }
     public int Port => TestContainer.GetMappedPublicPort(InternalPort);

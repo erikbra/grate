@@ -11,17 +11,10 @@ namespace MariaDB.TestInfrastructure;
 [CollectionDefinition(nameof(MariaDbGrateTestContext))]
 public class MariaDbTestCollection : ICollectionFixture<MariaDbGrateTestContext>;
 
-public class MariaDbGrateTestContext : GrateTestContext
+public class MariaDbGrateTestContext(
+    IGrateMigrator migrator,
+    ITestDatabase testDatabase) : GrateTestContext(migrator, testDatabase)
 {
-    public MariaDbGrateTestContext(
-        IGrateMigrator migrator, 
-        ITestDatabase testDatabase) : base(testDatabase)
-    {
-        Migrator = migrator;
-    }
-
-    public override IGrateMigrator Migrator { get; }
-
     public override IDbConnection GetDbConnection(string connectionString) => new MySqlConnection(connectionString);
 
     public override ISyntax Syntax { get; } = new MariaDbSyntax();

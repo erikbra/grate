@@ -106,7 +106,7 @@ public abstract class Versioning_The_Database(IGrateTestContext context, ITestOu
 
         using (var conn = Context.CreateDbConnection(db))
         {
-            entries = await conn.QueryAsync<(string version, string status)>(sql);
+            entries = (await conn.QueryAsync<(string version, string status)>(sql)).ToArray();
         }
 
         entries.Should().HaveCount(2);

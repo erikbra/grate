@@ -5,6 +5,8 @@ using Microsoft.Extensions.Hosting;
 using Sqlite.TestInfrastructure;
 using TestCommon.TestInfrastructure;
 
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+
 namespace Sqlite;
 
 // ReSharper disable once UnusedType.Global
