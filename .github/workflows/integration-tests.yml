@@ -276,8 +276,46 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # TODO: Expand this to run on multiple images per database (put in an environment variable)
-        database: [ "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
+        database:
+          - name: "SqlServer 2022" 
+            type: SqlServer
+            image: "mcr.microsoft.com/mssql/server:2022-latest"
+          - name: "SqlServer 2019" 
+            type: SqlServer
+            image: "mcr.microsoft.com/mssql/server:2019-latest"
+          - name: "SqlServer 2017" 
+            type: SqlServer
+            image: "mcr.microsoft.com/mssql/server:2017-latest"
+          - name: "PostgreSQL 16" 
+            type: PostgreSQL
+            image: "postgres:16"
+          - name: "PostgreSQL 15" 
+            type: PostgreSQL
+            image: "postgres:15"
+          - name: "PostgreSQL 14" 
+            type: PostgreSQL
+            image: "postgres:14"
+          - name: "PostgreSQL 13" 
+            type: PostgreSQL
+            image: "postgres:13"
+          - name: "PostgreSQL 12" 
+            type: PostgreSQL
+            image: "postgres:12"
+          - name: "MariaDB 10.10" 
+            type: MariaDB
+            image: "mariadb:10.10"
+          - name: "Sqlite" 
+            type: Sqlite
+            image: "irrelevant"
+          - name: "Oracle Free latest" 
+            type: Oracle
+            image: "gvenzl/oracle-free:latest-faststart"
+          - name: "Oracle XE latest" 
+            type: Oracle
+            image: "gvenzl/oracle-xe:latest-faststart"
+          - name: "Oracle XE 18" 
+            type: Oracle
+            image: "gvenzl/oracle-xe:18-faststart"
 
 
     runs-on: ubuntu-latest
@@ -287,7 +325,9 @@ jobs:
       run: |
         echo "Test run info:"
         echo "===================="
-        echo "Database: ${{ matrix.database }}"
+        echo "Name: ${{ matrix.database.name }}"
+        echo "Database type: ${{ matrix.database.type }}"
+        echo "Image: ${{ matrix.database.image }}"
 
     - uses: actions/checkout@v4
 
@@ -317,23 +357,22 @@ jobs:
       if: ${{ !cancelled() }}
       shell: pwsh
       run: |
-        dotnet test integration-tests/linux-x64/CommandLine.${{ matrix.database }}.dll `
-        --logger:"xunit;Environment=docker,${{ matrix.database }};LogFilePath=/tmp/test-results/docker/CommandLine.${{ matrix.database }}.xml" -- `
-        -MaxCpuCount 2
+        dotnet test integration-tests/linux-x64/CommandLine.${{ matrix.database.type }}.dll `
+        --logger:"xunit;Environment=${{ matrix.database.name }} (docker);LogFilePath=/tmp/test-results/docker/CommandLine.${{ matrix.database.name }}.xml"
 
       env:
         LogLevel: Information
         GrateExecutablePath: ${{ github.workspace }}/executables/linux-x64/grate
         TZ: UTC
+        GrateTestConfig__DockerImage: ${{ matrix.database.image }} 
 
     - name: Upload Unit Test Results
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: "docker ${{ matrix.database }} XML test results"
+        name: "docker ${{ matrix.database.name }} XML test results"
         path: |
-          /tmp/test-results/linux-x64/${{ matrix.database }}.xml
-          /tmp/test-results/linux-x64/CommandLine.${{ matrix.database }}.xml
+          /tmp/test-results/linux-x64/CommandLine.${{ matrix.database.name }}.xml
         retention-days: 1
 
   integration-test:

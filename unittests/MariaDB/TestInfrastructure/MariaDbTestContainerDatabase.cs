@@ -8,14 +8,12 @@ using Testcontainers.MariaDb;
 namespace MariaDB.TestInfrastructure;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class MariaDbTestContainerDatabase : TestContainerDatabase
+public class MariaDbTestContainerDatabase(
+    GrateTestConfig grateTestConfig,
+    ILogger<MariaDbTestContainerDatabase> logger) : TestContainerDatabase(logger)
 {
-    public override string DockerImage => "mariadb:10.10";
+    public override string DockerImage => grateTestConfig.DockerImage ??  "mariadb:10.10";
     protected override int InternalPort => 3306;
-    
-    public MariaDbTestContainerDatabase(ILogger<MariaDbTestContainerDatabase> logger) : base(logger)
-    {
-    }
 
     protected override IContainer InitializeTestContainer(ILogger logger)
     {

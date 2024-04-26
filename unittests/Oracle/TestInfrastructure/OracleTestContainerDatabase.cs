@@ -3,15 +3,13 @@ using Microsoft.Extensions.Logging;
 using Testcontainers.Oracle;
 
 namespace TestCommon.TestInfrastructure;
-public class OracleTestContainerDatabase : TestContainerDatabase
+public class OracleTestContainerDatabase(
+    GrateTestConfig grateTestConfig,
+    ILogger<OracleTestContainerDatabase> logger) : TestContainerDatabase(logger)
 {
     //public override string DockerImage => "gvenzl/oracle-xe:21.3.0-slim-faststart";
-    public override string DockerImage => "gvenzl/oracle-free:latest-faststart";
+    public override string DockerImage => grateTestConfig.DockerImage ?? "gvenzl/oracle-free:latest-faststart";
     protected override int InternalPort => 1521;
-    
-    public OracleTestContainerDatabase(ILogger<OracleTestContainerDatabase> logger) : base(logger)
-    {
-    }
 
     protected override IContainer InitializeTestContainer(ILogger logger)
     {

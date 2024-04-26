@@ -2,14 +2,13 @@
 using Microsoft.Extensions.Logging;
 
 namespace TestCommon.TestInfrastructure;
-public class PostgreSqlTestContainerDatabase : TestContainerDatabase
+public class PostgreSqlTestContainerDatabase(
+    GrateTestConfig grateTestConfig,
+    ILogger<PostgreSqlTestContainerDatabase> logger)
+    : TestContainerDatabase(logger)
 {
-    public override string DockerImage => "postgres:16";
+    public override string DockerImage => grateTestConfig.DockerImage ?? "postgres:16";
     protected override int InternalPort => 5432;
-    
-    public PostgreSqlTestContainerDatabase(ILogger<PostgreSqlTestContainerDatabase> logger) : base(logger)
-    {
-    }
 
     protected override IContainer InitializeTestContainer(ILogger logger)
     {
