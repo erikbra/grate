@@ -265,6 +265,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
   docker-integration-tests:
+    name: ${{ matrix.database.name }}
     continue-on-error: true
     timeout-minutes: 25
 
