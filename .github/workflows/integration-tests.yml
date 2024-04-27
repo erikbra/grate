@@ -373,7 +373,7 @@ jobs:
       with:
         name: "docker ${{ matrix.database.name }} XML test results"
         path: |
-          /tmp/test-results/linux-x64/CommandLine.${{ matrix.database.name }}.xml
+          /tmp/test-results/docker/CommandLine.${{ matrix.database.name }}.xml
         retention-days: 1
 
   integration-test:
