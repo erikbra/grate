@@ -23,8 +23,8 @@ resource "azurerm_container_app" "posgresql" {
     container {
       name          = "postgresql"
       image         = local.postgresql_images[count.index]
-      cpu           = 0.25
-      memory        = "0.5Gi"
+      cpu           = 0.50
+      memory        = "1Gi"
 
       env {
         name = "POSTGRES_PASSWORD" 

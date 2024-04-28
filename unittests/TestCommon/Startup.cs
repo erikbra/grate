@@ -41,10 +41,10 @@ public abstract class Startup
     {
         var testConfig = new GrateTestConfig();
         configuration.Bind("GrateTestConfig", testConfig);
+        services.TryAddSingleton(testConfig);
 
         if (testConfig.AdminConnectionString != null)
         {
-            services.TryAddSingleton(testConfig);
             services.TryAddSingleton(typeof(ITestDatabase), ExternalTestDatabaseType);
         }
         else

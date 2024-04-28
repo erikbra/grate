@@ -12,7 +12,7 @@ public class MariaDBExternalDatabase(GrateTestConfig grateTestConfig) : ITestDat
         var builder = new MySqlConnectionStringBuilder(AdminConnectionString)
         {
             Database = database,
-            ConnectionTimeout = 2
+            ConnectionTimeout = 5
         };
         return builder.ConnectionString;
     }
@@ -22,9 +22,9 @@ public class MariaDBExternalDatabase(GrateTestConfig grateTestConfig) : ITestDat
         var builder = new MySqlConnectionStringBuilder(AdminConnectionString)
         {
             Database = database,
-            UserID = "zoobat",
+            UserID = "zoobat" + database[..4],
             Password = "batmanZZ5",
-            ConnectionTimeout = 2
+            ConnectionTimeout = 5
         };
          return builder.ConnectionString;
     }

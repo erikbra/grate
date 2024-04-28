@@ -43,7 +43,9 @@ public abstract record AnsiSqlDatabase : IDatabase
     public abstract string DatabaseType { get; }
 
     private string? Password => ConnectionString?.Split(";", TrimEntries | RemoveEmptyEntries)
-        .SingleOrDefault(entry => entry.StartsWith("Password") || entry.StartsWith("Pwd"))?
+        .SingleOrDefault(entry => 
+            entry.StartsWith("Password", StringComparison.OrdinalIgnoreCase) || 
+            entry.StartsWith("Pwd", StringComparison.OrdinalIgnoreCase))?
         .Split("=", TrimEntries | RemoveEmptyEntries).Last();
 
     public abstract bool SupportsDdlTransactions { get; }
@@ -229,7 +231,7 @@ public abstract record AnsiSqlDatabase : IDatabase
         }
         catch (DbException e)
         {
-            Logger.LogDebug(e, "Got error: {ErrorMessage}", e.Message);
+            Logger.LogDebug(e, "DatabaseExists: Error connecting to database {DatabaseName}. Database probably doesn't exist. Error message: {ErrorMessage}", DatabaseName, e.Message);
             return false;
         }
     }
@@ -414,6 +416,7 @@ VALUES(@repositoryPath, @newVersion, @entryDate, @modifiedDate, @enteredBy, @sta
         int? timeout = GetTimeout(connectionType);
         var connection = GetDbConnection(connectionType);
 
+        await Open(connection);
         await ExecuteNonQuery(connection, sql, timeout);
     }
 

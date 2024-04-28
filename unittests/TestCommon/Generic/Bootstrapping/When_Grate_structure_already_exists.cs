@@ -82,6 +82,8 @@ public abstract class When_Grate_structure_already_exists(IGrateTestContext cont
         count.Should().BeGreaterOrEqualTo(6);
         
         TryClose(conn);
+        
+        //await Context.DropDatabase(db);
     }
 
 

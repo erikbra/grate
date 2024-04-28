@@ -36,7 +36,7 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
     [Fact]
     public async Task Is_created_if_confed_and_it_does_not_exist()
     {
-        var db = "NEWDATABASE";
+        var db = TestConfig.RandomDatabase().ToUpper();
 
         await using (var migrator = GetMigrator(GetConfiguration(db, true)))
         {
@@ -45,6 +45,8 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
 
         IEnumerable<string> databases = await GetDatabases();
         databases.Should().Contain(db);
+
+        //await Context.DropDatabase(db);
     }
 
     [Fact]
@@ -78,14 +80,17 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
         IEnumerable<string> databases = (await GetDatabases()).ToList();
         databases.Should().Contain(scriptedDatabase);
         databases.Should().NotContain(confedDatabase);
+        
+        await Context.DropDatabase(scriptedDatabase);
     }
 
     [Fact]
     public async Task Is_not_created_if_not_confed()
     {
-        var db = "SOMEOTHERDATABASE";
+        var db = TestConfig.RandomDatabase().ToUpper();
 
         IEnumerable<string> databasesBeforeMigration = await GetDatabases();
+        
         databasesBeforeMigration.Should().NotContain(db);
 
         await using (var migrator = GetMigrator(GetConfiguration(db, false)))
@@ -93,7 +98,7 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
             // The migration should throw an error, as the database does not exist.
             if (ThrowOnMissingDatabase)
             {
-                await Assert.ThrowsAsync(Context.DbExceptionType, () => migrator.Migrate());
+                var ex = await Assert.ThrowsAsync(Context.DbExceptionType, () => migrator.Migrate());
             }
         }
 
@@ -105,7 +110,7 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
     [Fact]
     public async Task Does_not_error_if_configured_to_create_but_already_exists()
     {
-        var db = "DAATAA";
+        var db = TestConfig.RandomDatabase().ToUpper();
 
         // Create the database manually before running the migration
         await CreateDatabaseFromConnectionString(db, Context.UserConnectionString(db));
@@ -115,12 +120,13 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
         databasesBeforeMigration.Should().Contain(db);
 
         var config = GetConfiguration(true, Context.UserConnectionString(db), Context.AdminConnectionString);
-        await using var migrator = GetMigrator(config);
-
-        // There should be no errors running the migration
-        Exception? ex = await Record.ExceptionAsync(async () => await migrator.Migrate());
-        ex.Should().BeNull();
-        
+        await using (var migrator = GetMigrator(config))
+        {
+            // There should be no errors running the migration
+            Exception? ex = await Record.ExceptionAsync(async () => await migrator.Migrate());
+            ex.Should().BeNull();
+        }
+        //await Context.DropDatabase(db);
     }
 
     [Theory]
@@ -128,7 +134,7 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
     [InlineData(null)]
     public async Task Does_not_need_admin_connection_if_database_already_exists(string? adminConnectionString)
     {
-        var db = "DATADATBADATABASE";
+        var db = TestConfig.RandomDatabase().ToUpper();
 
         // Create the database manually before running the migration
         await CreateDatabaseFromConnectionString(db, Context.UserConnectionString(db));
@@ -140,10 +146,12 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
 
         // Change the admin connection string to rubbish and run the migration
         var config = GetConfiguration(true, Context.UserConnectionString(db), adminConnectionString);
-        await using var migrator = GetMigrator(config);
-
-        Exception? ex = await Record.ExceptionAsync(async () => await migrator.Migrate());
-        ex.Should().BeNull();
+        await using (var migrator = GetMigrator(config))
+        {
+            Exception? ex = await Record.ExceptionAsync(async () => await migrator.Migrate());
+            ex.Should().BeNull();
+        }
+        //await Context.DropDatabase(db);
     }
 
 
@@ -162,25 +170,37 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
                 {
                     using var conn = Context.CreateAdminDbConnection();
 
+                    string? commandText = null;
                     try
                     {
-                        var commandText = Context.Syntax.CreateDatabase(db, pwd);
+                        commandText = Context.Syntax.CreateDatabase(db, pwd);
                         await conn.ExecuteAsync(commandText);
                     }
-                    catch (DbException)
+                    catch (DbException dbe)
                     {
+                        TestOutput.WriteLine("Got error when creating database: " + dbe.Message);
+                        TestOutput.WriteLine("database: " + db);
+                        TestOutput.WriteLine("admin connection string: " + conn.ConnectionString);
+                        TestOutput.WriteLine("user connection string: " + connectionString);
+                        TestOutput.WriteLine("commandText: " + commandText);
                     }
-                    
+
+                    string? createUserSql = null;
                     try
                     {
-                        var createUserSql = Context.Sql.CreateUser(db, uid, pwd);
+                        createUserSql = Context.Sql.CreateUser(db, uid, pwd);
                         if (createUserSql is not null)
                         {
                             await conn.ExecuteAsync(createUserSql);
                         }
                     }
-                    catch (DbException)
+                    catch (DbException dbe)
                     {
+                        TestOutput.WriteLine("Got error when creating user: " + dbe.Message);
+                        TestOutput.WriteLine("Error creating user: " + uid + " for database: " + db);
+                        TestOutput.WriteLine("admin connection string: " + conn.ConnectionString);
+                        TestOutput.WriteLine("user connection string: " + connectionString);
+                        TestOutput.WriteLine("createUserSql: " + createUserSql);
                     }
 
                     var grantAccessSql = Context.Sql.GrantAccess(db, uid);
@@ -191,10 +211,12 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
 
                     break;
                 }
-                catch (DbException)
+                catch (DbException dbe)
                 {
+                    TestOutput.WriteLine($"Got error in loop, iteration: {i}: {dbe.Message}");
                 }
-                
+
+                await Task.Delay(1000);
             }
         }
     }
@@ -208,16 +230,20 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
         {
             for (var i = 0; i < 5; i++)
             {
+                using var conn = Context.CreateAdminDbConnection();
                 try
                 {
-                    using var conn = Context.CreateAdminDbConnection();
                     databases = (await conn.QueryAsync<string>(sql)).ToArray();
                     break;
                 }
-                catch (DbException) { }
+                catch (DbException dbe)
+                {
+                    TestOutput.WriteLine("Got error when listing databases: " + dbe.Message);
+                    TestOutput.WriteLine("admin connection string: " + conn.ConnectionString);
+                }
             }
         }
-        return databases;
+        return databases.ToArray();
     }
 
     protected virtual bool ThrowOnMissingDatabase => true;
@@ -241,6 +267,8 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
             CreateDatabase = createDatabase,
             ConnectionString = connectionString,
             AdminConnectionString = adminConnectionString,
+            AdminCommandTimeout = 10,
+            CommandTimeout = 2,
             Folders = Folders.Default,
             NonInteractive = true,
             SqlFilesDirectory = parent

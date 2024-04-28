@@ -9,7 +9,7 @@ public class Failing_Scripts(PostgreSqlGrateTestContext testContext, ITestOutput
     : TestCommon.Generic.Running_MigrationScripts.Failing_Scripts(testContext, testOutput)
 {
     
-    protected override string ExpectedErrorMessageForInvalidSql => 
+    protected override string ExpectedStartOfErrorMessageForInvalidSql => 
         """
         Update ("up"):
         --------------------------------------------------------------------------------
@@ -27,7 +27,8 @@ public class Failing_Scripts(PostgreSqlGrateTestContext testContext, ITestOutput
         {"MessageText", "column \"top\" does not exist"},
         {"Position", 8},
         {"File", "parse_relation.c"},
-        {"Line", "3713"},
+        // The line is PostgreSQL version specific, so it doesn't make sense to check it.
+        //{"Line", "3713"},
         {"Routine", "errorMissingColumn"}
     };
 }

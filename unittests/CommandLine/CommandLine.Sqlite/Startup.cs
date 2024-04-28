@@ -2,6 +2,8 @@ using grate.Configuration;
 using Sqlite.TestInfrastructure;
 using TestCommon.TestInfrastructure;
 
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+
 namespace CommandLine.Sqlite;
 
 // ReSharper disable once UnusedType.Global

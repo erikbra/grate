@@ -47,6 +47,8 @@ public abstract class When_Grate_structure_does_not_exist(IGrateTestContext cont
         }
 
         schema.Should().Be(schemaName);
+        
+        //await Context.DropDatabase(db);
     }
 
     [Fact]
@@ -73,6 +75,8 @@ public abstract class When_Grate_structure_does_not_exist(IGrateTestContext cont
         
         // Not all databases are case-sensitive, so we can't guarantee the case of the table name
         scriptsRunTable!.ToUpper().Should().Be(scriptsRunTable.ToUpper());
+        
+        //await Context.DropDatabase(db);
     }
     
     [Fact]
@@ -99,6 +103,8 @@ public abstract class When_Grate_structure_does_not_exist(IGrateTestContext cont
         
         // Not all databases are case-sensitive, so we can't guarantee the case of the table name
         scriptsErrorTable!.ToUpper().Should().Be(scriptsErrorTableName.ToUpper());
+        
+        //await Context.DropDatabase(db);
     }
     
      
@@ -126,6 +132,8 @@ public abstract class When_Grate_structure_does_not_exist(IGrateTestContext cont
         
         // Not all databases are case-sensitive, so we can't guarantee the case of the table name
         versionTable!.ToUpper().Should().Be(versionTable.ToUpper());
+        
+        //await Context.DropDatabase(db);
     }
     
     

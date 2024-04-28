@@ -4,15 +4,15 @@ using TestCommon.TestInfrastructure;
 using Testcontainers.MsSql;
 
 namespace SqlServer.TestInfrastructure;
-public class SqlServerTestContainerDatabase : TestContainerDatabase
+public class SqlServerTestContainerDatabase(
+    GrateTestConfig grateTestConfig,
+    ILogger<SqlServerTestContainerDatabase> logger)
+    : TestContainerDatabase(logger)
 {
     // Run with linux/amd86 on ARM architectures too, the docker emulation is good enough
-    public override string DockerImage => "mcr.microsoft.com/mssql/server:2019-latest";
+    //public override string DockerImage => "mcr.microsoft.com/mssql/server:2019-latest";
+    public override string DockerImage => grateTestConfig.DockerImage ?? "mcr.microsoft.com/mssql/server:2022-latest";
     protected override int InternalPort => 1433;
-    
-    public SqlServerTestContainerDatabase(ILogger<SqlServerTestContainerDatabase> logger) : base(logger)
-    {
-    }
 
     protected override IContainer InitializeTestContainer(ILogger logger)
     {

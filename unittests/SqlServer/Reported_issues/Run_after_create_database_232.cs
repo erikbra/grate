@@ -70,6 +70,8 @@ ALTER DATABASE {{DatabaseName}} SET READ_COMMITTED_SNAPSHOT ON";
         {
             await migrator.Migrate();
         }
+        
+        //await Context.DropDatabase(db);
     }
     
 }

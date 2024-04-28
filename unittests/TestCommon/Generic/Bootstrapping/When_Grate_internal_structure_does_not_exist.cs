@@ -33,6 +33,8 @@ public abstract class When_Grate_internal_structure_does_not_exist(IGrateTestCon
         
         // Not all databases are case-sensitive, so we can't guarantee the case of the table name
         grateScriptsRunTable!.ToUpper().Should().Be(grateScriptsRunTable.ToUpper());
+        
+        //await Context.DropDatabase(db);
     }
     
     [Fact]
@@ -56,6 +58,8 @@ public abstract class When_Grate_internal_structure_does_not_exist(IGrateTestCon
         
         // Not all databases are case-sensitive, so we can't guarantee the case of the table name
         scriptsErrorTable!.ToUpper().Should().Be(scriptsErrorTable.ToUpper());
+        
+        //await Context.DropDatabase(db);
     }
     
      
@@ -80,6 +84,8 @@ public abstract class When_Grate_internal_structure_does_not_exist(IGrateTestCon
         
         // Not all databases are case-sensitive, so we can't guarantee the case of the table name
         grateVersionTable!.ToUpper().Should().Be(grateVersionTable.ToUpper());
+        
+        //await Context.DropDatabase(db);
     }
     
     [Theory]
@@ -114,6 +120,8 @@ public abstract class When_Grate_internal_structure_does_not_exist(IGrateTestCon
         // (ScriptsRun, ScriptsRunErrors and Version)
         scriptNames.Should().Contain(name);
         scriptNames.Should().Contain($"grate-internal/{name}");
+        
+        //await Context.DropDatabase(db);
     }
 
     private async Task RunMigration(IGrateMigrator migrator)

@@ -43,6 +43,8 @@ public abstract class TokenScripts(IGrateTestContext context, ITestOutputHelper 
         using var conn = Context.CreateDbConnection(db);
         var actual = await conn.QuerySingleAsync<string>(sql);
         actual.Should().Be(db);
+        
+        //await Context.DropDatabase(db);
 
     }
 
@@ -72,5 +74,7 @@ public abstract class TokenScripts(IGrateTestContext context, ITestOutputHelper 
         using var conn = Context.CreateDbConnection(db);
         var actual = await conn.QuerySingleAsync<string>(sql);
         actual.Should().Be("token1");
+        
+        //await Context.DropDatabase(db);
     }
 }

@@ -7,7 +7,7 @@ namespace SqlServerCaseSensitive.Running_MigrationScripts;
 public class Failing_Scripts(IGrateTestContext testContext, ITestOutputHelper testOutput)
     : TestCommon.Generic.Running_MigrationScripts.Failing_Scripts(testContext, testOutput)
 {
-    protected override string ExpectedErrorMessageForInvalidSql =>
+    protected override string ExpectedStartOfErrorMessageForInvalidSql =>
         """
         Update ("up"):
         --------------------------------------------------------------------------------

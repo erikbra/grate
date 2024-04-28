@@ -11,9 +11,9 @@ locals {
 
   # Cannot get these to work yet, for some reason... need to look into it
    oracle_images = [
-    #"gvenzl/oracle-free:latest-faststart",
-    #"gvenzl/oracle-xe:latest-faststart",
-    #"gvenzl/oracle-xe:18-faststart",
+    "gvenzl/oracle-free:latest-faststart",
+    "gvenzl/oracle-xe:latest-faststart",
+    "gvenzl/oracle-xe:18-faststart",
     #"gvenzl/oracle-xe:11-faststart"
    ]
 

@@ -24,7 +24,7 @@ public abstract class GenericMigrationTables(IGrateTestContext context, ITestOut
     [InlineData("Version")]
     public async Task Is_created_if_it_does_not_exist(string tableName)
     {
-        var db = "MonoBonoJono";
+        var db = TestConfig.RandomDatabase();
         var fullTableName = Context.Syntax.TableWithSchema("grate", tableName);
 
         var parent = TestConfig.CreateRandomTempDirectory();
@@ -57,7 +57,7 @@ public abstract class GenericMigrationTables(IGrateTestContext context, ITestOut
     [InlineData("Version")]
     public async Task Is_created_even_if_scripts_fail(string tableName)
     {
-        var db = "DatabaseWithFailingScripts";
+        var db = TestConfig.RandomDatabase()[..6] + "Failing";
         var fullTableName = Context.Syntax.TableWithSchema("grate", tableName);
 
         var parent = TestConfig.CreateRandomTempDirectory();
@@ -72,13 +72,7 @@ public abstract class GenericMigrationTables(IGrateTestContext context, ITestOut
         
         await using (var migrator = Context.Migrator.WithConfiguration(config))
         {
-            try
-            {
-                await migrator.Migrate();
-            }
-            catch (MigrationFailed)
-            {
-            }
+            var ex = await Assert.ThrowsAsync<MigrationFailed>(migrator.Migrate);
         }
 
 
@@ -191,6 +185,8 @@ public abstract class GenericMigrationTables(IGrateTestContext context, ITestOut
             errorCaseCountAfterSecondMigration.Should().Be(1);
             normalCountAfterSecondMigration.Should().Be(0);
         });
+        
+        //await Context.DropDatabase(db);
 
     }
 
@@ -247,6 +243,8 @@ public abstract class GenericMigrationTables(IGrateTestContext context, ITestOut
         version.version.Should().Be("a.b.c.d");
         // Validate the version is finished after running without errors
         version.status.Should().Be(MigrationStatus.Finished);
+        
+        //await Context.DropDatabase(db);
     }
 
     private static void CreateInvalidSql(DirectoryInfo root, MigrationsFolder? folder)

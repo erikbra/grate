@@ -6,6 +6,8 @@ using Oraclde.TestInfrastructure;
 using Oracle.TestInfrastructure;
 using TestCommon.TestInfrastructure;
 
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+
 namespace Oracle;
 
 // ReSharper disable once UnusedType.Global

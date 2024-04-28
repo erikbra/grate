@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using SqlServer.TestInfrastructure;
 
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+
 namespace SqlServer;
 
 // ReSharper disable once UnusedType.Global

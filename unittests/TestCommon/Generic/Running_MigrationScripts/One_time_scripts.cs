@@ -50,6 +50,8 @@ public abstract class One_time_scripts(IGrateTestContext context, ITestOutputHel
         }
 
         scripts.Should().HaveCount(1);
+        
+        //await Context.DropDatabase(db);
     }
 
     [Fact]
@@ -91,6 +93,8 @@ public abstract class One_time_scripts(IGrateTestContext context, ITestOutputHel
 
         scripts.Should().HaveCount(1);
         scripts.First().Should().Be(Context.Sql.SelectVersion);
+        
+        //await Context.DropDatabase(db);
     }
 
     [Fact]
@@ -132,6 +136,8 @@ public abstract class One_time_scripts(IGrateTestContext context, ITestOutputHel
 
         scripts.Should().HaveCount(2); //script run twice
         scripts.Last().Should().Be(Context.Syntax.CurrentDatabase); // the script was re-run
+        
+        //await Context.DropDatabase(db);
     }
 
     protected virtual string CreateView1 => "create view grate as select '1' as col";
@@ -177,5 +183,7 @@ public abstract class One_time_scripts(IGrateTestContext context, ITestOutputHel
 
         scripts.Should().HaveCount(2); //script marked as run twice
         result.Should().Be("1"); // but still the first version of the view
+        
+        //await Context.DropDatabase(db);
     }
 }

@@ -57,5 +57,7 @@ public class RestoreDatabase(SqlServerGrateTestContext testContext, ITestOutputH
         }
 
         results.First().Should().Be(1);
+        
+        //await Context.DropDatabase(db);
     }
 }

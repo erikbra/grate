@@ -12,7 +12,7 @@ public class SqlServerExternalDatabase(GrateTestConfig grateTestConfig) : ITestD
         var builder = new SqlConnectionStringBuilder(AdminConnectionString)
         {
             InitialCatalog = database,
-            ConnectTimeout = 2
+            ConnectTimeout = 3
         };
         return builder.ConnectionString;
     }
@@ -24,7 +24,7 @@ public class SqlServerExternalDatabase(GrateTestConfig grateTestConfig) : ITestD
             InitialCatalog = database,
             UserID = "zorro",
             Password = "batmanZZ4",
-            ConnectTimeout = 2
+            ConnectTimeout = 3
          };
          return builder.ConnectionString;
     }

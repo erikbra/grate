@@ -33,6 +33,7 @@ begin
        FOR ln_cur IN (SELECT sid, serial# FROM v$session WHERE username = usr)
        LOOP
           EXECUTE IMMEDIATE ('ALTER SYSTEM KILL SESSION ''' || ln_cur.sid || ',' || ln_cur.serial# || ''' IMMEDIATE');
+          EXECUTE IMMEDIATE ('ALTER SYSTEM DISCONNECT SESSION ''' || ln_cur.sid || ',' || ln_cur.serial# || ''' IMMEDIATE');
        END LOOP;
     END;
 

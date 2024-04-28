@@ -53,6 +53,8 @@ public class One_time_scripts(OracleGrateTestContext testContext, ITestOutputHel
 
         scripts.Should().HaveCount(1);
         scripts.First().Should().Be(Context.Sql.SelectVersion);
+        
+        //await Context.DropDatabase(db);
     }
 
 }

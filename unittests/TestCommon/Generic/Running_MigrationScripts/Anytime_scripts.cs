@@ -52,6 +52,8 @@ public abstract class Anytime_scripts(IGrateTestContext context, ITestOutputHelp
         }
 
         scripts.Should().HaveCount(1);
+        
+        //await Context.DropDatabase(db);
     }
 
     [Fact]
@@ -96,6 +98,8 @@ public abstract class Anytime_scripts(IGrateTestContext context, ITestOutputHelp
             scripts.First().Should().Be(Context.Sql.SelectVersion);
             scripts.Last().Should().Be(Context.Syntax.CurrentDatabase);
         }
+        
+        //await Context.DropDatabase(db);
     }
 
     [Fact]
@@ -130,6 +134,8 @@ public abstract class Anytime_scripts(IGrateTestContext context, ITestOutputHelp
 
         scripts.Should().HaveCount(1);
         scripts.Single().Should().Be(null);
+        
+        //await Context.DropDatabase(db);
     }
 
     [Fact]
@@ -163,6 +169,8 @@ public abstract class Anytime_scripts(IGrateTestContext context, ITestOutputHelp
 
         scripts.Should().HaveCount(1);
         scripts.Single().Should().Be(Context.Sql.SelectVersion);
+        
+        //await Context.DropDatabase(db);
     }
 
     [Fact]
@@ -200,5 +208,7 @@ public abstract class Anytime_scripts(IGrateTestContext context, ITestOutputHelp
         }
 
         scripts.Should().HaveCount(2);
+        
+        //await Context.DropDatabase(db);
     }
 }

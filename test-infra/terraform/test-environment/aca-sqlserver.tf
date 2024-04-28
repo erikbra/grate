@@ -24,8 +24,8 @@ resource "azurerm_container_app" "sqlserver" {
     container {
       name          = "sqlserver"
       image         = local.sqlserver_images[count.index]
-      cpu           = 2.0
-      memory        = "4Gi"
+      cpu           = 1.0
+      memory        = "2Gi"
 
       env {
         name = "MSSQL_SA_PASSWORD" 

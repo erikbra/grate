@@ -1,10 +1,11 @@
-using grate.Configuration;
 using grate.DependencyInjection;
 using grate.mariadb.DependencyInjection;
 using MariaDB.TestInfrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 
 namespace MariaDB;
 
