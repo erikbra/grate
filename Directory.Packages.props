@@ -18,7 +18,7 @@
       Note: the following references are exclusively used in the test projects:
     -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
-    <PackageVersion Include="xunit" Version="2.7.1" />
+    <PackageVersion Include="xunit" Version="2.8.0" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.0" />
     <PackageVersion Include="xunit.runner.utility" Version="2.7.0" />
     <PackageVersion Include="FluentAssertions" Version="6.12.0" />
