@@ -40,6 +40,7 @@ internal sealed class MigrateCommand : RootCommand
         Add(DryRun());
         Add(Restore());
         Add(IgnoreDirectoryNames());
+        Add(UpToDateCheck());
 
         Handler = CommandHandler.Create(
             async () =>
@@ -334,4 +335,8 @@ the last one will expect the folders to be named 'folder1', 'folder2', and 'fold
             new[] { "--ignoredirectorynames", "--searchallinsteadoftraverse", "--searchallsubdirectoriesinsteadoftraverse" },
             "IgnoreDirectoryNames - By default, scripts are ordered by relative path including subdirectories. This option searches subdirectories, but order is based on filename alone."
         );
+    
+    internal static Option<bool> UpToDateCheck() => new(
+        ["--uptodatecheck", "--isuptodate"],
+        "Outputs whether the database is up to date or not (whether any non-everytime scripts would be run)");
 }

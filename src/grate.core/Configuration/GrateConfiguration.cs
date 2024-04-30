@@ -172,4 +172,6 @@ public record GrateConfiguration
     /// Defer writing to the run tables until the end of the migration (only used in bootstrapping)
     /// </summary>
     internal bool DeferWritingToRunTables { get; set; }
+
+    public bool UpToDateCheck { get; set; }
 }

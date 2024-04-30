@@ -85,18 +85,13 @@ internal record DbMigrator : IDbMigrator
 
         var type = folder.Type;
 
-        async Task<bool> LogAndRunSql()
+        async Task LogAndRunSql()
         {
             Logger.LogInformation("  Running '{ScriptName}'.", scriptName);
-
-            if (Configuration.DryRun)
-            {
-                return false;
-            }
-            else
+            
+            if (!Configuration.DryRun)
             {
                 await RunTheActualSql(sql, scriptName, type, versionId, connectionType, transactionHandling);
-                return true;
             }
         }
 
@@ -132,7 +127,8 @@ internal record DbMigrator : IDbMigrator
                     case MigrationType.Once when changeHandling == ChangedScriptHandling.WarnAndRun:
                         LogScriptChangedWarning(scriptName);
                         Logger.LogDebug("Running script anyway due to WarnOnOneTimeScriptChanges option being set.");
-                        theSqlWasRun = await LogAndRunSql();
+                        await LogAndRunSql();
+                        theSqlWasRun = true;
                         break;
 
                     case MigrationType.Once when changeHandling == ChangedScriptHandling.WarnAndIgnore:
@@ -143,7 +139,8 @@ internal record DbMigrator : IDbMigrator
 
                     case MigrationType.AnyTime:
                     case MigrationType.EveryTime:
-                        theSqlWasRun = await LogAndRunSql();
+                        await LogAndRunSql();
+                        theSqlWasRun = true;
                         break;
                 }
             }
@@ -154,7 +151,8 @@ internal record DbMigrator : IDbMigrator
         }
         else
         {
-            theSqlWasRun = await LogAndRunSql();
+            await LogAndRunSql();
+            theSqlWasRun = true;
         }
 
         return theSqlWasRun;
@@ -167,21 +165,6 @@ internal record DbMigrator : IDbMigrator
         ConnectionType connectionType,
         TransactionHandling transactionHandling)
     {
-        async Task<bool> PrintLogAndRunSql()
-        {
-            Logger.LogInformation("  Running '{ScriptName}'.", scriptName);
-
-            if (Configuration.DryRun)
-            {
-                return false;
-            }
-            else
-            {
-                await RunTheActualSqlWithoutLogging(sql, scriptName, connectionType, transactionHandling);
-                return true;
-            }
-        }
-
         if (!InCorrectEnvironment(scriptName, environment))
         {
             return false;
@@ -191,7 +174,15 @@ internal record DbMigrator : IDbMigrator
         {
             sql = ReplaceTokensIn(sql);
         }
-        return await PrintLogAndRunSql();
+        
+        Logger.LogInformation("  Running '{ScriptName}'.", scriptName);
+            
+        if (!Configuration.DryRun)
+        {
+            await RunTheActualSqlWithoutLogging(sql, scriptName, connectionType, transactionHandling);
+        }
+
+        return true;
     }
 
 

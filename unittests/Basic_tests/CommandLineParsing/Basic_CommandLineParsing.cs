@@ -378,6 +378,18 @@ public class Basic_CommandLineParsing
         var cfg = await ParseGrateConfiguration(args);
         cfg?.IgnoreDirectoryNames.Should().Be(expected);
     }
+    
+    [Theory]
+    [InlineData("", false)]
+    [InlineData("--isuptodate", true)]
+    [InlineData("--isuptodate false", false)]
+    [InlineData("--uptodatecheck", true)]
+    [InlineData("--uptodatecheck false", false)]
+    public async Task UpToDateCheck(string args, bool expected)
+    {
+        var cfg = await ParseGrateConfiguration(args);
+        cfg?.UpToDateCheck.Should().Be(expected);
+    }
 
     private static async Task<CommandLineGrateConfiguration?> ParseGrateConfiguration(string commandline)
     {
