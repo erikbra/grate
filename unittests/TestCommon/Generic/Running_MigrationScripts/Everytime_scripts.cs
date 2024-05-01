@@ -39,7 +39,7 @@ public abstract class Everytime_scripts(IGrateTestContext context, ITestOutputHe
 
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        using var conn = Context.CreateDbConnection(db);
+        using var conn = Context.External.CreateDbConnection(db);
         var scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         scripts.Should().HaveCount(3);
         
@@ -70,7 +70,7 @@ public abstract class Everytime_scripts(IGrateTestContext context, ITestOutputHe
         string sql = $"SELECT 1 FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")} " +
                      $"WHERE script_name = '1_jalla.sql'";
 
-        using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.External.CreateDbConnection(db))
         {
             try
             {
@@ -116,7 +116,7 @@ public abstract class Everytime_scripts(IGrateTestContext context, ITestOutputHe
         string[] scripts;
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.External.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
@@ -151,7 +151,7 @@ public abstract class Everytime_scripts(IGrateTestContext context, ITestOutputHe
 
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        using var conn = Context.CreateDbConnection(db);
+        using var conn = Context.External.CreateDbConnection(db);
         var scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         scripts.Should().HaveCount(1); //marked as run
 

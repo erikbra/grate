@@ -1,4 +1,5 @@
-﻿using grate.Configuration;
+﻿using System.Diagnostics.CodeAnalysis;
+using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,7 +37,7 @@ public static class RegistrationExtensions
         return AddGrateService(serviceCollection);
     }
     
-    public static IServiceCollection AddGrate<TDatabase>(
+    public static IServiceCollection AddGrate<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TDatabase>(
         this IServiceCollection serviceCollection, GrateConfiguration presetGrateConfiguration, Action<GrateConfigurationBuilder>? builder = null)
         where TDatabase : class, IDatabase
     {
@@ -45,7 +46,7 @@ public static class RegistrationExtensions
             .UseDatabase<TDatabase>();
     }
     
-    public static IServiceCollection AddGrate<TDatabase>(
+    public static IServiceCollection AddGrate<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TDatabase>(
         this IServiceCollection serviceCollection, Action<GrateConfigurationBuilder>? builder = null)
         where TDatabase : class, IDatabase
     {
@@ -54,14 +55,14 @@ public static class RegistrationExtensions
             .UseDatabase<TDatabase>();
     }
 
-    public static IServiceCollection UseDatabase<TDatabase>(this IServiceCollection serviceCollection)
+    public static IServiceCollection UseDatabase<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TDatabase>(this IServiceCollection serviceCollection)
         where TDatabase : class, IDatabase
     {
         serviceCollection.TryAddTransient<IDatabase, TDatabase>();
         return serviceCollection;
     }
     
-    public static IServiceCollection UseDatabase(this IServiceCollection serviceCollection, Type databaseType)
+    public static IServiceCollection UseDatabase(this IServiceCollection serviceCollection, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type databaseType)
     {
         serviceCollection.TryAddTransient(typeof(IDatabase), databaseType);
         return serviceCollection;

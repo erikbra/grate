@@ -1,19 +1,22 @@
 ﻿using DotNet.Testcontainers.Containers;
+using DotNet.Testcontainers.Networks;
 using Microsoft.Extensions.Logging;
 using TestCommon.TestInfrastructure;
 using Testcontainers.MsSql;
 
 namespace SqlServerCaseSensitive.TestInfrastructure;
-public class SqlServerTestContainerDatabase(
-    GrateTestConfig grateTestConfig,
-    ILogger<SqlServerTestContainerDatabase> logger)
-    : TestContainerDatabase(logger)
+public record SqlServerTestContainerDatabase(
+    GrateTestConfig GrateTestConfig,
+    ILogger<SqlServerTestContainerDatabase> Logger,
+    INetwork Network)
+    : TestContainerDatabase(GrateTestConfig)
 {
     // Run with linux/amd86 on ARM architectures too, the docker emulation is good enough
-    public override string DockerImage => grateTestConfig.DockerImage ?? "mcr.microsoft.com/mssql/server:2019-latest";
-    protected override int InternalPort => 1433;
+    public override string DockerImage => GrateTestConfig.DockerImage ?? "mcr.microsoft.com/mssql/server:2019-latest";
+    protected override int InternalPort => MsSqlBuilder.MsSqlPort;
+    protected override string NetworkAlias => "sqlserver-test-container";
 
-    protected override IContainer InitializeTestContainer(ILogger logger)
+    protected override IContainer InitializeTestContainer()
     {
         return new MsSqlBuilder()
             .WithImage(DockerImage)
@@ -21,7 +24,7 @@ public class SqlServerTestContainerDatabase(
             .WithPassword(AdminPassword)
             .WithPortBinding(InternalPort, true)
             .WithEnvironment("MSSQL_COLLATION", "Danish_Norwegian_CI_AS")
-            .WithLogger(logger)
+            .WithLogger(Logger)
             .Build();
     }
     

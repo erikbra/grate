@@ -45,7 +45,7 @@ public abstract class DropDatabase(IGrateTestContext context, ITestOutputHelper 
         string[] scripts;
         string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.External.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }

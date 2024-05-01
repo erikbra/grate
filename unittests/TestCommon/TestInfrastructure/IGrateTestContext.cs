@@ -1,7 +1,9 @@
 ﻿using System.Data;
+using System.Runtime.CompilerServices;
 using grate.Configuration;
 using grate.Infrastructure;
 using grate.Migration;
+using Microsoft.Extensions.Logging;
 
 namespace TestCommon.TestInfrastructure;
 
@@ -10,6 +12,8 @@ public interface IGrateTestContext
     string AdminConnectionString { get; }
     string ConnectionString(string database);
     string UserConnectionString(string database);
+    
+    IGrateTestContext External => this;
 
     IDbConnection CreateAdminDbConnection() => GetDbConnection(AdminConnectionString);
     IDbConnection CreateDbConnection(string database) => GetDbConnection(ConnectionString(database));
@@ -32,6 +36,7 @@ public interface IGrateTestContext
         AlterDatabase = true,
         NonInteractive = true,
         Transaction = SupportsTransaction,
+        OutputPath = Directory.CreateTempSubdirectory()
     };
 
     public Task DropDatabase(string databaseName);

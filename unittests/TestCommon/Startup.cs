@@ -1,3 +1,4 @@
+using DotNet.Testcontainers.Builders;
 using grate.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,7 +14,7 @@ public abstract class Startup
 {
     public void ConfigureHost(IHostBuilder hostBuilder) =>
         hostBuilder
-            .ConfigureHostConfiguration(builder => builder.AddEnvironmentVariables() )
+            .ConfigureHostConfiguration(builder => builder.AddEnvironmentVariables())
             .ConfigureAppConfiguration((context, builder) => { });
     
     // ReSharper disable once UnusedMember.Global
@@ -25,7 +26,11 @@ public abstract class Startup
                     .AddConsole()
                     .SetMinimumLevel(TestConfig.GetLogLevel())
             );
-
+        
+        var network = new NetworkBuilder()
+            .WithName(Guid.NewGuid().ToString("D"))
+            .Build();
+        services.AddSingleton(network);
         
         ConfigureExtraServices(services, context);
         
@@ -37,10 +42,14 @@ public abstract class Startup
     protected abstract Type ExternalTestDatabaseType { get; }
     protected abstract Type TestContextType { get; }
 
+    // ReSharper disable once UnassignedGetOnlyAutoProperty
+    protected virtual GrateTestConfig ExtraConfiguration(GrateTestConfig config) => config;
+
     protected void RegisterTestDatabase(IServiceCollection services, IConfiguration configuration)
     {
         var testConfig = new GrateTestConfig();
         configuration.Bind("GrateTestConfig", testConfig);
+        testConfig = ExtraConfiguration(testConfig);
         services.TryAddSingleton(testConfig);
 
         if (testConfig.AdminConnectionString != null)

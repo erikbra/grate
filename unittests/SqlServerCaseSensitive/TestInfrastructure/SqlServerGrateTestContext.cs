@@ -12,7 +12,7 @@ namespace SqlServerCaseSensitive.TestInfrastructure;
 [CollectionDefinition(nameof(SqlServerGrateTestContext))]
 public class SqlServerTestCollection : ICollectionFixture<SqlServerGrateTestContext>;
 
-public class SqlServerGrateTestContext(
+public record SqlServerGrateTestContext(
     IGrateMigrator migrator,
     string serverCollation,
     ITestDatabase testDatabase)

@@ -12,7 +12,7 @@ namespace PostgreSQL.TestInfrastructure;
 [CollectionDefinition(nameof(PostgreSqlGrateTestContext))]
 public class PostgresqlTestCollection : ICollectionFixture<PostgreSqlGrateTestContext>;
 
-public class PostgreSqlGrateTestContext(
+public record PostgreSqlGrateTestContext(
     IGrateMigrator migrator,
     ITestDatabase testDatabase) : GrateTestContext(migrator, testDatabase)
 {

@@ -1,17 +1,22 @@
 ﻿using DotNet.Testcontainers.Containers;
+using DotNet.Testcontainers.Networks;
 using Microsoft.Extensions.Logging;
 using Testcontainers.Oracle;
 
 namespace TestCommon.TestInfrastructure;
-public class OracleTestContainerDatabase(
-    GrateTestConfig grateTestConfig,
-    ILogger<OracleTestContainerDatabase> logger) : TestContainerDatabase(logger)
+
+// ReSharper disable once ClassNeverInstantiated.Global
+public record OracleTestContainerDatabase(
+    GrateTestConfig GrateTestConfig,
+    ILogger<OracleTestContainerDatabase> Logger,
+    INetwork Network) : TestContainerDatabase(GrateTestConfig)
 {
     //public override string DockerImage => "gvenzl/oracle-xe:21.3.0-slim-faststart";
-    public override string DockerImage => grateTestConfig.DockerImage ?? "gvenzl/oracle-free:latest-faststart";
-    protected override int InternalPort => 1521;
+    public override string DockerImage => GrateTestConfig.DockerImage ?? "gvenzl/oracle-free:latest-faststart";
+    protected override int InternalPort => OracleBuilder.OraclePort;
+    protected override string NetworkAlias => "oracle-test-container";
 
-    protected override IContainer InitializeTestContainer(ILogger logger)
+    protected override IContainer InitializeTestContainer()
     {
         return new OracleBuilder()
             .WithImage(DockerImage)
@@ -19,7 +24,7 @@ public class OracleTestContainerDatabase(
             .WithEnvironment("ORACLE_PDB", "FREEPDB1")
             .WithPassword(AdminPassword)
             .WithPortBinding(InternalPort, true)
-            .WithLogger(logger)
+            .WithLogger(Logger)
             .Build();
     }
     

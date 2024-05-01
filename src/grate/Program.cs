@@ -100,10 +100,17 @@ public static class Program
         var delay = 100;
 
         await Task.Delay(1);
-        while (ThreadPool.PendingWorkItemCount > 0 && waitedTime < maxWaitTime)
+        try
         {
-            await Task.Delay(delay);
-            waitedTime += delay;
+            while (ThreadPool.PendingWorkItemCount > 0 && waitedTime < maxWaitTime)
+            {
+                await Task.Delay(delay);
+                waitedTime += delay;
+            }
+        }
+        catch (Exception)
+        {
+            // We don't want to fail on exit. Nevermind, just exit, and get on with it.
         }
     }
 
@@ -136,7 +143,7 @@ public static class Program
         return services.BuildServiceProvider();
     }
 
-    private static Option<LogLevel> Verbosity() => new(
+    internal static Option<LogLevel> Verbosity() => new(
         new[] { "-v", "--verbosity" },
         "Verbosity level (as defined here: https://docs.microsoft.com/dotnet/api/Microsoft.Extensions.Logging.LogLevel)");
 

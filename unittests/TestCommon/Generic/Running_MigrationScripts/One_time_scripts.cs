@@ -44,7 +44,7 @@ public abstract class One_time_scripts(IGrateTestContext context, ITestOutputHel
         string[] scripts;
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.External.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
@@ -86,7 +86,7 @@ public abstract class One_time_scripts(IGrateTestContext context, ITestOutputHel
         string[] scripts;
         string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.External.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
@@ -129,7 +129,7 @@ public abstract class One_time_scripts(IGrateTestContext context, ITestOutputHel
         string[] scripts;
         string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")} order by id";
 
-        using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.External.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
@@ -176,7 +176,7 @@ public abstract class One_time_scripts(IGrateTestContext context, ITestOutputHel
 
         string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")} order by id";
 
-        using var conn = Context.CreateDbConnection(db);
+        using var conn = Context.External.CreateDbConnection(db);
         var scripts = await conn.QueryAsync<string>(sql);
         var result = (await conn.QueryAsync<string>("select col from grate")).Single();
 
