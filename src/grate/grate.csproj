@@ -56,6 +56,7 @@
     <InternalsVisibleTo Include="Basic_tests" />
     <InternalsVisibleTo Include="CommandLine.Common" />
     <InternalsVisibleTo Include="CommandLine.MariaDB" />
+    <InternalsVisibleTo Include="CommandLine.MySQL" />
     <InternalsVisibleTo Include="CommandLine.Oracle" />
     <InternalsVisibleTo Include="CommandLine.PostgreSQL" />
     <InternalsVisibleTo Include="CommandLine.Sqlite" />
@@ -63,6 +64,7 @@
     
     <InternalsVisibleTo Include="Docker.Common" />
     <InternalsVisibleTo Include="Docker.MariaDB" />
+    <InternalsVisibleTo Include="Docker.MySQL" />
     <InternalsVisibleTo Include="Docker.Oracle" />
     <InternalsVisibleTo Include="Docker.PostgreSQL" />
     <InternalsVisibleTo Include="Docker.Sqlite" />

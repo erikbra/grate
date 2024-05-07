@@ -1,4 +1,5 @@
-﻿using DotNet.Testcontainers.Containers;
+﻿using DotNet.Testcontainers.Configurations;
+using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Networks;
 
 namespace TestCommon.TestInfrastructure;
@@ -13,12 +14,12 @@ public abstract record TestContainerDatabase : ITestDatabase, IAsyncLifetime
     protected abstract int InternalPort { get; }
     
     public ITestDatabase External => this with { IsInternal = false };
-    private bool IsInternal { get; init; }
+    protected bool IsInternal { get; private init; }
     
     public abstract INetwork Network { get; init; }
     protected abstract string NetworkAlias { get; }
     
-    protected string Hostname => IsInternal ? NetworkAlias : TestContainer.Hostname;
+    protected virtual string Hostname => IsInternal ? NetworkAlias : TestContainer.Hostname;
     protected int Port => IsInternal ? InternalPort : TestContainer.GetMappedPublicPort(InternalPort);
     
 

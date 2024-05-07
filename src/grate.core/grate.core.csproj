@@ -12,7 +12,8 @@
     <InternalsVisibleTo Include="grate" />
     <InternalsVisibleTo Include="TestCommon" />
     <InternalsVisibleTo Include="Basic_tests" />
-    <InternalsVisibleTo Include="MariaBD" />
+    <InternalsVisibleTo Include="MariaDb" />
+    <InternalsVisibleTo Include="MySQL" />
     <InternalsVisibleTo Include="Oracle" />
     <InternalsVisibleTo Include="PostgreSQL" />
     <InternalsVisibleTo Include="Sqlite" />
@@ -20,12 +21,14 @@
     <InternalsVisibleTo Include="SqlServerCaseSensitive" />
     
     <InternalsVisibleTo Include="CommandLine.MariaDB" />
+    <InternalsVisibleTo Include="CommandLine.MySQL" />
     <InternalsVisibleTo Include="CommandLine.Oracle" />
     <InternalsVisibleTo Include="CommandLine.PostgreSQL" />
     <InternalsVisibleTo Include="CommandLine.Sqlite" />
     <InternalsVisibleTo Include="CommandLine.SqlServer" />
 
     <InternalsVisibleTo Include="Docker.MariaDB" />
+    <InternalsVisibleTo Include="Docker.MySQL" />
     <InternalsVisibleTo Include="Docker.Oracle" />
     <InternalsVisibleTo Include="Docker.PostgreSQL" />
     <InternalsVisibleTo Include="Docker.Sqlite" />
