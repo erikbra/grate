@@ -5,6 +5,7 @@ using grate.Migration;
 using TestCommon.Generic.Running_MigrationScripts;
 using TestCommon.TestInfrastructure;
 using Xunit.Abstractions;
+using static System.StringSplitOptions;
 using static grate.Configuration.KnownFolderKeys;
 
 namespace TestCommon.Generic.Bootstrapping;
@@ -122,6 +123,41 @@ public abstract class When_Grate_internal_structure_does_not_exist(IGrateTestCon
         scriptNames.Should().Contain($"grate-internal/{name}");
         
         //await Context.DropDatabase(db);
+    }
+
+    // This  was failing, because the tokens were already replaced before the internal scripts were run,
+    // and the tokens were lazily initialized. So we had to clear the tokens when running the internal scripts.
+    // https://github.com/erikbra/grate/issues/512
+    [Fact]
+    public virtual async Task GrateScriptsRun_table_is_created_even_with_custom_create_database_script()
+    {
+        var db = TestConfig.RandomDatabase();
+        var grateScriptsRunTableName = "GrateScriptsRun";
+        var parent = CreateRandomTempDirectory();
+
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(FoldersConfiguration.Default())
+            .WithSqlFilesDirectory(parent)
+            .Build();
+
+        var password = Context.AdminConnectionString
+            .Split(";", TrimEntries | RemoveEmptyEntries)
+            .SingleOrDefault(entry => entry.StartsWith("Password") || entry.StartsWith("Pwd"))?
+            .Split("=", TrimEntries | RemoveEmptyEntries)
+            .Last();
+
+        var customScript = Context.Syntax.CreateDatabase(db, password);
+        TestConfig.WriteContent(Wrap(config.SqlFilesDirectory, config.Folders?.CreateDatabase?.Path), "createDatabase.sql", customScript);
+
+        await using var migrator = Context.Migrator.WithConfiguration(config);
+        await RunMigration(migrator);
+
+        // Make sure the Scripts run table is still created even though the custom script was run (and as a side effect, the tokens were initialized)
+        var grateScriptsRunTable = await migrator.GetDbMigrator().Database.ExistingTable(config.SchemaName, grateScriptsRunTableName);
+        grateScriptsRunTable.Should().NotBeNull();
+
+        grateScriptsRunTable!.ToUpper().Should().Be(grateScriptsRunTable.ToUpper());
     }
 
     private async Task RunMigration(IGrateMigrator migrator)
