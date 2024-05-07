@@ -5,15 +5,16 @@ using grate.Migration;
 
 namespace TestCommon.TestInfrastructure;
 
-public abstract class GrateTestContext(IGrateMigrator migrator, ITestDatabase testDatabase) : IGrateTestContext, IAsyncLifetime
+public abstract record GrateTestContext(IGrateMigrator Migrator, ITestDatabase TestDatabase) : IGrateTestContext, IAsyncLifetime
 {
- 
-    public IGrateMigrator Migrator { get; } = migrator;
-    protected ITestDatabase TestDatabase { get; } = testDatabase;
+    //public IGrateMigrator Migrator { get; } = Migrator;
+    //protected ITestDatabase TestDatabase { get; } = TestDatabase;
 
     public string AdminConnectionString => TestDatabase.AdminConnectionString;
     public string ConnectionString(string database) => TestDatabase.ConnectionString(database);
     public string UserConnectionString(string database) => TestDatabase.UserConnectionString(database);
+
+    public virtual IGrateTestContext External => this with { TestDatabase = TestDatabase.External };
     
     public async Task InitializeAsync()
     {

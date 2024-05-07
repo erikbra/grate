@@ -150,7 +150,7 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
 
         using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
-            using var conn = Context.GetDbConnection(Context.ConnectionString(db));
+            using var conn = Context.GetDbConnection(Context.External.ConnectionString(db));
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
 
@@ -187,7 +187,7 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
 
         using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
-            using var conn = Context.GetDbConnection(Context.ConnectionString(db));
+            using var conn = Context.External.GetDbConnection(Context.External.ConnectionString(db));
             loggedRepositoryPath = (await conn.QuerySingleOrDefaultAsync<string>(sql));
         }
 
@@ -225,7 +225,7 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
 
         using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
-            using var conn = Context.GetDbConnection(Context.ConnectionString(db));
+            using var conn = Context.External.GetDbConnection(Context.External.ConnectionString(db));
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
 
@@ -362,7 +362,7 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
 
         using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
-            using var conn = Context.GetDbConnection(Context.ConnectionString(db));
+            using var conn = Context.External.GetDbConnection(Context.External.ConnectionString(db));
             versions = (await conn.QueryAsync<string>(sql)).ToArray();
         }
 
@@ -398,7 +398,7 @@ public abstract class Failing_Scripts(IGrateTestContext context, ITestOutputHelp
 
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema(config.SchemaName, config.ScriptsRunTableName)}";
 
-        using (var conn = Context.GetDbConnection(Context.ConnectionString(db)))
+        using (var conn = Context.External.GetDbConnection(Context.External.ConnectionString(db)))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }

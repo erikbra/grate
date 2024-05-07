@@ -1,0 +1,24 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" >
+  <ItemGroup>
+    <Compile 
+      Include="$(ProjectToIncludeTestsFrom)/Running_MigrationScripts/**/*.cs"
+      Exclude="
+      $(ProjectToIncludeTestsFrom)/Running_MigrationScripts/Versioning_The_Database.cs;
+      $(ProjectToIncludeTestsFrom)/Running_MigrationScripts/Failing_Scripts.cs;
+      $(ProjectToIncludeTestsFrom)/Running_MigrationScripts/One_time_scripts.cs"
+      LinkBase="Imported/Running_MigrationScripts" />
+
+    <Compile
+      Include="$(ProjectToIncludeTestsFrom)/TestInfrastructure/**/*.cs"
+      LinkBase="Imported/TestInfrastructure" />
+
+    <Compile
+      Include="$(ProjectToIncludeTestsFrom)/Usings.cs"
+      LinkBase="Imported" />
+
+    <None Include="$(ProjectToIncludeTestsFrom)/xunit.runner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    
+  </ItemGroup>
+</Project>

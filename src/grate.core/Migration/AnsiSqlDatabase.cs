@@ -468,7 +468,7 @@ WHERE id = (SELECT MAX(id) FROM {ScriptsRunTable} sr2 WHERE sr2.script_name = sr
         }
         catch (Exception ex) when (DryRunOrBootstrap())
         {
-            Logger.LogDebug(ex, "Ignoring error getting ScriptsRun when in --dryrun, probable missing table");
+            Logger.LogDebug(ex, "Ignoring error getting ScriptsRun when in --dryrun, probably missing table");
             return new Dictionary<string, string>(); // return empty set if nothing has ever been run
         }
     }

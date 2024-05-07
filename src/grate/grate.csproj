@@ -5,7 +5,52 @@
     <TargetFramework>net8.0</TargetFramework>
     <DebugType>Embedded</DebugType>
     <Nullable>enable</Nullable>
+    
+    <IsPublishable>true</IsPublishable>
+    <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    
+<!--    <ContainerAppCommandInstruction>DefaultArgs</ContainerAppCommandInstruction>-->
+    <ContainerAppCommandInstruction>None</ContainerAppCommandInstruction>
+    <ContainerFamily>jammy-chiseled-extra</ContainerFamily>
+<!--    <ContainerFamily>jammy</ContainerFamily>-->
+    <ImageName>grate</ImageName>
+    
   </PropertyGroup>
+
+  <!-- Need to do this by hand, due to https://github.com/dotnet/sdk/issues/40690 (duplicate of https://github.com/dotnet/sdk-container-builds/issues/559) -->
+  <ItemGroup Label="ContainerEntryPoint Assignment">
+    <ContainerEntryPoint Include="/app/$(AssemblyName)$(_NativeExecutableExtension)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(BuildingInsideVisualStudio)' != 'true' and '$(__CFBundleIdentifier)' != 'com.jetbrains.rider' ">
+    <ContainerEnvironmentVariable Include="DOTNET_SYSTEM_GLOBALIZATION_INVARIANT" Value="false" />
+    <ContainerEnvironmentVariable Include="ASPNETCORE_HTTP_PORTS" Value="" />
+    
+<!--    <ContainerEnvironmentVariable Include="VERSION" Value="1.0.0" />-->
+<!--    <ContainerEnvironmentVariable Include="DATABASE_TYPE" Value="sqlserver" />-->
+<!--    <ContainerEnvironmentVariable Include="CREATE_DATABASE" Value="true" />-->
+<!--    <ContainerEnvironmentVariable Include="ENVIRONMENT" Value="LOCAL" />-->
+<!--    <ContainerEnvironmentVariable Include="TRANSACTION" Value="false" />-->
+<!--    <ContainerEnvironmentVariable Include="SQL_FILES_DIRECTORY" Value="/db" />-->
+
+<!--    <ContainerAppCommand Include="/bin/sh"/>-->
+<!--    <ContainerAppCommand Include="-c"/>-->
+<!--    <ContainerAppCommand Include="./grate"/>-->
+<!--    <ContainerAppCommandArgs Include="./grate"/>-->
+
+<!--    TODO: Find a way to default these values in the container when building with dotnet publish to container-->
+<!--    <ContainerDefaultArgs Include="&#45;&#45;sqlfilesdirectory=/db" />-->
+<!--    <ContainerDefaultArgs Include="&#45;&#45;version=${VERSION}" />-->
+<!--    <ContainerDefaultArgs Include="&#45;&#45;connstring=&quot;$APP_CONNSTRING&quot;" />-->
+<!--    <ContainerDefaultArgs Include="&#45;&#45;databasetype=${DATABASE_TYPE:-sqlserver}" />-->
+<!--    <ContainerDefaultArgs Include="&#45;&#45;silent" />-->
+<!--    <ContainerDefaultArgs Include="&#45;&#45;outputPath=/output" />-->
+<!--    <ContainerDefaultArgs Include="&#45;&#45;createdatabase=${CREATE_DATABASE}" />-->
+<!--    <ContainerDefaultArgs Include="&#45;&#45;environment=${ENVIRONMENT}" />-->
+<!--    <ContainerDefaultArgs Include="&#45;&#45;transaction=${TRANSACTION}" />-->
+
+  </ItemGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="Basic_tests" />
@@ -15,6 +60,13 @@
     <InternalsVisibleTo Include="CommandLine.PostgreSQL" />
     <InternalsVisibleTo Include="CommandLine.Sqlite" />
     <InternalsVisibleTo Include="CommandLine.SqlServer" />
+    
+    <InternalsVisibleTo Include="Docker.Common" />
+    <InternalsVisibleTo Include="Docker.MariaDB" />
+    <InternalsVisibleTo Include="Docker.Oracle" />
+    <InternalsVisibleTo Include="Docker.PostgreSQL" />
+    <InternalsVisibleTo Include="Docker.Sqlite" />
+    <InternalsVisibleTo Include="Docker.SqlServer" />   
   </ItemGroup>
   
   <ItemGroup>
@@ -36,8 +88,6 @@
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <DebugType>None</DebugType>
-<!--    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>-->
-<!--    <RuntimeIdentifiers>win-x64;win-x86;win-arm;win-arm64;alpine-x64;linux-x64;linux-arm;linux-arm64;osx.11.0-x64;osx.10.12-x64;osx-x64</RuntimeIdentifiers>-->
     <RuntimeIdentifiers>win-x64;win-x86;win-arm64;linux-musl-x64;linux-musl-arm64;linux-x64;linux-arm64;osx-x64;osx-arm64</RuntimeIdentifiers>
     <ToolCommandName>grate</ToolCommandName>
   </PropertyGroup>

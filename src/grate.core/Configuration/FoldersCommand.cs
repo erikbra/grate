@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using grate.Exceptions;
 
 namespace grate.Configuration;
@@ -135,6 +136,7 @@ internal static class FoldersCommand
         }
     }
 
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.NonPublicProperties)]
     static readonly Type FolderType = typeof(MigrationsFolder);
 
     private static (MethodInfo? setter, Type? propertyType) GetProperty(string propertyName)

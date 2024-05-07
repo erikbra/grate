@@ -11,7 +11,7 @@ namespace SqlServer.TestInfrastructure;
 [CollectionDefinition(nameof(SqlServerGrateTestContext))]
 public class SqlServerTestCollection : ICollectionFixture<SqlServerGrateTestContext>;
 
-public class SqlServerGrateTestContext : GrateTestContext
+public record SqlServerGrateTestContext : GrateTestContext
 {
     public SqlServerGrateTestContext(
         IGrateMigrator migrator,

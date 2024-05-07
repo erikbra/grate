@@ -80,9 +80,10 @@ internal record GrateMigrator : IGrateMigrator
         var runInTransaction = MakeSureWeCanRunInTransaction(config.Transaction, silent, dbMigrator);
 
         var changeDropFolder = ChangeDropFolder(config, database.ServerName, database.DatabaseName);
+        _logger.LogDebug("The change_drop (output) folder is: {ChangeDropFolder}", changeDropFolder);
+        
         CreateChangeDropFolder(changeDropFolder);
 
-        _logger.LogDebug("The change_drop (output) folder is: {ChangeDropFolder}", changeDropFolder);
         Separator('=');
 
         _logger.LogInformation("Setup, Backup, Create/Restore/Drop");
@@ -573,19 +574,28 @@ internal record GrateMigrator : IGrateMigrator
         }
     }
     
-    private async Task<GrateConfiguration> GetBootstrapInternalGrateConfiguration(string internalFolderName) =>
-        await GetInternalGrateConfiguration(internalFolderName, "grate-internal") with
+    private async Task<GrateConfiguration> GetBootstrapInternalGrateConfiguration(string internalFolderName)
+    {
+        var bootstrapInternalGrateConfiguration = await GetInternalGrateConfiguration(internalFolderName, "grate-internal") with
         {
-            UserTokens = [
+            UserTokens =
+            [
                 "ScriptsRunTable=GrateScriptsRun",
                 "ScriptsRunErrorsTable=GrateScriptsRunErrors",
                 "VersionTable=GrateVersion"
             ],
             DeferWritingToRunTables = true,
             Environment = GrateEnvironment.InternalBootstrap,
-            Baseline = false
+            Baseline = false,
         };
-    
+        bootstrapInternalGrateConfiguration = bootstrapInternalGrateConfiguration with
+        {
+            OutputPath = bootstrapInternalGrateConfiguration.OutputPath.Parent!.CreateSubdirectory("grate-internal-bootstrap")
+        };
+        
+        return bootstrapInternalGrateConfiguration;
+    }
+
     private async Task<GrateConfiguration> GetInternalGrateConfiguration(string internalFolderName, string? sqlFolderNamePrefix = null)
     {
         var thisConfig = this.Configuration;
@@ -606,11 +616,16 @@ internal record GrateMigrator : IGrateMigrator
             AccessToken = thisConfig.AccessToken,
             CommandTimeout = thisConfig.CommandTimeout,
             AdminCommandTimeout = thisConfig.AdminCommandTimeout,
+            Verbosity = LogLevel.Critical,
+            OutputPath = thisConfig.OutputPath.CreateSubdirectory("grate-internal"),
             
             Baseline = baseline,
             NonInteractive = true,
             SqlFilesDirectory = new DirectoryInfo(internalMigrationFolders),
             CreateDatabase = false,
+            AlterDatabase = false,
+            DryRun = false,
+            
             Drop = false,
             Restore = null,
             Transaction = false, 

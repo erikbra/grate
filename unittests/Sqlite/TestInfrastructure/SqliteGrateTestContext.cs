@@ -13,7 +13,7 @@ namespace Sqlite.TestInfrastructure;
 [CollectionDefinition(nameof(SqliteGrateTestContext))]
 public class SqliteTestCollection : ICollectionFixture<SqliteGrateTestContext>;
 
-public class SqliteGrateTestContext(
+public record SqliteGrateTestContext(
     IGrateMigrator migrator,
     ITestDatabase testDatabase) : GrateTestContext(migrator, testDatabase)
 {

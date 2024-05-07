@@ -41,7 +41,7 @@ public abstract class Environment_scripts(IGrateTestContext context, ITestOutput
         string[] scripts;
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.External.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
@@ -75,7 +75,7 @@ public abstract class Environment_scripts(IGrateTestContext context, ITestOutput
         string[] scripts;
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.External.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
@@ -111,7 +111,7 @@ public abstract class Environment_scripts(IGrateTestContext context, ITestOutput
         string[] scripts;
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.External.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
@@ -148,7 +148,7 @@ public abstract class Environment_scripts(IGrateTestContext context, ITestOutput
         string[] scripts;
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.External.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }

@@ -40,7 +40,7 @@ public abstract class TokenScripts(IGrateTestContext context, ITestOutputHelper 
         }
 
         string sql = $"SELECT dbase FROM grate";
-        using var conn = Context.CreateDbConnection(db);
+        using var conn = Context.External.CreateDbConnection(db);
         var actual = await conn.QuerySingleAsync<string>(sql);
         actual.Should().Be(db);
         
@@ -71,7 +71,7 @@ public abstract class TokenScripts(IGrateTestContext context, ITestOutputHelper 
         }
 
         string sql = $"SELECT dbase FROM grate";
-        using var conn = Context.CreateDbConnection(db);
+        using var conn = Context.External.CreateDbConnection(db);
         var actual = await conn.QuerySingleAsync<string>(sql);
         actual.Should().Be("token1");
         

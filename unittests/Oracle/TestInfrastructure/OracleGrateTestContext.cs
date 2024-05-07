@@ -13,7 +13,7 @@ namespace Oracle.TestInfrastructure;
 [CollectionDefinition(nameof(OracleGrateTestContext))]
 public class OracleTestCollection : ICollectionFixture<OracleGrateTestContext>;
 
-public class OracleGrateTestContext(
+public record OracleGrateTestContext(
     IGrateMigrator migrator,
     ITestDatabase testDatabase) : GrateTestContext(migrator, testDatabase)
 {

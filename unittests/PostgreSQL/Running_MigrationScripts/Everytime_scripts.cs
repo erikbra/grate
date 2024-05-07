@@ -59,7 +59,7 @@ CREATE INDEX CONCURRENTLY IX_column2 ON public.table1
         string[] scripts;
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.External.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }

@@ -46,7 +46,7 @@ public abstract class Anytime_scripts(IGrateTestContext context, ITestOutputHelp
         string[] scripts;
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.External.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
@@ -86,7 +86,7 @@ public abstract class Anytime_scripts(IGrateTestContext context, ITestOutputHelp
         string[] scripts;
         string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")} ORDER BY id";
 
-        using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.External.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
@@ -127,7 +127,7 @@ public abstract class Anytime_scripts(IGrateTestContext context, ITestOutputHelp
         string[] scripts;
         string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.External.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
@@ -154,7 +154,7 @@ public abstract class Anytime_scripts(IGrateTestContext context, ITestOutputHelp
             .WithSqlFilesDirectory(parent)
             .Build();
 
-        await using (migrator = Context.Migrator.WithConfiguration(config))
+        await using (migrator = Context.External.Migrator.WithConfiguration(config))
         {
             await migrator.Migrate();
         }
@@ -162,7 +162,7 @@ public abstract class Anytime_scripts(IGrateTestContext context, ITestOutputHelp
         string[] scripts;
         string sql = $"SELECT text_of_script FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.External.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
@@ -202,7 +202,7 @@ public abstract class Anytime_scripts(IGrateTestContext context, ITestOutputHelp
         string[] scripts;
         string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "ScriptsRun")}";
 
-        using (var conn = Context.CreateDbConnection(db))
+        using (var conn = Context.External.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }

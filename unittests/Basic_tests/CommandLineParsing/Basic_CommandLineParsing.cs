@@ -2,9 +2,11 @@
 using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
+using System.Configuration;
 using FluentAssertions;
 using grate.Commands;
 using grate.Configuration;
+using grate.Exceptions;
 using grate.Infrastructure;
 
 namespace Basic_tests.CommandLineParsing;
@@ -69,11 +71,11 @@ public class Basic_CommandLineParsing
     [InlineData("--sqlfilesdirectory=")]
     public async Task SqlFilesDirectory(string argName)
     {
-        var database = "C:\\tmp";
-        var commandline = argName + database;
+        var folder = Directory.CreateTempSubdirectory();
+        var commandline = argName + folder;
         var cfg = await ParseGrateConfiguration(commandline);
 
-        cfg?.SqlFilesDirectory.ToString().Should().Be(database);
+        cfg?.SqlFilesDirectory.ToString().Should().Be(folder.ToString());
     }
 
     [Theory]
@@ -84,11 +86,14 @@ public class Basic_CommandLineParsing
     [InlineData("--outputPath ")]
     public async Task OutputPath(string argName)
     {
-        var database = "C:\\tmp";
-        var commandline = argName + database;
-        var cfg = await ParseGrateConfiguration(commandline);
+        var nonExistingDirectory = Path.Join(Path.GetTempPath() + Guid.NewGuid());
+        var commandline = argName + nonExistingDirectory;
 
-        cfg?.OutputPath.ToString().Should().Be(database);
+        CommandLineGrateConfiguration? cfg = null;
+        var ex = await Record.ExceptionAsync(async () => cfg = await ParseGrateConfiguration(commandline));
+
+        ex.Should().BeNull();
+        cfg?.OutputPath.ToString().Should().Be(nonExistingDirectory);
     }
 
     [Theory]
@@ -376,11 +381,28 @@ public class Basic_CommandLineParsing
 
     private static async Task<CommandLineGrateConfiguration?> ParseGrateConfiguration(string commandline)
     {
+        // All parsing fails if the connectionstring is not supplied, so we need to add it here, if it's not in the commandline.
+        if (
+            (!commandline.Contains("--connectionstring=")) &&
+            (!commandline.Contains("--connstring=")) &&
+            (!commandline.Contains("-cs ")) &&
+            (!commandline.Contains("-c ")))
+        {
+            commandline += " -c \"Server=.;Database=master;Trusted_Connection=True;\"";
+        }
+
         CommandLineGrateConfiguration? cfg = null;
         var cmd = CommandHandler.Create((CommandLineGrateConfiguration config) => cfg = config);
 
         ParseResult p =
             new Parser(new MigrateCommand(null!)).Parse(commandline);
+
+        if (p.Errors.Any())
+        {
+            var exceptions = p.Errors.Select(error => new ConfigurationErrorsException(error.Message)).ToList();
+            throw new MigrationFailed(exceptions);
+        }
+
         await cmd.InvokeAsync(new InvocationContext(p));
         return cfg;
     }

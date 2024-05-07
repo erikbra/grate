@@ -11,7 +11,7 @@ namespace MariaDB.TestInfrastructure;
 [CollectionDefinition(nameof(MariaDbGrateTestContext))]
 public class MariaDbTestCollection : ICollectionFixture<MariaDbGrateTestContext>;
 
-public class MariaDbGrateTestContext(
+public record MariaDbGrateTestContext(
     IGrateMigrator migrator,
     ITestDatabase testDatabase) : GrateTestContext(migrator, testDatabase)
 {

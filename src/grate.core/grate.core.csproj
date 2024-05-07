@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>grate</RootNamespace>
     <SourceRevisionId>build$([System.DateTime]::UtcNow.ToString("O"))</SourceRevisionId>
+    
   </PropertyGroup>
   
   <ItemGroup>
@@ -17,11 +18,19 @@
     <InternalsVisibleTo Include="Sqlite" />
     <InternalsVisibleTo Include="SqlServer" />
     <InternalsVisibleTo Include="SqlServerCaseSensitive" />
+    
     <InternalsVisibleTo Include="CommandLine.MariaDB" />
     <InternalsVisibleTo Include="CommandLine.Oracle" />
     <InternalsVisibleTo Include="CommandLine.PostgreSQL" />
     <InternalsVisibleTo Include="CommandLine.Sqlite" />
     <InternalsVisibleTo Include="CommandLine.SqlServer" />
+
+    <InternalsVisibleTo Include="Docker.MariaDB" />
+    <InternalsVisibleTo Include="Docker.Oracle" />
+    <InternalsVisibleTo Include="Docker.PostgreSQL" />
+    <InternalsVisibleTo Include="Docker.Sqlite" />
+    <InternalsVisibleTo Include="Docker.SqlServer" />
+
   </ItemGroup>
   
   <ItemGroup>

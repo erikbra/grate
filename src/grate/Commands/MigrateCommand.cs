@@ -79,7 +79,7 @@ internal sealed class MigrateCommand : RootCommand
             new[] { "--output", "-o", "--outputPath" },
             () => new DirectoryInfo(DefaultOutputPath),
             "This is where everything related to the migration is stored. This includes any backups, all items that ran, permission dumps, logs, etc."
-        ).ExistingOnly();
+        );
 
     private static Option Folders() =>
         new Option<IFoldersConfiguration>(
