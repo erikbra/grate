@@ -18,7 +18,7 @@ For example, if you created a `grate_settings.rsp` file with the following conte
 --ut=my_token=myvalue
 ```
 
-and ran it via `grate @./gratesettings.rsp` it would be the equivalent to the following command:
+and ran it via `grate @./grate_settings.rsp` it would be the equivalent to the following command:
 ``` bash
 grate -cs SomeConnectionString -f ./db --env DEV --drop --version 1.0 --ut=my_token=myvalue
 ```
