@@ -1,6 +1,0 @@
-BEGIN
-    DECLARE CONTINUE HANDLER FOR SQLSTATE '42S21' BEGIN END;
-    ALTER TABLE {{SchemaName}}_{{VersionTable}}
-    ADD COLUMN status varchar(50) NULL;
---ADD COLUMN IF NOT EXISTS status varchar(50) NULL;
-END;
