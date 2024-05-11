@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using DotNet.Testcontainers.Builders;
 using grate.Configuration;
 using Microsoft.Extensions.Configuration;
@@ -38,8 +39,13 @@ public abstract class Startup
         RegisterTestDatabase(services, context.Configuration);
     }
     
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] 
     protected abstract Type TestContainerDatabaseType { get; }
+    
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] 
     protected abstract Type ExternalTestDatabaseType { get; }
+    
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] 
     protected abstract Type TestContextType { get; }
 
     // ReSharper disable once UnassignedGetOnlyAutoProperty

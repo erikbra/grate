@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>grate</RootNamespace>
     <SourceRevisionId>build$([System.DateTime]::UtcNow.ToString("O"))</SourceRevisionId>
-    
+    <IsPublishable>false</IsPublishable>
   </PropertyGroup>
   
   <ItemGroup>

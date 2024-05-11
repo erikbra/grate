@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>$(NetTargetFrameworks)</TargetFrameworks>
     <Nullable>enable</Nullable>
+    <IsPublishable>false</IsPublishable>
   </PropertyGroup>
   
   <ItemGroup>

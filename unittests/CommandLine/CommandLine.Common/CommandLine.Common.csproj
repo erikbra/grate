@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
+    <IsPublishable>false</IsPublishable>
     <IsPackable>false</IsPackable>
     <IsTestProject>false</IsTestProject>
 

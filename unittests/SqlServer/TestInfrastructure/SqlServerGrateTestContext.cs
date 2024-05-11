@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using grate.Infrastructure;
 using grate.Migration;
 using grate.SqlServer.Infrastructure;

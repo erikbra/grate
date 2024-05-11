@@ -1,14 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+      <TargetFramework>net8.0</TargetFramework>
+      <ImplicitUsings>enable</ImplicitUsings>
+      <Nullable>enable</Nullable>
 
-        <IsPackable>false</IsPackable>
+      <IsTestProject>true</IsTestProject>
+      <IsPublishable>false</IsPublishable>
+      <IsPackable>false</IsPackable>
     </PropertyGroup>
 
-  <ItemGroup>
+    <ItemGroup>
       <PackageReference Include="Microsoft.NET.Test.Sdk" />
       <PackageReference Include="xunit"/>
       <PackageReference Include="xunit.runner.visualstudio"/>
@@ -17,7 +19,7 @@
       <PackageReference Include="Testcontainers.MsSql" />
       <PackageReference Include="Xunit.DependencyInjection" />
       <PackageReference Include="Xunit.DependencyInjection.Logging" />
-  </ItemGroup>
+    </ItemGroup>
 
   <ItemGroup>
       <ProjectReference Include="..\..\src\grate\grate.csproj" />
