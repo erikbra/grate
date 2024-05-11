@@ -125,6 +125,7 @@ public static class Program
                 options.FormatterName = GrateConsoleFormatter.FormatterName;
                 options.LogToStandardErrorThreshold = LogLevel.Warning;
             })
+            .AddFilter("Grate.Migration.Internal", LogLevel.Critical)
             .SetMinimumLevel(config.Verbosity)
             .AddConsoleFormatter<GrateConsoleFormatter, SimpleConsoleFormatterOptions>());
         

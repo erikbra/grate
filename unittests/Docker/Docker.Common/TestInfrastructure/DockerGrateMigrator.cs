@@ -108,7 +108,6 @@ public record DockerGrateMigrator(
                 // Need to overwrite the output path, as we don't have the same tmp folders on the host as in the container,
                 // and the root file system is read-only in the test container
                 OutputPath = new DirectoryInfo(Path.Combine("/tmp", "grate-tests-output", Directory.CreateTempSubdirectory().Name)),
-                Verbosity = LogLevel.Debug
             }
         };
     }

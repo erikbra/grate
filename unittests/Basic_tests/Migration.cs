@@ -9,17 +9,19 @@ namespace Basic_tests;
 public class Migration
 {
     private readonly MockGrateLogger  _logger;
+    private readonly MockGrateLoggerFactory _loggerFactory;
 
     public Migration()
     {
         _logger = new MockGrateLogger();
+        _loggerFactory = new MockGrateLoggerFactory(_logger);
     }
 
     [Fact]
-    public async Task Does_not_output_no_sql_run_in_dryrun_mode()
+    public async Task Does_not_output_qny_sql_run_in_dryrun_mode()
     {
         var dbMigrator = GetDbMigrator(true);
-        var migrator = new GrateMigrator(_logger, dbMigrator);
+        var migrator = new GrateMigrator(_loggerFactory, dbMigrator);
         await migrator.Migrate();
         _logger.LoggedMessages.Should().NotContain(" No sql run, either an empty folder, or all files run against destination previously.");
     }
@@ -28,7 +30,7 @@ public class Migration
     public async Task Outputs_no_sql_run_in_live_mode()
     {
         var dbMigrator = GetDbMigrator(false);
-        var migrator = new GrateMigrator(_logger, dbMigrator);
+        var migrator = new GrateMigrator(_loggerFactory, dbMigrator);
         await migrator.Migrate();
         _logger.LoggedMessages.Should().Contain(" No sql run, either an empty folder, or all files run against destination previously.");
     }

@@ -9,12 +9,12 @@ namespace grate.Migration;
 
 internal record DbMigrator : IDbMigrator
 {
-    private readonly ILogger<DbMigrator> _logger;
+    public ILogger Logger { get; set; }
     private readonly IHashGenerator _hashGenerator;
 
     public DbMigrator(IDatabase database, ILogger<DbMigrator> logger, IHashGenerator hashGenerator, GrateConfiguration? configuration = null)
     {
-        _logger = logger;
+        Logger = logger;
         _hashGenerator = hashGenerator;
         Configuration = configuration ?? throw new ArgumentException("No configuration passed to DbMigrator.  Container setup error?", nameof(configuration));
         Database = database;
@@ -54,7 +54,7 @@ internal record DbMigrator : IDbMigrator
     {
         if (Configuration.DryRun)
         {
-            _logger.LogDebug("Skipping writing database version row due to --dryrun");
+            Logger.LogDebug("Skipping writing database version row due to --dryrun");
             return Task.FromResult(-1L);
         }
         else
@@ -78,7 +78,7 @@ internal record DbMigrator : IDbMigrator
 
         async Task<bool> LogAndRunSql()
         {
-            _logger.LogInformation("  Running '{ScriptName}'.", scriptName);
+            Logger.LogInformation("  Running '{ScriptName}'.", scriptName);
 
             if (Configuration.DryRun)
             {
@@ -122,13 +122,13 @@ internal record DbMigrator : IDbMigrator
 
                     case MigrationType.Once when changeHandling == ChangedScriptHandling.WarnAndRun:
                         LogScriptChangedWarning(scriptName);
-                        _logger.LogDebug("Running script anyway due to WarnOnOneTimeScriptChanges option being set.");
+                        Logger.LogDebug("Running script anyway due to WarnOnOneTimeScriptChanges option being set.");
                         theSqlWasRun = await LogAndRunSql();
                         break;
 
                     case MigrationType.Once when changeHandling == ChangedScriptHandling.WarnAndIgnore:
                         LogScriptChangedWarning(scriptName);
-                        _logger.LogDebug("Ignoring script but marking as run due to WarnAndIgnoreOnOneTimeScriptChanges option being set.");
+                        Logger.LogDebug("Ignoring script but marking as run due to WarnAndIgnoreOnOneTimeScriptChanges option being set.");
                         await RecordScriptInScriptsRunTable(scriptName, sql, type, versionId, transactionHandling);
                         break;
 
@@ -140,7 +140,7 @@ internal record DbMigrator : IDbMigrator
             }
             else
             {
-                _logger.LogDebug(" Skipped {ScriptName} - {Reason}.", scriptName, "No changes were found to run");
+                Logger.LogDebug(" Skipped {ScriptName} - {Reason}.", scriptName, "No changes were found to run");
             }
         }
         else
@@ -160,7 +160,7 @@ internal record DbMigrator : IDbMigrator
     {
         async Task<bool> PrintLogAndRunSql()
         {
-            _logger.LogInformation("  Running '{ScriptName}'.", scriptName);
+            Logger.LogInformation("  Running '{ScriptName}'.", scriptName);
 
             if (Configuration.DryRun)
             {
@@ -281,7 +281,7 @@ internal record DbMigrator : IDbMigrator
             }
             catch (Exception ex)
             {
-                _logger.LogError("{ScriptName}: {ErrorMessage}", scriptName, ex.Message);
+                Logger.LogError("{ScriptName}: {ErrorMessage}", scriptName, ex.Message);
 
                 if (Transaction.Current is not null)
                 {
@@ -320,7 +320,7 @@ internal record DbMigrator : IDbMigrator
             }
             catch (Exception ex)
             {
-                _logger.LogError("{ScriptName}: {ErrorMessage}", scriptName, ex.Message);
+                Logger.LogError("{ScriptName}: {ErrorMessage}", scriptName, ex.Message);
 
                 if (Transaction.Current is not null)
                 {
@@ -339,7 +339,7 @@ internal record DbMigrator : IDbMigrator
 
     private void LogScriptChangedWarning(string scriptName)
     {
-        _logger.LogWarning("{ScriptName} is a one time script that has changed since it was run.", scriptName);
+        Logger.LogWarning("{ScriptName} is a one time script that has changed since it was run.", scriptName);
     }
 
     /// <summary>
@@ -354,7 +354,7 @@ internal record DbMigrator : IDbMigrator
     /// <exception cref="Exceptions.OneTimeScriptChanged"></exception>
     private async Task OneTimeScriptChanged(MigrationsFolder folder, string sql, string scriptName, long versionId)
     {
-        _logger.LogError("{ScriptName}: {ErrorMessage}", scriptName, "One time script changed");
+        Logger.LogError("{ScriptName}: {ErrorMessage}", scriptName, "One time script changed");
         
         Database.Rollback();
         await Database.CloseConnection();
@@ -383,12 +383,12 @@ internal record DbMigrator : IDbMigrator
 
         if (Configuration.DryRun)
         {
-            _logger.LogTrace("Skipping recording {ScriptName} script ran on {ServerName} - {DatabaseName}, --dryrun prevents sql writes", scriptName, Database.ServerName, Database.DatabaseName);
+            Logger.LogTrace("Skipping recording {ScriptName} script ran on {ServerName} - {DatabaseName}, --dryrun prevents sql writes", scriptName, Database.ServerName, Database.DatabaseName);
             return Task.CompletedTask;
         }
         else
         {
-            _logger.LogTrace("Recording {ScriptName} script ran on {ServerName} - {DatabaseName}.", scriptName, Database.ServerName, Database.DatabaseName);
+            Logger.LogTrace("Recording {ScriptName} script ran on {ServerName} - {DatabaseName}.", scriptName, Database.ServerName, Database.DatabaseName);
             return Database.InsertScriptRun(scriptName, sqlToStore, hash, migrationType == MigrationType.Once, versionId, transactionHandling);
         }
     }
