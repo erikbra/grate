@@ -66,7 +66,9 @@
     <InternalsVisibleTo Include="Docker.Oracle" />
     <InternalsVisibleTo Include="Docker.PostgreSQL" />
     <InternalsVisibleTo Include="Docker.Sqlite" />
-    <InternalsVisibleTo Include="Docker.SqlServer" />   
+    <InternalsVisibleTo Include="Docker.SqlServer" />
+    
+    <InternalsVisibleTo Include="TestCommon" />
   </ItemGroup>
   
   <ItemGroup>
