@@ -1,5 +1,6 @@
 ﻿using grate.Configuration;
 using grate.Infrastructure;
+using Microsoft.Extensions.Logging;
 
 namespace grate.Migration;
 
@@ -7,6 +8,7 @@ internal interface IDbMigrator : IAsyncDisposable, ICloneable
 {
     GrateConfiguration Configuration { get; set; }
     IDatabase Database { get; set; }
+    ILogger Logger { get; set; }
     Task InitializeConnections();
     Task<bool> CreateDatabase();
 

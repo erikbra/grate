@@ -1,10 +1,12 @@
+using System.Diagnostics.CodeAnalysis;
 using DotNet.Testcontainers.Builders;
-using grate.Configuration;
+using grate.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 using TestCommon.TestInfrastructure;
 
 namespace TestCommon;
@@ -23,7 +25,13 @@ public abstract class Startup
         services.AddLogging(
                 lb => lb
                     .AddXUnit()
-                    .AddConsole()
+                    .AddConsole(options =>
+                    {
+                        options.FormatterName = GrateConsoleFormatter.FormatterName;
+                        options.LogToStandardErrorThreshold = LogLevel.Critical;
+                    })
+                    .AddFilter("Grate.Migration.Internal", LogLevel.Critical)
+                    .AddConsoleFormatter<GrateConsoleFormatter, SimpleConsoleFormatterOptions>()
                     .SetMinimumLevel(TestConfig.GetLogLevel())
             );
         
@@ -38,8 +46,13 @@ public abstract class Startup
         RegisterTestDatabase(services, context.Configuration);
     }
     
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] 
     protected abstract Type TestContainerDatabaseType { get; }
+    
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] 
     protected abstract Type ExternalTestDatabaseType { get; }
+    
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] 
     protected abstract Type TestContextType { get; }
 
     // ReSharper disable once UnassignedGetOnlyAutoProperty

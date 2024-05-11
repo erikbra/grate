@@ -10,17 +10,23 @@ namespace grate.Migration;
 
 internal record GrateMigrator : IGrateMigrator
 {
-    private readonly ILogger<GrateMigrator> _logger;
+    private readonly ILoggerFactory _loggerFactory;
+    private readonly ILogger _logger;
     
     internal IDbMigrator DbMigrator { get; private init; }
+    
+    private string LogCategory => $"Grate.Migration{(IsInternalMigration() ? ".Internal" : "")}";
 
     public GrateConfiguration Configuration
     {
         get => DbMigrator.Configuration;
         private init
         {
+            _logger = _loggerFactory.CreateLogger(LogCategory);
+            
             DbMigrator = (IDbMigrator) DbMigrator.Clone();
             DbMigrator.Configuration = value;
+            DbMigrator.Logger = _logger;
         }
     }
 
@@ -49,10 +55,11 @@ internal record GrateMigrator : IGrateMigrator
     public IGrateMigrator WithDatabase(IDatabase database) => this with { Database = database };
     
 
-    public GrateMigrator(ILogger<GrateMigrator> logger, IDbMigrator migrator)
+    public GrateMigrator(ILoggerFactory loggerFactory, IDbMigrator migrator)
     {
-        _logger = logger;
         DbMigrator = migrator;
+        _loggerFactory = loggerFactory;
+        _logger = loggerFactory.CreateLogger(LogCategory);
     }
 
     public async Task Migrate()
@@ -271,6 +278,9 @@ internal record GrateMigrator : IGrateMigrator
             }
         }
     }
+    
+    private bool IsInternalMigration() => GrateEnvironment.Internal == this.Configuration?.Environment
+                                          || GrateEnvironment.InternalBootstrap == this.Configuration?.Environment;
 
 
     private async Task<(long, string)> VersionTheDatabase(IDbMigrator dbMigrator)
@@ -616,7 +626,6 @@ internal record GrateMigrator : IGrateMigrator
             AccessToken = thisConfig.AccessToken,
             CommandTimeout = thisConfig.CommandTimeout,
             AdminCommandTimeout = thisConfig.AdminCommandTimeout,
-            Verbosity = LogLevel.Critical,
             OutputPath = thisConfig.OutputPath.CreateSubdirectory("grate-internal"),
             
             Baseline = baseline,

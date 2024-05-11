@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using Dapper;
 using grate.Infrastructure;
 using grate.Migration;
@@ -41,7 +42,9 @@ public abstract record GrateTestContext(IGrateMigrator Migrator, ITestDatabase T
 
     public abstract ISyntax Syntax { get; }
     public abstract Type DbExceptionType { get; }
+    
     public abstract Type DatabaseType { get; }
+    
     public abstract bool SupportsTransaction { get; }
     public abstract SqlStatements Sql { get; }
     public abstract string ExpectedVersionPrefix { get; }

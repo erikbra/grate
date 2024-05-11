@@ -1,22 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+      <TargetFramework>net8.0</TargetFramework>
+      <ImplicitUsings>enable</ImplicitUsings>
+      <Nullable>enable</Nullable>
 
-        <IsPackable>false</IsPackable>
+      <IsTestProject>true</IsTestProject>
+      <IsPackable>false</IsPackable>
+      <IsPublishable>false</IsPublishable>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" />
-        <PackageReference Include="xunit"/>
-        <PackageReference Include="xunit.runner.visualstudio"/>
-        <PackageReference Include="XunitXml.TestLogger" />
-        <PackageReference Include="coverlet.collector" />
-        <PackageReference Include="Testcontainers.MariaDb" />
-        <PackageReference Include="Xunit.DependencyInjection" />
-        <PackageReference Include="Xunit.DependencyInjection.Logging" />
+      <PackageReference Include="Microsoft.NET.Test.Sdk" />
+      <PackageReference Include="xunit"/>
+      <PackageReference Include="xunit.runner.visualstudio"/>
+      <PackageReference Include="XunitXml.TestLogger" />
+      <PackageReference Include="coverlet.collector" />
+      <PackageReference Include="Testcontainers.MariaDb" />
+      <PackageReference Include="Xunit.DependencyInjection" />
+      <PackageReference Include="Xunit.DependencyInjection.Logging" />
     </ItemGroup>
 
     <ItemGroup>

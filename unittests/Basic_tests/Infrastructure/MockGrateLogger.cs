@@ -25,5 +25,28 @@ public record MockGrateLogger: ILogger<GrateMigrator>
     }
     
     public IList<string> LoggedMessages { get; } = new List<string>();
-    
+}
+
+public record MockGrateLoggerFactory: ILoggerFactory
+{
+    private readonly MockGrateLogger _logger;
+
+    public MockGrateLoggerFactory(MockGrateLogger? logger = null)
+    {
+        _logger = logger ?? new MockGrateLogger();
+    }
+
+    public void Dispose()
+    {
+    }
+
+    public ILogger CreateLogger(string categoryName)
+    {
+        return _logger;
+    }
+
+    public void AddProvider(ILoggerProvider provider)
+    {
+        throw new NotImplementedException();
+    }
 }

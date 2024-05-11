@@ -2,6 +2,7 @@
 using grate.Infrastructure;
 using grate.Migration;
 using grate.Sqlite.Migration;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 
 namespace Basic_tests.Infrastructure;
@@ -14,6 +15,8 @@ public record MockDbMigrator: IDbMigrator
 
     public GrateConfiguration Configuration { get; set; } = null!;
     public IDatabase Database { get; set; } = Substitute.For<IDatabase>();
+    public ILogger Logger { get; set; } = Substitute.For<ILogger>();
+
     public  Task InitializeConnections()
     {
         return Task.CompletedTask;

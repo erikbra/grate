@@ -5,7 +5,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <IsPublishable>false</IsPublishable>
     <IsTestProject>false</IsTestProject>
+    <NoWarn>IL2072;IL2075;IL2026</NoWarn>
   </PropertyGroup>
   
   <ItemGroup>
