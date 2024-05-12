@@ -5,10 +5,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
-    <IsPublishable>false</IsPublishable>
+    <IsPublishable>true</IsPublishable>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-
+    
   </PropertyGroup>
 
   <ItemGroup>

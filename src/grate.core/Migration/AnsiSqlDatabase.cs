@@ -21,10 +21,12 @@ public abstract record AnsiSqlDatabase : IDatabase
 
     protected GrateConfiguration? Config { get; private set; }
 
-    protected ILogger Logger { get; }
+    protected ILogger Logger { get; private set; }
     private DbConnection? _connection;
     private DbConnection? _adminConnection;
     private readonly ISyntax _syntax;
+
+    public void SetLogger(ILogger logger) => Logger = logger;
 
     private IDictionary<string, string>? _scriptsRunCache;
     

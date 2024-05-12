@@ -5,10 +5,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
-    <IsPublishable>false</IsPublishable>
+    <IsPublishable>true</IsPublishable>
     <IsPackable>false</IsPackable>
     <IsTestProject>false</IsTestProject>
-
+    <NoWarn>IL2091;IL2026</NoWarn>
+    
     <XunitStartupFullName>CommandLine.Common.Startup</XunitStartupFullName>
   </PropertyGroup>
 

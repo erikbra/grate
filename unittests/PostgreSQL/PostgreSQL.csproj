@@ -6,8 +6,9 @@
       <Nullable>enable</Nullable>
 
       <IsTestProject>true</IsTestProject>
-      <IsPublishable>false</IsPublishable>
+      <IsPublishable>true</IsPublishable>
       <IsPackable>false</IsPackable>
+            
     </PropertyGroup>
 
     <ItemGroup>
