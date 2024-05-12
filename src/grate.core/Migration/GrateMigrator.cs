@@ -23,7 +23,6 @@ internal record GrateMigrator : IGrateMigrator
         private init
         {
             DbMigrator = (IDbMigrator) DbMigrator.Clone();
-            DbMigrator = (IDbMigrator) DbMigrator.Clone();
             DbMigrator.Configuration = value;
 
             _logger = _loggerFactory.CreateLogger(LogCategory);
