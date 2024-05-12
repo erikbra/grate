@@ -22,10 +22,11 @@ internal record GrateMigrator : IGrateMigrator
         get => DbMigrator.Configuration;
         private init
         {
-            _logger = _loggerFactory.CreateLogger(LogCategory);
-            
+            DbMigrator = (IDbMigrator) DbMigrator.Clone();
             DbMigrator = (IDbMigrator) DbMigrator.Clone();
             DbMigrator.Configuration = value;
+
+            _logger = _loggerFactory.CreateLogger(LogCategory);
             DbMigrator.Logger = _logger;
         }
     }
