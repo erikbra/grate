@@ -7,6 +7,11 @@ on:
       - main
     paths-ignore:
       - docs/
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - docs/
   workflow_dispatch:
 
 permissions:
@@ -129,17 +134,8 @@ jobs:
 
     - name: Build Test DLLs ${{ matrix.arch }}
       run: |
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.MariaDB -o ./integration-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.SqlServer -o ./integration-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.Oracle -o ./integration-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.PostgreSQL -o ./integration-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.Sqlite -o ./integration-tests/${{ matrix.arch }}
-
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/MariaDB -o ./integration-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/SqlServer -o ./integration-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/Oracle -o ./integration-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/PostgreSQL -o ./integration-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/Sqlite -o ./integration-tests/${{ matrix.arch }}
+        dotnet restore -r ${{ matrix.arch }} unittests/UnitTests.slnf
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release --no-restore ./unittests/UnitTests.slnf -o ./integration-tests/${{ matrix.arch }}
 
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
@@ -169,17 +165,8 @@ jobs:
 
     - name: Build Test DLLs ${{ matrix.arch }}
       run: |
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.MariaDB -o ./integration-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.SqlServer -o ./integration-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.Oracle -o ./integration-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.PostgreSQL -o ./integration-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/CommandLine/CommandLine.Sqlite -o ./integration-tests/${{ matrix.arch }}
-
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/MariaDB -o ./integration-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/SqlServer -o ./integration-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/Oracle -o ./integration-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/PostgreSQL -o ./integration-tests/${{ matrix.arch }}
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release  ./unittests/Sqlite -o ./integration-tests/${{ matrix.arch }}
+        dotnet restore -r ${{ matrix.arch }} unittests/UnitTests.slnf
+        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release --no-restore ./unittests/UnitTests.slnf -o ./integration-tests/${{ matrix.arch }}
 
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
@@ -360,10 +347,23 @@ jobs:
       run: |
         dotnet test integration-tests/linux-x64/CommandLine.${{ matrix.database.type }}.dll `
         --logger:"xunit;Environment=${{ matrix.database.name }} (docker);LogFilePath=/tmp/test-results/docker/CommandLine.${{ matrix.database.name }}.xml"
-
       env:
         LogLevel: Information
         GrateExecutablePath: ${{ github.workspace }}/executables/linux-x64/grate
+        TZ: UTC
+        GrateTestConfig__DockerImage: ${{ matrix.database.image }} 
+
+    - name: Docker Test Docker
+      # TODO: We need to integrate build of a docker image to test into the pipeline, and push it to the local registry,
+      # and use that one, to run the integration tests. If not, we are testing the latest published released.
+      #if: ${{ !cancelled() }}
+      if: false
+      shell: pwsh
+      run: |
+        dotnet test integration-tests/linux-x64/Docker.${{ matrix.database.type }}.dll `
+        --logger:"xunit;Environment=${{ matrix.database.name }} (docker);LogFilePath=/tmp/test-results/docker/Docker.${{ matrix.database.name }}.xml"
+      env:
+        LogLevel: Information
         TZ: UTC
         GrateTestConfig__DockerImage: ${{ matrix.database.image }} 
 
@@ -374,6 +374,7 @@ jobs:
         name: "docker ${{ matrix.database.name }} XML test results"
         path: |
           /tmp/test-results/docker/CommandLine.${{ matrix.database.name }}.xml
+          /tmp/test-results/docker/Docker.${{ matrix.database.name }}.xml
         retention-days: 1
 
   integration-test:
@@ -513,7 +514,8 @@ jobs:
   report:
     runs-on: ubuntu-latest
     name: Create test report
-    needs: integration-test
+    #needs: integration-test
+    needs: docker-integration-tests
     if: always()
 
     steps:

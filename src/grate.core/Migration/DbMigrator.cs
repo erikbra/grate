@@ -9,12 +9,21 @@ namespace grate.Migration;
 
 internal record DbMigrator : IDbMigrator
 {
-    public ILogger Logger { get; set; }
+    public ILogger Logger
+    {
+        get => _logger;
+        set
+        {
+            _logger = value;
+            Database.SetLogger(value);
+        }
+    }
+
     private readonly IHashGenerator _hashGenerator;
 
     public DbMigrator(IDatabase database, ILogger<DbMigrator> logger, IHashGenerator hashGenerator, GrateConfiguration? configuration = null)
     {
-        Logger = logger;
+        _logger = logger;
         _hashGenerator = hashGenerator;
         Configuration = configuration ?? throw new ArgumentException("No configuration passed to DbMigrator.  Container setup error?", nameof(configuration));
         Database = database;
@@ -247,6 +256,9 @@ internal record DbMigrator : IDbMigrator
     /// Lazily initialised only if needed.
     /// </summary>
     private Dictionary<string, string?>? _tokens;
+
+    private ILogger _logger;
+
     private string ReplaceTokensIn(string sql)
     {
         _tokens ??= new TokenProvider(Configuration, Database).GetTokens();

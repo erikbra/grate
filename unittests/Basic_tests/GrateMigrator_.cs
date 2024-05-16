@@ -12,7 +12,12 @@ namespace Basic_tests;
 public class GrateMigrator_
 {
     private readonly IDatabase _database = Substitute.For<IDatabase>();
-    private readonly GrateConfiguration? _config = new GrateConfiguration();
+    private readonly GrateConfiguration? _config = new();
+
+    public GrateMigrator_()
+    {
+        _database.Clone().Returns(_database);
+    }
 
     [Fact]
     public void Setting_the_config_does_not_change_the_original()

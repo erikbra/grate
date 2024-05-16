@@ -25,6 +25,33 @@ public record DockerGrateMigrator(
 
     public async Task Migrate()
     {
+        // Sqlite doesn't like to be extracted to a tmpfs mount, so we need to use a bind mount to a temporary folder
+        // if not, we get an error like this:
+        //  /home/app/.net/grate/fdcA3gxdjBiIcVt0mGoBJ5IgxSbD0kE=/libe_sqlite3.so: failed to map segment from shared object
+        // (similarly) /tmp/dotnet-bundle-extract/grate/fdcA3gxdjBiIcVt0mGoBJ5IgxSbD0kE=/libe_sqlite3.so: failed to map segment from shared object
+        var tmpFolder = Directory.CreateTempSubdirectory().ToString();
+        
+        // Need to map the SQL files directory to the container
+        var sqlFilesDirectory = Configuration.SqlFilesDirectory.ToString();
+        
+        Dictionary<string, string> bindMounts = new Dictionary<string, string>
+        {
+            { tmpFolder, "/home/app" },
+            { sqlFilesDirectory, sqlFilesDirectory }
+        };
+
+        // For Sqlite, the database file needs to be mapped as bind mounts, to be able to access the files
+        // both from the host and the container.
+        if (DatabaseType == DatabaseType.SQLite)
+        {
+            foreach (var connectionString in  new [] {Configuration.ConnectionString, Configuration.AdminConnectionString})
+            {
+                var dbFile = connectionString?.Split("=", 2)[1];
+                var folder = Path.GetDirectoryName(dbFile)!;
+                bindMounts[folder] = folder;
+            }
+        }
+        
         // Convert configuration to command-line arguments
         var convertToDockerArguments = ConvertToDockerArguments(Configuration);
         var dockerArguments = convertToDockerArguments.ToList();
@@ -32,27 +59,31 @@ public record DockerGrateMigrator(
         // Add the database type
         dockerArguments.Add("--databasetype=" + DatabaseType.ToString().ToLowerInvariant());
         
+        //dockerArguments.Add("--verbosity=debug");
+        
         // Needed when overriding the entrypoint, not the command
         dockerArguments.Insert(0, "./grate");
-        
-        // Need to map the SQL files directory to the container
-        var sqlFilesDirectory = Configuration.SqlFilesDirectory.ToString();
 
         var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(20));
         var token = cancellationTokenSource.Token;
         
-        await using var container = new ContainerBuilder()
+        var containerBuilder = new ContainerBuilder()
             .WithImage(DockerImage)
-            .WithEnvironment("DOTNET_BUNDLE_EXTRACT_BASE_DIR", "/tmp/dotnet-bundle-extract")
             .WithEntrypoint(dockerArguments.ToArray())
+            .WithEnvironment("DOTNET_BUNDLE_EXTRACT_BASE_DIR", "/home/app")
             // This is dependent on changing the image to only use grate as ENTRYPOINT, and the rest as CMD
             //.WithCommand(dockerArguments.ToArray())
-            .WithBindMount(sqlFilesDirectory, sqlFilesDirectory)
             .WithCreateParameterModifier(param => param.HostConfig.ReadonlyRootfs = true)
             .WithTmpfsMount("/tmp")
             .WithNetwork(Network)
-            .WithLogger(Logger)
-            .Build();
+            .WithLogger(Logger);
+
+        foreach (var bindMount in bindMounts)
+        {
+            containerBuilder = containerBuilder.WithBindMount(bindMount.Key, bindMount.Value);
+        }
+        
+        await using var container = containerBuilder.Build();
 
         try
         {

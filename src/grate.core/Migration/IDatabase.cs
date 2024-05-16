@@ -1,5 +1,6 @@
 ﻿using System.Data.Common;
 using grate.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace grate.Migration;
 
@@ -25,6 +26,8 @@ public interface IDatabase : IAsyncDisposable, ICloneable
     Task CloseAdminConnection();
     Task CreateDatabase();
     Task RestoreDatabase(string backupPath);
+
+    void SetLogger(ILogger logger);
 
     /// <summary>
     /// Drops the database if it exists, and does nothing if it doesn't.
