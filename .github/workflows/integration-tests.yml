@@ -54,14 +54,14 @@ jobs:
     strategy:
       matrix:
         arch: 
-          # - win-x64
+          - win-x64
           # - win-x86
           # - win-arm64
           # - linux-musl-x64
           # - linux-musl-arm64
           - linux-x64
           # - linux-arm64
-          # - osx-x64
+          - osx-x64
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET 8
@@ -122,9 +122,9 @@ jobs:
     strategy:
       matrix:
         arch: 
-          #- win-x64
+          - win-x64
           - linux-x64
-          #- osx-x64
+          - osx-x64
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET 8
@@ -178,7 +178,8 @@ jobs:
         path: ./integration-tests/${{ matrix.arch }}/*
 
   setup-test-environment:
-    if: false
+    #if: false
+    if: ${{ !cancelled() }}
     name: Set up test enviroment
     environment: integration-tests
     runs-on: ubuntu-latest
@@ -378,7 +379,8 @@ jobs:
         retention-days: 1
 
   integration-test:
-    if: false
+    #if: false
+    if: ${{ !cancelled() }}
     environment: integration-tests
     name: ${{ matrix.database.name }}, ${{ matrix.os.name }}
     needs:
@@ -514,8 +516,9 @@ jobs:
   report:
     runs-on: ubuntu-latest
     name: Create test report
-    #needs: integration-test
-    needs: docker-integration-tests
+    needs:
+      - integration-test
+      - docker-integration-tests
     if: always()
 
     steps:
@@ -576,8 +579,8 @@ jobs:
     environment: integration-tests
     runs-on: ubuntu-latest
     needs: integration-test
-    #if: always()
-    if: false
+    if: always()
+    # if: false
     env:
       tf_actions_working_dir: "${{ github.workspace }}/test-infra/terraform/test-environment"
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
