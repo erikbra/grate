@@ -81,7 +81,8 @@ jobs:
         path: ./publish/${{ matrix.arch }}/self-contained/*
 
   build-standalone-mac-arm64:
-    if: false
+    #if: false
+    if: ${{ !cancelled() }}
     name: Build cli
     needs: set-version-number
 
@@ -147,7 +148,8 @@ jobs:
         path: ./integration-tests/${{ matrix.arch }}/*
 
   build-tests-mac-arm64:
-    if: false
+    #if: false
+    if: ${{ !cancelled() }}
     name: Build tests
     needs: set-version-number
 
