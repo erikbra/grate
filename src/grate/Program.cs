@@ -26,13 +26,19 @@ public static class Program
 
     public static async Task<int> Main(string[] args)
     {
-        // Temporarily parse the configuration, to get the verbosity level
+        // Temporarily parse the configuration, to get the verbosity level, and potentially set parameters
+        // to support the "IsUpToDate" check.
         var cfg = await ParseGrateConfiguration(args);
+        if (cfg.UpToDateCheck)
+        {
+            cfg = cfg with { Verbosity = LogLevel.Critical, DryRun = true };
+        }
+
         _serviceProvider = BuildServiceProvider(cfg).CreateAsyncScope().ServiceProvider;
 
         var rootCommand = Create<MigrateCommand>();
         rootCommand.Add(Verbosity());
-        
+
         rootCommand.Description = $"grate v{GetVersion()} - sql for the 20s";
 
         var parser = new CommandLineBuilder(rootCommand)
@@ -79,7 +85,10 @@ public static class Program
         CommandLineGrateConfiguration cfg = new CommandLineGrateConfiguration();
         var handler = CommandHandler.Create((CommandLineGrateConfiguration config) => cfg = config);
 
-        var cmd = new MigrateCommand(null!) { Verbosity() };
+        var cmd = new MigrateCommand(null!)
+        {
+            Verbosity(),
+        };
 
         ParseResult p =
             new Parser(cmd).Parse(commandline);
@@ -126,6 +135,7 @@ public static class Program
                 options.LogToStandardErrorThreshold = LogLevel.Warning;
             })
             .AddFilter("Grate.Migration.Internal", LogLevel.Critical)
+            .AddFilter("Grate.Migration.IsUpToDate", LogLevel.Information)
             .SetMinimumLevel(config.Verbosity)
             .AddConsoleFormatter<GrateConsoleFormatter, SimpleConsoleFormatterOptions>());
         
@@ -145,7 +155,7 @@ public static class Program
     }
 
     internal static Option<LogLevel> Verbosity() => new(
-        new[] { "-v", "--verbosity" },
+        ["-v", "--verbosity"],
         "Verbosity level (as defined here: https://docs.microsoft.com/dotnet/api/Microsoft.Extensions.Logging.LogLevel)");
 
     private static T Create<T>() where T : notnull => _serviceProvider.GetRequiredService<T>();

@@ -39,7 +39,9 @@ internal record GrateMigrator : IGrateMigrator
             DbMigrator.Database = value;
         }
     }
-    
+
+    public MigrationResult MigrationResult { get; } = new();
+
     public IGrateMigrator WithConfiguration(GrateConfiguration configuration)
     {
         return this with { Configuration = configuration };
@@ -225,6 +227,18 @@ internal record GrateMigrator : IGrateMigrator
                 // Ignore!
             }
         }
+        
+        // If it's an up-to-date check, we output on the console if it's up-to-date or not.
+        if (config.UpToDateCheck)
+        {
+            var logger = _loggerFactory.CreateLogger(LogCategory + ".IsUpToDate");
+            
+            logger.LogInformation("Up to date: {IsUpToDate}", MigrationResult.IsUpToDate);
+            foreach (var script in MigrationResult.ScriptsRun)
+            {
+                logger.LogDebug("Changed script: {ScriptName}", script);
+            }
+        }
 
         _logger.LogInformation(
             "\n\ngrate v{Version} (build date {BuildDate}) has grated your database ({DatabaseName})! You are now at version {NewVersion}. All changes and backups can be found at \"{ChangeDropFolder}\".",
@@ -235,8 +249,6 @@ internal record GrateMigrator : IGrateMigrator
             changeDropFolder);
 
         Separator(' ');
-
-
     }
 
     private async Task EnsureConnectionIsOpen(ConnectionType connectionType)
@@ -408,6 +420,7 @@ internal record GrateMigrator : IGrateMigrator
                 if (theSqlRan)
                 {
                     anySqlRun = true;
+                    AddScriptRunToResult(folder, fileNameToLog);
                     try
                     {
                         CopyToChangeDropFolder(path.Parent!, file, changeDropFolder);
@@ -460,6 +473,7 @@ internal record GrateMigrator : IGrateMigrator
             if (theSqlRan)
             {
                 anySqlRun = true;
+                AddScriptRunToResult(folder, fileNameToLog);
                 try
                 {
                     CopyToChangeDropFolder(path.Parent!, file, changeDropFolder);
@@ -471,7 +485,7 @@ internal record GrateMigrator : IGrateMigrator
             }
         }
 
-        if (!anySqlRun)
+        if (!anySqlRun && !DbMigrator.Configuration.DryRun)
         {
             _logger.LogInformation(" No sql run, either an empty folder, or all files run against destination previously.");
         }
@@ -479,6 +493,7 @@ internal record GrateMigrator : IGrateMigrator
         return anySqlRun;
 
     }
+
 
 
     private void CopyToChangeDropFolder(DirectoryInfo migrationRoot, FileSystemInfo file, string changeDropFolder)
@@ -662,6 +677,16 @@ internal record GrateMigrator : IGrateMigrator
             internalFolderName,
             sqlFolderNamePrefix);
         return internalMigrationFolders;
+    }
+    
+    private void AddScriptRunToResult(MigrationsFolder folder, string fileNameToLog)
+    {
+        MigrationResult.AddScriptRun(fileNameToLog);
+        // If we (would have) run a script that is not an EveryTime script, we were not up to date.
+        if (folder.Type != MigrationType.EveryTime)
+        {
+            MigrationResult.IsUpToDate = false;
+        }
     }
 
     public async ValueTask DisposeAsync()

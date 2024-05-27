@@ -72,13 +72,13 @@ public record MockDbMigrator: IDbMigrator
         throw new NotImplementedException();
     }
 
-    public Task<bool> RunSql(string sql, string scriptName, MigrationsFolder folder, long versionId, GrateEnvironment? environment,
+    public virtual Task<bool> RunSql(string sql, string scriptName, MigrationsFolder folder, long versionId, GrateEnvironment? environment,
         ConnectionType connectionType, TransactionHandling transactionHandling)
     {
         return Task.FromResult(false);
     }
 
-    public Task<bool> RunSqlWithoutLogging(string sql, string scriptName, GrateEnvironment? environment, ConnectionType connectionType,
+    public virtual Task<bool> RunSqlWithoutLogging(string sql, string scriptName, GrateEnvironment? environment, ConnectionType connectionType,
         TransactionHandling transactionHandling)
     {
         throw new NotImplementedException();
