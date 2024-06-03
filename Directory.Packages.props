@@ -32,6 +32,6 @@
     <PackageVersion Include="Testcontainers.MsSql" Version="3.8.0" />
     <PackageVersion Include="Xunit.DependencyInjection" Version="9.3.0" />
     <PackageVersion Include="Xunit.DependencyInjection.Logging" Version="9.0.0" />
-    <PackageVersion Include="MartinCostello.Logging.XUnit" Version="0.3.0" />
+    <PackageVersion Include="MartinCostello.Logging.XUnit" Version="0.4.0" />
   </ItemGroup>
 </Project>
