@@ -25,8 +25,8 @@
     <PackageVersion Include="NSubstitute" Version="5.1.0" />
     <PackageVersion Include="XunitXml.TestLogger" Version="3.1.20" />
     <PackageVersion Include="coverlet.collector" Version="6.0.2" />
-    <PackageVersion Include="Testcontainers" Version="3.8.0" />
-    <PackageVersion Include="Testcontainers.PostgreSql" Version="3.8.0" />
+    <PackageVersion Include="Testcontainers" Version="3.9.0" />
+    <PackageVersion Include="Testcontainers.PostgreSql" Version="3.9.0" />
     <PackageVersion Include="Testcontainers.MariaDb" Version="3.8.0" />
     <PackageVersion Include="Testcontainers.Oracle" Version="3.8.0" />
     <PackageVersion Include="Testcontainers.MsSql" Version="3.8.0" />
