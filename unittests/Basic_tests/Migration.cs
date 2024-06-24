@@ -20,7 +20,7 @@ public class Migration
     [Fact]
     public async Task Does_not_output_qny_sql_run_in_dryrun_mode()
     {
-        var dbMigrator = GetDbMigrator(true);
+        var dbMigrator = GetDbMigrator(true, baseline: false);
         var migrator = new GrateMigrator(_loggerFactory, dbMigrator);
         await migrator.Migrate();
         _logger.LoggedMessages.Should().NotContain(" No sql run, either an empty folder, or all files run against destination previously.");
@@ -29,16 +29,25 @@ public class Migration
     [Fact]
     public async Task Outputs_no_sql_run_in_live_mode()
     {
-        var dbMigrator = GetDbMigrator(false);
+        var dbMigrator = GetDbMigrator(false, baseline: false);
         var migrator = new GrateMigrator(_loggerFactory, dbMigrator);
         await migrator.Migrate();
         _logger.LoggedMessages.Should().Contain(" No sql run, either an empty folder, or all files run against destination previously.");
     }
 
+    [Fact]
+    public async Task Outputs_baseline_info_in_baseline_mode()
+    {
+        var dbMigrator = GetDbMigrator(false, baseline: true);
+        var migrator = new GrateMigrator(_loggerFactory, dbMigrator);
+        await migrator.Migrate();
+        _logger.LoggedMessages.Should().Contain("Running a baseline run. No scripts will be actually be run, but the scripts will be marked as run.");
+    }
+
     private static DirectoryInfo Wrap(DirectoryInfo root, string? subFolder) =>
         new(Path.Combine(root.ToString(), subFolder ?? ""));
 
-    private static IDbMigrator GetDbMigrator(bool dryRun)
+    private static IDbMigrator GetDbMigrator(bool dryRun, bool baseline)
     {
         var parent = TestConfig.CreateRandomTempDirectory();
         var knownFolders = FoldersConfiguration.Default();
@@ -53,7 +62,8 @@ public class Migration
         {
             NonInteractive = true,
             SqlFilesDirectory = parent,
-            DryRun = dryRun
+            DryRun = dryRun,
+            Baseline = baseline
         };
         var dbMigrator = new MockDbMigrator() { Configuration = configuration };
 

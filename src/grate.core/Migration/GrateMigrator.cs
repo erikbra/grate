@@ -81,6 +81,9 @@ internal record GrateMigrator : IGrateMigrator
             database.ServerName,
             database.DatabaseName
         );
+        
+        if(config.Baseline)
+            _logger.LogInformation("Running a baseline run. No scripts will be actually be run, but the scripts will be marked as run.");
 
         _logger.LogInformation("Looking in {UpFolder} for scripts to run.", config.SqlFilesDirectory);
 
