@@ -28,7 +28,7 @@ public abstract record AnsiSqlDatabase : IDatabase
 
     public void SetLogger(ILogger logger) => Logger = logger;
 
-    private IDictionary<string, string>? _scriptsRunCache;
+    private IDictionary<string, IDictionary<string, string>>? _scriptsRunCache;
     
     private readonly List<Func<DbConnection, Task>> _deferredWrites = new();
 
@@ -475,8 +475,25 @@ WHERE id = (SELECT MAX(id) FROM {ScriptsRunTable} sr2 WHERE sr2.script_name = sr
         }
     }
 
+    private async Task<IDictionary<string, string>> GetScriptsRunCache()
+    {
+        if (_scriptsRunCache == null)
+        {
+            var data = await GetAllScriptsRun();
+            _scriptsRunCache = new Dictionary<string, IDictionary<string, string>> {{ScriptsRunTable, data}};
+            return data;
+    }
 
-    private async Task<IDictionary<string, string>> GetScriptsRunCache() => _scriptsRunCache ??= await GetAllScriptsRun();
+        var cacheDataFound = _scriptsRunCache.TryGetValue(ScriptsRunTable, out var scriptsRunCache);
+        if (cacheDataFound == false)
+        {
+            var data = await GetAllScriptsRun();
+            _scriptsRunCache = new Dictionary<string, IDictionary<string, string>> {{ScriptsRunTable, data}};
+            return data;
+        }
+
+        return scriptsRunCache!;
+    }
 
     protected virtual string Parameterize(string sql) => sql;
 
