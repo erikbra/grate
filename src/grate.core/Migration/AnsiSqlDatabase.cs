@@ -488,7 +488,7 @@ WHERE id = (SELECT MAX(id) FROM {ScriptsRunTable} sr2 WHERE sr2.script_name = sr
         if (cacheDataFound == false)
         {
             var data = await GetAllScriptsRun();
-            _scriptsRunCache = new Dictionary<string, IDictionary<string, string>> {{ScriptsRunTable, data}};
+            _scriptsRunCache.Add(ScriptsRunTable, data);
             return data;
         }
 
