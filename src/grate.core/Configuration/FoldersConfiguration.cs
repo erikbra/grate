@@ -37,7 +37,7 @@ internal class FoldersConfiguration : Dictionary<string, MigrationsFolder?>, IFo
         {
             { KnownFolderKeys.BeforeMigration, new MigrationsFolder("BeforeMigration", folderNames.BeforeMigration, EveryTime, TransactionHandling: TransactionHandling.Autonomous) },
             { KnownFolderKeys.AlterDatabase , new MigrationsFolder("AlterDatabase", folderNames.AlterDatabase, AnyTime, ConnectionType.Admin, TransactionHandling.Autonomous) },
-            { KnownFolderKeys.RunAfterCreateDatabase, new MigrationsFolder("Run After Create Database", folderNames.RunAfterCreateDatabase, AnyTime) },
+            { KnownFolderKeys.RunAfterCreateDatabase, new MigrationsFolder("RunAfterCreateDatabase", folderNames.RunAfterCreateDatabase, AnyTime) },
             { KnownFolderKeys.RunBeforeUp,  new MigrationsFolder("Run Before Update", folderNames.RunBeforeUp, AnyTime) },
             { KnownFolderKeys.Up, new MigrationsFolder("Update", folderNames.Up, Once) },
             { KnownFolderKeys.RunFirstAfterUp, new MigrationsFolder("Run First After Update", folderNames.RunFirstAfterUp, AnyTime) },
