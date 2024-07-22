@@ -610,7 +610,10 @@ internal record GrateMigrator : IGrateMigrator
             [
                 "ScriptsRunTable=GrateScriptsRun",
                 "ScriptsRunErrorsTable=GrateScriptsRunErrors",
-                "VersionTable=GrateVersion"
+                "VersionTable=GrateVersion",
+                "ScriptsRunTableLowerCase=grateversion",
+                "ScriptsRunErrorsTableLowerCase=gratescriptrunerrors",
+                "VersionTableLowerCase=grateversion"
             ],
             DeferWritingToRunTables = true,
             Environment = GrateEnvironment.InternalBootstrap,
@@ -664,7 +667,10 @@ internal record GrateMigrator : IGrateMigrator
             UserTokens = [
                 $"ScriptsRunTable={thisConfig.ScriptsRunTableName}",
                 $"ScriptsRunErrorsTable={thisConfig.ScriptsRunErrorsTableName}",
-                $"VersionTable={thisConfig.VersionTableName}"
+                $"VersionTable={thisConfig.VersionTableName}",
+                $"ScriptsRunTableLowerCase={thisConfig.ScriptsRunTableName.ToLower()}",
+                $"ScriptsRunErrorsTableLowerCase={thisConfig.ScriptsRunErrorsTableName.ToLower()}",
+                $"VersionTableLowerCase={thisConfig.VersionTableName.ToLower()}"
             ],
             
             Environment = GrateEnvironment.Internal

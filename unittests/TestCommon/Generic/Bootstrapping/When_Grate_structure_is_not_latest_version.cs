@@ -24,11 +24,10 @@ public abstract class When_Grate_structure_is_not_latest_version(IGrateTestConte
         var db = TestConfig.RandomDatabase();
         var parent = CreateRandomTempDirectory();
         
-        // This will create the version table without the status column, with different casings
-
+        // This will create the version table without the status column, with lower-case
         var cfg = Context.DefaultConfiguration with
         {
-            VersionTableName = versionTableName
+            VersionTableName = versionTableName.ToLower()
         };
            
         var config = GrateConfigurationBuilder.Create(cfg)
@@ -88,22 +87,22 @@ public abstract class When_Grate_structure_is_not_latest_version(IGrateTestConte
         TryClose(conn);
         columns.Should().NotContain("status".ToUpper());
         
-        // Reset the config to use the default column casings, to make sure that the status column is added even if the
+        // Reset the config to use the actual column casings, to make sure that the status column is added even if the
         // already "existing" tables (which we just created above, with varying casings), are updated, even if the
         // casing of the default configuration is different from the standard one
-        var standardConfig = config with
+        var actualConfig = config with
         {
-            VersionTableName = GrateConfiguration.Default.VersionTableName,
+            VersionTableName = versionTableName
         };
         
         // Run the migration
-        await using (var migrator = Context.Migrator.WithConfiguration(standardConfig))
+        await using (var migrator = Context.Migrator.WithConfiguration(actualConfig))
         {
             await RunMigration(migrator);
         }
         
         // Check that the status column has been added
-        tableWithSchema = Context.Syntax.TableWithSchema(standardConfig.SchemaName, standardConfig.VersionTableName);
+        tableWithSchema = Context.Syntax.TableWithSchema(actualConfig.SchemaName, actualConfig.VersionTableName);
         selectSql = $"SELECT * FROM {tableWithSchema}";
 
         conn = Context.CreateDbConnection(db);
@@ -119,16 +118,20 @@ public abstract class When_Grate_structure_is_not_latest_version(IGrateTestConte
     
     
     [Theory]
-    [MemberData(nameof(VersionTableWithDifferentCasings))]
-    public virtual async Task The_table_name_casings_are_converted_if_needed(string versionTableName)
+    [MemberData(nameof(TablesWithDifferentCasings))]
+    public virtual async Task The_table_name_casings_are_converted_if_needed(
+        string scriptsRun, string scriptsRunErrors, string version)
     {
         var db = TestConfig.RandomDatabase();
         var parent = CreateRandomTempDirectory();
         
-        // This will create the version table with the supplied casing
+        // This will create the ScriptsRun, ScriptsRunErrors and Version tables
+        // with lower-case version of the supplied casing
         var cfg = Context.DefaultConfiguration with
         {
-            VersionTableName = versionTableName
+            VersionTableName = version.ToLower(),
+            ScriptsRunTableName = scriptsRun.ToLower(),
+            ScriptsRunErrorsTableName = scriptsRunErrors.ToLower(),
         };
            
         var config = GrateConfigurationBuilder.Create(cfg)
@@ -152,7 +155,7 @@ public abstract class When_Grate_structure_is_not_latest_version(IGrateTestConte
         
         var conn = Context.CreateDbConnection(db);
 
-        // Manually create the script tables, with varying casing (supplied as Theory attributes)
+        // Manually create the script tables, with modified casing
         var resources = TestInfrastructure.Bootstrapping.GetBootstrapScripts(this.Context.DatabaseType, "Baseline");
         foreach (var resource in resources)
         {
@@ -168,43 +171,47 @@ public abstract class When_Grate_structure_is_not_latest_version(IGrateTestConte
 
         conn.Close();
      
-        // Check that the table exists in the DB, with their various casing
+        // Check that the table exists in the DB, with lower-case
         // - Selecting from the table with a non-existing table name would throw an exception
-        var tableWithSchema = Context.Syntax.TableWithSchema(config.SchemaName, config.VersionTableName);
-        var selectSql = $"SELECT * FROM {tableWithSchema}";
+        await CheckThatTableExists(config.VersionTableName, config.SchemaName);
+        await CheckThatTableExists(config.ScriptsRunTableName, config.SchemaName);
+        await CheckThatTableExists(config.ScriptsRunErrorsTableName, config.SchemaName);
         
-        conn = Context.CreateDbConnection(db);
-        var reader = await conn.ExecuteReaderAsync(selectSql);
-        
-        var columns = GetColumns(reader).Select(column => column.ToUpper());
-        TryClose(conn);
-        columns.Should().HaveCountGreaterThan(2);
-        
-        // Reset the config to use the default column names, and run the migration. Then, select from the version table
-        // with the default table name, and see that it has been converted to the default casing (if needed by the DB provider),
+        // Reset the config to use the supplied column names, and run the migration. Then, select from the version table
+        // with the supplied table name, and see that it has been converted to the default casing (if needed by the DB provider),
         // i.e., we can still select from it.
-        
-        var standardConfig = config with
+        var actualConfig = config with
         {
-            VersionTableName = GrateConfiguration.Default.VersionTableName,
+            VersionTableName = version,
+            ScriptsRunTableName = scriptsRun,
+            ScriptsRunErrorsTableName = scriptsRunErrors,
         };
         
         // Run the migration
-        await using (var migrator = Context.Migrator.WithConfiguration(standardConfig))
+        await using (var migrator = Context.Migrator.WithConfiguration(actualConfig))
         {
             await RunMigration(migrator);
         }
         
-        // Check that the tables can be selected from, using the standard table names.
-        tableWithSchema = Context.Syntax.TableWithSchema(standardConfig.SchemaName, standardConfig.VersionTableName);
-        selectSql = $"SELECT * FROM {tableWithSchema}";
-
-        conn = Context.CreateDbConnection(db);
-        reader = await conn.ExecuteReaderAsync(selectSql);
+        // Check that the tables can be selected from, using the supplied table names.
+        await CheckThatTableExists(actualConfig.VersionTableName, config.SchemaName);
+        await CheckThatTableExists(actualConfig.ScriptsRunTableName, config.SchemaName);
+        await CheckThatTableExists(actualConfig.ScriptsRunErrorsTableName, config.SchemaName);
         
-        columns = GetColumns(reader);
-        TryClose(conn);
-        columns.Should().HaveCountGreaterThan(2);
+        return;
+
+        async Task CheckThatTableExists(string tableName, string schemaName)
+        {
+            var tableWithSchema = Context.Syntax.TableWithSchema(schemaName, tableName);
+            var selectSql = $"SELECT * FROM {tableWithSchema}";
+
+            conn = Context.CreateDbConnection(db);
+            var reader = await conn.ExecuteReaderAsync(selectSql);
+        
+            var columns = GetColumns(reader);
+            TryClose(conn);
+            columns.Should().HaveCountGreaterThan(2);
+        }
     }
 
     public static TheoryData<string> VersionTableWithDifferentCasings()
@@ -213,9 +220,35 @@ public abstract class When_Grate_structure_is_not_latest_version(IGrateTestConte
         return new TheoryData<string>
         {
             def.VersionTableName,
-            def.VersionTableName.ToLower()
+            def.VersionTableName.ToLower(),
+            def.VersionTableName.ToUpper()
         };
     }
+    
+    public static TheoryData<string, string, string> TablesWithDifferentCasings()
+    {
+        var def = GrateConfiguration.Default;
+
+        var all = from scriptsRun in DifferentPermutations(def.ScriptsRunTableName)
+            from scriptsRunErrors in DifferentPermutations(def.ScriptsRunErrorsTableName)
+            from versionTableName in DifferentPermutations(def.VersionTableName)
+            select (scriptsRun, scriptsRunErrors, versionTableName);
+
+        var data = new TheoryData<string, string, string>();
+        foreach (var (run, errors, version) in all)
+        {
+            data.Add(run, errors, version);
+        }
+        return data;
+    }
+
+    private static IEnumerable<string> DifferentPermutations(string original) =>
+        [
+            original,
+            original.ToLower(),
+            //original.ToUpper(),
+            new string(original.ToCharArray().Select(c => Random.Shared.Next(2) == 0 ? c : Char.ToUpper(c)).ToArray())
+        ];
 
     private async Task RunMigration(IGrateMigrator migrator)
     {
