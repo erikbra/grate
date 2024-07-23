@@ -157,94 +157,10 @@ public abstract class GenericDatabase(IGrateTestContext context, ITestOutputHelp
 
     protected Task CreateDatabase(string db) => CreateDatabaseFromConnectionString(db, Context.ConnectionString(db));
 
-    protected virtual async Task CreateDatabaseFromConnectionString(string db, string connectionString)
-    {
-        var uid = TestConfig.Username(connectionString);
-        var pwd = TestConfig.Password(connectionString);
+    protected virtual Task CreateDatabaseFromConnectionString(string db, string connectionString) =>
+        Context.CreateDatabaseFromConnectionString(db, connectionString, TestOutput);
 
-        using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
-        {
-            for (var i = 0; i < 5; i++)
-            {
-                try
-                {
-                    using var conn = Context.CreateAdminDbConnection();
-
-                    string? commandText = null;
-                    try
-                    {
-                        commandText = Context.Syntax.CreateDatabase(db, pwd);
-                        await conn.ExecuteAsync(commandText);
-                    }
-                    catch (DbException dbe)
-                    {
-                        TestOutput.WriteLine("Got error when creating database: " + dbe.Message);
-                        TestOutput.WriteLine("database: " + db);
-                        TestOutput.WriteLine("admin connection string: " + conn.ConnectionString);
-                        TestOutput.WriteLine("user connection string: " + connectionString);
-                        TestOutput.WriteLine("commandText: " + commandText);
-                    }
-
-                    string? createUserSql = null;
-                    try
-                    {
-                        createUserSql = Context.Sql.CreateUser(db, uid, pwd);
-                        if (createUserSql is not null)
-                        {
-                            await conn.ExecuteAsync(createUserSql);
-                        }
-                    }
-                    catch (DbException dbe)
-                    {
-                        TestOutput.WriteLine("Got error when creating user: " + dbe.Message);
-                        TestOutput.WriteLine("Error creating user: " + uid + " for database: " + db);
-                        TestOutput.WriteLine("admin connection string: " + conn.ConnectionString);
-                        TestOutput.WriteLine("user connection string: " + connectionString);
-                        TestOutput.WriteLine("createUserSql: " + createUserSql);
-                    }
-
-                    var grantAccessSql = Context.Sql.GrantAccess(db, uid);
-                    if (grantAccessSql is not null)
-                    {
-                        await conn.ExecuteAsync(grantAccessSql);
-                    }
-
-                    break;
-                }
-                catch (DbException dbe)
-                {
-                    TestOutput.WriteLine($"Got error in loop, iteration: {i}: {dbe.Message}");
-                }
-
-                await Task.Delay(1000);
-            }
-        }
-    }
-
-    protected virtual async Task<IEnumerable<string>> GetDatabases()
-    {
-        IEnumerable<string> databases = Enumerable.Empty<string>();
-        string sql = Context.Syntax.ListDatabases;
-
-        using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
-        {
-            for (var i = 0; i < 5; i++)
-            {
-                using var conn = Context.CreateAdminDbConnection();
-                try
-                {
-                    databases = (await conn.QueryAsync<string>(sql)).ToArray();
-                    break;
-                }
-                catch (DbException dbe)
-                {
-                    TestOutput.WriteLine("Got error when listing databases: " + dbe.Message);
-                    TestOutput.WriteLine("admin connection string: " + conn.ConnectionString);
-                }
-            }
-        }
-        return databases.ToArray();
-    }
+    protected virtual Task<IEnumerable<string>> GetDatabases() => Context.GetDatabases(TestOutput);
 
     protected virtual bool ThrowOnMissingDatabase => true;
 

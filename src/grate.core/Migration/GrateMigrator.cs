@@ -156,7 +156,7 @@ internal record GrateMigrator : IGrateMigrator
 
                 // This is an ugly "if" run on every script, to check one special folder which has conditions.
                 // If possible, we should find a 'cleaner' way to do this.
-                if (nameof(KnownFolderNames.RunAfterCreateDatabase).Equals(folder?.Name) && !databaseCreated)
+                if (KnownFolderKeys.RunAfterCreateDatabase.Equals(folder?.Key) && !databaseCreated)
                 {
                     continue;
                 }

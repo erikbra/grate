@@ -13,6 +13,7 @@ namespace grate.Configuration;
 /// <param name="TransactionHandling">Whether to roll back this folder if something fails, or run these
 /// scripts in a separate, autonomous transactions, which makes them run no matter if other stuff errors.</param>
 public record MigrationsFolder(
+        string Key,
         string Name,
         string Path,
         MigrationType Type = MigrationType.Once,
@@ -21,12 +22,21 @@ public record MigrationsFolder(
 {
     public MigrationsFolder(
         string name,
+        string path,
         MigrationType type = MigrationType.Once,
         ConnectionType connectionType = ConnectionType.Default,
         TransactionHandling transactionHandling = TransactionHandling.Default)
-        : this(name, name, type, connectionType, transactionHandling)
+        : this(name, name, path, type, connectionType, transactionHandling)
+    { }
+    
+    public MigrationsFolder(
+        string name,
+        MigrationType type = MigrationType.Once,
+        ConnectionType connectionType = ConnectionType.Default,
+        TransactionHandling transactionHandling = TransactionHandling.Default)
+        : this(name, name, name, type, connectionType, transactionHandling)
     { }
 
     public override string ToString() => 
-        $"{Name}=path:{Path},type:{Type},connectionType:{ConnectionType},transactionHandling:{TransactionHandling}";
+        $"{Key}=name:{Name},path:{Path},type:{Type},connectionType:{ConnectionType},transactionHandling:{TransactionHandling}";
 }

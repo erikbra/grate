@@ -1,4 +1,5 @@
 ﻿using grate.Migration;
+using static grate.Configuration.KnownFolderKeys;
 using static grate.Configuration.MigrationType;
 
 namespace grate.Configuration;
@@ -35,23 +36,23 @@ internal class FoldersConfiguration : Dictionary<string, MigrationsFolder?>, IFo
 
         var foldersConfiguration = new FoldersConfiguration()
         {
-            { KnownFolderKeys.BeforeMigration, new MigrationsFolder("BeforeMigration", folderNames.BeforeMigration, EveryTime, TransactionHandling: TransactionHandling.Autonomous) },
-            { KnownFolderKeys.AlterDatabase , new MigrationsFolder("AlterDatabase", folderNames.AlterDatabase, AnyTime, ConnectionType.Admin, TransactionHandling.Autonomous) },
-            { KnownFolderKeys.RunAfterCreateDatabase, new MigrationsFolder("Run After Create Database", folderNames.RunAfterCreateDatabase, AnyTime) },
-            { KnownFolderKeys.RunBeforeUp,  new MigrationsFolder("Run Before Update", folderNames.RunBeforeUp, AnyTime) },
-            { KnownFolderKeys.Up, new MigrationsFolder("Update", folderNames.Up, Once) },
-            { KnownFolderKeys.RunFirstAfterUp, new MigrationsFolder("Run First After Update", folderNames.RunFirstAfterUp, AnyTime) },
-            { KnownFolderKeys.Functions, new MigrationsFolder("Functions", folderNames.Functions, AnyTime) },
-            { KnownFolderKeys.Views, new MigrationsFolder("Views", folderNames.Views, AnyTime) },
-            { KnownFolderKeys.Sprocs, new MigrationsFolder("Stored Procedures", folderNames.Sprocs, AnyTime) },
-            { KnownFolderKeys.Triggers, new MigrationsFolder("Triggers", folderNames.Triggers, AnyTime) },
-            { KnownFolderKeys.Indexes, new MigrationsFolder("Indexes", folderNames.Indexes, AnyTime) },
-            { KnownFolderKeys.RunAfterOtherAnyTimeScripts, new MigrationsFolder("Run after Other Anytime Scripts", folderNames.RunAfterOtherAnyTimeScripts, AnyTime) },
-            { KnownFolderKeys.Permissions, new MigrationsFolder("Permissions", folderNames.Permissions, EveryTime, TransactionHandling: TransactionHandling.Autonomous) },
-            { KnownFolderKeys.AfterMigration, new MigrationsFolder("AfterMigration", folderNames.AfterMigration, EveryTime, TransactionHandling: TransactionHandling.Autonomous) },
+            { BeforeMigration, new MigrationsFolder(BeforeMigration, "BeforeMigration", folderNames.BeforeMigration, EveryTime, TransactionHandling: TransactionHandling.Autonomous) },
+            { AlterDatabase , new MigrationsFolder(AlterDatabase, "AlterDatabase", folderNames.AlterDatabase, AnyTime, ConnectionType.Admin, TransactionHandling.Autonomous) },
+            { RunAfterCreateDatabase, new MigrationsFolder(RunAfterCreateDatabase, "Run After Create Database", folderNames.RunAfterCreateDatabase, AnyTime) },
+            { RunBeforeUp,  new MigrationsFolder(RunBeforeUp, "Run Before Update", folderNames.RunBeforeUp, AnyTime) },
+            { Up, new MigrationsFolder(Up, "Update", folderNames.Up, Once) },
+            { RunFirstAfterUp, new MigrationsFolder(RunFirstAfterUp, "Run First After Update", folderNames.RunFirstAfterUp, AnyTime) },
+            { Functions, new MigrationsFolder(Functions, "Functions", folderNames.Functions, AnyTime) },
+            { Views, new MigrationsFolder(Views, "Views", folderNames.Views, AnyTime) },
+            { Sprocs, new MigrationsFolder(Sprocs, "Stored Procedures", folderNames.Sprocs, AnyTime) },
+            { Triggers, new MigrationsFolder(Triggers, "Triggers", folderNames.Triggers, AnyTime) },
+            { Indexes, new MigrationsFolder(Indexes, "Indexes", folderNames.Indexes, AnyTime) },
+            { RunAfterOtherAnyTimeScripts, new MigrationsFolder(RunAfterOtherAnyTimeScripts, "Run after Other Anytime Scripts", folderNames.RunAfterOtherAnyTimeScripts, AnyTime) },
+            { Permissions, new MigrationsFolder(Permissions, "Permissions", folderNames.Permissions, EveryTime, TransactionHandling: TransactionHandling.Autonomous) },
+            { AfterMigration, new MigrationsFolder(AfterMigration, "AfterMigration", folderNames.AfterMigration, EveryTime, TransactionHandling: TransactionHandling.Autonomous) },
         };
-        foldersConfiguration.CreateDatabase = new MigrationsFolder("CreateDatabase", folderNames.CreateDatabase, AnyTime, ConnectionType.Admin, TransactionHandling.Autonomous);
-        foldersConfiguration.DropDatabase = new MigrationsFolder("DropDatabase", folderNames.DropDatabase, AnyTime, ConnectionType.Admin, TransactionHandling.Autonomous);
+        foldersConfiguration.CreateDatabase = new MigrationsFolder(KnownFolderKeys.CreateDatabase, "CreateDatabase", folderNames.CreateDatabase, AnyTime, ConnectionType.Admin, TransactionHandling.Autonomous);
+        foldersConfiguration.DropDatabase = new MigrationsFolder(KnownFolderKeys.DropDatabase, "DropDatabase", folderNames.DropDatabase, AnyTime, ConnectionType.Admin, TransactionHandling.Autonomous);
 
         return foldersConfiguration;
     }
