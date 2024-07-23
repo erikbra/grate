@@ -46,6 +46,7 @@ public interface IDatabase : IAsyncDisposable, ICloneable
         TransactionHandling transactionHandling);
     Task InsertScriptRunError(string scriptName, string? sql, string errorSql, string errorMessage, long versionId);
     Task<bool> VersionTableExists();
+    Task<bool> GrateInternalTablesAreProperlyLogged();
     Task ChangeVersionStatus(string status, long versionId);
     Task DeleteVersionRecord(long versionId);
     void SetDefaultConnectionActive();
