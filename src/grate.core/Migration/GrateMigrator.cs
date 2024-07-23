@@ -633,8 +633,14 @@ internal record GrateMigrator : IGrateMigrator
         
         var internalMigrationFolders = await WriteInternalScriptsToTemporaryFolders(internalFolderName, sqlFolderNamePrefix);
 
-        // Check if the tables already exist or not. If they do, run in baseline mode.
-        var baseline = internalFolderName == "Baseline" && await this.Database.VersionTableExists();
+        // Check if the internal grate tables already exist or not.
+        // If they do, check if the tables are already logged as run in their own tables.
+        // If they are, the tables are already known to grate. If they are not, the tables are created by RoundhousE, or
+        // an earlier version of grate, and we need to run in baseline mode, to register the scripts as run, without
+        // actually running them. 
+        var baseline = internalFolderName == "Baseline"
+                       && await this.Database.VersionTableExists()
+                       && !(await this.Database.GrateInternalTablesAreProperlyLogged());
         
         // We might consider supporting other sources of the SQL scripts than the file system,
         // but for now, we write the internal scripts to file system before running them 

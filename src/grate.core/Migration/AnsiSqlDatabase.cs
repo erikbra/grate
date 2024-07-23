@@ -279,6 +279,17 @@ public abstract record AnsiSqlDatabase : IDatabase
         var prefix = SupportsSchemas ? string.Empty : _syntax.TableWithSchema(schemaName, string.Empty);
         return name?[prefix.Length..];
     }
+   
+    public async Task<bool> GrateInternalTablesAreProperlyLogged()
+    {
+        const string tableName = "GrateScriptsRun";
+
+        string existsSql = $"SELECT 1 FROM {_syntax.TableWithSchema(SchemaName, tableName)} WHERE script_name = '02_create_scripts_run_table.sql'";
+
+        var res = await ExecuteScalarAsync<int?>(ActiveConnection, existsSql);
+        return res is 1;
+    }
+    
 
     protected virtual string ExistsSql(string tableSchema, string fullTableName)
     {
