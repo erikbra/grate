@@ -17,10 +17,11 @@ internal static class KnownFolderKeys
     public const string RunAfterOtherAnyTimeScripts = nameof(RunAfterOtherAnyTimeScripts);
     public const string Permissions = nameof(Permissions);
     public const string AfterMigration = nameof(AfterMigration);
+    public const string DropDatabase = nameof(DropDatabase);
 
-    public static readonly IEnumerable<string> Keys = new[]
-    {
+    public static readonly IEnumerable<string> Keys =
+    [
         CreateDatabase, BeforeMigration, AlterDatabase, RunAfterCreateDatabase, RunBeforeUp, Up, RunFirstAfterUp, Functions, Views,
         Sprocs, Triggers, Indexes, RunAfterOtherAnyTimeScripts, Permissions, AfterMigration
-    };
+    ];
 }

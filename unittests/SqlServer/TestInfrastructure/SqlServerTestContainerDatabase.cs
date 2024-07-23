@@ -14,7 +14,7 @@ public record SqlServerTestContainerDatabase(
     : TestContainerDatabase(GrateTestConfig)
 {
     // Run with linux/amd86 on ARM architectures too, the docker emulation is good enough
-    public override string DockerImage => GrateTestConfig.DockerImage ?? "mcr.microsoft.com/mssql/server:2022-latest";
+    public override string DockerImage => GrateTestConfig.DockerImage ?? "mcr.microsoft.com/mssql/server:2022-preview-ubuntu-22.04";
     protected override int InternalPort => MsSqlBuilder.MsSqlPort;
     protected override string NetworkAlias => "sqlserver-test-container";
 
