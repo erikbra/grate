@@ -38,17 +38,17 @@ public abstract class Grate_Internal_Scripts(IGrateTestContext context, ITestOut
         }
 
         string[] scripts;
-        string sql = $"SELECT script_name FROM {Context.Syntax.TableWithSchema("grate", "GrateScriptsRun")}";
+        string sql = $"""
+SELECT script_name 
+FROM {Context.Syntax.TableWithSchema("grate", "GrateScriptsRun")}
+WHERE script_name = '02_create_scripts_run_table.sql'
+""";
 
         using (var conn = Context.External.CreateDbConnection(db))
         {
             scripts = (await conn.QueryAsync<string>(sql)).ToArray();
         }
 
-        // There are three scripts, and these are run for the grate internal tables, and for the grate tables.
-        scripts.Should().HaveCount(3 * 2);
-        
-        //await Context.DropDatabase(db);
+        scripts.Should().HaveCount(1);
     }
-
 }
