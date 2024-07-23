@@ -273,7 +273,7 @@ jobs:
             image: "mcr.microsoft.com/mssql/server:2022-preview-ubuntu-22.04"
           - name: "SqlServer 2019" 
             type: SqlServer
-            image: "mcr.microsoft.com/mssql/server:2019-latest"
+            image: "mcr.microsoft.com/mssql/server:2019-CU26-ubuntu-20.04"
           - name: "SqlServer 2017" 
             type: SqlServer
             image: "mcr.microsoft.com/mssql/server:2017-latest"
