@@ -286,8 +286,12 @@ public abstract record AnsiSqlDatabase : IDatabase
 
         string existsSql = $"SELECT 1 FROM {_syntax.TableWithSchema(SchemaName, tableName)} WHERE script_name = '02_create_scripts_run_table.sql'";
 
-        var res = await ExecuteScalarAsync<int?>(ActiveConnection, existsSql);
-        return res is 1;
+        if (await ExistingTable(SchemaName, tableName) is { })
+        {
+            var res = await ExecuteScalarAsync<int?>(ActiveConnection, existsSql);
+            return res is 1;
+        }
+        return false;
     }
     
 
