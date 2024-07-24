@@ -216,9 +216,11 @@ jobs:
 
     strategy:
       matrix:
-        arch:
-          - amd64
-          - arm64
+        config:
+          - arch: amd64
+            os: linux-musl
+          - arch: arm64
+            os: linux
 
     steps:
     - uses: actions/checkout@v4
@@ -235,7 +237,7 @@ jobs:
       with:
         tags: |
           type=semver,pattern={{version}}
-          type=semver,pattern={{version}},value=${{ needs.set-version-number.outputs.semVer }}-${{ matrix.arch }}
+          type=semver,pattern={{version}},value=${{ needs.set-version-number.outputs.semVer }}-${{ matrix.config.arch }}
           type=ref,event=tag
 
         images: ${{ env.IMAGE_NAME }}
@@ -248,8 +250,9 @@ jobs:
         context: .
         push: false
         build-args:
-          arch=${{ matrix.arch }}
-        platforms: linux/${{ matrix.arch }}
+          arch=${{ matrix.config.arch }}
+          os=${{ matrix.config.os }}
+        platforms: linux/${{ matrix.config.arch }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
 
@@ -262,12 +265,6 @@ jobs:
     env:
       REGISTRY: docker.io
       IMAGE_NAME: ${{ github.repository }}
-
-    strategy:
-      matrix:
-        arch:
-          - amd64
-          - arm64
 
     steps:
 
