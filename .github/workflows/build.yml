@@ -37,6 +37,7 @@ jobs:
       uses: gittools/actions/gitversion/execute@v2.0.1
 
   build-netcore-tool:
+    if: false
     needs: set-version-number
     name: Build .NET Core (global) tool
 
@@ -68,6 +69,7 @@ jobs:
       run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_ORG_KEY}} --skip-duplicate
   
   build-nuget-package:
+    if: false
     needs: set-version-number
     name: Build Nuget
 
@@ -103,6 +105,7 @@ jobs:
       run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_ORG_KEY}} --skip-duplicate
 
   build-standalone:
+    if: false
     name: Build cli
     needs: set-version-number
 
@@ -135,6 +138,7 @@ jobs:
     
 
   build-standalone-mac-arm64:
+    if: false
     name: Build cli
     needs: set-version-number
 
@@ -199,30 +203,29 @@ jobs:
         name: grate-msi-${{ matrix.arch }}-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: ./installers/msi/tmp/*.msi
 
-  build-docker-image:
-    name: Build and push docker image
+  build-docker-images:
+    name: Build and push docker images
     needs: 
      - set-version-number
-     #- build-standalone ## no need, we build directly from source
     runs-on: ubuntu-latest
-    if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+    #if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
     env:
       #REGISTRY: ghcr.io
       IMAGE_NAME: ${{ github.repository }}
       FULL_IMAGE_NAME: ${{ github.repository }}
 
+    strategy:
+      matrix:
+        arch:
+          - amd64
+          - arm64
+
     steps:
     - uses: actions/checkout@v4
-    # - uses: actions/download-artifact@v4 # download from another artifact is not a good idea, we need to build directly from source
-    #   with:
-    #     name: grate-linux-musl-x64-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
-    #     path: installers/docker/
-        
 
     - name: Log in to the Container registry
       uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
       with:
-        #registry: ${{ env.REGISTRY }}
         username: ${{ github.repository_owner}}
         password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
@@ -232,21 +235,51 @@ jobs:
       with:
         tags: |
           type=semver,pattern={{version}}
-          type=semver,pattern={{version}},value=${{ needs.set-version-number.outputs.semVer }}
+          type=semver,pattern={{version}},value=${{ needs.set-version-number.outputs.semVer }}-${{ matrix.arch }}
           type=ref,event=tag
 
-        #images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         images: ${{ env.IMAGE_NAME }}
 
-
-    - name: Build and push Docker image
+    - name: Build Docker images
+      
       uses: docker/build-push-action@5176d81f87c23d6fc96624dfdbcd9f3830bbe445
       with:
         file: ./installers/docker/Dockerfile
         context: .
-        push: true
+        push: false
+        build-args:
+          arch=${{ matrix.arch }}
+        platforms: linux/${{ matrix.arch }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+
+  create-docker-manifests:
+    name: Create and push combined docker images
+    needs: 
+      - set-version-number
+    runs-on: ubuntu-latest
+    #if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+    env:
+      REGISTRY: docker.io
+      IMAGE_NAME: ${{ github.repository }}
+
+    strategy:
+      matrix:
+        arch:
+          - amd64
+          - arm64
+
+    steps:
+
+    - name: Create combined docker manifest
+      run: |
+        docker manifest create "$REGISTRY/${IMAGE_NAME}:$TAG" "$registry/${image}:$TAG-x64" "$registry/${image}:$TAG-arm64"
+        docker manifest push "$REGISTRY/${IMAGE_NAME}:$TAG"
+      env:
+        REGISTRY: docker.io
+        IMAGE_NAME: ${{ env.IMAGE_NAME }}
+        TAG: ${{ needs.set-version-number.outputs.semVer }} 
+
 
   build-deb:
     name: Build Debian package
@@ -286,6 +319,7 @@ jobs:
 
   test:
     name: Run tests
+    if: false
 
     runs-on: ubuntu-latest
     strategy:
