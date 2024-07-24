@@ -125,9 +125,7 @@ internal record GrateMigrator : IGrateMigrator
         // Run these first without a transaction, to make sure the tables are created even on a potential rollback
         await CreateGrateStructure(dbMigrator);
 
-        string? newVersion;
-        long versionId;
-        (versionId, newVersion) = await VersionTheDatabase(dbMigrator);
+        var (versionId, newVersion) = await VersionTheDatabase(dbMigrator);
 
         Separator('=');
         _logger.LogInformation("Migration Scripts");
@@ -211,17 +209,17 @@ internal record GrateMigrator : IGrateMigrator
             // TODO: Clean up the try - catch here - it's only used in initial bootstrapping if the
             // TODO: version table _does_ exist, but it doesn't have the version table.
             // TODO: This will be just once for each of legacy RoundhousE databases migrated to grate.
-
             try
             {
                 //If we get here this means no exceptions are thrown above, so we can conclude the migration was successful!
-                if (anySqlRun)
+                if (anySqlRun || config.Baseline)
                 {
                     await DbMigrator.Database.ChangeVersionStatus(MigrationStatus.Finished, versionId);
                 }
                 else
                 {
-                    // as we have an issue with the versioning table, we need to delete the version record
+                    // Delete the version record if no actual migration was performed, to avoid having a lot of "no-op"
+                    // migrations if grate is run a lot without any changes
                     await DbMigrator.Database.DeleteVersionRecord(versionId);
                 }
             }
@@ -637,7 +635,7 @@ internal record GrateMigrator : IGrateMigrator
         // If they do, check if the tables are already logged as run in their own tables.
         // If they are, the tables are already known to grate. If they are not, the tables are created by RoundhousE, or
         // an earlier version of grate, and we need to run in baseline mode, to register the scripts as run, without
-        // actually running them. 
+        // actually running them.
         var baseline = internalFolderName == "Baseline"
                        && await this.Database.VersionTableExists()
                        && !(await this.Database.GrateInternalTablesAreProperlyLogged());

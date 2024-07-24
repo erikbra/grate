@@ -124,6 +124,45 @@ public abstract class When_Grate_internal_structure_does_not_exist(IGrateTestCon
         
         //await Context.DropDatabase(db);
     }
+                
+    [Fact]
+    [Trait("Category", "Versioning")]
+    public async Task A_version_with_the_current_application_version_is_inserted_into_the_GrateVersion_table()
+    {
+        var db = TestConfig.RandomDatabase();
+        var dbVersion = "1.2.3.1";
+
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = Folders.Default;
+        CreateDummySql(parent, knownFolders[Up]);
+
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .WithVersion(dbVersion)
+            .Build();
+
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
+        {
+            await migrator.Migrate();
+        }
+
+        IEnumerable<(string version, string status)> entries;
+        string sql = $"SELECT version, status FROM {Context.Syntax.TableWithSchema("grate", "GrateVersion")}";
+
+        using (var conn = Context.CreateDbConnection(db))
+        {
+            entries = (await conn.QueryAsync<(string version, string status)>(sql)).ToArray();
+        }
+
+        // There can be multiple internal migrations, one baseline, and some adjustments. So multiple entries are OK here
+        entries.Should().HaveCountGreaterThanOrEqualTo(1);
+        var version = entries.First();
+        version.version.Should().Be(ApplicationInfo.Version);
+        version.status.Should().Be(MigrationStatus.Finished);
+    }
+    
 
     // This  was failing, because the tokens were already replaced before the internal scripts were run,
     // and the tokens were lazily initialized. So we had to clear the tokens when running the internal scripts.
