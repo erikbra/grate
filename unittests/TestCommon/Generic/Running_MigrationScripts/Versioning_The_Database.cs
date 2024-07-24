@@ -119,6 +119,81 @@ public abstract class Versioning_The_Database(IGrateTestContext context, ITestOu
         
         //await Context.DropDatabase(db);
     }
+        
+    [Fact]
+    [Trait("Category", "Versioning")]
+    public async Task Migrating_creates_a_new_version_record()
+    {
+        var db = TestConfig.RandomDatabase();
+        var dbVersion = "1.2.3.1";
+
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = Folders.Default;
+        CreateDummySql(parent, knownFolders[Up]);
+
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .WithVersion(dbVersion)
+            .Build();
+
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
+        {
+            await migrator.Migrate();
+        }
+
+        IEnumerable<(string version, string status)> entries;
+        string sql = $"SELECT version, status FROM {Context.Syntax.TableWithSchema("grate", "Version")}";
+
+        using (var conn = Context.CreateDbConnection(db))
+        {
+            entries = (await conn.QueryAsync<(string version, string status)>(sql)).ToArray();
+        }
+
+        entries.Should().HaveCount(1);
+        var version = entries.Single();
+        version.version.Should().Be(dbVersion);
+        version.status.Should().Be(MigrationStatus.Finished);
+    }
+    
+    [Fact]
+    [Trait("Category", "Versioning")]
+    public async Task Migrating_creates_a_new_version_record_even_in_baseline_mode()
+    {
+        var db = TestConfig.RandomDatabase();
+        var dbVersion = "1.2.3.4";
+
+        var parent = CreateRandomTempDirectory();
+        var knownFolders = Folders.Default;
+        CreateDummySql(parent, knownFolders[Up]);
+
+        var config = GrateConfigurationBuilder.Create(Context.DefaultConfiguration)
+            .WithConnectionString(Context.ConnectionString(db))
+            .WithFolders(knownFolders)
+            .WithSqlFilesDirectory(parent)
+            .WithVersion(dbVersion)
+            .Baseline()
+            .Build();
+
+        await using (var migrator = Context.Migrator.WithConfiguration(config))
+        {
+            await migrator.Migrate();
+        }
+
+        IEnumerable<(string version, string status)> entries;
+        string sql = $"SELECT version, status FROM {Context.Syntax.TableWithSchema("grate", "Version")}";
+
+        using (var conn = Context.CreateDbConnection(db))
+        {
+            entries = (await conn.QueryAsync<(string version, string status)>(sql)).ToArray();
+        }
+
+        entries.Should().HaveCount(1);
+        var version = entries.Single();
+        version.version.Should().Be(dbVersion);
+        version.status.Should().Be(MigrationStatus.Finished);
+    }
     
     [Fact]
     [Trait("Category", "Versioning")]
