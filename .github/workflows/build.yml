@@ -207,7 +207,6 @@ jobs:
     name: Build and push docker images
     needs: 
      - set-version-number
-    runs-on: ubuntu-latest
     #if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
     env:
       #REGISTRY: ghcr.io
@@ -219,8 +218,11 @@ jobs:
         config:
           - arch: amd64
             os: linux-musl
+            runs-on: ubuntu-latest
           - arch: arm64
             os: linux
+            runs-on: macos-14
+    runs-on: ${{ matrix.config.runs-on }}
 
     steps:
     - uses: actions/checkout@v4
