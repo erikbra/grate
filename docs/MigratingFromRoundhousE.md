@@ -37,7 +37,6 @@ Rebuilding a decade old product from scratch takes time, and features have to be
 Expect this list to shrink over time.
 
 - `--defaultencoding`
-- `--isuptodate`
 - MSBuild Task.
 - Multiple Environments per run. Scripts can target multiple environments (`blah.env.test.uat.sql`), but each migration can only target a single environment.  If this is a limiting factor for  you please raise an issue to discuss.
 - Recovery Modes (`--simple`, `--recoverymode` etc).  A `runAfterCreateDatabase` script using `alter {{DatabaseName}} ...` may work for you in the meantime.

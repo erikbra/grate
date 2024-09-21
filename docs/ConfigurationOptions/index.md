@@ -45,5 +45,6 @@ grate --connectionstring="Server=(localdb)\MSSQLLocalDB;Integrated Security=true
 | -ni<br>--noninteractive<br>--silent | false | **Silent** - tells grate not to ask for any input when it runs.
 | -r<br>--repo<br>--repositorypath <repositorypath> | - | **Repository Path** - RepositoryPath - The repository. A string that can be anything. Used to track versioning along with the version. Defaults to `null`. |
 | --version <version> | 1.0.0.0 | **Database Version** - specify the version of the current migration directly on the command line. |
+| --isuptodate<br>--uptodatecheck | - | Outputs whether the database is up to date or not (whether any non-everytime scripts would be run) |
 | -v<br>--verbosity &lt;Critical\|<br>Debug\|<br>Error\|<br>Information\|<br>None\|<br>Trace\|Warning&gt; | Information | **Verbosity level** (as defined here: https://docs.microsoft.com/dotnet/api/Microsoft.Extensions.Logging.LogLevel)
 | -?<br>-h<br>--help | - |  Show help and usage information | 
