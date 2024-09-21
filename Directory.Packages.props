@@ -13,7 +13,7 @@
     <PackageVersion Include="Microsoft.Data.SqlClient" Version="5.2.2" />
     <PackageVersion Include="Dapper" Version="2.1.35" />
     <PackageVersion Include="MySqlConnector" Version="2.3.7" />
-    <PackageVersion Include="Oracle.ManagedDataAccess.Core" Version="3.21.140" />
+    <PackageVersion Include="Oracle.ManagedDataAccess.Core" Version="23.5.1" />
     <!--
       Note: the following references are exclusively used in the test projects:
     -->
