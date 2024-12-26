@@ -12,6 +12,3 @@ BEGIN
     ALTER TABLE {{SchemaName}}_{{VersionTable}}
     ADD COLUMN status varchar(50) NULL;
 END;
-CALL create_{{SchemaName}}_{{VersionTable}}();
-
-DROP PROCEDURE create_{{SchemaName}}_{{VersionTable}}

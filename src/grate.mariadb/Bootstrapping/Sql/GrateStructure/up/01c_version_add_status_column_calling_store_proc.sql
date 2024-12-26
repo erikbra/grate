@@ -1,0 +1,1 @@
+CALL create_{{SchemaName}}_{{VersionTable}}();
