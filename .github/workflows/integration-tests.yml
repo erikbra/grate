@@ -30,10 +30,10 @@ jobs:
       #is-release: 'true'
     
     steps:
-    - name: Setup .NET 8
+    - name: Setup .NET 9
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 9.0.x
     - name: Checkout
       uses: actions/checkout@v4
       with:
@@ -64,10 +64,10 @@ jobs:
           # - osx-x64
     steps:
     - uses: actions/checkout@v4
-    - name: Setup .NET 8
+    - name: Setup .NET 9
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 9.0.x
 
     - name: Publish self-contained ${{ matrix.arch }}
       run: dotnet publish ./src/grate/grate.csproj -f net8.0 -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
@@ -98,10 +98,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Setup .NET 8
+    - name: Setup .NET 9
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 9.0.x
 
     - name: Publish self-contained ${{ matrix.arch }}
       run: dotnet publish ./src/grate/grate.csproj -f net8.0 -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
@@ -127,10 +127,10 @@ jobs:
           #- osx-x64
     steps:
     - uses: actions/checkout@v4
-    - name: Setup .NET 8
+    - name: Setup .NET 9
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 9.0.x
 
     - name: Build Test DLLs ${{ matrix.arch }}
       run: |
@@ -158,10 +158,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Setup .NET 8
+    - name: Setup .NET 9
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 9.0.x
 
     - name: Build Test DLLs ${{ matrix.arch }}
       run: |
@@ -334,10 +334,10 @@ jobs:
         name: integration-tests-linux-x64-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: integration-tests/linux-x64
 
-    - name: Setup .NET 8
+    - name: Setup .NET 9
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 9.0.x
 
     - name: chmod u+x
       run: chmod u+x $GrateExecutablePath
@@ -445,10 +445,10 @@ jobs:
         name: integration-tests-${{ matrix.os.arch }}-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: integration-tests/${{ matrix.os.arch }}
 
-    - name: Setup .NET 8
+    - name: Setup .NET 9
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 9.0.x
 
     - name: chmod u+x
       run: chmod u+x $GrateExecutablePath
