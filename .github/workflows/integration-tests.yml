@@ -292,6 +292,9 @@ jobs:
           - name: "PostgreSQL 12" 
             type: PostgreSQL
             image: "postgres:12"
+          - name: "MariaDB 10.4" 
+            type: MariaDB
+            image: "mariadb:10.4"
           - name: "MariaDB 10.10" 
             type: MariaDB
             image: "mariadb:10.10"
