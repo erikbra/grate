@@ -29,7 +29,7 @@ jobs:
       run: |
        dotnet restore -r linux-x64 grate.sln
     - name: Build
-      run: dotnet build -f net8.0 --no-restore --no-self-contained -r linux-x64 src/grate/grate.csproj -c release
+      run: dotnet build -f net9.0 --no-restore --no-self-contained -r linux-x64 src/grate/grate.csproj -c release
 
 
   analyze:

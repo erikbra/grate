@@ -121,7 +121,7 @@ jobs:
         dotnet-version: 9.0.x
 
     - name: Publish self-contained ${{ matrix.arch }}
-      run: dotnet publish ./src/grate/grate.csproj -f net8.0 -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
+      run: dotnet publish ./src/grate/grate.csproj -f net9.0 -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
 
@@ -157,7 +157,7 @@ jobs:
         dotnet-version: 9.0.x
 
     - name: Publish self-contained ${{ matrix.arch }}
-      run: dotnet publish ./src/grate/grate.csproj -f net8.0 -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
+      run: dotnet publish ./src/grate/grate.csproj -f net9.0 -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
 

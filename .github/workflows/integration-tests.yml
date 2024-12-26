@@ -70,7 +70,7 @@ jobs:
         dotnet-version: 9.0.x
 
     - name: Publish self-contained ${{ matrix.arch }}
-      run: dotnet publish ./src/grate/grate.csproj -f net8.0 -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
+      run: dotnet publish ./src/grate/grate.csproj -f net9.0 -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
 
@@ -104,7 +104,7 @@ jobs:
         dotnet-version: 9.0.x
 
     - name: Publish self-contained ${{ matrix.arch }}
-      run: dotnet publish ./src/grate/grate.csproj -f net8.0 -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
+      run: dotnet publish ./src/grate/grate.csproj -f net9.0 -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
 
@@ -135,7 +135,7 @@ jobs:
     - name: Build Test DLLs ${{ matrix.arch }}
       run: |
         dotnet restore -r ${{ matrix.arch }} unittests/UnitTests.slnf
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release --no-restore ./unittests/UnitTests.slnf -o ./integration-tests/${{ matrix.arch }}
+        dotnet publish -f net9.0 -r ${{ matrix.arch }} -c release --no-restore ./unittests/UnitTests.slnf -o ./integration-tests/${{ matrix.arch }}
 
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
@@ -166,7 +166,7 @@ jobs:
     - name: Build Test DLLs ${{ matrix.arch }}
       run: |
         dotnet restore -r ${{ matrix.arch }} unittests/UnitTests.slnf
-        dotnet publish -f net8.0 -r ${{ matrix.arch }} -c release --no-restore ./unittests/UnitTests.slnf -o ./integration-tests/${{ matrix.arch }}
+        dotnet publish -f net9.0 -r ${{ matrix.arch }} -c release --no-restore ./unittests/UnitTests.slnf -o ./integration-tests/${{ matrix.arch }}
 
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
