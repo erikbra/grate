@@ -11,3 +11,4 @@ CREATE TABLE {{SchemaName}}_{{ScriptsRunErrorsTable}}(
     entered_by varchar(50) NULL,
     CONSTRAINT PK_{{ScriptsRunErrorsTable}}_id PRIMARY KEY (id)
 )
+
