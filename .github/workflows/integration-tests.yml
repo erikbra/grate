@@ -139,7 +139,7 @@ jobs:
     - name: Build Test DLLs ${{ matrix.arch }}
       run: |
         dotnet restore -r ${{ matrix.arch }} unittests/UnitTests.slnf
-        dotnet publish -r ${{ matrix.arch }} -c release --no-restore ./unittests/UnitTests.slnf -o ./integration-tests/${{ matrix.arch }}
+        dotnet publish -f net9.0 -r ${{ matrix.arch }} -c release --no-restore ./unittests/UnitTests.slnf -o ./integration-tests/${{ matrix.arch }}
 
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
@@ -172,7 +172,7 @@ jobs:
     - name: Build Test DLLs ${{ matrix.arch }}
       run: |
         dotnet restore -r ${{ matrix.arch }} unittests/UnitTests.slnf
-        dotnet publish -r ${{ matrix.arch }} -c release --no-restore ./unittests/UnitTests.slnf -o ./integration-tests/${{ matrix.arch }}
+        dotnet publish -f net9.0 -r ${{ matrix.arch }} -c release --no-restore ./unittests/UnitTests.slnf -o ./integration-tests/${{ matrix.arch }}
 
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
