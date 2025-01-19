@@ -1,11 +1,17 @@
 ﻿using Xunit.Sdk;
 
+#if NET6_0
+using Dir = TestCommon.TestInfrastructure.Net6PolyFills.Directory;
+#else
+using Dir = System.IO.Directory;
+#endif
+
 namespace TestCommon.TestInfrastructure;
 
 // ReSharper disable once ClassNeverInstantiated.Global
 public class SqliteTestDatabase : ITestDatabase, IAsyncLifetime
 {
-    private readonly string _root = Directory.CreateTempSubdirectory("grate-sqlite-tests-").ToString();
+    private readonly string _root = Dir.CreateTempSubdirectory("grate-sqlite-tests-").ToString();
 
     public Task DisposeAsync()
     {

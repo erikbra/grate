@@ -21,15 +21,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Setup .NET 9
+    - name: Setup .NET 9 and earlier
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
+         dotnet-version: |
+          6.0.x
+          7.0.x
+          8.0.x
+          9.0.x
     - name: Restore dependencies
       run: |
        dotnet restore -r linux-x64 grate.sln
     - name: Build
-      run: dotnet build -f net9.0 --no-restore --no-self-contained -r linux-x64 src/grate/grate.csproj -c release
+      run: dotnet build --no-restore --no-self-contained -r linux-x64 src/grate/grate.csproj -c release
 
 
   analyze:
@@ -44,7 +48,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Setup .NET 9
+    - name: Setup .NET 9 and earlier
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: |
@@ -79,7 +83,11 @@ jobs:
     - name: Setup .NET 9
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: |
+          6.0.x
+          7.0.x
+          8.0.x
+          9.0.x
     - name: Test
       run: |
         dotnet test \

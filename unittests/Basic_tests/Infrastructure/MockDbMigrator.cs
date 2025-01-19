@@ -14,7 +14,11 @@ public record MockDbMigrator: IDbMigrator
     object ICloneable.Clone() => this with { };
 
     public GrateConfiguration Configuration { get; set; } = null!;
-    public IDatabase Database { get; set; } = Substitute.For<IDatabase>();
+    
+    public IDatabase Database { get; set; } = new MockDatabase();
+    // This doesn't work in .NET 6 - so we must create an explicit implementation of IDatabase
+    //public IDatabase Database { get; set; } = Substitute.For<IDatabase>();
+    
     public ILogger Logger { get; set; } = Substitute.For<ILogger>();
 
     public  Task InitializeConnections()

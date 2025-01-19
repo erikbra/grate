@@ -9,6 +9,12 @@ using grate.Exceptions;
 using grate.Migration;
 using Microsoft.Extensions.Logging;
 
+#if NET6_0
+using Dir = TestCommon.TestInfrastructure.Net6PolyFills.Directory;
+#else
+using Dir = System.IO.Directory;
+#endif
+
 namespace Docker.Common.TestInfrastructure;
 
 public record DockerGrateMigrator(
@@ -29,7 +35,7 @@ public record DockerGrateMigrator(
         // if not, we get an error like this:
         //  /home/app/.net/grate/fdcA3gxdjBiIcVt0mGoBJ5IgxSbD0kE=/libe_sqlite3.so: failed to map segment from shared object
         // (similarly) /tmp/dotnet-bundle-extract/grate/fdcA3gxdjBiIcVt0mGoBJ5IgxSbD0kE=/libe_sqlite3.so: failed to map segment from shared object
-        var tmpFolder = Directory.CreateTempSubdirectory().ToString();
+        var tmpFolder = Dir.CreateTempSubdirectory().ToString();
         
         // Need to map the SQL files directory to the container
         var sqlFilesDirectory = Configuration.SqlFilesDirectory.ToString();
@@ -138,7 +144,7 @@ public record DockerGrateMigrator(
             {
                 // Need to overwrite the output path, as we don't have the same tmp folders on the host as in the container,
                 // and the root file system is read-only in the test container
-                OutputPath = new DirectoryInfo(Path.Combine("/tmp", "grate-tests-output", Directory.CreateTempSubdirectory().Name)),
+                OutputPath = new DirectoryInfo(Path.Combine("/tmp", "grate-tests-output", Dir.CreateTempSubdirectory().Name)),
             }
         };
     }
@@ -151,7 +157,7 @@ public record DockerGrateMigrator(
         {
                 // Need to overwrite the output path, as we don't have the same tmp folders on the host as in the container,
                 // and the root file system is read-only in the test container
-                OutputPath = new DirectoryInfo(Path.Combine("/tmp", "grate-tests-output", Directory.CreateTempSubdirectory().Name))
+                OutputPath = new DirectoryInfo(Path.Combine("/tmp", "grate-tests-output", Dir.CreateTempSubdirectory().Name))
         }};
     }
     

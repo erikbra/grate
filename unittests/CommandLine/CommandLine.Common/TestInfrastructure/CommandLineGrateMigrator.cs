@@ -22,8 +22,13 @@ public record CommandLineGrateMigrator(DatabaseType DatabaseType) : IGrateMigrat
         // Add the database type
         commandLineArguments.Add("--databasetype=" + DatabaseType.ToString().ToLowerInvariant());
         
+        
         // Run the command-line tool with the arguments
+        #if NET8_0_OR_GREATER
         var processInfo = new ProcessStartInfo(GrateExecutable, commandLineArguments)
+        #else
+        var processInfo = new ProcessStartInfo(GrateExecutable, string.Join(' ', commandLineArguments))
+        #endif
         {
             RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false,
         };

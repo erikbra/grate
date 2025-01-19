@@ -6,6 +6,12 @@ using grate.Infrastructure;
 using grate.Migration;
 using Microsoft.Extensions.Logging;
 
+#if NET6_0
+using Dir = TestCommon.TestInfrastructure.Net6PolyFills.Directory;
+#else
+using Dir = System.IO.Directory;
+#endif
+
 namespace TestCommon.TestInfrastructure;
 
 public interface IGrateTestContext
@@ -37,7 +43,7 @@ public interface IGrateTestContext
         AlterDatabase = true,
         NonInteractive = true,
         Transaction = SupportsTransaction,
-        OutputPath = Directory.CreateTempSubdirectory()
+        OutputPath = Dir.CreateTempSubdirectory()
     };
 
     public Task DropDatabase(string databaseName);

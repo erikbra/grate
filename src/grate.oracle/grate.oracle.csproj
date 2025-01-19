@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>$(NetTargetFrameworks)</TargetFrameworks>
     <Nullable>enable</Nullable>
     <IsPublishable>false</IsPublishable>
   </PropertyGroup>
