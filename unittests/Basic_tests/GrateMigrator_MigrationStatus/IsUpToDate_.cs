@@ -5,12 +5,18 @@ using grate.Infrastructure;
 using grate.Migration;
 using NSubstitute;
 
+#if NET6_0
+using Dir = TestCommon.TestInfrastructure.Net6PolyFills.Directory;
+#else
+using Dir = System.IO.Directory;
+#endif
+
 namespace Basic_tests.GrateMigrator_MigrationStatus;
 
 // ReSharper disable once InconsistentNaming
 public class IsUpToDate_: IDisposable
 {
-    private static readonly DirectoryInfo SqlFilesDirectory = Directory.CreateTempSubdirectory();
+    private static readonly DirectoryInfo SqlFilesDirectory = Dir.CreateTempSubdirectory();
 
     [Theory]
     [InlineData(true)]

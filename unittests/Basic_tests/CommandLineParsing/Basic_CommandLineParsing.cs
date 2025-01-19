@@ -9,6 +9,12 @@ using grate.Configuration;
 using grate.Exceptions;
 using grate.Infrastructure;
 
+#if NET6_0
+using Dir = TestCommon.TestInfrastructure.Net6PolyFills.Directory;
+#else
+using Dir = System.IO.Directory;
+#endif
+
 namespace Basic_tests.CommandLineParsing;
 
 // ReSharper disable once InconsistentNaming
@@ -71,7 +77,7 @@ public class Basic_CommandLineParsing
     [InlineData("--sqlfilesdirectory=")]
     public async Task SqlFilesDirectory(string argName)
     {
-        var folder = Directory.CreateTempSubdirectory();
+        var folder = Dir.CreateTempSubdirectory();
         var commandline = argName + folder;
         var cfg = await ParseGrateConfiguration(commandline);
 

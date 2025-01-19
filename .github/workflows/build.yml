@@ -85,10 +85,14 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Setup .NET 9
+    - name: Setup .NET 9 and earlier
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
+         dotnet-version: |
+          6.0.x
+          7.0.x
+          8.0.x
+          9.0.x
 
     - name: Restore dependencies
       run: dotnet restore
@@ -121,9 +125,10 @@ jobs:
         dotnet-version: 9.0.x
 
     - name: Publish self-contained ${{ matrix.arch }}
-      run: dotnet publish ./src/grate/grate.csproj -f net9.0 -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
+      run: dotnet publish ./src/grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
+        TargetFramework: net9.0
 
 
     - name: Upload self-contained ${{ matrix.arch }}
@@ -157,9 +162,10 @@ jobs:
         dotnet-version: 9.0.x
 
     - name: Publish self-contained ${{ matrix.arch }}
-      run: dotnet publish ./src/grate/grate.csproj -f net9.0 -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
+      run: dotnet publish ./src/grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
+        TargetFramework: net9.0
 
     - name: Upload self-contained ${{ matrix.arch }}
       #if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
@@ -294,10 +300,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Setup .NET 9
+    - name: Setup .NET 9 and earlier
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
+         dotnet-version: |
+          6.0.x
+          7.0.x
+          8.0.x
+          9.0.x
     - name: Test
       run: >
         dotnet test 

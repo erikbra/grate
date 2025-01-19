@@ -5,6 +5,12 @@ using Microsoft.Data.Sqlite;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
+#if NET6_0
+using Dir = TestCommon.TestInfrastructure.Net6PolyFills.Directory;
+#else
+using Dir = System.IO.Directory;
+#endif
+
 namespace TestCommon.TestInfrastructure;
 
 public static class DatabaseHelpers
@@ -118,7 +124,7 @@ public static class DatabaseHelpers
     public static async Task<IEnumerable<string>> GetSqliteDatabases(this IGrateTestContext context)
     {
         var builder = new SqliteConnectionStringBuilder(context.AdminConnectionString);
-        var root = Path.GetDirectoryName(builder.DataSource) ?? Directory.CreateTempSubdirectory().ToString() ;
+        var root = Path.GetDirectoryName(builder.DataSource) ?? Dir.CreateTempSubdirectory().ToString() ;
         var dbFiles = Directory.EnumerateFiles(root, "*.db");
         IEnumerable<string> dbNames = dbFiles
             .Select(Path.GetFileNameWithoutExtension)

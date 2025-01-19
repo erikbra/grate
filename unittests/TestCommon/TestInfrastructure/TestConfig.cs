@@ -2,6 +2,12 @@
 using static System.StringComparison;
 using static System.StringSplitOptions;
 
+#if NET6_0
+using Dir = TestCommon.TestInfrastructure.Net6PolyFills.Directory;
+#else
+using Dir = System.IO.Directory;
+#endif
+
 namespace TestCommon.TestInfrastructure;
 
 public static class TestConfig
@@ -12,7 +18,7 @@ public static class TestConfig
 
     public static DirectoryInfo CreateRandomTempDirectory()
     {
-        return Directory.CreateTempSubdirectory();
+        return Dir.CreateTempSubdirectory();
     }
     public static DirectoryInfo Wrap(DirectoryInfo root, string? subFolder) =>
         new(Path.Combine(root.ToString(), subFolder ?? ""));
