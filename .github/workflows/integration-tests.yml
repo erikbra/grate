@@ -70,10 +70,9 @@ jobs:
         dotnet-version: 9.0.x
 
     - name: Publish self-contained ${{ matrix.arch }}
-      run: dotnet publish ./src/grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
+      run: dotnet publish -f net9.0 ./src/grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
-        TargetFramework: net9.0
 
     - name: Upload self-contained ${{ matrix.arch }}
       uses: actions/upload-artifact@v4
@@ -105,10 +104,9 @@ jobs:
         dotnet-version: 9.0.x
 
     - name: Publish self-contained ${{ matrix.arch }}
-      run: dotnet publish ./src/grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
+      run: dotnet publish -f net9.0 ./src/grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
-        TargetFramework: net9.0
 
     - name: Upload self-contained ${{ matrix.arch }}
       uses: actions/upload-artifact@v4
@@ -141,7 +139,7 @@ jobs:
     - name: Build Test DLLs ${{ matrix.arch }}
       run: |
         dotnet restore -r ${{ matrix.arch }} unittests/UnitTests.slnf
-        dotnet publish -r ${{ matrix.arch }} -c release --no-restore ./unittests/UnitTests.slnf -o ./integration-tests/${{ matrix.arch }}
+        dotnet publish -f net9.0 -r ${{ matrix.arch }} -c release --no-restore ./unittests/UnitTests.slnf -o ./integration-tests/${{ matrix.arch }}
 
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
@@ -174,7 +172,7 @@ jobs:
     - name: Build Test DLLs ${{ matrix.arch }}
       run: |
         dotnet restore -r ${{ matrix.arch }} unittests/UnitTests.slnf
-        dotnet publish -r ${{ matrix.arch }} -c release --no-restore ./unittests/UnitTests.slnf -o ./integration-tests/${{ matrix.arch }}
+        dotnet publish -f net9.0 -r ${{ matrix.arch }} -c release --no-restore ./unittests/UnitTests.slnf -o ./integration-tests/${{ matrix.arch }}
 
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
@@ -273,12 +271,9 @@ jobs:
       fail-fast: false
       matrix:
         database:
-          # - name: "SqlServer 2022"
-          #   type: SqlServer
-          #   image: "mcr.microsoft.com/mssql/server:2022-latest"
-          - name: "SqlServer 2022 (Ubuntu 22.04)"
+          - name: "SqlServer 2022"
             type: SqlServer
-            image: "mcr.microsoft.com/mssql/server:2022-preview-ubuntu-22.04"
+            image: "mcr.microsoft.com/mssql/server:2022-latest"
           - name: "SqlServer 2019" 
             type: SqlServer
             image: "mcr.microsoft.com/mssql/server:2019-CU26-ubuntu-20.04"
