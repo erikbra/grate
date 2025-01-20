@@ -13,10 +13,10 @@ public record MariaDbTestContainerDatabase(
     INetwork Network
     ) : TestContainerDatabase(GrateTestConfig)
 {
-    public override string DockerImage => GrateTestConfig.DockerImage ??  "mariadb:10.10";
+    public override string DockerImage => GrateTestConfig.DockerImage ?? "mariadb:10.4";
     protected override int InternalPort => MariaDbBuilder.MariaDbPort;
     protected override string NetworkAlias => "mariadb-test-container";
-    
+
     protected override IContainer InitializeTestContainer()
     {
         return new MariaDbBuilder()
@@ -35,18 +35,18 @@ public record MariaDbTestContainerDatabase(
         await Network.CreateAsync();
         await base.InitializeAsync();
     }
-    
+
     public override async Task DisposeAsync()
     {
         await Network.DeleteAsync();
         await Network.DisposeAsync();
         await base.DisposeAsync();
     }
-    
+
     public override string AdminConnectionString => $"Server={Hostname};Port={Port};Database=mysql;Uid=root;Pwd={AdminPassword}";
     public override string ConnectionString(string database) => $"Server={Hostname};Port={Port};Database={database};Uid=root;Pwd={AdminPassword}";
     public override string UserConnectionString(string database) => $"Server={Hostname};Port={Port};Database={database};Uid={database};Pwd=mooo1213";
-    
+
 }
 
 

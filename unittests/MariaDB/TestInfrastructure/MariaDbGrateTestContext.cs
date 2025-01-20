@@ -28,7 +28,7 @@ public record MariaDbGrateTestContext(
         SelectVersion = "SELECT VERSION()",
         SleepTwoSeconds = "SELECT SLEEP(2);",
         CreateUser = (_, user, password) => $"CREATE USER '{user}'@'%' IDENTIFIED BY '{password}';",
-        GrantAccess =  (db, user) =>
+        GrantAccess = (db, user) =>
             $"""
              -- GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, DROP, ALTER, CREATE TEMPORARY TABLES, 
              -- LOCK TABLES ON {db}.* TO '{user}'@'%';
@@ -38,7 +38,7 @@ public record MariaDbGrateTestContext(
     };
 
 
-    public override string ExpectedVersionPrefix => "10.10.7-MariaDB";
+    public override string ExpectedVersionPrefix => "10.4.34-MariaDB";
     public override bool SupportsCreateDatabase => true;
     public override bool SupportsSchemas => false;
 }
