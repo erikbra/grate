@@ -7,7 +7,6 @@
     <!--
       .net sdk
     -->
-    <PackageVersion Include="grate.sqlserver" Version="1.8.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
