@@ -1,0 +1,1 @@
+CALL create_{{SchemaName}}_fix_version_table_casing();

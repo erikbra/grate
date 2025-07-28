@@ -1,0 +1,1 @@
+DROP PROCEDURE create_{{SchemaName}}_fix_scriptsrun_table_casing;
