@@ -87,8 +87,9 @@ internal record DbMigrator : IDbMigrator
 
         async Task LogAndRunSql()
         {
-            Logger.LogInformation("  Running '{ScriptName}'.", scriptName);
-            
+            var operation = Configuration.DryRun ? "DryRun" : "Running";
+            Logger.LogInformation("  {Operation} '{ScriptName}'.", operation, scriptName);
+
             if (!Configuration.DryRun)
             {
                 await RunTheActualSql(sql, scriptName, type, versionId, connectionType, transactionHandling);
@@ -174,9 +175,10 @@ internal record DbMigrator : IDbMigrator
         {
             sql = ReplaceTokensIn(sql);
         }
-        
-        Logger.LogInformation("  Running '{ScriptName}'.", scriptName);
-            
+
+        var operation = Configuration.DryRun ? "DryRun" : "Running";
+        Logger.LogInformation("  {Operation} '{ScriptName}'.", operation, scriptName);
+
         if (!Configuration.DryRun)
         {
             await RunTheActualSqlWithoutLogging(sql, scriptName, connectionType, transactionHandling);
@@ -346,7 +348,7 @@ internal record DbMigrator : IDbMigrator
     }
 
     /// <summary>
-    /// Returns whether to execute the script even though it has changed.  
+    /// Returns whether to execute the script even though it has changed.
     /// Throws an exception if this script change is a failure scenario.
     /// </summary>
     /// <param name="folder"></param>
@@ -358,7 +360,7 @@ internal record DbMigrator : IDbMigrator
     private async Task OneTimeScriptChanged(MigrationsFolder folder, string sql, string scriptName, long versionId)
     {
         Logger.LogError("{ScriptName}: {ErrorMessage}", scriptName, "One time script changed");
-        
+
         Database.Rollback();
         await Database.CloseConnection();
         Transaction.Current?.Dispose();
