@@ -5,7 +5,7 @@ permalink: /token-replacement/
 # Token Replacement
 Any value that is in the configuration can be tokenised in the scripts.
 
-`ALTER DATABASE {{DatabaseName}}` will be replaced as `ALTER DATABASE Bob` when the database name is `Bob`.  
+`ALTER DATABASE \{\{DatabaseName\}\}` will be replaced as `ALTER DATABASE Bob` when the database name is `Bob`.  
 
 This is not case sensitive.
 
@@ -22,7 +22,7 @@ Example:
 `--ut=MyTablePrefix=local --ut=MyOtherToken=OtherValue`
 
 The tokens can then be used for token replacement in scripts:
-`ALTER TABLE {{MyTablePrefix}}_TableName` will become `ALTER TABLE local_TableName`
+`ALTER TABLE \{\{MyTablePrefix\}\}_TableName` will become `ALTER TABLE local_TableName`
 
 ### Notes
 ⚠ If token replacement in general should be used VERY sparingly, then user tokens are an even larger foot gun.  They are built in a very simplistic manner, and are likely to fail just as simply.
