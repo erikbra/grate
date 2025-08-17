@@ -5,7 +5,7 @@ permalink: /token-replacement/
 # Token Replacement
 Any value that is in the configuration can be tokenised in the scripts.
 
-`ALTER DATABASE \{\{DatabaseName\}\}` will be replaced as `ALTER DATABASE Bob` when the database name is `Bob`.  
+`ALTER DATABASE {% raw %}{{DatabaseName}}{% endraw %}` will be replaced as `ALTER DATABASE Bob` when the database name is `Bob`.  
 
 This is not case sensitive.
 
