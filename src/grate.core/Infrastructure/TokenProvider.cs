@@ -104,8 +104,9 @@ internal class TokenProvider
 
     public static (string key, string value) ParseUserToken(string userToken)
     {
-        // Splits the given "key=value" string into it's component parts.
-        var parts = userToken.Split('=', RemoveEmptyEntries | TrimEntries);
+        // Splits the given "key=value" string into it's component parts... if there's `=` signs in the value
+        // we just return it as is for #641
+        var parts = userToken.Split('=', 2, RemoveEmptyEntries | TrimEntries);
         if (parts.Length != 2)
         {
             throw new ArgumentOutOfRangeException(nameof(userToken), $"Failed to parse provided user token '{userToken}'");
