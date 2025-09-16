@@ -31,7 +31,7 @@ jobs:
     
     steps:
     - name: Setup .NET 9
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 9.0.x
     - name: Checkout
@@ -65,7 +65,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET 9
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 9.0.x
 
@@ -99,7 +99,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET 9
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 9.0.x
 
@@ -128,7 +128,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET 9
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
          dotnet-version: |
           6.0.x
@@ -163,7 +163,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET 8 & 9
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: |
           8.0.x
@@ -341,7 +341,7 @@ jobs:
         path: integration-tests/linux-x64
 
     - name: Setup .NET 9
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 9.0.x
 
@@ -452,7 +452,7 @@ jobs:
         path: integration-tests/${{ matrix.os.arch }}
 
     - name: Setup .NET 9
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 9.0.x
 
