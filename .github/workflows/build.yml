@@ -25,7 +25,7 @@ jobs:
       with:
         dotnet-version: 9.0.x
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0
     - name: Install GitVersion
@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Setup .NET 9
       uses: actions/setup-dotnet@v5
       with:
@@ -83,7 +83,7 @@ jobs:
                 "grate.sqlserver"
               ]
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     
     - name: Setup .NET 9 and earlier
       uses: actions/setup-dotnet@v5
@@ -118,7 +118,7 @@ jobs:
                 "osx-x64" 
               ]
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Setup .NET 9
       uses: actions/setup-dotnet@v5
       with:
@@ -155,7 +155,7 @@ jobs:
         arch: [ "osx-arm64" ]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Setup .NET 9
       uses: actions/setup-dotnet@v5
       with:
@@ -187,7 +187,7 @@ jobs:
         arch: [ "win-x64", "win-arm64" ]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - uses: actions/download-artifact@v4
       with:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
@@ -218,7 +218,7 @@ jobs:
       FULL_IMAGE_NAME: ${{ github.repository }}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     # - uses: actions/download-artifact@v4 # download from another artifact is not a good idea, we need to build directly from source
     #   with:
     #     name: grate-linux-musl-x64-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
@@ -266,7 +266,7 @@ jobs:
         arch: [ "linux-arm64", "linux-x64" ]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - uses: actions/download-artifact@v4
       with:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
@@ -299,7 +299,7 @@ jobs:
         category: [ "Basic_tests", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Setup .NET 9 and earlier
       uses: actions/setup-dotnet@v5
       with:
