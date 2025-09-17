@@ -116,7 +116,7 @@ jobs:
 
      steps:
       - name: Download XML test reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: test-results
 
