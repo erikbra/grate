@@ -1,20 +1,19 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 
+ARG TARGETARCH
 ARG os=linux-musl
-ARG arch=amd64
 ENV OS $os
-ENV ARCH $arch
-
-WORKDIR .
+WORKDIR /app
 COPY *.props ./
 COPY *.ruleset ./
 COPY src/ ./src/
-RUN dotnet publish ./src/grate/grate.csproj --os $OS --arch $ARCH -c release --self-contained -p:SelfContained=true -o ./publish/app
+RUN dotnet publish --os "$OS" --arch "$TARGETARCH" ./src/grate/grate.csproj \
+    -c release --self-contained -p:SelfContained=true -o /app
 
-FROM alpine:3 AS base
+FROM --platform=$BUILDPLATFORM alpine:3 AS base
 WORKDIR /app
 
-COPY --chmod=0755 --from=build /publish/app .
+COPY --chmod=0755 --from=build /app .
 RUN mkdir /output
 # Add globalization support to the OS so .Net can use cultures
 RUN apk add icu-libs
