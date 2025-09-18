@@ -136,7 +136,19 @@ internal record GrateMigrator : IGrateMigrator
             // Start the transaction, if configured
             if (runInTransaction)
             {
-                scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+                // use command timeout as the max timeout and transaction scope timeout, if greater than current MaximumTimeout
+                var maxTimeout = TransactionManager.MaximumTimeout;
+                var transactionTimeout = config.CommandTimeout > 0
+                    ? new [] {maxTimeout, TimeSpan.FromSeconds(config.CommandTimeout) }.Max()
+                    : maxTimeout;
+                
+                #if NET7_0_OR_GREATER
+                if (transactionTimeout > maxTimeout)
+                {
+                    TransactionManager.MaximumTimeout = transactionTimeout;
+                }
+                #endif
+                scope = new TransactionScope(TransactionScopeOption.Required, transactionTimeout, TransactionScopeAsyncFlowOption.Enabled);
             }
 
             bool exceptionOccured = false;
