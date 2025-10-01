@@ -24,8 +24,14 @@ Example:
 The tokens can then be used for token replacement in scripts:
 `ALTER TABLE {% raw %}{{MyTablePrefix}}{% endraw %}_TableName` will become `ALTER TABLE local_TableName`
 
+### ⚠️ Migration Back-Compatibility warning ⚠️
+If migrating from RoundhousE please note a change of behaviour here.  RH forced you to pass multipe user tokens as a single command line param.  Due to
+issues passing secrets etc with embedded `=` characters, grate will no longer error if passed multiple tokens in a single `--ut`!
+
+You HAVE to update your scripts to pass each user token in it's own `--ut`!
+
 ### Notes
 ⚠ If token replacement in general should be used VERY sparingly, then user tokens are an even larger foot gun.  They are built in a very simplistic manner, and are likely to fail just as simply.
 
 - If you pass clearly invalid info on the commandline (eg missing the equal sign) then grate will terminate with an error.
-- If you try and get tricksy and pass valid but broken information (eg including '{' chars, multiple '=' chars etc) then all bets are off.  Raise an issue if you have a genuine scenario you'd like help with.
+- If you try and get tricksy and pass valid but broken information (eg including '{' chars etc) then all bets are off.  Raise an issue if you have a genuine scenario you'd like help with.

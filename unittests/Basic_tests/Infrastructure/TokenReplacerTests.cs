@@ -52,12 +52,12 @@ public class TokenReplacerTests
     [Fact]
     public void EnsureUserTokenParserWorks()
     {
-        // TestCase attribute didn't seem to like tuples...
-
         TokenProvider.ParseUserToken("token=value   ").Should().Be(("token", "value"));
         Assert.Throws<ArgumentOutOfRangeException>(() => TokenProvider.ParseUserToken("token"));
 
-        // ensure a back-compat scenario throws rather than quietly do the wrong thing.
-        Assert.Throws<ArgumentOutOfRangeException>(() => TokenProvider.ParseUserToken("token1=value1;token2=value2"));
+        // #641: While we initially wanted to protect migrating users from our change to use multiple `--ut` command line params, there's
+        // legitimate scenarios where we want an `=` in the value.  
+        TokenProvider.ParseUserToken("token1=value=with=equals").Should().Be(("token1", "value=with=equals"));
+        TokenProvider.ParseUserToken("token1=value1;token2=value2").Should().Be(("token1", "value1;token2=value2"));
     }
 }

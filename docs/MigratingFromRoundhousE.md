@@ -21,7 +21,9 @@ grate is built using the new [`System.CommandLine`](https://github.com/dotnet/co
 - grate has a single mandatory `-cs`/`--connstring` argument for simplicity.  RH's `--database`, `--server` etc arguments are no longer allowed.
 
 - Not all previously supported tokens are available yet.  For more information see the [Token Replacement docs](TokenReplacement.md).
-- UserTokens have had two small changes.  In keeping with the `System.CommandLine` standards the `--ut` option is now passed multiple times for multiple tokens, rather than parsing a single ';' delimited string. Support for `;` delimited lists of tokens may be re-added in the future.
+- UserTokens has a change which **affects back-compatibility**   
+  - In keeping with the `System.CommandLine` standards the `--ut` option is now passed multiple times for multiple tokens, rather than parsing a single ';' delimited string as in RH.
+  - This means that you **MUST** update your scripts passing multiple tokens in a single param to use multiple `--ut` parameters instead. 
 
 - The `DropCreate` 'mode' has been merged with the `--drop` option. RH used a single-run workflow for `Normal` and `RestoreRun` modes, but needed two executions for the `DropCreate` mode.  grate uses the `--drop` option like RH but **it continues with the creation and migration afterwards**! If you have a scenario for dropping a database but _not_ then running a migration, please open an issue!
 
