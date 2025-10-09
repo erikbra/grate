@@ -127,4 +127,29 @@ WHERE script_name = @scriptName";
     {
         throw new SqlServerScriptFailed(folder, file, scriptText, exception);
     }
+    public override async Task<string?> GetCurrentHash(string scriptName)
+    {
+        var scriptHashText = await base.GetCurrentHash(scriptName);
+        return GetHashOverrideIfNeeded(scriptName, scriptHashText);
+    }
+
+    // the format is scriptName:hash
+    // due to the change of one-time script in bootstrap folder, we need to let the script go by overriding its hash.
+    // this is a temporary workaround until we have a better solution
+    private readonly Dictionary<string, string> _scriptsHashOverride = new()
+    {
+        {"grate-internal/02_create_scripts_run_table.sql:gE8OY/EW3vF9XZpo4I+Rcw==", "ZAsLCwIdo/5MvLxhKFyF2w==" },
+        {"02_create_scripts_run_table.sql:/oMcz/9sAOdvsGPc4BrPRg==", "IJ90PTu7hnjspwFTktXmOQ==" },
+        {"grate-internal/03_create_scripts_run_errors_table.sql:jRz3vUCeAhoeR+ui+bvCOw==", "+D1LJRaVcXf8+DW9gSfj4g==" },
+        {"03_create_scripts_run_errors_table.sql:AD4FAu7j5tI2uYLuRQPQ7g==", "27wFX+pBxrD84m5OK+zaYg==" }
+    };
+    private string? GetHashOverrideIfNeeded(string scriptName, string? scriptHashText)
+    {
+        var scriptHashOverride = $"{scriptName}:{scriptHashText}";
+        if (_scriptsHashOverride.TryGetValue(scriptHashOverride, out var overrideHashText))
+        {
+            scriptHashText = overrideHashText;
+        }
+        return scriptHashText;
+    }
 }
