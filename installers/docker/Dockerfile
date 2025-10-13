@@ -2,14 +2,14 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
 
 ARG os=linux-musl
 ARG arch=amd64
-ENV OS $os
-ENV ARCH $arch
+ENV OS=$os
+ENV ARCH=$arch
 
 WORKDIR .
 COPY *.props ./
 COPY *.ruleset ./
 COPY src/ ./src/
-RUN dotnet publish ./src/grate/grate.csproj --os $OS --arch $ARCH -c release --self-contained -p:SelfContained=true -o ./publish/app
+RUN dotnet publish ./src/grate/grate.csproj --os $OS --arch $ARCH -c release --self-contained -p:SelfContained=true --framework net9.0 -o ./publish/app
 
 FROM alpine:3 AS base
 WORKDIR /app
