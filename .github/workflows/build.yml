@@ -211,7 +211,7 @@ jobs:
      - set-version-number
      #- build-standalone ## no need, we build directly from source
     runs-on: ubuntu-latest
-    if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+    #if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
     env:
       #REGISTRY: ghcr.io
       IMAGE_NAME: ${{ github.repository }}
@@ -227,6 +227,7 @@ jobs:
 
     - name: Log in to the Container registry
       uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       with:
         #registry: ${{ env.REGISTRY }}
         username: ${{ github.repository_owner}}
@@ -235,6 +236,7 @@ jobs:
     - name: Extract metadata (tags, labels) for Docker
       id: meta
       uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       with:
         tags: |
           type=semver,pattern={{version}}
@@ -250,7 +252,7 @@ jobs:
       with:
         file: ./installers/docker/Dockerfile
         context: .
-        push: true
+        push: ${{ needs.set-version-number.outputs.is-release == 'true' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
 
