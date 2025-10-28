@@ -34,11 +34,11 @@ git clone https://github.com/erikbra/grate.git
 
 Grate is set up to build in the whole .NET framework in the executable when built in release mode, so the executable is a bit bigger than you 
 might expect. But it's totally independent of .NET being installed on the runtime environment at all, and not of the versions actually installed either.
-You can build a self-contained executable just using `dotnet build` (example from my mac below)
+You can build a self-contained executable just using `dotnet publish` (example from my mac below)
 
 ```
-> cd grate/grate
-> dotnet publish  -c release -r osx-x64 -o /tmp/grate
+> cd src/grate
+> dotnet publish -r osx-x64 --self-contained true --framework net8.0 -c Release -o /tmp/grate
 ```
 
 Find the fully independent executable, and the noticable size:
