@@ -495,7 +495,7 @@ WHERE id = (SELECT MAX(id) FROM {ScriptsRunTable} sr2 WHERE sr2.script_name = sr
 
     protected virtual string Parameterize(string sql) => sql;
 
-    public async Task<string?> GetCurrentHash(string scriptName)
+    public virtual async Task<string?> GetCurrentHash(string scriptName)
     {
         var cache = await GetScriptsRunCache();
         if (cache.TryGetValue(scriptName, out var value))
