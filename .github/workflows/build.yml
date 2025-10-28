@@ -57,7 +57,7 @@ jobs:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
       
     - name: Upload published tool artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       with:
         name: grate-dotnet-tool-${{ needs.set-version-number.outputs.nuGetVersion }}
@@ -133,7 +133,7 @@ jobs:
 
     - name: Upload self-contained ${{ matrix.arch }}
       #if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: ./publish/${{ matrix.arch }}/self-contained/*
@@ -169,7 +169,7 @@ jobs:
 
     - name: Upload self-contained ${{ matrix.arch }}
       #if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: ./publish/${{ matrix.arch }}/self-contained/*
@@ -200,7 +200,7 @@ jobs:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
 
     - name: Upload MSI ${{ matrix.arch }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: grate-msi-${{ matrix.arch }}-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: ./installers/msi/tmp/*.msi
@@ -298,7 +298,7 @@ jobs:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
 
     - name: Upload .dpkg ${{ steps.get-arch.outputs.arch }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch}}.deb
         path: ./installers/deb/grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch }}.deb
