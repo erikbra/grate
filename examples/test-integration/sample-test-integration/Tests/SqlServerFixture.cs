@@ -1,10 +1,12 @@
-using System.Diagnostics;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
+using grate.DependencyInjection;
+using grate.Migration;
+using grate.sqlserver.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Testcontainers.MsSql;
 using Xunit;
-using Xunit.Abstractions;
-using Xunit.Sdk;
 
 namespace Tests;
 
@@ -15,33 +17,24 @@ namespace Tests;
 public sealed class SqlServerFixture : IAsyncLifetime
 {
     private static MsSqlContainer SqlServer { get; }
-    
+
     /// <summary>
     /// The fully privileged sa connection string to our test database
     /// </summary>
     internal static string SysAdminConnString => SqlServer.GetConnectionString().Replace("Database=master", "Database=MyApp_IntegrationTests");
     // Note: When testing real apps we often also have connection strings with application credentials in order to test permissions as part of the tests
-    
-    /// <summary>
-    /// This lets us pass messages to the xunit output window, in theory.
-    /// </summary>
-    private readonly IMessageSink _sink;
 
-    public SqlServerFixture(IMessageSink sink)
-    {
-        _sink = sink;
-    }
-    
     static SqlServerFixture()
     {
         SqlServer = new MsSqlBuilder()
-            .WithImage("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04") // TestContainers recommend running a pinned image for repeatability
-            
+            .WithImage("mcr.microsoft.com/mssql/server:2022-CU12-ubuntu-22.04") // TestContainers recommend running a pinned image for repeatability
+
             // See https://github.com/testcontainers/testcontainers-dotnet/issues/1220#issuecomment-2248455959
-            .WithWaitStrategy(Wait.ForUnixContainer().UntilCommandIsCompleted("/opt/mssql-tools18/bin/sqlcmd", "-C", "-Q", "SELECT 1;") )
+            // uncomment if you have the issue above
+            //.WithWaitStrategy(Wait.ForUnixContainer().UntilCommandIsCompleted("/opt/mssql-tools18/bin/sqlcmd", "-C", "-Q", "SELECT 1;"))
             .Build();
     }
-    
+
     public async Task InitializeAsync()
     {
         await SqlServer.StartAsync();
@@ -59,38 +52,25 @@ public sealed class SqlServerFixture : IAsyncLifetime
         await SqlServer.DisposeAsync();
     }
 
-    private async Task RunDatabaseMigration(CancellationToken token = default)
+    private async Task RunDatabaseMigration()
     {
-        var migration = new Process();
-        migration.StartInfo.RedirectStandardOutput = true;
-        migration.StartInfo.RedirectStandardError = true;
-        migration.StartInfo.CreateNoWindow = true;
-        migration.ErrorDataReceived += migration_OutputDataReceived;
-        migration.OutputDataReceived += migration_OutputDataReceived;
-        migration.EnableRaisingEvents = true;
-
-        migration.StartInfo.Arguments = $"--files=./db --env=IntegrationTest --connstring=\"{SysAdminConnString}\" --version=1.0 --silent ";
-
-#if Linux
-            migration.StartInfo.FileName = "grate";
-#elif Windows
-            migration.StartInfo.FileName = "grate.exe";
-#endif
-
-        migration.Start();
-
-        migration.BeginOutputReadLine();
-        migration.BeginErrorReadLine();
-
-        await migration.WaitForExitAsync(token);
-
-        Assert.True(migration.HasExited);
-        Assert.Equal(0, migration.ExitCode);
-    }
-    
-    private void migration_OutputDataReceived(object sender, DataReceivedEventArgs e)
-    {
-        _sink.OnMessage(new DiagnosticMessage(e.Data));
+        // migrate database
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddLogging(logBuilder =>
+        {
+            logBuilder.SetMinimumLevel(LogLevel.Information);
+            logBuilder.AddConsole();
+        });
+        serviceCollection.AddGrate(builder =>
+        {
+            builder.WithSqlFilesDirectory("./db")
+                    .WithConnectionString(SysAdminConnString);
+        }).UseSqlServer();
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+        var logger = serviceProvider.GetRequiredService<ILogger<SqlServerFixture>>();
+        logger.LogInformation("Starting migration");
+        var grateMigrator = serviceProvider.GetRequiredService<IGrateMigrator>();
+        await grateMigrator.Migrate();
     }
 }
 
