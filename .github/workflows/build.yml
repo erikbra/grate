@@ -82,6 +82,9 @@ jobs:
                 "grate.sqlite",
                 "grate.sqlserver"
               ]
+    permissions:
+      id-token: write  # enable GitHub OIDC token issuance for this job
+      
     steps:
     - uses: actions/checkout@v5
     
@@ -101,10 +104,18 @@ jobs:
       run: dotnet pack ./src/${{ matrix.package }} -c Release --include-symbols -o /tmp/grate/nupkg /p:Version=${{ env.VERSION }}
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
-
+        
+    # Get a short-lived NuGet API key (Trusted Publishing https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing)
+    - name: NuGet login (OIDC → temp API key)
+      uses: NuGet/login@v1
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+      id: login
+      with:
+        user: wokket # ${{ secrets.NUGET_USER }}
+        
     - name: Push to Nuget.org
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
-      run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_ORG_KEY}} --skip-duplicate
+      run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{steps.login.outputs.NUGET_API_KEY}} --skip-duplicate
 
   build-standalone:
     name: Build cli
