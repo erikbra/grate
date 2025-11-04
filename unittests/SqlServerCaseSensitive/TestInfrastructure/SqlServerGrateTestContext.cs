@@ -4,7 +4,6 @@ using grate.Migration;
 using grate.SqlServer.Infrastructure;
 using grate.SqlServer.Migration;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.DependencyInjection;
 using TestCommon.TestInfrastructure;
 
 namespace SqlServerCaseSensitive.TestInfrastructure;
@@ -12,18 +11,24 @@ namespace SqlServerCaseSensitive.TestInfrastructure;
 [CollectionDefinition(nameof(SqlServerGrateTestContext))]
 public class SqlServerTestCollection : ICollectionFixture<SqlServerGrateTestContext>;
 
-public record SqlServerGrateTestContext(
-    IGrateMigrator migrator,
-    string serverCollation,
-    ITestDatabase testDatabase)
-    : GrateTestContext(migrator, testDatabase)
+public record SqlServerGrateTestContext
+    : GrateTestContext
 {
+    public SqlServerGrateTestContext(
+        IGrateMigrator migrator,
+        string serverCollation, 
+        ITestDatabase testDatabase) : base(migrator, testDatabase)
+    {
+        ServerCollation = serverCollation;
+    }
+    
     // ReSharper disable once UnusedMember.Global
     public SqlServerGrateTestContext(
         IGrateMigrator migrator, 
-        SqlServerTestContainerDatabase container) : this(migrator, "Danish_Norwegian_CI_AS", container)
+        ITestDatabase testDatabase): this(migrator, "Danish_Norwegian_CS_AS", testDatabase) // Case Sensitive collation
     {
     }
+
   
     public override IDbConnection GetDbConnection(string connectionString) => new SqlConnection(connectionString);
 
@@ -55,5 +60,5 @@ $"""
     public override bool SupportsCreateDatabase => true;
     public override bool SupportsSchemas => true;
 
-    public string ServerCollation { get; } = serverCollation;
+    public string ServerCollation { get; }
 }

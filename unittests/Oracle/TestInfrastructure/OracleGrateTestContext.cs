@@ -35,7 +35,7 @@ public record OracleGrateTestContext(
         SleepTwoSeconds = "sys.dbms_session.sleep(2);"
     };
 
-    public override string ExpectedVersionPrefix => "Oracle Database ";
+    public override string ExpectedVersionPrefix => "Oracle "; // might have AI or not, depending on version
     public override bool SupportsCreateDatabase => true;
     public override bool SupportsSchemas => false;
 

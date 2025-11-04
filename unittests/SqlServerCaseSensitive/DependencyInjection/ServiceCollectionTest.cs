@@ -4,7 +4,7 @@ using TestCommon.TestInfrastructure;
 namespace SqlServerCaseSensitive.DependencyInjection;
 
 [Collection(nameof(SqlServerGrateTestContext))]
-public class ServiceCollectionTest(IGrateTestContext context)
+public class ServiceCollectionTest(SqlServerGrateTestContext context)
     : TestCommon.DependencyInjection.GrateServiceCollectionTest(context)
 {
     protected override string VarcharType => "nvarchar";

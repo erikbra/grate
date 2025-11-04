@@ -8,7 +8,7 @@ namespace SqlServerCaseSensitive.Running_MigrationScripts;
 
 [Collection(nameof(SqlServerGrateTestContext))]
 // ReSharper disable once InconsistentNaming
-public class RestoreDatabase(IGrateTestContext testContext, ITestOutputHelper testOutput)
+public class RestoreDatabase(SqlServerGrateTestContext testContext, ITestOutputHelper testOutput)
     : SqlServerScriptsBase(testContext, testOutput)
 {
 

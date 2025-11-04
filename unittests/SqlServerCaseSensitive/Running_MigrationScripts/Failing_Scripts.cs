@@ -4,7 +4,7 @@ using TestCommon.TestInfrastructure;
 namespace SqlServerCaseSensitive.Running_MigrationScripts;
 [Collection(nameof(SqlServerGrateTestContext))]
 // ReSharper disable once InconsistentNaming
-public class Failing_Scripts(IGrateTestContext testContext, ITestOutputHelper testOutput)
+public class Failing_Scripts(SqlServerGrateTestContext testContext, ITestOutputHelper testOutput)
     : TestCommon.Generic.Running_MigrationScripts.Failing_Scripts(testContext, testOutput)
 {
     protected override string ExpectedStartOfErrorMessageForInvalidSql =>

@@ -1,0 +1,33 @@
+﻿using FluentAssertions;
+using grate.Infrastructure;
+using grate.SqlServer.Infrastructure;
+
+namespace SqlServerCaseSensitive.Basic_tests;
+
+
+// ReSharper disable once InconsistentNaming
+public class StatementSplitter_
+{
+    private readonly StatementSplitter _splitter;
+
+    public StatementSplitter_()
+    {
+        _splitter =  new StatementSplitter(new SqlServerSyntax());
+    }
+
+    [Fact]
+    public void Splits_and_removes_GO_statements()
+    {
+        var original = @"
+SELECT @@VERSION;
+
+
+GO
+SELECT 1
+";
+        var batches = _splitter.Split(original);
+
+        batches.Should().HaveCount(2);
+    }
+
+}
