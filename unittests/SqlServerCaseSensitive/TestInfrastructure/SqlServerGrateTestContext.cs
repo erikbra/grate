@@ -21,7 +21,7 @@ public record SqlServerGrateTestContext(
     // ReSharper disable once UnusedMember.Global
     public SqlServerGrateTestContext(
         IGrateMigrator migrator, 
-        SqlServerTestContainerDatabase container) : this(migrator, "Danish_Norwegian_CI_AS", container)
+        SqlServerTestContainerDatabase container) : this(migrator, "Danish_Norwegian_CS_AS", container) // Case Sensitive collation
     {
     }
   
