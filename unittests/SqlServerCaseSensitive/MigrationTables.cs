@@ -5,7 +5,7 @@ using SqlServerCaseSensitive.TestInfrastructure;
 namespace SqlServerCaseSensitive;
 
 [Collection(nameof(SqlServerGrateTestContext))]
-public class MigrationTables(IGrateTestContext testContext, ITestOutputHelper testOutput)
+public class MigrationTables(SqlServerGrateTestContext testContext, ITestOutputHelper testOutput)
     : GenericMigrationTables(testContext, testOutput)
 {
     protected override string CountTableSql(string schemaName, string tableName)
