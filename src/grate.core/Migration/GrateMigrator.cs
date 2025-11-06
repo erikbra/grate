@@ -689,7 +689,13 @@ internal record GrateMigrator : IGrateMigrator
                 $"VersionTableLowerCase={thisConfig.VersionTableName.ToLower()}"
             ],
             
-            Environment = GrateEnvironment.Internal
+            Environment = GrateEnvironment.Internal,
+            /* 
+            note for `grate internal migration` only: 
+            this flag will allow grate to `bypass the error` of one time script change.
+            We will consider removing this flag in future.
+            */
+            WarnOnOneTimeScriptChanges = true
         };
     }
 
