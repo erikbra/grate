@@ -277,6 +277,8 @@ jobs:
         push: ${{ needs.set-version-number.outputs.is-release == 'true' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+        build-args: |
+          VERSION=${{ needs.set-version-number.outputs.nuGetVersion }}
 
   build-deb:
     name: Build Debian package
