@@ -20,10 +20,10 @@ jobs:
       #is-release: 'true'
     
     steps:
-    - name: Setup .NET 9
+    - name: Setup .NET 10
       uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: 10.0.x
     - name: Checkout
       uses: actions/checkout@v5
       with:
@@ -44,14 +44,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v5
-    - name: Setup .NET 9
+    - name: Setup .NET 10
       uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: 10.0.x
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      #run: dotnet pack ./grate/grate.csproj -c release -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
       run: dotnet pack ./src/grate/grate.csproj -p:SelfContained=false -p:PackAsTool=true -p:PackageOutputPath=/tmp/grate/nupkg
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
@@ -88,14 +87,13 @@ jobs:
     steps:
     - uses: actions/checkout@v5
     
-    - name: Setup .NET 9 and earlier
+    - name: Setup .NET 10 and earlier
       uses: actions/setup-dotnet@v5
       with:
          dotnet-version: |
-          6.0.x
-          7.0.x
           8.0.x
           9.0.x
+          10.0.x 
 
     - name: Restore dependencies
       run: dotnet restore
@@ -130,16 +128,16 @@ jobs:
               ]
     steps:
     - uses: actions/checkout@v5
-    - name: Setup .NET 9
+    - name: Setup .NET 10
       uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: 10.0.x
 
     - name: Publish self-contained ${{ matrix.arch }}
       run: dotnet publish ./src/grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
-        TargetFramework: net9.0
+        TargetFramework: net10.0
 
 
     - name: Upload self-contained ${{ matrix.arch }}
@@ -167,16 +165,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v5
-    - name: Setup .NET 9
+    - name: Setup .NET 10
       uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: 10.0.x
 
     - name: Publish self-contained ${{ matrix.arch }}
       run: dotnet publish ./src/grate/grate.csproj -r ${{ matrix.arch }} -c release --self-contained -p:SelfContained=true -o ./publish/${{ matrix.arch }}/self-contained
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
-        TargetFramework: net9.0
+        TargetFramework: net10.0
 
     - name: Upload self-contained ${{ matrix.arch }}
       #if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
@@ -326,14 +324,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v5
-    - name: Setup .NET 9 and earlier
+    - name: Setup .NET 10 and earlier
       uses: actions/setup-dotnet@v5
       with:
          dotnet-version: |
-          6.0.x
-          7.0.x
           8.0.x
           9.0.x
+          10.0.x
     - name: Test
       run: >
         dotnet test 
