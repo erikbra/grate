@@ -21,12 +21,7 @@
 
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0'">
-    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
-    <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -38,7 +33,7 @@
 grate - sql for the 20s
     
 grate is a no-code, low-fi database migration tool, inspired heavily by RoundhousE. It's written from the ground
-up using modern .NET 6/7/8/9. </Description>
+up using modern .NET 8/9/10. </Description>
     <Copyright>© Erik A. Brandstadmoen. All rights reserved.</Copyright>
     <PackageProjectUrl>https://erikbra.github.io/grate/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/erikbra/grate</RepositoryUrl>
