@@ -11,7 +11,7 @@ COPY src/ ./src/
 RUN dotnet publish --framework "$TARGETFRAMEWORK" --runtime "$RUNTIME" ./src/grate/grate.csproj \
     -c release --self-contained -p:SelfContained=true /p:Version="$VERSION" -o /publish
 
-FROM alpine:3 AS installer
+FROM --platform=$BUILDPLATFORM alpine:3 AS installer
 RUN apk add icu-libs
 
 FROM installer AS runtime
