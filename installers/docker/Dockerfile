@@ -2,15 +2,16 @@ FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
 
 ARG TARGETARCH
 ARG TARGETFRAMEWORK=net9.0
+ARG RUNTIME=linux-musl-$TARGETARCH
 ARG VERSION=1.0.0
 WORKDIR /app
 COPY *.props ./
 COPY *.ruleset ./
 COPY src/ ./src/
-RUN dotnet publish --framework "$TARGETFRAMEWORK" --arch "$TARGETARCH" ./src/grate/grate.csproj \
+RUN dotnet publish --framework "$TARGETFRAMEWORK" --runtime "$RUNTIME" ./src/grate/grate.csproj \
     -c release --self-contained -p:SelfContained=true /p:Version="$VERSION" -o /publish
 
-FROM --platform=$BUILDPLATFORM alpine:3 AS installer
+FROM alpine:3 AS installer
 RUN apk add icu-libs
 
 FROM installer AS runtime
