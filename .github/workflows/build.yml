@@ -158,6 +158,7 @@ jobs:
         path: ./publish/${{ matrix.arch }}/self-contained/*
     
     - name: Upload to Release
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       uses: softprops/action-gh-release@v2
       with:
         files: ./publish/${{ matrix.arch }}/self-contained/*
@@ -199,6 +200,7 @@ jobs:
         path: ./publish/${{ matrix.arch }}/self-contained/*
     
     - name: Upload to Release
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       uses: softprops/action-gh-release@v2
       with:
         files: ./publish/${{ matrix.arch }}/self-contained/*
@@ -235,6 +237,7 @@ jobs:
         path: ./installers/msi/tmp/*.msi
     
     - name: Upload to Release
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       uses: softprops/action-gh-release@v2
       with:
         files: ./installers/msi/tmp/*.msi
@@ -340,6 +343,7 @@ jobs:
         path: ./installers/deb/grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch }}.deb
 
     - name: Upload to Release
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       uses: softprops/action-gh-release@v2
       with:
         files: ./installers/deb/grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch }}.deb
@@ -371,6 +375,3 @@ jobs:
       env:
         LogLevel: Warning
         TZ: UTC
-./installers/msi/tmp/*:
-  msi:
-
