@@ -162,6 +162,7 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         files: ./publish/${{ matrix.arch }}/self-contained/*
+        tag_name: ${{ needs.set-version-number.outputs.nuGetVersion }}
     
 
   build-standalone-mac-arm64:
@@ -204,6 +205,7 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         files: ./publish/${{ matrix.arch }}/self-contained/*
+        tag_name: ${{ needs.set-version-number.outputs.nuGetVersion }}
 
   
   build-msi:
@@ -241,6 +243,7 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         files: ./installers/msi/tmp/*.msi
+        tag_name: ${{ needs.set-version-number.outputs.nuGetVersion }}
 
   build-docker-image:
     name: Build and push docker image
@@ -347,6 +350,7 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         files: ./installers/deb/grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch }}.deb
+        tag_name: ${{ needs.set-version-number.outputs.nuGetVersion }}
 
   test:
     name: Run tests
