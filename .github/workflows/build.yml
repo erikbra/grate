@@ -73,7 +73,7 @@ jobs:
         
     - name: Push to Nuget.org
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
-      run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{steps.login.outputs.NUGET_API_KEY}} --skip-duplicate
+      run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_ORG_KEY}} --skip-duplicate
   
   build-nuget-package:
     needs: set-version-number
@@ -119,11 +119,11 @@ jobs:
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       id: login
       with:
-        user: wokket # ${{ secrets.NUGET_USER }}
+        user: wokket # ${{ secrets.NUGET_USER }}, can use ${{steps.login.outputs.NUGET_API_KEY}} below once we get perms sorted
         
     - name: Push to Nuget.org
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
-      run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{steps.login.outputs.NUGET_API_KEY}} --skip-duplicate
+      run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_ORG_KEY}} --skip-duplicate
 
   build-standalone:
     name: Build cli
@@ -156,7 +156,11 @@ jobs:
       with:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: ./publish/${{ matrix.arch }}/self-contained/*
-        tag: ${{ needs.set-version-number.outputs.nuGetVersion }}
+    
+    - name: Upload to Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: ./publish/${{ matrix.arch }}/self-contained/*
     
 
   build-standalone-mac-arm64:
@@ -193,7 +197,11 @@ jobs:
       with:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: ./publish/${{ matrix.arch }}/self-contained/*
-        tag: ${{ needs.set-version-number.outputs.nuGetVersion }}
+    
+    - name: Upload to Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: ./publish/${{ matrix.arch }}/self-contained/*
 
   
   build-msi:
@@ -225,7 +233,11 @@ jobs:
       with:
         name: grate-msi-${{ matrix.arch }}-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: ./installers/msi/tmp/*.msi
-        tag: ${{ needs.set-version-number.outputs.nuGetVersion }}
+    
+    - name: Upload to Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: ./installers/msi/tmp/*.msi
 
   build-docker-image:
     name: Build and push docker image
@@ -326,7 +338,11 @@ jobs:
       with:
         name: grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch}}.deb
         path: ./installers/deb/grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch }}.deb
-        tag: ${{ needs.set-version-number.outputs.nuGetVersion }}
+
+    - name: Upload to Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: ./installers/deb/grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch }}.deb
 
   test:
     name: Run tests
@@ -355,5 +371,6 @@ jobs:
       env:
         LogLevel: Warning
         TZ: UTC
-
+./installers/msi/tmp/*:
+  msi:
 
