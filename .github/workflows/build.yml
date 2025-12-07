@@ -42,6 +42,8 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
     steps:
     - uses: actions/checkout@v5
     - name: Setup .NET 9
@@ -136,6 +138,8 @@ jobs:
                 "linux-musl-x64", "linux-musl-arm64", "linux-x64", "linux-arm64",
                 "osx-x64" 
               ]
+    permissions:
+      contents: write
     steps:
     - uses: actions/checkout@v5
     - name: Setup .NET 9
@@ -156,7 +160,16 @@ jobs:
       with:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: ./publish/${{ matrix.arch }}/self-contained/*
-    
+
+    - name: Publish artifact ${{ matrix.arch }}
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+      run: |
+        name=grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}.zip
+        zip -r $name ./publish/${{ matrix.arch }}/self-contained
+        gh release upload ${{ needs.set-version-number.outputs.semVer }} $name --clobber
+      env:
+        GH_TOKEN: ${{ github.token }}
+
 
   build-standalone-mac-arm64:
     name: Build cli
@@ -173,6 +186,8 @@ jobs:
       matrix:
         arch: [ "osx-arm64" ]
 
+    permissions:
+      contents: write
     steps:
     - uses: actions/checkout@v5
     - name: Setup .NET 9
@@ -192,7 +207,15 @@ jobs:
       with:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: ./publish/${{ matrix.arch }}/self-contained/*
-
+    
+    - name: Publish artifact ${{ matrix.arch }}
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+      run: |
+        name=grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}.zip
+        zip -r $name ./publish/${{ matrix.arch }}/self-contained
+        gh release upload ${{ needs.set-version-number.outputs.semVer }} $name --clobber
+      env:
+        GH_TOKEN: ${{ github.token }}
   
   build-msi:
     name: Build MSI
@@ -205,6 +228,8 @@ jobs:
       matrix:
         arch: [ "win-x64", "win-arm64" ]
 
+    permissions:
+      contents: write
     steps:
     - uses: actions/checkout@v5
     - uses: actions/download-artifact@v6
@@ -223,6 +248,17 @@ jobs:
       with:
         name: grate-msi-${{ matrix.arch }}-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: ./installers/msi/tmp/*.msi
+    
+    - name: Publish artifact ${{ matrix.arch }}
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+      shell: pwsh
+      run: |
+        $name = "grate-msi-${{ matrix.arch }}-${{ needs.set-version-number.outputs.nuGetVersion }}.msi"
+        $msiFile = Get-ChildItem -Path ./installers/msi/tmp -Filter *.msi | Select-Object -First 1
+        Copy-Item $msiFile.FullName -Destination $name
+        gh release upload ${{ needs.set-version-number.outputs.semVer }} $name --clobber
+      env:
+        GH_TOKEN: ${{ github.token }}
 
 
   build-docker-image:
@@ -299,7 +335,8 @@ jobs:
     strategy:
       matrix:
         arch: [ "linux-arm64", "linux-x64" ]
-
+    permissions:
+      contents: write
     steps:
     - uses: actions/checkout@v5
     - uses: actions/download-artifact@v6
@@ -324,7 +361,16 @@ jobs:
       with:
         name: grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch}}.deb
         path: ./installers/deb/grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch }}.deb
-
+    
+    - name: Publish artifact ${{ matrix.arch }}
+      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
+      run: |
+        nameOld=./installers/deb/grate_${{ needs.set-version-number.outputs.nuGetVersion }}-1_${{ steps.get-arch.outputs.arch }}.deb
+        name=grate_${{ needs.set-version-number.outputs.nuGetVersion }}_${{ steps.get-arch.outputs.arch }}.deb
+        mv $nameOld $name
+        gh release upload ${{ needs.set-version-number.outputs.semVer }} $name --clobber
+      env:
+        GH_TOKEN: ${{ github.token }}
   test:
     name: Run tests
 
