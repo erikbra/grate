@@ -25,7 +25,7 @@ jobs:
       with:
         dotnet-version: 9.0.x
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
     - name: Install GitVersion
@@ -45,7 +45,7 @@ jobs:
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Setup .NET 9
       uses: actions/setup-dotnet@v5
       with:
@@ -96,7 +96,7 @@ jobs:
       id-token: write  # enable GitHub OIDC token issuance for this job
       
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     
     - name: Setup .NET 9 and earlier
       uses: actions/setup-dotnet@v5
@@ -141,7 +141,7 @@ jobs:
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Setup .NET 9
       uses: actions/setup-dotnet@v5
       with:
@@ -189,7 +189,7 @@ jobs:
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Setup .NET 9
       uses: actions/setup-dotnet@v5
       with:
@@ -231,7 +231,7 @@ jobs:
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - uses: actions/download-artifact@v6
       with:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
@@ -274,7 +274,7 @@ jobs:
       FULL_IMAGE_NAME: ${{ github.repository }}
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     # - uses: actions/download-artifact@v6 # download from another artifact is not a good idea, we need to build directly from source
     #   with:
     #     name: grate-linux-musl-x64-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
@@ -338,7 +338,7 @@ jobs:
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - uses: actions/download-artifact@v6
       with:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
@@ -380,7 +380,7 @@ jobs:
         category: [ "Basic_tests", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Setup .NET 9 and earlier
       uses: actions/setup-dotnet@v5
       with:
