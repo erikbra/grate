@@ -119,11 +119,11 @@ jobs:
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       id: login
       with:
-        user: wokket # ${{ secrets.NUGET_USER }}, can use ${{steps.login.outputs.NUGET_API_KEY}} below once we get perms sorted
+        user: wokket # ${{ secrets.NUGET_USER }} once we have perms to access github secrets
         
     - name: Push to Nuget.org
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
-      run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_ORG_KEY}} --skip-duplicate
+      run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{steps.login.outputs.NUGET_API_KEY}} --skip-duplicate
 
   build-standalone:
     name: Build cli
