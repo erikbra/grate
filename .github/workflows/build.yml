@@ -77,7 +77,7 @@ jobs:
         
     - name: Push to Nuget.org
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
-      run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key "${{secrets.NUGET_ORG_KEY}}" --skip-duplicate
+      run: dotnet nuget push /tmp/grate/nupkg/grate-dotnet-tool-${{ needs.set-version-number.outputs.nuGetVersion }}.nupkg --source https://api.nuget.org/v3/index.json --api-key "${{secrets.NUGET_ORG_KEY}}" --skip-duplicate
   
   build-nuget-package:
     needs: set-version-number
