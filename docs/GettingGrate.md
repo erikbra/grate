@@ -12,9 +12,13 @@ There's a variety of ways to access grate depending on your needs:
 
 The [github site](https://github.com/erikbra/grate/) has both the raw source code for local compilation, and also has binaries for a variety of OS's published at [each release](https://github.com/erikbra/grate/releases/latest).
 
+Binaries are available for Windows, Linux (glibc and musl), and macOS across multiple architectures. The linux-musl binaries are compatible with Alpine Linux.
+
 ## Docker
 
 There's a `{{ site.github.repository_nwo }}` docker image published to [dockerhub](https://hub.docker.com/r/{{ site.github.repository_nwo }}) on every release.  See the [examples](https://github.com/erikbra/grate/tree/main/examples) folder for a demo using this to a migration.
+
+The Docker image is built on Alpine Linux, making it lightweight and suitable for containerized environments. For more information about Alpine Linux support, see [Alpine Linux Support](AlpineLinuxSupport.md).
 
 Start the sqlserver database 
 ```sh
