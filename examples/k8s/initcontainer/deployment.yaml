@@ -39,7 +39,7 @@ spec:
     spec:
       initContainers:
         - name: db-migration
-          image: grate-devs/grate-sample-service:migration-latest
+          image: gratedevs/grate-sample-service:migration-latest
           env:
           - name: APP_CONNSTRING
             value: "Server=db;Database=grate_test;User Id=sa;Password=gs8j4AS7h87jHg;TrustServerCertificate=True"
@@ -47,7 +47,7 @@ spec:
             value: "1.0.0"
       containers:
         - name: sample-service
-          image: grate-devs/grate-sample-service:latest
+          image: gratedevs/grate-sample-service:latest
           env:
           - name: ConnectionStrings__DefaultConnection
             value: "Server=db;Database=grate_test;User Id=sa;Password=gs8j4AS7h87jHg;TrustServerCertificate=True"
