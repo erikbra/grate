@@ -40,7 +40,9 @@ Alpine Linux is primarily used in containerized environments. The official grate
 ### 2. Binary Compatibility
 The linux-musl binaries work on Alpine without any modifications. Users can simply download and run them:
 ```sh
-wget https://github.com/erikbra/grate/releases/latest/download/grate-linux-musl-x64-...
+# Download from releases (filename includes version number)
+wget https://github.com/erikbra/grate/releases/download/2.0.5/grate-linux-musl-x64-self-contained-2.0.5.zip
+unzip grate-linux-musl-x64-self-contained-2.0.5.zip
 chmod +x grate
 ./grate
 ```

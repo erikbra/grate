@@ -26,7 +26,7 @@ The Docker image:
 - Supports multiple architectures (amd64, arm64)
 - Is published to Docker Hub on every release
 
-See the [Getting Grate](getting-grate.md) documentation for Docker usage examples.
+See the [Getting Grate](/getting-grate/) documentation for Docker usage examples.
 
 ### 2. Standalone linux-musl Binaries
 
@@ -40,14 +40,18 @@ These self-contained binaries work on Alpine Linux without requiring .NET runtim
 **Installation:**
 
 ```sh
-# Download the appropriate binary
+# Download the appropriate binary (replace {version} with actual version like 2.0.5)
+wget https://github.com/erikbra/grate/releases/download/{version}/grate-linux-musl-x64-self-contained-{version}.zip
+
+# Or use latest release
 wget https://github.com/erikbra/grate/releases/latest/download/grate-linux-musl-x64-self-contained-{version}.zip
 
-# Extract
-unzip grate-linux-musl-x64-self-contained-{version}.zip -d /usr/local/bin/
+# Extract to a directory
+unzip grate-linux-musl-x64-self-contained-{version}.zip -d grate-bin
 
-# Make executable
-chmod +x /usr/local/bin/grate
+# Install to system path
+sudo cp grate-bin/grate /usr/local/bin/
+sudo chmod +x /usr/local/bin/grate
 ```
 
 ### 3. Build from Source
