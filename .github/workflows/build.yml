@@ -43,7 +43,6 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      id-token: write  # Required to get Github JWT to auth to Nuget
       contents: write
       
     steps:
@@ -66,18 +65,9 @@ jobs:
         name: grate-dotnet-tool-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: /tmp/grate/nupkg/*   
     
-      # Get a short-lived NuGet API key (Trusted Publishing https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing)
-      # TODO: Replace hard coded username with ${{ secrets.NUGET_USER }} or similar
-    - name: NuGet login (OIDC → temp API key)
-      uses: NuGet/login@v1
-      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
-      id: login
-      with:
-        user: wokket 
-        
     - name: Push to Nuget.org
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
-      run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key "${{steps.login.outputs.NUGET_API_KEY}}" --skip-duplicate
+      run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key "${{ secrets.NUGET_API_KEY }}" --skip-duplicate
   
   build-nuget-package:
     needs: set-version-number
@@ -95,7 +85,6 @@ jobs:
                 "grate.sqlserver"
               ]
     permissions:
-      id-token: write  # Required to get Github JWT to auth to Nuget
       contents: read
       
     steps:
@@ -117,18 +106,9 @@ jobs:
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
         
-    # Get a short-lived NuGet API key (Trusted Publishing https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing)
-    # TODO: Replace hardcoded username with ${{ secrets.NUGET_USER }} or similar once we have perms to access github secrets
-    - name: NuGet login (OIDC → temp API key)
-      uses: NuGet/login@v1
-      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
-      id: login
-      with: 
-        user: wokket 
-        
     - name: Push to Nuget.org
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
-      run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key "${{steps.login.outputs.NUGET_API_KEY}}" --skip-duplicate
+      run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key "${{ secrets.NUGET_API_KEY }}" --skip-duplicate
 
   build-standalone:
     name: Build cli
