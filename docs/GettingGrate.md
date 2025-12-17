@@ -10,13 +10,13 @@ There's a variety of ways to access grate depending on your needs:
 
 ## Source Code/raw binaries
 
-The [github site](https://github.com/erikbra/grate/) has both the raw source code for local compilation, and also has binaries for a variety of OS's published at [each release](https://github.com/erikbra/grate/releases/latest).
+The [github site](https://github.com/grate-devs/grate/) has both the raw source code for local compilation, and also has binaries for a variety of OS's published at [each release](https://github.com/grate-devs/grate/releases/latest).
 
 Binaries are available for Windows, Linux (glibc and musl), and macOS across multiple architectures. The linux-musl binaries are compatible with Alpine Linux.
 
 ## Docker
 
-There's a `{{ site.github.repository_nwo }}` docker image published to [dockerhub](https://hub.docker.com/r/{{ site.github.repository_nwo }}) on every release.  See the [examples](https://github.com/erikbra/grate/tree/main/examples) folder for a demo using this to a migration.
+There's a `{{ site.github.repository_nwo }}` docker image published to [dockerhub](https://hub.docker.com/r/{{ site.github.repository_nwo }}) on every release.  See the [examples](https://github.com/grate-devs/grate/tree/main/examples) folder for a demo using this to a migration.
 
 The Docker image is built on Alpine Linux, making it lightweight and suitable for containerized environments. For more information about Alpine Linux support, see [Alpine Linux Support](AlpineLinuxSupport.md).
 
@@ -26,9 +26,9 @@ docker network create grate_network && docker run -e SA_PASSWORD=gs8j4AS7h87jHg 
 ```
 Run grate migration
 ```sh
-docker run -v ./examples/docker/db:/db  -e APP_CONNSTRING="Server=db;Database=grate_test_db;User Id=sa;Password=gs8j4AS7h87jHg;TrustServerCertificate=True" --network grate_network erikbra/grate
+docker run -v ./examples/docker/db:/db  -e APP_CONNSTRING="Server=db;Database=grate_test_db;User Id=sa;Password=gs8j4AS7h87jHg;TrustServerCertificate=True" --network grate_network grate-devs/grate
 # run with database type, accept: sqlserver, postgresql, mariadb, sqlite, oracle
-# docker run -v ./examples/docker/db:/db -e DATABASE_TYPE=sqlserver -e CREATE_DATABASE=true -e ENVIRONMENT=Dev -e TRANSACTION=true -e APP_CONNSTRING="Server=db;Database=grate_test_db;User Id=sa;Password=gs8j4AS7h87jHg;TrustServerCertificate=True" --network grate_network erikbra/grate  
+# docker run -v ./examples/docker/db:/db -e DATABASE_TYPE=sqlserver -e CREATE_DATABASE=true -e ENVIRONMENT=Dev -e TRANSACTION=true -e APP_CONNSTRING="Server=db;Database=grate_test_db;User Id=sa;Password=gs8j4AS7h87jHg;TrustServerCertificate=True" --network grate_network grate-devs/grate  
 ```
 
 Cleanup resources

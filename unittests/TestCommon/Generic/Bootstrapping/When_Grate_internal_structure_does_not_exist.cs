@@ -166,7 +166,7 @@ public abstract class When_Grate_internal_structure_does_not_exist(IGrateTestCon
 
     // This  was failing, because the tokens were already replaced before the internal scripts were run,
     // and the tokens were lazily initialized. So we had to clear the tokens when running the internal scripts.
-    // https://github.com/erikbra/grate/issues/512
+    // https://github.com/grate-devs/grate/issues/512
     [Fact]
     public virtual async Task GrateScriptsRun_table_is_created_even_with_custom_create_database_script()
     {

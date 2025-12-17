@@ -20,7 +20,7 @@ install it.
 ## Clone the grate repo
 
 ```
-git clone https://github.com/erikbra/grate.git
+git clone https://github.com/grate-devs/grate.git
 ```
 
 ## Run the tests, to make sure you are properly up and running

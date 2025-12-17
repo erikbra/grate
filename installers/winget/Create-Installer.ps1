@@ -7,7 +7,7 @@ param (
 
 $Root = Resolve-Path "$($PSScriptRoot)";
 
-$packageUrl="https://github.com/erikbra/grate/releases/download/$version/grate-$version.msi"
+$packageUrl="https://github.com/grate-devs/grate/releases/download/$version/grate-$version.msi"
 
 # Download and extract winget
 $wingetExe="https://aka.ms/wingetcreate/latest/self-contained"
