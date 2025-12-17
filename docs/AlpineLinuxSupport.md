@@ -17,7 +17,7 @@ Alpine Linux users can use grate through multiple distribution methods without n
 The official grate Docker image is built on Alpine Linux and is the recommended approach for Alpine users:
 
 ```sh
-docker pull erikbra/grate:latest
+docker pull grate-devs/grate:latest
 ```
 
 The Docker image:
