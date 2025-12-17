@@ -3,7 +3,7 @@ pr: none
 
 variables:
 - name: packageUrl
-  value: "https://github.com/erikbra/grate/releases/download/1.6.1/grate_1.6.1-1_amd64.deb"
+  value: "https://github.com/grate-devs/grate/releases/download/1.6.1/grate_1.6.1-1_amd64.deb"
 - name: localFile
   value: /tmp/grate_1.6.1-1_amd64.deb
 - name: dbRoot
