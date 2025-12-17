@@ -1,7 +1,7 @@
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 
 ARG TARGETARCH
-ARG TARGETFRAMEWORK=net9.0
+ARG TARGETFRAMEWORK=net10.0
 ARG RUNTIME=linux-musl-$TARGETARCH
 ARG VERSION=1.0.0
 WORKDIR /app
