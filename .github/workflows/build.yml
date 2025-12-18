@@ -25,7 +25,7 @@ jobs:
       with:
         dotnet-version: 10.0.x
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
     - name: Install GitVersion
@@ -47,7 +47,7 @@ jobs:
       contents: write
       
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Setup .NET 10
       uses: actions/setup-dotnet@v5
       with:
@@ -99,7 +99,7 @@ jobs:
       contents: read
       
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     
     - name: Setup .NET 10 and earlier
       uses: actions/setup-dotnet@v5
@@ -144,7 +144,7 @@ jobs:
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Setup .NET 10
       uses: actions/setup-dotnet@v5
       with:
@@ -192,7 +192,7 @@ jobs:
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Setup .NET 10
       uses: actions/setup-dotnet@v5
       with:
@@ -234,7 +234,7 @@ jobs:
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - uses: actions/download-artifact@v6
       with:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
@@ -292,7 +292,7 @@ jobs:
       FULL_IMAGE_NAME: ${{ github.repository }}
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     
     - name: Set up Docker
       uses: docker/setup-docker-action@v4
@@ -353,7 +353,7 @@ jobs:
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - uses: actions/download-artifact@v6
       with:
         name: grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
@@ -395,7 +395,7 @@ jobs:
         category: [ "Basic_tests", "SqlServer", "PostgreSQL", "MariaDB", "Sqlite", "Oracle"  ]
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Setup .NET 10 and earlier
       uses: actions/setup-dotnet@v5
       with:
