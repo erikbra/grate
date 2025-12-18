@@ -168,7 +168,7 @@ jobs:
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       run: |
         name=grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}.zip
-        zip -r $name ./publish/${{ matrix.arch }}/self-contained
+        zip -j $name ./publish/${{ matrix.arch }}/self-contained/*
         gh release upload ${{ needs.set-version-number.outputs.semVer }} $name --clobber
       env:
         GH_TOKEN: ${{ github.token }}
@@ -215,7 +215,7 @@ jobs:
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       run: |
         name=grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}.zip
-        zip -r $name ./publish/${{ matrix.arch }}/self-contained
+        zip -j $name ./publish/${{ matrix.arch }}/self-contained/*
         gh release upload ${{ needs.set-version-number.outputs.semVer }} $name --clobber
       env:
         GH_TOKEN: ${{ github.token }}
