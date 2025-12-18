@@ -85,13 +85,13 @@ jobs:
     name: Build cli
     needs: set-version-number
 
-    # Use macos-14 to build osx-arm64, it runs on M1, see 
+    # Use macos-15 to build osx-arm64, it runs on M1, see 
     # https://github.blog/changelog/2024-01-30-github-actions-introducing-the-new-m1-macos-runner-available-to-open-source/
     #
     # I've earlier had problems with that the trimmed, self-contained binary for osx-arm64 that was built on Linux
     # did not work when opened on an actual mac with arm64.
 
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
       matrix:
         arch: [ "osx-arm64" ]
@@ -154,7 +154,7 @@ jobs:
     name: Build tests
     needs: set-version-number
 
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
       matrix:
         arch: [ "osx-arm64" ]
@@ -416,8 +416,8 @@ jobs:
           - name: macos-latest
             arch: osx-x64
             executable: grate
-          # macos-14 is M1 (arm64)
-          - name: macos-14
+          # macos-15 is M1 (arm64)
+          - name: macos-15
             arch: osx-arm64
             executable: grate
         database: ${{ fromJson(needs.setup-test-environment.outputs.dbs) }}
