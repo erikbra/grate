@@ -117,13 +117,12 @@ jobs:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
         
     # Get a short-lived NuGet API key (Trusted Publishing https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing)
-    # TODO: Replace hardcoded username with ${{ secrets.NUGET_USER }} or similar once we have perms to access github secrets
     - name: NuGet login (OIDC → temp API key)
       uses: NuGet/login@v1
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       id: login
       with: 
-        user: wokket 
+        user: ${{ secrets.NUGET_USER }} 
         
     - name: Push to Nuget.org
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
