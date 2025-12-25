@@ -270,8 +270,7 @@ jobs:
     #if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
     env:
       #REGISTRY: ghcr.io
-      IMAGE_NAME: gratedevs/grate
-      FULL_IMAGE_NAME: gratedevs/grate
+      IMAGE_NAME: grate
 
     steps:
     - uses: actions/checkout@v5
@@ -292,7 +291,7 @@ jobs:
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       with:
         #registry: ${{ env.REGISTRY }}
-        username: ${{ github.repository_owner}}
+        username: ${{ secrets.DOCKER_HUB_USER}}
         password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
     - name: Extract metadata (tags, labels) for Docker
@@ -306,7 +305,7 @@ jobs:
           type=ref,event=tag
 
         #images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        images: ${{ env.IMAGE_NAME }}
+        images: ${{ secrets.DOCKER_HUB_USER}}/${{ env.IMAGE_NAME }}
 
 
     - name: Build and push Docker image
