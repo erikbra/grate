@@ -1,4 +1,18 @@
+# IMPORTANT!
+
+To keep the `grate` project healthy and sustainable, we have made the decision to move from `erikbra/grate` to `grate-devs/grate`.
+
+Please update your remote URLs to point to the new location:
+
+| Platform   | Old location  | New location     |
+| ---------- | ------------- | ---------------- |
+| Github org | erikbra/grate | grate-devs/grate |
+| NuGet      | erikbra.grate | grate-devs.grate |
+| DockerHub  | erikbra/grate | gratedevs/grate  |
+
+
 # grate
+
 SQL scripts migration runner 
 
 [![CI](https://github.com/grate-devs/grate/actions/workflows/ci.yml/badge.svg)](https://github.com/grate-devs/grate/actions/workflows/ci.yml)
@@ -9,10 +23,10 @@ SQL scripts migration runner
 
 Below are examples on how to integrate grate in your workflow in different CI systems.
 
-| Build pipeline | Last run | Build definition |
-|---|---|---|
-| Github actions | [![Example grate workflow](https://github.com/grate-devs/grate/actions/workflows/grate-workflow.yml/badge.svg)](https://github.com/grate-devs/grate/actions/workflows/grate-workflow.yml) | [/examples/github-actions/grate-workflow.yml](https://github.com/grate-devs/grate/blob/main/.github/workflows/grate-workflow.yml)  |
-| Azure DevOps  | [![Build Status](https://dev.azure.com/my-grate/grate/_apis/build/status/erikbra.grate?branchName=main)](https://dev.azure.com/my-grate/grate/_build/latest?definitionId=1&branchName=main)  | [/examples/AzureDevops/azure-pipelines.yml](https://github.com/grate-devs/grate/blob/main/examples/AzureDevops/azure-pipelines.yml)  |
+| Build pipeline | Last run                                                                                                                                                                                    | Build definition                                                                                                                    |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Github actions | [![Example grate workflow](https://github.com/grate-devs/grate/actions/workflows/grate-workflow.yml/badge.svg)](https://github.com/grate-devs/grate/actions/workflows/grate-workflow.yml)   | [/examples/github-actions/grate-workflow.yml](https://github.com/grate-devs/grate/blob/main/.github/workflows/grate-workflow.yml)   |
+| Azure DevOps   | [![Build Status](https://dev.azure.com/my-grate/grate/_apis/build/status/erikbra.grate?branchName=main)](https://dev.azure.com/my-grate/grate/_build/latest?definitionId=1&branchName=main) | [/examples/AzureDevops/azure-pipelines.yml](https://github.com/grate-devs/grate/blob/main/examples/AzureDevops/azure-pipelines.yml) |
 
 ## Goal
 
@@ -23,7 +37,7 @@ While early versions of grate may not support every last RoundhousE feature, tho
 
 ## Docs
 
-Full documentation is available [on the grate site](https://erikbra.github.io/grate/).
+Full documentation is available [on the grate site](https://grate-devs.github.io/grate/).
 
 ## Why the name grate?
 

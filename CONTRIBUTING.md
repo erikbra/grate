@@ -3,9 +3,9 @@
 I'm very happy that you are reading this page! Grate needs all the contributors it can get!
 I'll try to jot down a few notes on how to get started developing grate.
 
-## Get .NET 9 (or later)
+## Get .NET 10
 
-Grate is built with .NET 6/7/8/9 (and probably soon .NET 10). You can get it [here](https://dotnet.microsoft.com/en-us/download) and start building right away.
+Grate is built with .NET 8/9/10. You can get it [here](https://dotnet.microsoft.com/en-us/download) and start building right away.
 
 ## Get (buy, borrow, rent, or whatever) a computer with an operating system on it
 
@@ -27,7 +27,7 @@ git clone https://github.com/grate-devs/grate.git
 
 ```
 > cd grate
-> dotnet test --framework net9.0
+> dotnet test --framework net10.0
 ```
 
 ## Build a self-contained executable (if you want)
@@ -38,7 +38,7 @@ You can build a self-contained executable just using `dotnet publish` (example f
 
 ```
 > cd src/grate
-> dotnet publish -r osx-x64 --self-contained true --framework net8.0 -c Release -o /tmp/grate
+> dotnet publish -r osx-x64 --self-contained true --framework net10.0 -c Release -o /tmp/grate
 ```
 
 Find the fully independent executable, and the noticable size:
