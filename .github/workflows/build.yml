@@ -287,8 +287,8 @@ jobs:
     #if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
     env:
       #REGISTRY: ghcr.io
-      IMAGE_NAME: ${{ github.repository }}
-      FULL_IMAGE_NAME: ${{ github.repository }}
+      IMAGE_NAME: gratedevs/grate
+      FULL_IMAGE_NAME: gratedevs/grate
 
     steps:
     - uses: actions/checkout@v5

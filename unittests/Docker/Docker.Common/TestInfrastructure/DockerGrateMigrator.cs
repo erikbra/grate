@@ -26,7 +26,7 @@ public record DockerGrateMigrator(
 {
     public DatabaseType DatabaseType { get; set; } = DatabaseType;
 
-    private static string DockerImage => "grate-devs/grate";
+    private static string DockerImage => "gratedevs/grate";
     //private static string DockerImage => "grate";
 
     public async Task Migrate()
