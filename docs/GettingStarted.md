@@ -28,7 +28,7 @@ But don't be fooled, there's power in this simplicity due to a couple of key fac
 
 ## Examples
 
-There are samples included in source control in the [`/examples/`](https://github.com/erikbra/grate/tree/main/examples) directory, have a look and a play in there for some more info.
+There are samples included in source control in the [`/examples/`](https://github.com/grate-devs/grate/tree/main/examples) directory, have a look and a play in there for some more info.
 
 ## Script Types
 

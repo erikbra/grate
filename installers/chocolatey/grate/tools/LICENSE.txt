@@ -1,6 +1,6 @@
 ﻿
 
-From: https://github.com/erikbra/grate/blob/main/LICENSE
+From: https://github.com/grate-devs/grate/blob/main/LICENSE
 
 LICENSE
 

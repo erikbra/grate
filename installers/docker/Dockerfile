@@ -1,7 +1,7 @@
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 
 ARG TARGETARCH
-ARG TARGETFRAMEWORK=net9.0
+ARG TARGETFRAMEWORK=net10.0
 ARG RUNTIME=linux-musl-$TARGETARCH
 ARG VERSION=1.0.0
 WORKDIR /app
@@ -12,10 +12,8 @@ RUN dotnet publish --framework "$TARGETFRAMEWORK" --runtime "$RUNTIME" ./src/gra
     -c release --self-contained -p:SelfContained=true /p:Version="$VERSION" /p:RuntimeIdentifiers="" \
     -o /publish
 
-FROM --platform=$BUILDPLATFORM alpine:3 AS installer
-RUN apk add icu-libs
-
-FROM installer AS runtime
+FROM alpine:3 AS runtime
+RUN apk add --no-cache icu-libs
 WORKDIR /app
 
 COPY --chmod=0755 --from=build /publish .

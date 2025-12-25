@@ -2,7 +2,7 @@
 -- and one for the "standard" migration tables
 IF NOT EXISTS (SELECT *
  FROM sys.schemas
- WHERE name = N'{{SchemaName}}')
+ WHERE name COLLATE DATABASE_DEFAULT = N'{{SchemaName}}' COLLATE DATABASE_DEFAULT)
 BEGIN
  EXEC('CREATE SCHEMA {{SchemaName}}')
 END

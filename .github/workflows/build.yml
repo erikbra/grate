@@ -66,18 +66,9 @@ jobs:
         name: grate-dotnet-tool-${{ needs.set-version-number.outputs.nuGetVersion }}
         path: /tmp/grate/nupkg/*   
     
-      # Get a short-lived NuGet API key (Trusted Publishing https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing)
-      # TODO: Replace hardcoded username with ${{ secrets.NUGET_USER }} or similar
-    - name: NuGet login (OIDC → temp API key)
-      uses: NuGet/login@v1
-      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
-      id: login
-      with:
-        user: wokket
-
     - name: Push to Nuget.org
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
-      run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --skip-duplicate
+      run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_ORG_KEY }} --skip-duplicate
   
   build-nuget-package:
     needs: set-version-number
@@ -117,18 +108,9 @@ jobs:
       env:
         VERSION: ${{ needs.set-version-number.outputs.nuGetVersion }}
         
-    # Get a short-lived NuGet API key (Trusted Publishing https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing)
-    # TODO: Replace hardcoded username with ${{ secrets.NUGET_USER }} or similar once we have perms to access github secrets
-    - name: NuGet login (OIDC → temp API key)
-      uses: NuGet/login@v1
-      if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
-      id: login
-      with:
-        user: wokket
-
     - name: Push to Nuget.org
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
-      run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --skip-duplicate
+      run: dotnet nuget push /tmp/grate/nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_ORG_KEY }} --skip-duplicate
 
   build-standalone:
     name: Build cli
@@ -168,7 +150,7 @@ jobs:
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       run: |
         name=grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}.zip
-        zip -r $name ./publish/${{ matrix.arch }}/self-contained
+        zip -j $name ./publish/${{ matrix.arch }}/self-contained/*
         gh release upload ${{ needs.set-version-number.outputs.semVer }} $name --clobber
       env:
         GH_TOKEN: ${{ github.token }}
@@ -178,13 +160,13 @@ jobs:
     name: Build cli
     needs: set-version-number
 
-    # Use macos-14 to build osx-arm64, it runs on M1, see 
+    # Use macos-15 to build osx-arm64, it runs on M1, see 
     # https://github.blog/changelog/2024-01-30-github-actions-introducing-the-new-m1-macos-runner-available-to-open-source/
     #
     # I've earlier had problems with that the trimmed, self-contained binary for osx-arm64 that was built on Linux
     # did not work when opened on an actual mac with arm64.
 
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
       matrix:
         arch: [ "osx-arm64" ]
@@ -215,7 +197,7 @@ jobs:
       if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
       run: |
         name=grate-${{ matrix.arch }}-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}.zip
-        zip -r $name ./publish/${{ matrix.arch }}/self-contained
+        zip -j $name ./publish/${{ matrix.arch }}/self-contained/*
         gh release upload ${{ needs.set-version-number.outputs.semVer }} $name --clobber
       env:
         GH_TOKEN: ${{ github.token }}
@@ -269,7 +251,22 @@ jobs:
     needs: 
      - set-version-number
      #- build-standalone ## no need, we build directly from source
-    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration:
+          - name: "amd64"
+            arch: "linux/amd64"
+            runs-on: ubuntu-latest
+          # Doesn't work well with docker-in-docker on amd64 runners, so we skip it for now
+          # - name: "arm64" 
+          #   arch: "linux/arm64"
+          #   runs-on: macos-15
+     
+    runs-on: ${{ matrix.configuration.runs-on }}
+
+    
     #if: ${{ needs.set-version-number.outputs.is-release == 'true' }}
     env:
       #REGISTRY: ghcr.io
@@ -278,10 +275,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v5
-    # - uses: actions/download-artifact@v6 # download from another artifact is not a good idea, we need to build directly from source
-    #   with:
-    #     name: grate-linux-musl-x64-self-contained-${{ needs.set-version-number.outputs.nuGetVersion }}
-    #     path: installers/docker/
     
     - name: Set up Docker
       uses: docker/setup-docker-action@v4
@@ -321,7 +314,8 @@ jobs:
       with:
         file: ./installers/docker/Dockerfile
         context: .
-        platforms: linux/amd64,linux/arm64
+        #platforms: linux/amd64,linux/arm64
+        platforms: ${{ matrix.configuration.arch }}
         push: ${{ needs.set-version-number.outputs.is-release == 'true' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}

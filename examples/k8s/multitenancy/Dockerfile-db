@@ -1,4 +1,4 @@
-FROM erikbra/grate:latest as base
+FROM grate-devs/grate:latest as base
 WORKDIR /app
 COPY sql/ /db
 COPY script/ ./
