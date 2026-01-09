@@ -38,13 +38,14 @@ grate --connectionstring="Server=(localdb)\MSSQLLocalDB;Integrated Security=true
 | --disabletokenreplacement<br>--disabletokens | false | **Tokens** - This instructs grate to not perform token replacement ({% raw %}{{DatabaseName}}{% endraw %}). |
 | --usertokens<br>--ut &lt;usertokens&gt; | - | **User Tokens** - Allows grate to perform token replacement on custom tokens ({% raw %}{{my_token}}{% endraw %}). Set as a key=value pair, eg '--ut=my_token=myvalue'. Can be specified multiple times.  ℹ️ NB that while RoundhousE passed multiple tokens as a single parameter, grate **requires** you to pass each user token separately |
 | --donotstorescriptsruntext | false | **DoNotStoreScriptsRunText** - This instructs grate to not store the full script text in the database. |
-| --forceanytimescripts<br>--runallanytimescripts | false | **RunAllAnyTimeScripts** - This instructs grate to run any time scripts every time it is run even if they haven't changed. Defaults to false.
+| --forceanytimescripts<br>--runallanytimescripts | false | **RunAllAnyTimeScripts** - This instructs grate to run any time scripts every time it is run even if they haven't changed. Defaults to false. |
 | --baseline | - | **Baseline** - This instructs grate to mark the scripts as run, but not to actually run anything against the database. Use this option if you already have scripts that have been run through other means (and BEFORE you start the new ones). | 
 | --dryrun | false | **DryRun** - This instructs grate to log what would have run, but not to actually run anything against the database.  Use this option if you are trying to figure out what grate is going to do. |
-| --restore | - | **Restore** - This instructs grate where to find the database backup file (.bak) to restore from. If this option is not specified, no restore will be done.
-| -ni<br>--noninteractive<br>--silent | false | **Silent** - tells grate not to ask for any input when it runs.
+| --restore | - | **Restore** - This instructs grate where to find the database backup file (.bak) to restore from. If this option is not specified, no restore will be done. |
+| -ni<br>--noninteractive<br>--silent | false | **Silent** - tells grate not to ask for any input when it runs. |
 | -r<br>--repo<br>--repositorypath <repositorypath> | - | **Repository Path** - RepositoryPath - The repository. A string that can be anything. Used to track versioning along with the version. Defaults to `null`. |
 | --version <version> | 1.0.0.0 | **Database Version** - specify the version of the current migration directly on the command line. |
 | --isuptodate<br>--uptodatecheck | - | Outputs whether the database is up to date or not (whether any non-everytime scripts would be run) |
-| -v<br>--verbosity &lt;Critical\|<br>Debug\|<br>Error\|<br>Information\|<br>None\|<br>Trace\|Warning&gt; | Information | **Verbosity level** (as defined here: https://docs.microsoft.com/dotnet/api/Microsoft.Extensions.Logging.LogLevel)
+| -v<br>--verbosity &lt;Critical\|<br>Debug\|<br>Error\|<br>Information\|<br>None\|<br>Trace\|Warning&gt; | Information | **Verbosity level** (as defined here: https://docs.microsoft.com/dotnet/api/Microsoft.Extensions.Logging.LogLevel) |
+| --createdatabase<br>--create | true | **Create** - Instructs grate to create the target database if it does not exist. Set to false to emulate the `--donotcreatedatabase` flag in roundhouse. |
 | -?<br>-h<br>--help | - |  Show help and usage information | 
